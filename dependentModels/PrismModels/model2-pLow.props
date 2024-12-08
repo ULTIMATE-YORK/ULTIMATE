@@ -1,0 +1,5 @@
+//pLow: (9998*pDetected^2+(-19997)*pDetected+10000)/(1)
+R{"low"}=? [C<=10000]
+
+//pMed: (-9998 * ((pDetected) * (pDetected+(-1))))/(1)
+R{"medium"}=? [C<=10000]

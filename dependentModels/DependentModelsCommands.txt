@@ -1,0 +1,57 @@
+Check overall requirement 
+    storm-pars --prism model1.prism --prop "P=?[F step=2 & object=2 & detected]" 
+    storm-pars --prism model1.prism --prop "P=? [F step=2 & object=2]"
+
+    storm-pars --prism model1.prism --prop "P=?[F step=2 & object=2 & detected] / P=? [F step=2 & object=2]"
+
+    P=?[F step=2 & object=2 & detected] / P=? [F step=2 & object=2] >= 0.85
+
+    (-1 * (14*pMed+34*pLow+(-49)))/(50)
+    w = (-1 * (14y+34x+(-49)))/(50)
+    w = 0.4206 < 0.85
+    The property is not satisfied
+
+
+Calculate pDetected
+    storm-pars --prism model1.prism --prop "P=?[F step=2 & detected]"
+
+     pDetected = (19*pMed+152*pLow+113)/(2000)
+     z          = (19y +152x + 113)/2000
+
+
+Calculate pLow
+    storm-pars --prism model2.prism --prop 'R{"low"}=? [C<=10000]' / 10000     
+
+    pLow    =  (9998*pDetected^2+(-19997)*pDetected+10000)/(10000)
+    x       = (9998z^2 - 19997z+10000)/10000
+
+
+Calculate pMed
+    storm-pars --prism model2.prism --prop 'R{"medium"}=? [C<=10000]'
+
+    pMed    = (-9998 * ((pDetected) * (pDetected+(-1))))/(10000) 
+    y       = (-9998 (z * (z-1)))/10000
+
+
+
+All together
+x      = (9998z^2 - 19997z+10000)/10000
+y      = (-9998 (z * (z-1)))/10000
+z      = (19y +152x + 113)/2000
+
+
+Solution 
+    https://quickmath.com/webMathematica3/quickmath/equations/solve/advanced.jsp#c=solve_solveequationsadvanced&v1=x%2520%2520%2520%2520%2520%2520%253D%2520%25289998z%255E2%2520-%252019997z%2B10000%2529%2F10000%250Ay%2520%2520%2520%2520%2520%2520%253D%2520%2528-9998%2520%2528z%2520*%2520%2528z-1%2529%2529%2529%2F10000%250Az%2520%2520%2520%2520%2520%2520%253D%2520%252819y%2520%2B152x%2520%2B%2520113%2529%2F2000%250A&v2=x%250Ay%250Az
+    https://www.emathhelp.net/calculators/algebra-2/system-of-equations-solver/?s=x++++++%3D+(9998z^2+-+19997z%2B10000)%2F10000%2C++y++++++%3D+(-9998+(z+*+(z-1)))%2F10000%2C+z++++++%3D+(19y+%2B152x+%2B+113)%2F2000&v=
+
+    x = 0.78012
+    y = 0.10311
+    z = 0.116769
+
+
+Finding w
+    https://quickmath.com/webMathematica3/quickmath/equations/solve/advanced.jsp#c=solve_solveequationsadvanced&v1=x%2520%2520%2520%2520%2520%2520%253D%25200.7801%250Ay%2520%2520%2520%2520%2520%2520%253D%25200.103114%250Az%2520%2520%2520%2520%2520%2520%253D%25200.116769%250Aw%2520%253D%2520%2528-14y-34x%2B49%2529%2F%252850%2529%250A&v2=x%250Ay%250Az%250Aw&v3=1
+    https://www.emathhelp.net/calculators/algebra-2/system-of-equations-solver/?s=x+%3D+0.78012%2C+++++y+%3D+0.10311%2C+++++z+%3D+0.116769%2C++w+%3D+%28-1+*+%2814y%2B34x%2B%28-49%29%29%29%2F%2850%29&v=
+    
+    w = 0.4206
+    The property is not satisfied
