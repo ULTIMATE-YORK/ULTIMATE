@@ -53,6 +53,14 @@ public class Controller {
     @FXML private MenuItem saveItem;
     @FXML private MenuItem saveAsItem;
     @FXML private MenuItem quitItem;
+    // TODO implement handlers for menu items for the 'Verification' menu
+    @FXML private MenuItem addProperty;
+    @FXML private MenuItem loadPropertyList;
+    @FXML private MenuItem savePropertyList;
+    @FXML private MenuItem saveAsPropertyList;
+    @FXML private MenuItem verifyProperty;
+    @FXML private MenuItem deleteProperty;
+    @FXML private MenuItem editProperty;
 
     @FXML private Button addModelButton;
     @FXML private Button upButton;
@@ -87,30 +95,30 @@ public class Controller {
     	setUpListViewCellFactory(eParamList);
     	setUpListViewCellFactory(dParamList);
     	setUpListViewCellFactory(iParamList);
-      setUpListViewCellFactory(uParamList);
-}
+    	setUpListViewCellFactory(uParamList);
+    }
 
-// Helper method to set up list view cell factories for environment, dependency, and internal parameters
-private <T extends Parameter> void setUpListViewCellFactory(ListView<T> listView) {
-    listView.setCellFactory(param -> new ListCell<>() {
-        @Override
-        protected void updateItem(T item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty || item == null) {
-                setGraphic(null);
-                setText(null);
-            } else if (item instanceof EnvironmentParameter || item instanceof DependancyParameter || item instanceof InternalParameter) {
-                setGraphic(createCellLayout(item));
-                setText(null);
-            } else {
-                Label label = new Label(item.getName());
-                label.setStyle(font); // Set the font size to 30px
-                setGraphic(label);
-                setText(null);
-            }
-        }
-    });
-}
+	// Helper method to set up list view cell factories for environment, dependency, and internal parameters
+	private <T extends Parameter> void setUpListViewCellFactory(ListView<T> listView) {
+	    listView.setCellFactory(param -> new ListCell<>() {
+	        @Override
+	        protected void updateItem(T item, boolean empty) {
+	            super.updateItem(item, empty);
+	            if (empty || item == null) {
+	                setGraphic(null);
+	                setText(null);
+	            } else if (item instanceof EnvironmentParameter || item instanceof DependancyParameter || item instanceof InternalParameter) {
+	                setGraphic(createCellLayout(item));
+	                setText(null);
+	            } else {
+	                Label label = new Label(item.getName());
+	                label.setStyle(font); // Set the font size to 30px
+	                setGraphic(label);
+	                setText(null);
+	            }
+	        }
+	    });
+	}
     
     private void setUpButtons() {
         addModelButton.setOnAction(e -> {

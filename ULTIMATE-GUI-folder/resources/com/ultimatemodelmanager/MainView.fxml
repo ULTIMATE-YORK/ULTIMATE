@@ -29,30 +29,48 @@
             <MenuItem fx:id="quitItem" mnemonicParsing="false" text="Quit" />
           </items>
         </Menu>
+        <!-- Verification Menu -->
+        <Menu mnemonicParsing="false" text="Verification">
+          <items>
+            <MenuItem fx:id="addProperty" mnemonicParsing="false" text="Add Property" />
+            <MenuItem fx:id="loadPropertyList" mnemonicParsing="false" text="Load Property List" />
+            <MenuItem fx:id="savePropertyList" mnemonicParsing="false" text="Save Property List" />
+            <MenuItem fx:id="saveAsPropertyList" mnemonicParsing="false" text="Save Property List As" />
+            <MenuItem fx:id="verifyProperty" mnemonicParsing="false" text="Verify Property" />
+            <MenuItem fx:id="deleteProperty" mnemonicParsing="false" text="Delete Property" />
+            <MenuItem fx:id="editProperty" mnemonicParsing="false" text="Edit Property" />
+          </items>
+          </Menu>
       </menus>
     </MenuBar>
 
     <!-- First VBox -->
     <VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="1" VBox.vgrow="SOMETIMES">
-    <GridPane.margin>
-        <Insets top="10" right="10" bottom="10" left="10" />
-    </GridPane.margin>
-      <children>
-        <HBox alignment="CENTER" spacing="10.0">
-          <children>
-            <Button fx:id="addModelButton" mnemonicParsing="false" text="+" />
-            <Button fx:id="upButton" mnemonicParsing="false" text="↑" />
-            <Button fx:id="downButton" mnemonicParsing="false" text="↓" />
-          </children>
-        </HBox>
-
-        <!-- ListView: This should grow vertically -->
-        <VBox VBox.vgrow="SOMETIMES">
-          <children>
-            <ListView fx:id="modelListView" VBox.vgrow="SOMETIMES" />
-          </children>
-        </VBox>
-      </children>
+	   	<GridPane.margin>
+	        <Insets top="10" right="10" bottom="10" left="10" />
+	    </GridPane.margin>
+	    <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
+	      <children>
+	        <HBox alignment="CENTER" spacing="10.0">
+	          <children>
+	            <Button fx:id="addModelButton" mnemonicParsing="false" text="+" />
+	            <Button fx:id="upButton" mnemonicParsing="false" text="↑" />
+	            <Button fx:id="downButton" mnemonicParsing="false" text="↓" />
+	          </children>
+	        </HBox>
+	
+	        <!-- ListView: This should grow vertically -->
+	        <VBox VBox.vgrow="SOMETIMES">
+	          <children>
+	            <ListView fx:id="modelListView" VBox.vgrow="SOMETIMES" />
+	          </children>
+	        </VBox>
+	      </children>
+	    </VBox>
+	    
+	    <VBox spacing="10.0" VBox.vgrow="SOMETIMES">
+	    	<ListView fx:id="propertyListView" VBox.vgrow="SOMETIMES" />
+	    </VBox>
     </VBox>
 
     <!-- Second VBox -->
