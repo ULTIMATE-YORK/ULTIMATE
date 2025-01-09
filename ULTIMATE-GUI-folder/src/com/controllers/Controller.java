@@ -557,9 +557,7 @@ public class Controller {
 // TODO task list
 /**
  * Highlight models green/red depending on whether all parameters defined
- * Implement adding parameters from drop-down list of undefined parameters
  * Hide/showing undefined parameters section when empty/non-empty
  * Ensure window cannot be made too small to obscure the GUI
- * Do not allow adding of undefined when list empty (remove "+" buttons?)
  * prevent interaction with main window when dialog open
  */

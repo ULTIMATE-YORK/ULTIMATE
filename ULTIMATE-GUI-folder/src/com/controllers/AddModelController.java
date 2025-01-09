@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.parameters.Model;
 import com.parameters.UndefinedParameter;
+import com.ultimate.modelmanager.utils.FileUtils;
 import com.ultimate.modelmanager.utils.PrismFileParser;
 
 /**
@@ -66,14 +67,8 @@ public class AddModelController {
      * Once a file is selected, it updates the file path and model ID fields accordingly.
      */
     private void openFileDialog() {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Select Model File");
-        // List of valid file types
         String[] validFileTypes = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism"};
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Prism Files", validFileTypes));
-
-        // Show file chooser dialog and capture the selected file
-        File selectedFile = fileChooser.showOpenDialog(mainStage);
+        File selectedFile = FileUtils.openFileDialog(mainStage, "Select Model File", "Prism Files", validFileTypes);
         if (selectedFile != null) {
             // Update the text fields with the selected file's path and inferred model ID
             filePathField.setText(selectedFile.getAbsolutePath());
@@ -109,16 +104,12 @@ public class AddModelController {
 
             if (undefinedParams != null) {
                 // For each undefined parameter, create an UndefinedParameter object
-                for (String param : undefinedParams) {
-                    String[] parts = param.split("\\s+");
-                    if (parts.length == 3) {
-                        String paramName = parts[2];
-                        UndefinedParameter up = new UndefinedParameter(paramName);
-                        newModel.addUndefinedParameter(up.getName());
+                for (String param : undefinedParams) {;
+                        newModel.addUndefinedParameter(param);
                     }
                 }
             }
-        } catch (IOException e) {
+         catch (IOException e) {
             e.printStackTrace(); // Log parsing errors for debugging purposes
         }
 
