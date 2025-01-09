@@ -33,7 +33,7 @@ public class Main extends Application {
         mainStage.setTitle("Ultimate Model Manager"); // You can change the title
         mainStage.show();
 	}
-
+	
 	public static void main(String[] args) {
         launch(args);
 	}
