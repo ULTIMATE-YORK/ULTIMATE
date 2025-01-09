@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="400" prefHeight="300">
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10"/>
+	</padding>
+	
+	<Label text="Choose from list of undefined paramters"/>
+	<ChoiceBox fx:id="undefinedParameters"/>
+	
+	<Label text="Environment Parameter Name" />
+	<TextField fx:id="nameField" />
+	
+	<Button fx:id="saveButton" text="save" />
+	<Button fx:id="cancelButton" text="cancel" />
+</VBox>

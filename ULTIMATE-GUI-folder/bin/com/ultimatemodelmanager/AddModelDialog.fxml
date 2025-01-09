@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="400" prefHeight="300">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Model ID:"/>
+    <TextField fx:id="idField" promptText="Model ID"/>
+
+    <Label text="File Path:"/>
+    <TextField fx:id="filePathField" promptText="File Path"/>
+
+    <Button fx:id="addModelSaveButton" text="Save"/>
+</VBox>
