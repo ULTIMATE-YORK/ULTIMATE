@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<Tab text="Model Manager" fx:id="tab1" xmlns:fx="http://javafx.com/fxml">
+	
+	<!-- This GridPane has is a 2x2 with row one fixed (containing the menu) and row 2 dynamic. Two columns contain all the children -->
+	<GridPane hgap="10" vgap="10">
+	  <columnConstraints>
+	    <ColumnConstraints hgrow="ALWAYS" />
+	    <ColumnConstraints hgrow="ALWAYS" />
+	    <ColumnConstraints hgrow="ALWAYS" />
+	  </columnConstraints>
+	  
+	  <!-- Row Constraints: First row is fixed height, second row will grow to fill available space -->
+	  <rowConstraints>
+	    <RowConstraints vgrow="ALWAYS" />
+	  </rowConstraints>
+
+		<!-- First VBox containing model list and -->
+		<VBox spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0" VBox.vgrow="ALWAYS">
+			
+			<GridPane.margin>
+				<Insets top="10" right="10" bottom="10" left="10" />
+			</GridPane.margin>			
+			
+			<!-- ListView: This should grow vertically -->
+			<fx:include source="/widgets/model_list.fxml" />
+			<fx:include source="/widgets/properties_list.fxml" />		
+		
+		</VBox>
+		
+		<fx:include source="/widgets/parameter_lists.fxml" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.columnSpan="2" />
+	    <!-- Second VBox containing model details and parameter lists -->
+	</GridPane>
+	
+</Tab>
