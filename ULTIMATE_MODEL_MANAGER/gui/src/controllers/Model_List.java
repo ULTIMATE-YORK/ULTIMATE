@@ -18,6 +18,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Model_List {
@@ -28,6 +31,7 @@ public class Model_List {
 	@FXML private Button addModelButton;
 	@FXML private Button upButton;
 	@FXML private Button downButton;
+	@FXML private VBox modelListVBox;
 	
 	private ObservableList<Model> models; // The list of models of the session
 	private Stage mainStage; // The main stage of the application (for dialogs)
@@ -43,6 +47,17 @@ public class Model_List {
 	}
 	
     private void setUpModelListView() {
+    	// find the grispane
+        modelListVBox.sceneProperty().addListener((observable, oldScene, newScene) -> {
+            if (newScene != null) { // Ensure the VBox is part of a scene
+                Region grandParent = (Region) modelListVBox.getParent(); // Access the parent container
+                Region gGrandParent = (Region) grandParent.getParent();
+                if (gGrandParent != null) {
+                    // Bind the width to 1/3 of the grandparent's width
+                    grandParent.prefWidthProperty().bind(gGrandParent.widthProperty().multiply(1.0 / 3.0));
+                }
+            }
+        });
     	// Behaviour and bindings for model list
     	modelListView.setItems(models);
     	modelListView.setCellFactory(param -> new ListCell<>() {

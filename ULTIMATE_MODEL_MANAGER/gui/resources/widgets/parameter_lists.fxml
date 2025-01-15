@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" hgap="10" vgap="10" fx:controller="controllers.Parameters" >
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:id="parameterGridPane" hgap="10" vgap="10" fx:controller="controllers.Parameters" >
 
 	  <columnConstraints>
 	    <ColumnConstraints hgrow="ALWAYS" />

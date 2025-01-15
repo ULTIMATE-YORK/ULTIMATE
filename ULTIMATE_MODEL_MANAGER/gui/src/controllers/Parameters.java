@@ -12,8 +12,12 @@ import persistent_objects.Parameter;
 
 import java.io.File;
 
+import javafx.animation.Timeline;
+import javafx.animation.KeyFrame;
+
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,11 +30,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Parameters {
 	
@@ -46,6 +53,7 @@ public class Parameters {
     // VBox to control displaying of undefined parameters
     @FXML private VBox undefinedParametersVBox;
     @FXML private VBox parameterDialogs;
+    @FXML private GridPane parameterGridPane;
     
     // for pop-ups
     @FXML private ChoiceBox<UndefinedParameter> undefinedParameters; // common for all parameters
@@ -73,17 +81,36 @@ public class Parameters {
         setUpBindings();
     }
     
-	private void setUpBindings() {
-		undefinedParametersVBox.visibleProperty().bind(Bindings.isNotEmpty(uParamList.getItems()));
-		undefinedParametersVBox.managedProperty().bind(undefinedParametersVBox.visibleProperty());
-        undefinedParametersVBox.visibleProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue) {
-                Animations.fadeInVBox(undefinedParametersVBox);
-            } else {
-                Animations.fadeOutAndSlideVBox(undefinedParametersVBox, parameterDialogs);
+    private void setUpBindings() {
+        // Bind the grid pane to its parent
+        parameterGridPane.parentProperty().addListener((observable, oldParent, newParent) -> {
+            if (newParent instanceof Region parentRegion) {
+                parameterGridPane.prefWidthProperty().bind(parentRegion.widthProperty().multiply(2.0 / 3.0));
             }
         });
-	}
+        // Manually manage visibility with animation
+        uParamList.getItems().addListener((ListChangeListener<? super UndefinedParameter>) change -> {
+            if (!uParamList.getItems().isEmpty()) {
+                // Animate VBox expansion when there are items
+                undefinedParametersVBox.setVisible(true); // Ensure it's visible for animation
+                Animations.animateVBoxExpansion(undefinedParametersVBox, parameterDialogs, 50.0, 50.0);
+            } else {
+                // Animate VBox shrinking and hide after animation
+                Animations.animateVBoxExpansion(parameterDialogs, undefinedParametersVBox, 100.0, 0.0);
+
+                // Delay hiding and unmanaging until after the animation completes
+                Timeline timeline = new Timeline(
+                    new KeyFrame(Duration.millis(500), event -> {
+                        undefinedParametersVBox.setVisible(false);
+                    })
+                );
+                timeline.play();
+            }
+        });
+
+        // Ensure managed property is always in sync with visibility
+        undefinedParametersVBox.managedProperty().bind(undefinedParametersVBox.visibleProperty());
+    }
     
 	private void setUpParamLists() {
 		// Behaviour and bindings for parameter lists

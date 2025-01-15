@@ -1,36 +1,42 @@
 package utils;
 
-import javafx.animation.FadeTransition;
-import javafx.animation.ParallelTransition;
-import javafx.animation.TranslateTransition;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class Animations {
 	
+    public static void animateVBoxExpansion(VBox expandingVBox, VBox shrinkingVBox, double expandingWidthPercent, double shrinkingWidthPercent) {
+        // Define the target width for both VBox components
+        double totalWidth = expandingVBox.getParent().getLayoutBounds().getWidth(); // GridPane's total width
+        double targetWidth1 = (expandingWidthPercent / 100) * totalWidth;
+        double targetWidth2 = (shrinkingWidthPercent / 100) * totalWidth;
 
-    public static void fadeInVBox(VBox vbox) {
-        FadeTransition fadeIn = new FadeTransition(Duration.millis(500), vbox);
-        fadeIn.setFromValue(0);
-        fadeIn.setToValue(1);
-        fadeIn.play();
-    }
-    
-    // FIXME animations are not working as expected
-    public static void fadeOutAndSlideVBox(VBox disappearingVBox, VBox expandingVBox) {
-        // Fade out the disappearing VBox
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(500), disappearingVBox);
-        fadeOut.setFromValue(1);
-        fadeOut.setToValue(0);
+        Timeline timeline = new Timeline(
+        	    new KeyFrame(Duration.ZERO,
+        	        new KeyValue(expandingVBox.prefWidthProperty(), expandingVBox.getWidth()),
+        	        new KeyValue(shrinkingVBox.prefWidthProperty(), shrinkingVBox.getWidth())
+        	    ),
+        	    new KeyFrame(Duration.millis(500),
+        	        new KeyValue(expandingVBox.prefWidthProperty(), targetWidth1),
+        	        new KeyValue(shrinkingVBox.prefWidthProperty(), targetWidth2)
+        	    )
+        	);
 
-        // Slide the expanding VBox into the space
-        TranslateTransition slideIn = new TranslateTransition(Duration.millis(500), expandingVBox);
-        slideIn.setFromX(expandingVBox.getWidth());
-        slideIn.setToX(0);
+        timeline.setOnFinished(event -> {
+            // After animation, ensure shrinkingVBox is invisible and not managed if needed
+            // After animation, adjust visibility
+            if (shrinkingWidthPercent == 0) {
+                shrinkingVBox.setVisible(false);
+            }
+            if (expandingWidthPercent > 0) {
+                expandingVBox.setVisible(true);
+            }
+        });
 
-        // Play animations in parallel
-        ParallelTransition parallelTransition = new ParallelTransition(fadeOut, slideIn);
-        parallelTransition.play();
+        timeline.play();
     }
 
 }
