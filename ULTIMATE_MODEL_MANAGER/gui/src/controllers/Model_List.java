@@ -18,36 +18,52 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
+/**
+ * Controller for managing the model list in the application.
+ * This class handles the display, addition, and deletion of models in the session.
+ * It also facilitates navigation and selection updates for models.
+ */
 public class Model_List {
-	
-	private String font = "-fx-font-size: 30px;";
-	
-	@FXML private ListView<Model> modelListView;
-	@FXML private Button addModelButton;
-	@FXML private Button upButton;
-	@FXML private Button downButton;
-	@FXML private VBox modelListVBox;
-	
-	private ObservableList<Model> models; // The list of models of the session
-	private Stage mainStage; // The main stage of the application (for dialogs)
-	
-	@FXML
-	private void initialize() {
-	    // Fetch shared data from the SharedContext
+
+    // Style for labels displayed in the list
+    private String font = "-fx-font-size: 30px;";
+
+    // FXML-linked fields for UI components
+    @FXML private ListView<Model> modelListView; // List view to display models
+    @FXML private Button addModelButton; // Button to add a new model
+    @FXML private Button upButton; // Button to move the selection up
+    @FXML private Button downButton; // Button to move the selection down
+    @FXML private VBox modelListVBox; // Container for the model list view
+
+    // Observable list to hold models in the current session
+    private ObservableList<Model> models;
+    // Reference to the main stage of the application
+    private Stage mainStage;
+
+    /**
+     * Initializes the controller. This method is called automatically after the FXML file is loaded.
+     * Fetches shared data (models and stage) and sets up the list view.
+     */
+    @FXML
+    private void initialize() {
+        // Fetch shared data from the singleton SharedData instance
         SharedData context = SharedData.getInstance();
-        models = context.getModels();
-        mainStage = context.getMainStage();
-		
+        models = context.getModels(); // Load the session's list of models
+        mainStage = context.getMainStage(); // Load the primary stage of the application
+
+        // Set up behavior and appearance of the model list view
         setUpModelListView();
-	}
-	
+    }
+
+    /**
+     * Configures the model list view, including its layout, behavior, and event handling.
+     */
     private void setUpModelListView() {
-    	// find the grispane
+        // Dynamically adjust the width of the VBox based on the parent container
         modelListVBox.sceneProperty().addListener((observable, oldScene, newScene) -> {
             if (newScene != null) { // Ensure the VBox is part of a scene
                 Region grandParent = (Region) modelListVBox.getParent(); // Access the parent container
@@ -58,96 +74,107 @@ public class Model_List {
                 }
             }
         });
-    	// Behaviour and bindings for model list
-    	modelListView.setItems(models);
-    	modelListView.setCellFactory(param -> new ListCell<>() {
-    	    @Override
-    	    protected void updateItem(Model item, boolean empty) {
-    	        super.updateItem(item, empty);
-    	        if (empty || item == null) {
-    	            setGraphic(null);
-    	            setText(null);
-    	        } else {
-    	            Label label = new Label(item.getModelId());
-    	            label.setStyle(font); // Set the font size
-    	            setGraphic(label);
-    	            setText(null);
-    	        }
-    	    }
-    	});
-    	
-        // Add a listener to handle selection changes to model list and updates shared data
-        modelListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-            	SharedData context = SharedData.getInstance(); // Call method with the newly selected model
-            	context.setCurrentModel(newValue);
-            	context.getParametersController().updateParameterDetails(newValue);
+
+        // Bind the model list to the observable list of models
+        modelListView.setItems(models);
+
+        // Customize the appearance of each item in the list view
+        modelListView.setCellFactory(param -> new ListCell<>() {
+            @Override
+            protected void updateItem(Model item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                    setText(null);
+                } else {
+                    Label label = new Label(item.getModelId()); // Display the model ID
+                    label.setStyle(font); // Apply font styling
+                    setGraphic(label); // Set the label as the cell's graphic
+                    setText(null); // Clear any text (not needed with graphic)
+                }
             }
         });
-        
-        // Add a key event handler to handle the delete key press
-        // FIXME When the last model is deleted, the undefined parameters are still visible
+
+        // Add a listener for selection changes in the list view
+        modelListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Update the current model in the shared context
+                SharedData context = SharedData.getInstance();
+                context.setCurrentModel(newValue);
+                context.getParametersController().updateParameterDetails(newValue); // The Parameter controller needs to be accessed so it can update the contents of its own list
+            }
+        });
+
+        // Add a key event handler to allow deletion of models using the Backspace key
         modelListView.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.BACK_SPACE) {
                 Model selectedModel = modelListView.getSelectionModel().getSelectedItem();
                 if (selectedModel != null) {
-                    models.remove(selectedModel);
+                    models.remove(selectedModel); // Remove the selected model
                 }
             }
         });
     }
-    
-    @FXML
-	private void handleAddModel() {
-		// Open the dialog to add a new model
-		String[] validFileTypes = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism"};
-		File selectedFile = FileUtils.openFileDialog(mainStage, "Select Model File", "Prism Files", validFileTypes);
-		if (selectedFile != null) {
-			// create Model instance
-			String id = selectedFile.getName().replaceFirst("[.][^.]+$", ""); // the id of the model
-			String filePath = selectedFile.getAbsolutePath();
-			Model model = new Model(id, filePath);
-			models.add(model);
-	        
-			// Parse the file for undefined parameters using PrismFileParser
-	        PrismFileParser parser = new PrismFileParser();
-	        try {
-	            List<String> undefinedParams = parser.parseFile(filePath);
 
-	            if (undefinedParams != null) {
-	                // For each undefined parameter, create an UndefinedParameter object
-	                for (String param : undefinedParams) {;
-	                        model.addUndefinedParameter(param);
-	                    }
-	                }
-	            }
-	         catch (IOException e) {
-	             e.printStackTrace(); // Log parsing errors for debugging purposes
-	         }	
-		}
-		
-		else {
-			Alerter.showAlert("Invalid file selected", "Please select a valid model file");
-		}
-	}
-	
+    /**
+     * Handles the addition of a new model to the list.
+     * Opens a file dialog for selecting a model file and parses the file for undefined parameters.
+     */
     @FXML
-	private void handleUp() {
-        // Handle the "Up" button action
+    private void handleAddModel() {
+        // Supported file types for model files
+        String[] validFileTypes = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism"};
+        // Open a file dialog for selecting a model file
+        File selectedFile = FileUtils.openFileDialog(mainStage, "Select Model File", "Prism Files", validFileTypes);
+        if (selectedFile != null) {
+            // Create a new Model instance with the file details
+            String id = selectedFile.getName().replaceFirst("[.][^.]+$", ""); // Extract the file name without extension
+            String filePath = selectedFile.getAbsolutePath();
+            Model model = new Model(id, filePath);
+            models.add(model); // Add the model to the list
+
+            // Parse the file for undefined parameters using PrismFileParser
+            PrismFileParser parser = new PrismFileParser();
+            try {
+                List<String> undefinedParams = parser.parseFile(filePath);
+
+                if (undefinedParams != null) {
+                    // Add each undefined parameter to the model
+                    for (String param : undefinedParams) {
+                        model.addUndefinedParameter(param);
+                    }
+                }
+            } catch (IOException e) {
+                // Log any errors during file parsing
+                e.printStackTrace();
+            }
+        } else {
+            // Show an alert if the selected file is invalid
+            Alerter.showAlert("Invalid file selected", "Please select a valid model file");
+        }
+    }
+
+    /**
+     * Handles the "Up" button action. Moves the selection in the list view up by one item.
+     */
+    @FXML
+    private void handleUp() {
         int selectedIndex = modelListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex > 0) {
             // Select the item just above the current one
             modelListView.getSelectionModel().select(selectedIndex - 1);
         }
-	}
-	
+    }
+
+    /**
+     * Handles the "Down" button action. Moves the selection in the list view down by one item.
+     */
     @FXML
-	private void handleDown() {
-        // Handle the "Down" button action
+    private void handleDown() {
         int selectedIndex = modelListView.getSelectionModel().getSelectedIndex();
         if (selectedIndex < models.size() - 1) {
             // Select the item just below the current one
             modelListView.getSelectionModel().select(selectedIndex + 1);
         }
-	}
+    }
 }
