@@ -15,7 +15,6 @@ import java.io.File;
 import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 
-import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -110,6 +109,10 @@ public class Parameters {
 
         // Ensure managed property is always in sync with visibility
         undefinedParametersVBox.managedProperty().bind(undefinedParametersVBox.visibleProperty());
+        // bind the buttons visibility to whether the undefinedParametersVBox is managed
+        addEnvironmentParamButton.visibleProperty().bind(undefinedParametersVBox.managedProperty());
+        addDependencyParamButton.visibleProperty().bind(undefinedParametersVBox.managedProperty());
+        addInternalParamButton.visibleProperty().bind(undefinedParametersVBox.managedProperty());
     }
     
 	private void setUpParamLists() {
