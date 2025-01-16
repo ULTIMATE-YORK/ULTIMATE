@@ -19,8 +19,11 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '22'
           distribution: 'temurin'
+      
+      - name: Verify Java Version
+        run: java -version
 
       - name: Build with Maven
         working-directory: ULTIMATE_MODEL_MANAGER
