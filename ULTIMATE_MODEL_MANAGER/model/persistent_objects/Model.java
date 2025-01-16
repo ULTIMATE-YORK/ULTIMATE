@@ -17,6 +17,7 @@ public class Model {
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
     private List<UndefinedParameter> undefinedParameters; // List of undefined parameters
+    private List<Property> properties;
 
     /**
      * Constructor to initialize a new Model object.
@@ -31,6 +32,8 @@ public class Model {
         this.environmentParameters = new ArrayList<>();
         this.internalParameters = new ArrayList<>();
         this.undefinedParameters = new ArrayList<>();
+        this.properties = new ArrayList<>();
+
     }
 
     // Methods to add various types of parameters to the model
@@ -220,5 +223,13 @@ public class Model {
     		int index = environmentParameters.indexOf(oldParam);
             environmentParameters.set(index, (EnvironmentParameter) newParam);
     	}
+    }
+    
+    public void addProperty(Property prop) {
+    	this.properties.add(prop);
+    }
+    
+    public List<Property> getProperties() {
+    	return this.properties;
     }
 }

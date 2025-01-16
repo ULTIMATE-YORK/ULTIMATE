@@ -17,6 +17,7 @@ import persistent_objects.SharedData;
 public class ModelUtils {
 	
 	// TODO refactor this awful method!!
+	// TODO Need to save properties
 	public static void saveModelsToFile(List<Model> models, String filePath) {
         JSONObject root = new JSONObject();
         JSONObject modelsObject = new JSONObject();

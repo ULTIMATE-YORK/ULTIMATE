@@ -7,6 +7,7 @@ import persistent_objects.Model;
 import persistent_objects.SharedData;
 import persistent_objects.UndefinedParameter;
 import utils.Animations;
+import utils.DialogLoader;
 import utils.ModelUtils;
 import persistent_objects.Parameter;
 
@@ -31,7 +32,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
@@ -69,11 +69,13 @@ public class Parameters {
 	
 	private String font = "-fx-font-size: 30px;";
 	private String font2 = "-fx-font-size: 20px;";
+	
+	private SharedData context;
     
     @FXML
     private void initialize() {
 	    // Fetch shared data from the SharedContext
-        SharedData context = SharedData.getInstance();
+        context = SharedData.getInstance();
         context.setParametersController(this);
         // set up items and bindings
         setUpParamLists();
@@ -86,10 +88,10 @@ public class Parameters {
             if (!uParamList.getItems().isEmpty()) {
                 // Animate VBox expansion when there are items
                 undefinedParametersVBox.setVisible(true); // Ensure it's visible for animation
-                Animations.animateVBoxExpansion(undefinedParametersVBox, parameterDialogs, 50.0, 50.0);
+                Animations.animateVBoxExpansion(undefinedParametersVBox, parameterDialogs, 50.0, 50.0, "horizontal");
             } else {
                 // Animate VBox shrinking and hide after animation
-                Animations.animateVBoxExpansion(parameterDialogs, undefinedParametersVBox, 100.0, 0.0);
+                Animations.animateVBoxExpansion(parameterDialogs, undefinedParametersVBox, 100.0, 0.0, "horizontal");
 
                 // Delay hiding and unmanaging until after the animation completes
                 Timeline timeline = new Timeline(
@@ -134,7 +136,7 @@ public class Parameters {
     }
     
     // This method is called from Model_List.java when the selected model is changed
-	public void updateParameterDetails(Model currentModel) {
+	public void update(Model currentModel) {
 		modelDetails.setText("Model ID: " + currentModel.getModelId() + "\nFile Path: " + currentModel.getFilePath());
         
 		// Update the environment parameters list
@@ -162,20 +164,7 @@ public class Parameters {
 	
 	private void loadAddParamDialog(String type) {
 		try {
-			// Load the dialog for adding an environment parameter
-	        // Load the pop-up dialog FXML
-	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/dialogs/add_"+type+"_param.fxml"));     
-	        // Use the same controller instance
-	        loader.setController(this);
-	        // Load the layout
-	        Parent dialogRoot = loader.load();
-            // Set up the dialog stage
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.APPLICATION_MODAL); // Modal dialog
-            // TODO make this title specific to the type
-            dialogStage.setTitle("Add " + type + " Parameter");
-            dialogStage.setScene(new Scene(dialogRoot));
-    		
+			DialogLoader.load("/dialogs/add_"+type+"_param.fxml", "Add " + type + " Parameter", this);
             switch (type) {
 			case "Environment":
 				// Set up the dialog for adding an environment parameter
@@ -190,8 +179,6 @@ public class Parameters {
             	break;
             }
 
-   		 	// Show the dialog
-            dialogStage.showAndWait();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -200,20 +187,7 @@ public class Parameters {
 	
 	private void loadEditParamDialog(String type, Parameter param) {
 		try {
-			// Load the dialog for adding an environment parameter
-	        // Load the pop-up dialog FXML
-	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/dialogs/edit_"+type+"_param.fxml"));     
-	        // Use the same controller instance
-	        loader.setController(this);
-	        // Load the layout
-	        Parent dialogRoot = loader.load();
-            // Set up the dialog stage
-            Stage dialogStage = new Stage();
-            dialogStage.initModality(Modality.APPLICATION_MODAL); // Modal dialog
-            // TODO make this title specific to the type
-            dialogStage.setTitle("Edit " + type + " Parameter");
-            dialogStage.setScene(new Scene(dialogRoot));
-    		
+			DialogLoader.load("/dialogs/edit_"+type+"_param.fxml", "Edit " + type + " Parameter", this);
             switch (type) {
 			case "Environment":
 				// Set up the dialog for adding an environment parameter
@@ -228,8 +202,6 @@ public class Parameters {
             	break;
             }
 
-   		 	// Show the dialog
-            dialogStage.showAndWait();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -326,7 +298,6 @@ public class Parameters {
         
     private void initEParamDialog() {
     	// load the values of undefinedParameters into the choice box
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	// Populate the ChoiceBox after the FXML is loaded
 	 	ObservableList<UndefinedParameter> observableItems = FXCollections.observableArrayList(currentModel.getUndefinedParameters());
@@ -338,7 +309,6 @@ public class Parameters {
     
     private void initDParamDialog() {
     	// load the values of undefinedParameters into the choice box
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	// Populate the ChoiceBox after the FXML is loaded
 	 	ObservableList<UndefinedParameter> observableItems = FXCollections.observableArrayList(currentModel.getUndefinedParameters());
@@ -351,7 +321,6 @@ public class Parameters {
     }
     
     private void initIParamDialog() {
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	ObservableList<UndefinedParameter> observableItems = FXCollections.observableArrayList(currentModel.getUndefinedParameters());
 	 	undefinedParameters.setItems(observableItems); // Set the list as items for the ChoiceBox
@@ -360,7 +329,6 @@ public class Parameters {
     
     @FXML
     private void saveEParam() {
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	String id = nameField.getText();
 	 	String dataFilePath = dataFile.getText();
@@ -368,13 +336,12 @@ public class Parameters {
 	 	EnvironmentParameter eParam = new EnvironmentParameter(id, dataFilePath, calculation);
 	 	currentModel.addEnvironmentParameter(eParam);
 	 	currentModel.removeUndefinedParamter(undefinedParameters.getValue());
-	 	updateParameterDetails(currentModel);
+	 	update(currentModel);
 	 	closeDialog();
     }
         
     @FXML
     private void saveDParam() {
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	String name = nameField.getText();
 	 	String modelID = chooseModelID.getValue();
@@ -382,18 +349,17 @@ public class Parameters {
 	 	DependencyParameter dParam = new DependencyParameter(name, modelID, def);
 	 	currentModel.addDependencyParameter(dParam);
 	 	currentModel.removeUndefinedParamter(undefinedParameters.getValue());
-	 	updateParameterDetails(currentModel);
+	 	update(currentModel);
 	 	closeDialog();
     }
     
     @FXML
     private void saveIParam() {
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 	 	String id = nameField.getText();
 	 	currentModel.addInternalParameter(new InternalParameter(id));
 	 	currentModel.removeUndefinedParamter(undefinedParameters.getValue());
-	 	updateParameterDetails(currentModel);
+	 	update(currentModel);
 	 	closeDialog();
     }
     
@@ -433,7 +399,7 @@ public class Parameters {
 	 	eparam.setName(id);
 	 	eparam.setFilePath(dataFilePath);
 	 	eparam.setCalculation(calculation);
-	 	updateParameterDetails(SharedData.getInstance().getCurrentModel());
+	 	update(context.getCurrentModel());
 	 	closeDialog();
 	}
 	
@@ -444,19 +410,18 @@ public class Parameters {
 		dparam.setName(name);
 		dparam.setModelID(modelID);
 		dparam.setDefinition(def);
-		updateParameterDetails(SharedData.getInstance().getCurrentModel());
+		update(context.getCurrentModel());
 		closeDialog();
 	}
     
 	private void saveEditIParam(InternalParameter iparam) {
 		String id = nameField.getText();
 		iparam.setName(id);
-		updateParameterDetails(SharedData.getInstance().getCurrentModel());
+		update(context.getCurrentModel());
 		closeDialog();
 	}
 	
     private void handleRemoveItem(Parameter item) {
-	 	SharedData context = SharedData.getInstance();
 	 	Model currentModel = context.getCurrentModel();
 		String name = item.getName();
     	if (item instanceof EnvironmentParameter) {
@@ -470,7 +435,7 @@ public class Parameters {
 			currentModel.removeInternalParameter((InternalParameter) item);
 			currentModel.addUndefinedParameter(name);
 		}
-    	updateParameterDetails(currentModel);
+    	update(currentModel);
     }
     
     private void handleEditItem(Parameter item) {

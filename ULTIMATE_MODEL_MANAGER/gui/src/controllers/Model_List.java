@@ -18,7 +18,6 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -37,12 +36,14 @@ public class Model_List {
     @FXML private Button addModelButton; // Button to add a new model
     @FXML private Button upButton; // Button to move the selection up
     @FXML private Button downButton; // Button to move the selection down
-    @FXML private VBox modelListVBox; // Container for the model list view
+    @FXML public VBox modelListVBox; // Container for the model list view
 
     // Observable list to hold models in the current session
     private ObservableList<Model> models;
     // Reference to the main stage of the application
     private Stage mainStage;
+    
+    private SharedData context;
 
     /**
      * Initializes the controller. This method is called automatically after the FXML file is loaded.
@@ -51,7 +52,8 @@ public class Model_List {
     @FXML
     private void initialize() {
         // Fetch shared data from the singleton SharedData instance
-        SharedData context = SharedData.getInstance();
+        context = SharedData.getInstance();
+        context.setModelController(this);
         models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
 
@@ -89,9 +91,9 @@ public class Model_List {
         modelListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Update the current model in the shared context
-                SharedData context = SharedData.getInstance();
                 context.setCurrentModel(newValue);
-                context.getParametersController().updateParameterDetails(newValue); // The Parameter controller needs to be accessed so it can update the contents of its own list
+                context.getParametersController().update(newValue); // The Parameter controller needs to be accessed so it can update the contents of its own list
+                context.getPropertiesController().update(newValue);
             }
         });
 

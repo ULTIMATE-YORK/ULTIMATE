@@ -8,6 +8,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.Alerter; // Utility for showing alerts to the user
+import utils.DialogLoader;
 import utils.FileUtils; // Utility for file-related operations
 import utils.ModelUtils; // Utility for handling model-related operations
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
@@ -44,6 +45,8 @@ public class Menu_Bar {
     private ObservableList<Model> models;
     // The primary stage of the application, used for displaying dialogs
     private Stage mainStage;
+    
+    private SharedData context;
 
     /**
      * Initializes the controller. Called automatically after the FXML file is loaded.
@@ -52,7 +55,7 @@ public class Menu_Bar {
     @FXML
 	private void initialize() {
         // Obtain shared data from the singleton SharedData instance
-        SharedData context = SharedData.getInstance();
+        context = SharedData.getInstance();
         models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
 	}
@@ -132,8 +135,15 @@ public class Menu_Bar {
 
 	// TODO implement the menu item handlers for the 'Verification' menu
 	@FXML
-	private void handleAddProperty() {
-
+	private void handleAddProperty() throws IOException {
+		Model model = context.getCurrentModel();
+		if (model == null) {
+			Alerter.showAlert("Error", "Please select a model from the list to add a property!");
+			return;
+		}
+		else {
+			DialogLoader.load("/dialogs/add_property.fxml", "Add Property", context.getPropertiesController());
+		}
 	}
 
 	@FXML
