@@ -28,7 +28,11 @@ jobs:
       - name: Build with Maven
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn clean install
-
+      
+      - name: Debug Test Directory
+        working-directory: ULTIMATE_MODEL_MANAGER
+        run: find tests/Tests -name "*.java"
+      
       - name: Run tests
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn test
