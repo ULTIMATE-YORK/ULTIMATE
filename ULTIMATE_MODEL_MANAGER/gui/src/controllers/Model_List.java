@@ -64,17 +64,6 @@ public class Model_List {
      */
     private void setUpModelListView() {
         // Dynamically adjust the width of the VBox based on the parent container
-    	// TODO pull this out into a layout controller class (for tab1)
-        modelListVBox.sceneProperty().addListener((observable, oldScene, newScene) -> {
-            if (newScene != null) { // Ensure the VBox is part of a scene
-                Region grandParent = (Region) modelListVBox.getParent(); // Access the parent container
-                Region gGrandParent = (Region) grandParent.getParent();
-                if (gGrandParent != null) {
-                    // Bind the width to 1/3 of the grandparent's width
-                    grandParent.prefWidthProperty().bind(gGrandParent.widthProperty().multiply(1.0 / 3.0));
-                }
-            }
-        });
 
         // Bind the model list to the observable list of models
         modelListView.setItems(models);

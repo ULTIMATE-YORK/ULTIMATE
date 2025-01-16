@@ -81,12 +81,6 @@ public class Parameters {
     }
     
     private void setUpBindings() {
-        // Bind the grid pane to its parent
-        parameterGridPane.parentProperty().addListener((observable, oldParent, newParent) -> {
-            if (newParent instanceof Region parentRegion) {
-                parameterGridPane.prefWidthProperty().bind(parentRegion.widthProperty().multiply(2.0 / 3.0));
-            }
-        });
         // Manually manage visibility with animation
         uParamList.getItems().addListener((ListChangeListener<? super UndefinedParameter>) change -> {
             if (!uParamList.getItems().isEmpty()) {
