@@ -52,7 +52,7 @@
 
 <build>
   <sourceDirectory>gui/src</sourceDirectory>
-  <testSourceDirectory>tests</testSourceDirectory>
+  <testSourceDirectory>tests/Tests</testSourceDirectory>
   <resources>
     <resource>
       <directory>gui/resources</directory>
