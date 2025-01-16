@@ -1,0 +1,72 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>ULTIMATE_MODEL_MANAGER</groupId>
+  <artifactId>graph_generator</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <dependencies>
+    <!-- JavaFX -->
+<!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
+<dependency>
+    <groupId>org.openjfx</groupId>
+    <artifactId>javafx</artifactId>
+    <version>11</version>
+    <type>pom</type>
+</dependency>
+
+    <!-- JSON -->
+    <dependency>
+      <groupId>org.json</groupId>
+      <artifactId>json</artifactId>
+      <version>20230618</version>
+    </dependency>
+    
+    <dependency>
+    <groupId>org.jgrapht</groupId>
+    <artifactId>jgrapht-core</artifactId>
+    <version>1.5.1</version>
+</dependency>
+
+</dependencies>
+
+<build>
+  <sourceDirectory>gui/src</sourceDirectory>
+  <resources>
+    <resource>
+      <directory>gui/resources</directory>
+      <excludes>
+        <exclude>**/*.java</exclude>
+      </excludes>
+    </resource>
+  </resources>
+  <plugins>
+    <plugin>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>3.8.1</version>
+      <configuration>
+        <release>11</release> <!-- Use your Java version here -->
+      </configuration>
+    </plugin>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>build-helper-maven-plugin</artifactId>
+      <version>3.3.0</version>
+      <executions>
+        <execution>
+          <id>add-source</id>
+          <phase>generate-sources</phase>
+          <goals>
+            <goal>add-source</goal>
+          </goals>
+          <configuration>
+            <sources>
+              <source>verification_engine</source>
+              <source>model</source>
+            </sources>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+</project>
