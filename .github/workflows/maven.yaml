@@ -23,9 +23,9 @@ jobs:
           distribution: 'temurin'
 
       - name: Build with Maven
-        working-directory: UltimateModelManager
+        working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn clean install
 
       - name: Run tests
-        working-directory: UltimateModelManager
+        working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn test
