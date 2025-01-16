@@ -1,18 +1,31 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>ULTIMATE_MODEL_MANAGER</groupId>
-  <artifactId>graph_generator</artifactId>
+  <artifactId>ultimate_model_manager</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  
+  <properties>
+    <javafx.module.path>${java.home}/lib</javafx.module.path>
+</properties>
 
   <dependencies>
-    <!-- JavaFX -->
-<!-- https://mvnrepository.com/artifact/org.openjfx/javafx -->
-<dependency>
-    <groupId>org.openjfx</groupId>
-    <artifactId>javafx</artifactId>
-    <version>11</version>
-    <type>pom</type>
-</dependency>
+    <!-- JavaFX Modules -->
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-controls</artifactId>
+        <version>22</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-fxml</artifactId>
+        <version>22</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-graphics</artifactId>
+        <version>22</version>
+    </dependency>
+
 
     <!-- JSON -->
     <dependency>
@@ -27,10 +40,19 @@
     <version>1.5.1</version>
 </dependency>
 
+    <!-- JUnit 5 API and Engine -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version> <!-- Replace with the latest version -->
+        <scope>test</scope>
+    </dependency>
+
 </dependencies>
 
 <build>
   <sourceDirectory>gui/src</sourceDirectory>
+  <testSourceDirectory>tests</testSourceDirectory>
   <resources>
     <resource>
       <directory>gui/resources</directory>
@@ -44,8 +66,22 @@
       <artifactId>maven-compiler-plugin</artifactId>
       <version>3.8.1</version>
       <configuration>
-        <release>11</release> <!-- Use your Java version here -->
+        <release>22</release>
       </configuration>
+    </plugin>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.1.0</version>
+    <configuration>
+        <mainClass>main.Main</mainClass>
+        <arguments>
+            <argument>--module-path</argument>
+            <argument>${javafx.module.path}</argument>
+            <argument>--add-modules</argument>
+            <argument>javafx.controls,javafx.fxml</argument>
+        </arguments>
+    </configuration>
     </plugin>
     <plugin>
       <groupId>org.codehaus.mojo</groupId>
