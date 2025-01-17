@@ -38,7 +38,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Parameters {
+public class Parameters extends Controller {
 	
 	@FXML private Label modelDetails;
 	@FXML private Button addEnvironmentParamButton;
@@ -76,7 +76,7 @@ public class Parameters {
     private void initialize() {
 	    // Fetch shared data from the SharedContext
         context = SharedData.getInstance();
-        context.setParametersController(this);
+        registerController();
         // set up items and bindings
         setUpParamLists();
         setUpBindings();
@@ -84,6 +84,8 @@ public class Parameters {
     
     private void setUpBindings() {
         // Manually manage visibility with animation
+		// TODO pull out into seperate method
+
         uParamList.getItems().addListener((ListChangeListener<? super UndefinedParameter>) change -> {
             if (!uParamList.getItems().isEmpty()) {
                 // Animate VBox expansion when there are items
@@ -448,4 +450,29 @@ public class Parameters {
 			loadEditParamDialog("Internal", item);
 		}
     }
+
+	@Override
+	public void update() {
+		update(context.getCurrentModel());
+		// make uncategorized params invisible if the uParamList is empty (when a model with no uparams added)
+		
+		// TODO pull out into seperate method
+		if (uParamList.getItems().isEmpty()) {
+            // Animate VBox shrinking and hide after animation
+            Animations.animateVBoxExpansion(parameterDialogs, undefinedParametersVBox, 100.0, 0.0, "horizontal");
+
+            // Delay hiding and unmanaging until after the animation completes
+            Timeline timeline = new Timeline(
+                new KeyFrame(Duration.millis(500), event -> {
+                    undefinedParametersVBox.setVisible(false);
+                })
+            );
+            timeline.play();
+		}
+	}
+
+	@Override
+	public void registerController() {
+		context.setParametersController(this);
+	}
 }

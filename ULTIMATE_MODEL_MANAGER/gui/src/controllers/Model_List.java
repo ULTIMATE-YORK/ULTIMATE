@@ -26,7 +26,7 @@ import javafx.stage.Stage;
  * This class handles the display, addition, and deletion of models in the session.
  * It also facilitates navigation and selection updates for models.
  */
-public class Model_List {
+public class Model_List extends Controller {
 
     // Style for labels displayed in the list
     private String font = "-fx-font-size: 30px;";
@@ -53,12 +53,12 @@ public class Model_List {
     private void initialize() {
         // Fetch shared data from the singleton SharedData instance
         context = SharedData.getInstance();
-        context.setModelController(this);
         models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
 
         // Set up behavior and appearance of the model list view
         setUpModelListView();
+        registerController();
     }
 
     /**
@@ -90,10 +90,9 @@ public class Model_List {
         // Add a listener for selection changes in the list view
         modelListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                // Update the current model in the shared context
-                context.setCurrentModel(newValue);
-                context.getParametersController().update(newValue); // The Parameter controller needs to be accessed so it can update the contents of its own list
-                context.getPropertiesController().update(newValue);
+                // Update the views
+            	context.setCurrentModel(newValue);
+                context.update();
             }
         });
 
@@ -123,8 +122,15 @@ public class Model_List {
             String id = selectedFile.getName().replaceFirst("[.][^.]+$", ""); // Extract the file name without extension
             String filePath = selectedFile.getAbsolutePath();
             Model model = new Model(id, filePath);
-            models.add(model); // Add the model to the list
-
+            // if first model added, register it and select it
+            if (models.isEmpty()) {
+            	models.add(model); // Add the model to the list
+            	context.setCurrentModel(model);
+            	handleDown(); // select the model
+            }
+            else {
+                models.add(model); // Add the model to the list
+            }
             // Parse the file for undefined parameters using PrismFileParser
             PrismFileParser parser = new PrismFileParser();
             try {
@@ -169,4 +175,15 @@ public class Model_List {
             modelListView.getSelectionModel().select(selectedIndex + 1);
         }
     }
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registerController() {
+		context.setModelListController(this);
+	}
 }

@@ -23,7 +23,7 @@ import persistent_objects.SharedData; // Singleton class for shared data across 
  * Controller for handling the functionality of the menu bar in the application.
  * It manages file operations (load, save, save as) and prepares for property-related actions.
  */
-public class Menu_Bar {
+public class Menu_Bar extends Controller {
 	
 	// The file currently associated with the session (for saving/loading)
 	private File saveFile;
@@ -58,6 +58,7 @@ public class Menu_Bar {
         context = SharedData.getInstance();
         models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
+        registerController();
 	}
     
     /**
@@ -174,5 +175,16 @@ public class Menu_Bar {
 	@FXML
 	private void handleEditProperty() {
 
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registerController() {
+		context.setMenuBarController(this);
 	}
 }

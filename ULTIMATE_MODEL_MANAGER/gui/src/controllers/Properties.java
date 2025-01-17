@@ -22,7 +22,7 @@ import persistent_objects.UndefinedParameter;
 import utils.Alerter;
 import utils.Animations;
 
-public class Properties {
+public class Properties extends Controller {
 	
 	private String font = "-fx-font-size: 30px;";
 
@@ -38,8 +38,8 @@ public class Properties {
 	private void initialize() {
 	    // Fetch shared data from the SharedContext
         context = SharedData.getInstance();
-        context.setPropertiesController(this);
-		setUpPropertyListView();
+        registerController();
+        setUpPropertyListView();
 	}
 	
 	private void setUpPropertyListView() {
@@ -66,10 +66,10 @@ public class Properties {
             if (!propertyListView.getItems().isEmpty()) {
                 // Animate VBox expansion when there are items
             	propertyVBox.setVisible(true); // Ensure it's visible for animation
-                Animations.animateVBoxExpansion(propertyVBox, context.getModelController().modelListVBox, 50.0, 50.0, "vertical");
+                Animations.animateVBoxExpansion(propertyVBox, context.getModelListController().modelListVBox, 50.0, 50.0, "vertical");
             } else {
                 // Animate VBox shrinking and hide after animation
-                Animations.animateVBoxExpansion(context.getModelController().modelListVBox, propertyVBox, 100.0, 0.0, "vertical");
+                Animations.animateVBoxExpansion(context.getModelListController().modelListVBox, propertyVBox, 100.0, 0.0, "vertical");
 
                 // Delay hiding and unmanaging until after the animation completes
                 Timeline timeline = new Timeline(
@@ -111,5 +111,16 @@ public class Properties {
         	propertyListView.getItems().clear(); // Clear existing items
         	propertyListView.getItems().addAll(currentModel.getProperties()); // Add new items from the model
         }
+	}
+
+	@Override
+	public void update() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void registerController() {
+		context.setPropertiesController(this);
 	}
 }
