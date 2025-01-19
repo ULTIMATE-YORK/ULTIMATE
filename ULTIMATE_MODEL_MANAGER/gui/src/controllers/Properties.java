@@ -2,10 +2,7 @@ package controllers;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -18,7 +15,6 @@ import javafx.util.Duration;
 import persistent_objects.Model;
 import persistent_objects.Property;
 import persistent_objects.SharedData;
-import persistent_objects.UndefinedParameter;
 import utils.Alerter;
 import utils.Animations;
 
@@ -78,6 +74,15 @@ public class Properties extends Controller {
                     })
                 );
                 timeline.play();
+            }
+        });
+        
+        // Add a listener for selection changes in the list view
+        propertyListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Update the views
+            	context.setCurrentProperty(newValue);
+                context.update();
             }
         });
 

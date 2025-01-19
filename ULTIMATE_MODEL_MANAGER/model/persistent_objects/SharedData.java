@@ -18,6 +18,7 @@ public class SharedData {
     private ObservableList<Model> models = FXCollections.observableArrayList();
     private Stage mainStage;
     private Model currentModel;
+    private Property currentProperty;
     private Parameters parametersController;
     private Properties propertiesController;
     private Model_List modelController;
@@ -50,6 +51,14 @@ public class SharedData {
 	
 	public void setCurrentModel(Model currentModel) {
 		this.currentModel = currentModel;
+	}
+	
+	public Property getCurrentProperty() {
+		return this.currentProperty;
+	}
+	
+	public void setCurrentProperty(Property prop) {
+		this.currentProperty = prop;
 	}
 	
     public Parameters getParametersController() {
