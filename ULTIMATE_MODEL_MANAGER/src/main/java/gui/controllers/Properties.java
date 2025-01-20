@@ -1,5 +1,7 @@
 package gui.controllers;
 
+import java.util.ArrayList;
+
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.ListChangeListener;
@@ -125,5 +127,13 @@ public class Properties extends Controller {
 	@Override
 	public void registerController() {
 		context.setPropertiesController(this);
+	}
+	
+	public ArrayList<String> getProperties() {
+		ArrayList<String> properties = new ArrayList<String>();
+		for (Property item: propertyListView.getItems()) {
+			properties.add(item.getDefinition());
+		}
+		return properties;
 	}
 }

@@ -1,19 +1,23 @@
 package gui.controllers;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.*;
+import verification_engine.prism.PrismAPI;
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
 import javafx.scene.control.MenuItem; // JavaFX menu item class
 import javafx.stage.FileChooser; // JavaFX file chooser for file selection dialogs
 import javafx.stage.Stage; // JavaFX stage class representing the main application window
 import model.persistent_objects.*; // Custom class representing a model
+import prism.PrismException;
 
 /**
  * Controller for handling the functionality of the menu bar in the application.
@@ -150,7 +154,10 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleSavePropertyList() {
-
+		// save property list based on model name
+		String fileName = context.getCurrentModel().getModelId();
+		ArrayList<String> properties = context.getPropertiesController().getProperties();
+		PropertyUtils.generateFile(fileName, properties);
 	}
 
 	@FXML
@@ -159,8 +166,8 @@ public class Menu_Bar extends Controller {
 	}
 
 	@FXML
-	private void handleVerifyProperty() {
-
+	private void handleVerifyProperty() throws FileNotFoundException, PrismException {
+		PrismAPI.run(context.getCurrentModel().getFilePath(), context.getCurrentModel().getModelId() + ".pctl");
 	}
 
 	@FXML

@@ -2,66 +2,68 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <!-- Maven model version -->
   <modelVersion>4.0.0</modelVersion>
 
-  <!-- Project metadata -->
   <groupId>ULTIMATE_MODEL_MANAGER</groupId>
   <artifactId>ultimate_model_manager</artifactId>
   <version>0.0.1-SNAPSHOT</version>
 
   <properties>
-    <!-- Property to store the JavaFX module path -->
     <javafx.module.path>${java.home}/lib</javafx.module.path>
+    <runtime>${project.build.directory}/libs/runtime</runtime>
+    <maven.compiler.source>17</maven.compiler.source>
+    <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
-  <dependencies>
+  <repositories>
+    <repository>
+      <name>Local repository</name>
+      <id>localRepository</id>
+      <url>file://${project.basedir}/libs</url>
+    </repository>
+  </repositories>
 
-    <!-- JavaFX Dependencies -->
+  <dependencies>
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-controls</artifactId>
       <version>23.0.1</version>
     </dependency>
-
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
       <version>23.0.1</version>
     </dependency>
-
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-graphics</artifactId>
       <version>23.0.1</version>
     </dependency>
-
-    <!-- JSON Library -->
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20230618</version>
     </dependency>
-
-    <!-- JGraphT Library -->
     <dependency>
       <groupId>org.jgrapht</groupId>
       <artifactId>jgrapht-core</artifactId>
       <version>1.5.1</version>
     </dependency>
-
-    <!-- JUnit 5 for testing -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>5.10.0</version>
-      <scope>test</scope> <!-- Only used for testing purposes -->
+      <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.modelChecker</groupId>
+      <artifactId>PrismAPI</artifactId>
+      <version>1.0.18</version>
+      <type>jar</type>
+    </dependency>
   </dependencies>
 
   <build>
-    <!-- Specify the source and test source directories -->
     <sourceDirectory>src/main/java</sourceDirectory>
     <testSourceDirectory>src/test/java</testSourceDirectory>
 
@@ -69,37 +71,56 @@
       <resource>
         <directory>src/main/resources</directory>
         <excludes>
-          <exclude>**/*.java</exclude> <!-- Exclude Java files from resources -->
+          <exclude>**/*.java</exclude>
         </excludes>
       </resource>
     </resources>
 
     <plugins>
-
-      <!-- Plugin to run tests with Maven -->
-	  <plugin>
-	    <groupId>org.apache.maven.plugins</groupId>
-	    <artifactId>maven-surefire-plugin</artifactId>
-	    <version>3.0.0-M8</version>
-	  </plugin>
-
-      <!-- Compiler plugin to set the Java version -->
+      <!-- Compiler Plugin -->
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.1</version>
         <configuration>
-          <release>22</release> <!-- Set Java version -->
+          <release>17</release>
         </configuration>
       </plugin>
 
-      <!-- Plugin to execute the Java application -->
+      <!-- Copy Resources (Libraries and Runtime Files) -->
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>copy-runtime-libs</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/libs</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>libs</directory>
+                  <includes>
+                    <include>**/*</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Maven Exec Plugin to Run the Application -->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>main.NewMain</mainClass> <!-- Main class to execute -->
+          <mainClass>main.NewMain</mainClass>
           <arguments>
+            <argument>-Djava.library.path=${runtime}</argument>
             <argument>--module-path</argument>
             <argument>${javafx.module.path}</argument>
             <argument>--add-modules</argument>
@@ -108,21 +129,7 @@
         </configuration>
       </plugin>
 
-      <!-- Plugin to package the application into a JAR file -->
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.3.0</version>
-        <configuration>
-          <archive>
-            <manifest>
-              <mainClass>main.NewMain</mainClass> <!-- Main class to run the application -->
-            </manifest>
-          </archive>
-        </configuration>
-      </plugin>
-
-      <!-- Plugin to create an Uber JAR with dependencies -->
+      <!-- Maven Shade Plugin to Create an Uber JAR -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
@@ -131,12 +138,12 @@
           <execution>
             <phase>package</phase>
             <goals>
-              <goal>shade</goal> <!-- Shade goal to bundle dependencies -->
+              <goal>shade</goal>
             </goals>
             <configuration>
               <transformers>
                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>main.NewMain</mainClass> <!-- Set main class for the JAR -->
+                  <mainClass>main.NewMain</mainClass>
                 </transformer>
               </transformers>
               <createDependencyReducedPom>false</createDependencyReducedPom>
@@ -144,9 +151,7 @@
           </execution>
         </executions>
       </plugin>
-
     </plugins>
-
   </build>
 
 </project>
