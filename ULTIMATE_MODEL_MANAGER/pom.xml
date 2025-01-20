@@ -1,162 +1,152 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <!-- Maven model version -->
   <modelVersion>4.0.0</modelVersion>
+
+  <!-- Project metadata -->
   <groupId>ULTIMATE_MODEL_MANAGER</groupId>
   <artifactId>ultimate_model_manager</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  
+
   <properties>
+    <!-- Property to store the JavaFX module path -->
     <javafx.module.path>${java.home}/lib</javafx.module.path>
-</properties>
+  </properties>
 
   <dependencies>
-    <!-- JavaFX Modules -->
+
+    <!-- JavaFX Dependencies -->
     <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-controls</artifactId>
-        <version>22</version>
-    </dependency>
-    <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-fxml</artifactId>
-        <version>22</version>
-    </dependency>
-    <dependency>
-        <groupId>org.openjfx</groupId>
-        <artifactId>javafx-graphics</artifactId>
-        <version>22</version>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>23.0.1</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>23.0.1</version>
+    </dependency>
 
-    <!-- JSON -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>23.0.1</version>
+    </dependency>
+
+    <!-- JSON Library -->
     <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
       <version>20230618</version>
     </dependency>
-    
-    <dependency>
-    <groupId>org.jgrapht</groupId>
-    <artifactId>jgrapht-core</artifactId>
-    <version>1.5.1</version>
-</dependency>
 
-    <!-- JUnit 5 API and Engine -->
+    <!-- JGraphT Library -->
     <dependency>
-        <groupId>org.junit.jupiter</groupId>
-        <artifactId>junit-jupiter</artifactId>
-        <version>5.10.0</version> <!-- Replace with the latest version -->
-        <scope>test</scope>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-core</artifactId>
+      <version>1.5.1</version>
     </dependency>
 
-</dependencies>
+    <!-- JUnit 5 for testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>5.10.0</version>
+      <scope>test</scope> <!-- Only used for testing purposes -->
+    </dependency>
 
-<build>
-  <sourceDirectory>src/main/java</sourceDirectory>
-  <testSourceDirectory>src/test/java</testSourceDirectory>
-  <resources>
-    <resource>
-      <directory>src/main/resources</directory>
-      <excludes>
-        <exclude>**/*.java</exclude>
-      </excludes>
-    </resource>
-  </resources>
-  <plugins>
-  <plugin>
-  <groupId>org.apache.maven.plugins</groupId>
-  <artifactId>maven-surefire-plugin</artifactId>
-  <version>3.0.0-M8</version> <!-- Use the latest version -->
-  <configuration>
-    <includes>
-      <include>**/*Test.java</include> <!-- Include all classes ending with 'Test' -->
-    </includes>
-  </configuration>
-</plugin>
-    <plugin>
-      <artifactId>maven-compiler-plugin</artifactId>
-      <version>3.8.1</version>
-      <configuration>
-        <release>22</release>
-      </configuration>
-    </plugin>
-<plugin>
-    <groupId>org.codehaus.mojo</groupId>
-    <artifactId>exec-maven-plugin</artifactId>
-    <version>3.1.0</version>
-    <configuration>
-        <mainClass>main.Main</mainClass>
-        <arguments>
+  </dependencies>
+
+  <build>
+    <!-- Specify the source and test source directories -->
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <excludes>
+          <exclude>**/*.java</exclude> <!-- Exclude Java files from resources -->
+        </excludes>
+      </resource>
+    </resources>
+
+    <plugins>
+
+      <!-- Plugin to run tests with Maven -->
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-surefire-plugin</artifactId>
+	    <version>3.0.0-M8</version>
+	  </plugin>
+
+      <!-- Compiler plugin to set the Java version -->
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <release>22</release> <!-- Set Java version -->
+        </configuration>
+      </plugin>
+
+      <!-- Plugin to execute the Java application -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <mainClass>main.NewMain</mainClass> <!-- Main class to execute -->
+          <arguments>
             <argument>--module-path</argument>
             <argument>${javafx.module.path}</argument>
             <argument>--add-modules</argument>
             <argument>javafx.controls,javafx.fxml</argument>
-        </arguments>
-    </configuration>
-</plugin>
-<plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-jar-plugin</artifactId>
-    <version>3.3.0</version>
-    <configuration>
-        <archive>
+          </arguments>
+        </configuration>
+      </plugin>
+
+      <!-- Plugin to package the application into a JAR file -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.3.0</version>
+        <configuration>
+          <archive>
             <manifest>
-                <mainClass>main.Main</mainClass>
+              <mainClass>main.NewMain</mainClass> <!-- Main class to run the application -->
             </manifest>
-        </archive>
-    </configuration>
-</plugin>
-    <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>build-helper-maven-plugin</artifactId>
-      <version>3.3.0</version>
-      <executions>
-              <execution>
-          <id>add-test-source</id>
-          <phase>generate-test-sources</phase>
-          <goals>
-            <goal>add-test-source</goal>
-          </goals>
-          <configuration>
-            <sources>
-              <source>tests/Tests</source>
-            </sources>
-          </configuration>
-        </execution>
-        <execution>
-          <id>add-source</id>
-          <phase>generate-sources</phase>
-          <goals>
-            <goal>add-source</goal>
-          </goals>
-          <configuration>
-            <sources>
-              <source>verification_engine</source>
-              <source>model</source>
-            </sources>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin>
-    <plugin>
-    <groupId>org.apache.maven.plugins</groupId>
-    <artifactId>maven-shade-plugin</artifactId>
-    <version>3.4.1</version>
-    <executions>
-        <execution>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <!-- Plugin to create an Uber JAR with dependencies -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.4.1</version>
+        <executions>
+          <execution>
             <phase>package</phase>
             <goals>
-                <goal>shade</goal>
+              <goal>shade</goal> <!-- Shade goal to bundle dependencies -->
             </goals>
             <configuration>
-                <transformers>
-                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                        <mainClass>main.Main</mainClass>
-                    </transformer>
-                </transformers>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>main.NewMain</mainClass> <!-- Set main class for the JAR -->
+                </transformer>
+              </transformers>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
             </configuration>
-        </execution>
-    </executions>
-</plugin>
-  </plugins>
-</build>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+
+  </build>
+
 </project>

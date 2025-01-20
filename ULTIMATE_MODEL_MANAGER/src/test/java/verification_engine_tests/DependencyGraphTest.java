@@ -1,4 +1,4 @@
-package verification_engine;
+package verification_engine_tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
