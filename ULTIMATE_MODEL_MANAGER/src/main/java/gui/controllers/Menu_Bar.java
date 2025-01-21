@@ -3,7 +3,6 @@ package gui.controllers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONException;
@@ -154,6 +153,14 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleSavePropertyList() {
+		// check if the current model has a prop file
+		if (context.getCurrentModel().hasPropFile()) {
+			FileUtils.updatePropertyFile(context.getCurrentModel());
+		}
+	}
+
+	@FXML
+	private void handleSaveAsPropertyList() {
         // Open a file chooser dialog for selecting a save location
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
@@ -165,11 +172,6 @@ public class Menu_Bar extends Controller {
         
         // set the file for the current model
         context.getCurrentModel().setPropFile(file);
-	}
-
-	@FXML
-	private void handleSaveAsPropertyList() {
-
 	}
 
 	@FXML

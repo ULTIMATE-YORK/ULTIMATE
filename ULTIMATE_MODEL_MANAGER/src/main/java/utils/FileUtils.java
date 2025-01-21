@@ -2,6 +2,7 @@ package utils;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.persistent_objects.Model;
 import model.persistent_objects.Property;
 
 import org.json.JSONObject;
@@ -58,5 +59,11 @@ public class FileUtils {
         } catch (IOException e) {
             System.err.println("An error occurred while writing to the file: " + e.getMessage());
         }
+	}
+	
+	public static void updatePropertyFile(Model model) {
+		String fileName = model.getPropFile().getAbsolutePath();
+		ArrayList<Property> props = model.getProperties();
+		generatePropertyFile(fileName, props);
 	}
 }

@@ -246,6 +246,10 @@ public class Model {
     	}
     }
     
+    public File getPropFile() {
+    	return propertiesFile;
+    }
+    
     public boolean hasPropFile() {
     	return !(propertiesFile == null);
     }
