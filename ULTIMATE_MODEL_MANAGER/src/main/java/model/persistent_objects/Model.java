@@ -1,7 +1,10 @@
 package model.persistent_objects;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import utils.Alerter;
 
 /**
  * Represents a model in the system.
@@ -13,6 +16,7 @@ import java.util.List;
 public class Model {
     private String modelId; // Unique identifier for the model
     private String filePath; // Path to the model's file
+    private File propertiesFile; // file of properties list
     private List<DependencyParameter> dependencyParameters; // List of dependency parameters
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
@@ -231,5 +235,18 @@ public class Model {
     
     public ArrayList<Property> getProperties() {
     	return this.properties;
+    }
+    
+    public void setPropFile(File propFile) {
+    	if (propertiesFile == null) {
+    		propertiesFile = propFile;
+    	}
+    	else {
+    		Alerter.showAlert("Model already has a pctl file!", "Aborting...");
+    	}
+    }
+    
+    public boolean hasPropFile() {
+    	return !(propertiesFile == null);
     }
 }

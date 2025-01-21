@@ -159,9 +159,12 @@ public class Menu_Bar extends Controller {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
         File file = fileChooser.showSaveDialog(mainStage);
         
-        if (file != null) {
+        if (file != null && !context.getCurrentModel().hasPropFile()) {
         	FileUtils.generatePropertyFile(file.getAbsolutePath(), context.getCurrentModel().getProperties());
         }
+        
+        // set the file for the current model
+        context.getCurrentModel().setPropFile(file);
 	}
 
 	@FXML
