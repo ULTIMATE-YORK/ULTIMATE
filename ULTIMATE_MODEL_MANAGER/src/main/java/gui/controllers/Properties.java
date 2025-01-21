@@ -112,16 +112,13 @@ public class Properties extends Controller {
 	}
 	
 	public void update(Model currentModel) {
-        if (propertyListView != null) {
-        	propertyListView.getItems().clear(); // Clear existing items
-        	propertyListView.getItems().addAll(currentModel.getProperties()); // Add new items from the model
-        }
+        propertyListView.getItems().clear(); // Clear existing items
+        propertyListView.getItems().addAll(currentModel.getProperties()); // Add new items from the model
 	}
 
 	@Override
 	public void update() {
-		// TODO Auto-generated method stub
-		
+		update(context.getCurrentModel());
 	}
 
 	@Override

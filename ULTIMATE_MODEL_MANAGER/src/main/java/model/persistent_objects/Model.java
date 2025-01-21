@@ -1,10 +1,12 @@
 package model.persistent_objects;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import utils.Alerter;
+import utils.FileUtils;
 
 /**
  * Represents a model in the system.
@@ -237,9 +239,14 @@ public class Model {
     	return this.properties;
     }
     
-    public void setPropFile(File propFile) {
+    public void setProperties(ArrayList<Property> props) {
+    	this.properties = props;
+    }
+    
+    public void setPropFile(File propFile) throws IOException {
     	if (propertiesFile == null) {
     		propertiesFile = propFile;
+    		setProperties(FileUtils.getPropertiesFromFile(propFile));
     	}
     	else {
     		Alerter.showAlert("Model already has a pctl file!", "Aborting...");

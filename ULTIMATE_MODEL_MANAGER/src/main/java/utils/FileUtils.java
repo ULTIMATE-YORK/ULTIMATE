@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.List;
 
 public class FileUtils {
 
@@ -65,5 +66,14 @@ public class FileUtils {
 		String fileName = model.getPropFile().getAbsolutePath();
 		ArrayList<Property> props = model.getProperties();
 		generatePropertyFile(fileName, props);
+	}
+	
+	public static ArrayList<Property> getPropertiesFromFile(File file) throws IOException {
+		List<String> allLines = Files.readAllLines(file.toPath());
+		ArrayList<Property> props = new ArrayList<Property>();
+		for (String s : allLines) {
+			props.add(new Property(s));
+		}
+		return props;
 	}
 }

@@ -12,6 +12,10 @@ public class Property {
 		this.definition = definition;
 	}
 	
+	public Property(String definition) {
+		this.definition = definition;
+	}
+	
 	private void isDefValid(String definition) {
 		// TODO validate the string, throw exception if not valid
 	}

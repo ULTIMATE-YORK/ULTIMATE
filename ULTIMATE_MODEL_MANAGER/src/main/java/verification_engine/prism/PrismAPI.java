@@ -35,11 +35,12 @@ public class PrismAPI {
 
 		// Parse and load a properties model for the model
 		PropertiesFile propertiesFile = prism.parsePropertiesFile(modulesFile, new File(propertyFile));
-
-		// Model check the first property from the file
-		System.out.println(propertiesFile.getPropertyObject(0));
-		Result result = prism.modelCheck(propertiesFile, propertiesFile.getPropertyObject(0));
-		System.out.println(result.getResult());
+				
+		for (int i=0; i< propertiesFile.getNumProperties(); i++) {
+			// Model check property from the file
+			Result result = prism.modelCheck(propertiesFile, propertiesFile.getPropertyObject(i));
+			System.out.println(result.getResult());
+		}
 	}
 
 }

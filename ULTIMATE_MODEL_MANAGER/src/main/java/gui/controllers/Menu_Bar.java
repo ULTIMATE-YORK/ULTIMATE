@@ -147,10 +147,11 @@ public class Menu_Bar extends Controller {
 	}
 
 	@FXML
-	private void handleLoadPropertyList() {
+	private void handleLoadPropertyList() throws IOException {
         File file = FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl");
         if (file != null) {
         	context.getCurrentModel().setPropFile(file);
+        	context.update();
         }
         else {
         	Alerter.showAlert("No file Found", "Aborting...");
@@ -166,7 +167,7 @@ public class Menu_Bar extends Controller {
 	}
 
 	@FXML
-	private void handleSaveAsPropertyList() {
+	private void handleSaveAsPropertyList() throws IOException {
         // Open a file chooser dialog for selecting a save location
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
@@ -182,7 +183,7 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleVerifyProperty() throws FileNotFoundException, PrismException {
-		PrismAPI.run(context.getCurrentModel().getFilePath(), context.getCurrentModel().getModelId() + ".pctl");
+		PrismAPI.run(context.getCurrentModel().getFilePath(), context.getCurrentModel().getPropFile().getAbsolutePath());
 	}
 
 	@FXML
