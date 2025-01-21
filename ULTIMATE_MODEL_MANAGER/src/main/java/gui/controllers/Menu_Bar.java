@@ -148,7 +148,13 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleLoadPropertyList() {
-
+        File file = FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl");
+        if (file != null) {
+        	context.getCurrentModel().setPropFile(file);
+        }
+        else {
+        	Alerter.showAlert("No file Found", "Aborting...");
+        }
 	}
 
 	@FXML
