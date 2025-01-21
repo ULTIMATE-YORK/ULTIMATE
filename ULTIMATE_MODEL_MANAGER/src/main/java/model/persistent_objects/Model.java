@@ -17,7 +17,7 @@ public class Model {
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
     private List<UndefinedParameter> undefinedParameters; // List of undefined parameters
-    private List<Property> properties;
+    private ArrayList<Property> properties;
 
     /**
      * Constructor to initialize a new Model object.
@@ -229,7 +229,7 @@ public class Model {
     	this.properties.add(prop);
     }
     
-    public List<Property> getProperties() {
+    public ArrayList<Property> getProperties() {
     	return this.properties;
     }
 }

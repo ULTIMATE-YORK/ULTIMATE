@@ -2,12 +2,16 @@ package utils;
 
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.persistent_objects.Property;
+
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 public class FileUtils {
 
@@ -45,4 +49,14 @@ public class FileUtils {
         
         return file;
     }
+    
+	public static void generatePropertyFile(String fileName, ArrayList<Property> property) {
+		try (FileWriter writer = new FileWriter(fileName)) {
+            for (Property prop : property) {
+                writer.write(prop.getDefinition() + ";\n");
+            }
+        } catch (IOException e) {
+            System.err.println("An error occurred while writing to the file: " + e.getMessage());
+        }
+	}
 }

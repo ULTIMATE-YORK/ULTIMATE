@@ -154,10 +154,14 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleSavePropertyList() {
-		// save property list based on model name
-		String fileName = context.getCurrentModel().getModelId();
-		ArrayList<String> properties = context.getPropertiesController().getProperties();
-		PropertyUtils.generateFile(fileName, properties);
+        // Open a file chooser dialog for selecting a save location
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
+        File file = fileChooser.showSaveDialog(mainStage);
+        
+        if (file != null) {
+        	FileUtils.generatePropertyFile(file.getAbsolutePath(), context.getCurrentModel().getProperties());
+        }
 	}
 
 	@FXML
