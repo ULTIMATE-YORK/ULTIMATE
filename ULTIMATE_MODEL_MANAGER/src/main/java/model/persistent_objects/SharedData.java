@@ -19,6 +19,7 @@ public class SharedData {
     private Model_List modelController;
     private Menu_Bar menuBarController;
     private Tab1 tab1Controller;
+    private Tab2 tab2Controller;
     
     private ArrayList<Controller> allControllers = new ArrayList<Controller>();
     
@@ -99,6 +100,15 @@ public class SharedData {
     
     public Tab1 getTab1Controller() {
     	return this.tab1Controller;
+    }
+    
+    public void setTab2Controller(Tab2 tab2Controller) {
+    	this.tab2Controller = tab2Controller;
+    	allControllers.add(tab2Controller);
+    }
+    
+    public Tab2 getTab2Controller() {
+    	return this.tab2Controller;
     }
     
     public void update() {

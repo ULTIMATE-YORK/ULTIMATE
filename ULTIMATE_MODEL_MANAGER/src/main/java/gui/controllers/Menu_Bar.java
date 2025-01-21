@@ -159,10 +159,13 @@ public class Menu_Bar extends Controller {
 	}
 
 	@FXML
-	private void handleSavePropertyList() {
+	private void handleSavePropertyList() throws IOException {
 		// check if the current model has a prop file
 		if (context.getCurrentModel().hasPropFile()) {
 			FileUtils.updatePropertyFile(context.getCurrentModel());
+		}
+		else {
+			handleSaveAsPropertyList();
 		}
 	}
 
@@ -183,7 +186,7 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleVerifyProperty() throws FileNotFoundException, PrismException {
-		PrismAPI.run(context.getCurrentModel().getFilePath(), context.getCurrentModel().getPropFile().getAbsolutePath());
+		PrismAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile());
 	}
 
 	@FXML

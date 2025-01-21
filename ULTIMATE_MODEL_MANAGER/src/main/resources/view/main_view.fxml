@@ -26,6 +26,7 @@
 	<TabPane GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" id="MainTabs" tabClosingPolicy="UNAVAILABLE" >
     	<tabs>
     		<fx:include source="/tabs/main_view_tab1.fxml"/>
+    		<fx:include source="/tabs/logs_tab.fxml" />
     	</tabs>
 	</TabPane>
   
