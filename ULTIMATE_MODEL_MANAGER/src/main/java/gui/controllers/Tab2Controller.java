@@ -13,7 +13,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import model.persistent_objects.SharedData;
 
-public class Tab2 extends Controller {
+public class Tab2Controller extends Controller {
 	
 	@FXML private Tab logs_tab;
 	@FXML private GridPane parentGridPane;

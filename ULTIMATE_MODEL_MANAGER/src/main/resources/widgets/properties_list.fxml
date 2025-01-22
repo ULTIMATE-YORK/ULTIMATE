@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" fx:id="propertyVBox" fx:controller="gui.controllers.Properties" VBox.vgrow="ALWAYS" spacing="10.0">
+<VBox xmlns:fx="http://javafx.com/fxml" fx:id="propertyVBox" fx:controller="gui.controllers.PropertiesController" VBox.vgrow="ALWAYS" spacing="10.0">
 		
 	<ListView fx:id="propertyListView" VBox.vgrow="ALWAYS" />
 

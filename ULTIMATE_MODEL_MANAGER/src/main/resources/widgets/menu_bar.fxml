@@ -5,7 +5,7 @@
 <?import javafx.geometry.*?>
 
 
-<MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="gui.controllers.Menu_Bar">
+<MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="gui.controllers.MenuBarController">
   <menus>
     <Menu mnemonicParsing="false" text="File">
       <items>

@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<Tab text="Model Manager" fx:controller="gui.controllers.Tab1" fx:id="tab1" xmlns:fx="http://javafx.com/fxml">
+<Tab text="Model Manager" fx:controller="gui.controllers.Tab1Controller" fx:id="tab1" xmlns:fx="http://javafx.com/fxml">
 	
 	<!-- This GridPane has is a 2x2 with row one fixed (containing the menu) and row 2 dynamic. Two columns contain all the children -->
 	<GridPane fx:id="parentGridPane" hgap="10" vgap="10">

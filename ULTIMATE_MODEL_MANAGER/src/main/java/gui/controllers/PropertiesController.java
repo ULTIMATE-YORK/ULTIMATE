@@ -18,7 +18,7 @@ import model.persistent_objects.*;
 import utils.Alerter;
 import utils.Animations;
 
-public class Properties extends Controller {
+public class PropertiesController extends Controller {
 	
 	private String font = "-fx-font-size: 30px;";
 

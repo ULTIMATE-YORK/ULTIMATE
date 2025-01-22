@@ -4,7 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 
-public class Tab1 extends Controller {
+public class Tab1Controller extends Controller {
 	
 	@FXML VBox modelsAndPropertiesContainer;
 	@FXML GridPane parametersPane;

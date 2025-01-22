@@ -28,7 +28,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-public class Parameters extends Controller {
+public class ParametersController extends Controller {
 	
 	@FXML private Label modelDetails;
 	@FXML private Button addEnvironmentParamButton;

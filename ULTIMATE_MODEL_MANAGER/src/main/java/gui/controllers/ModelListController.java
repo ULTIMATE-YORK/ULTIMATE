@@ -25,7 +25,7 @@ import javafx.stage.Stage;
  * This class handles the display, addition, and deletion of models in the session.
  * It also facilitates navigation and selection updates for models.
  */
-public class Model_List extends Controller {
+public class ModelListController extends Controller {
 
     // Style for labels displayed in the list
     private String font = "-fx-font-size: 30px;";

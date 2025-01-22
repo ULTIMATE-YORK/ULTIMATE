@@ -12,6 +12,7 @@ import utils.*;
 import verification_engine.prism.PrismAPI;
 import verification_engine.storm.OSCommandExecutor;
 import verification_engine.storm.StormAPI;
+import javafx.application.Platform;
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
@@ -29,7 +30,7 @@ import prism.PrismException;
  * Controller for handling the functionality of the menu bar in the application.
  * It manages file operations (load, save, save as) and prepares for property-related actions.
  */
-public class Menu_Bar extends Controller {
+public class MenuBarController extends Controller {
 	
 	// The file currently associated with the session (for saving/loading)
 	private File saveFile;
@@ -83,17 +84,16 @@ public class Menu_Bar extends Controller {
         if (file != null) {
             try {
                 // Update the window title with the file name (excluding the extension)
-                mainStage.setTitle(file.getName().replaceAll(".json", ""));
-                
+            	Platform.runLater(() -> mainStage.setTitle(file.getName().replaceAll(".json", "")));                
                 // Parse the selected JSON file and initialize models
                 JSONObject root = FileUtils.parseJSONFile(file);
                 ModelUtils.parseAndInitializeModels(root, models);
             } catch (IOException e) {
                 // Show an alert if there is an error reading the file
-                Alerter.showAlert("Error loading file: " + e.getMessage(), "Failed to load models");
+                Platform.runLater( () -> Alerter.showAlert("Error loading file: " + e.getMessage(), "Failed to load models"));
             } catch (JSONException e) {
                 // Show an alert if the JSON file has an invalid format
-                Alerter.showAlert("Invalid JSON format: " + e.getMessage(), "Failed to load models");
+                Platform.runLater( () -> Alerter.showAlert("Invalid JSON format: " + e.getMessage(), "Failed to load models"));
             }
         }
 	}
@@ -150,23 +150,25 @@ public class Menu_Bar extends Controller {
 	private void handleAddProperty() throws IOException {
 		Model model = context.getCurrentModel();
 		if (model == null) {
-			Alerter.showAlert("Error", "Please select a model from the list to add a property!");
+			Platform.runLater( () -> Alerter.showAlert("Error", "Please select a model from the list to add a property!"));
 			return;
 		}
 		else {
+			// FIXME make this thread safe
 			DialogLoader.load("/dialogs/add_property.fxml", "Add Property", context.getPropertiesController());
 		}
 	}
 
 	@FXML
 	private void handleLoadPropertyList() throws IOException {
+		// FIXME make this thread safe
         File file = FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl");
         if (file != null) {
         	context.getCurrentModel().setPropFile(file.getAbsolutePath());
         	context.update();
         }
         else {
-        	Alerter.showAlert("No file Found", "Aborting...");
+        	Platform.runLater( () -> Alerter.showAlert("No file Found", "Aborting..."));
         }
 	}
 
@@ -174,6 +176,7 @@ public class Menu_Bar extends Controller {
 	private void handleSavePropertyList() throws IOException {
 		// check if the current model has a prop file
 		if (context.getCurrentModel().hasPropFile()) {
+			// FIXME thread safe?
 			FileUtils.updatePropertyFile(context.getCurrentModel());
 		}
 		else {
@@ -183,6 +186,7 @@ public class Menu_Bar extends Controller {
 
 	@FXML
 	private void handleSaveAsPropertyList() throws IOException {
+		// FIXME thread-safe?
         // Open a file chooser dialog for selecting a save location
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
@@ -230,9 +234,10 @@ public class Menu_Bar extends Controller {
 	@FXML
 	private void configureStorm() {
 		if (context.getStormInstallation() != "") {
-			Alerter.showAlert("STORM has been configure already!", "STORM found at: " + context.getStormInstallation());
+			Platform.runLater( () -> Alerter.showAlert("STORM has been configure already!", "STORM found at: " + context.getStormInstallation()));
 		}
 		else {
+			// FIXME thread-safe?
 			File file = FileUtils.openDirectoryDialog(mainStage, "Locate STORM installation");
 			if (file != null) {
 				context.setStormInstallation(file.getAbsolutePath());

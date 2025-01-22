@@ -14,12 +14,12 @@ public class SharedData {
     private Stage mainStage;
     private Model currentModel;
     private Property currentProperty;
-    private Parameters parametersController;
-    private Properties propertiesController;
-    private Model_List modelController;
-    private Menu_Bar menuBarController;
-    private Tab1 tab1Controller;
-    private Tab2 tab2Controller;
+    private ParametersController parametersController;
+    private PropertiesController propertiesController;
+    private ModelListController modelController;
+    private MenuBarController menuBarController;
+    private Tab1Controller tab1Controller;
+    private Tab2Controller tab2Controller;
     private String pmcEngine = "PRISM"; // defaults the pmc engine to prism
     private String stormInstallation = "";
     
@@ -77,57 +77,57 @@ public class SharedData {
 		return this.pmcEngine;
 	}
 	
-    public Parameters getParametersController() {
+    public ParametersController getParametersController() {
         return parametersController;
     }
 
-    public void setParametersController(Parameters parametersController) {
+    public void setParametersController(ParametersController parametersController) {
         this.parametersController = parametersController;
         allControllers.add(parametersController);
     }
     
-    public Properties getPropertiesController() {
+    public PropertiesController getPropertiesController() {
         return propertiesController;
     }
 
-    public void setPropertiesController(Properties propertiesController) {
+    public void setPropertiesController(PropertiesController propertiesController) {
         this.propertiesController = propertiesController;
         allControllers.add(propertiesController);
     }
     
-    public Model_List getModelListController() {
+    public ModelListController getModelListController() {
         return modelController;
     }
 
-    public void setModelListController(Model_List modelController) {
+    public void setModelListController(ModelListController modelController) {
         this.modelController = modelController;
         allControllers.add(modelController);
     }
     
-    public void setMenuBarController(Menu_Bar menuBarController) {
+    public void setMenuBarController(MenuBarController menuBarController) {
     	this.menuBarController = menuBarController;
     	allControllers.add(menuBarController);
     }
     
-    public Menu_Bar getMenuBarController() {
+    public MenuBarController getMenuBarController() {
     	return this.menuBarController;
     }
     
-    public void setTab1Controller(Tab1 tab1Controller) {
+    public void setTab1Controller(Tab1Controller tab1Controller) {
     	this.tab1Controller = tab1Controller;
     	allControllers.add(tab1Controller);
     }
     
-    public Tab1 getTab1Controller() {
+    public Tab1Controller getTab1Controller() {
     	return this.tab1Controller;
     }
     
-    public void setTab2Controller(Tab2 tab2Controller) {
+    public void setTab2Controller(Tab2Controller tab2Controller) {
     	this.tab2Controller = tab2Controller;
     	allControllers.add(tab2Controller);
     }
     
-    public Tab2 getTab2Controller() {
+    public Tab2Controller getTab2Controller() {
     	return this.tab2Controller;
     }
     
@@ -135,23 +135,23 @@ public class SharedData {
     	
     	allControllers.add(controller);
     	
-    	if (controller instanceof Model_List) {
-    		this.modelController = (Model_List) controller;
+    	if (controller instanceof ModelListController) {
+    		this.modelController = (ModelListController) controller;
     	}
-    	else if (controller instanceof Menu_Bar) {
-    		this.menuBarController = (Menu_Bar) controller;
+    	else if (controller instanceof MenuBarController) {
+    		this.menuBarController = (MenuBarController) controller;
     	}
-    	else if (controller instanceof Parameters) {
-    		this.parametersController = (Parameters) controller;
+    	else if (controller instanceof ParametersController) {
+    		this.parametersController = (ParametersController) controller;
     	}
-    	else if (controller instanceof Properties) {
-    		this.propertiesController = (Properties) controller;
+    	else if (controller instanceof PropertiesController) {
+    		this.propertiesController = (PropertiesController) controller;
     	}
-    	else if (controller instanceof Tab1) {
-    		this.tab1Controller = (Tab1) controller;
+    	else if (controller instanceof Tab1Controller) {
+    		this.tab1Controller = (Tab1Controller) controller;
     	}    	
-    	else if (controller instanceof Tab2) {
-    		this.tab2Controller = (Tab2) controller;
+    	else if (controller instanceof Tab2Controller) {
+    		this.tab2Controller = (Tab2Controller) controller;
     	}
     }
     
