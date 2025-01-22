@@ -18,7 +18,7 @@ import utils.FileUtils;
 public class Model {
     private String modelId; // Unique identifier for the model
     private String filePath; // Path to the model's file
-    private File propertiesFile; // file of properties list
+    private String propertiesFile; // file of properties list
     private List<DependencyParameter> dependencyParameters; // List of dependency parameters
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
@@ -39,7 +39,6 @@ public class Model {
         this.internalParameters = new ArrayList<>();
         this.undefinedParameters = new ArrayList<>();
         this.properties = new ArrayList<>();
-
     }
 
     // Methods to add various types of parameters to the model
@@ -243,7 +242,7 @@ public class Model {
     	this.properties = props;
     }
     
-    public void setPropFile(File propFile) throws IOException {
+    public void setPropFile(String propFile) throws IOException {
     	if (propertiesFile == null) {
     		propertiesFile = propFile;
     		setProperties(FileUtils.getPropertiesFromFile(propFile));
@@ -253,7 +252,7 @@ public class Model {
     	}
     }
     
-    public File getPropFile() {
+    public String getPropFile() {
     	return propertiesFile;
     }
     
