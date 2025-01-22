@@ -20,6 +20,7 @@ public class SharedData {
     private Menu_Bar menuBarController;
     private Tab1 tab1Controller;
     private Tab2 tab2Controller;
+    private String pmcEngine = "PRISM"; // defaults the pmc engine to prism
     
     private ArrayList<Controller> allControllers = new ArrayList<Controller>();
     
@@ -55,6 +56,16 @@ public class SharedData {
 	
 	public void setCurrentProperty(Property prop) {
 		this.currentProperty = prop;
+	}
+	
+	public void setPMCEngine(String engine) {
+		if (engine == "PRISM" | engine == "STORM") {
+			this.pmcEngine = engine;
+		}
+	}
+	
+	public String getPMCEngine() {
+		return this.pmcEngine;
 	}
 	
     public Parameters getParametersController() {
