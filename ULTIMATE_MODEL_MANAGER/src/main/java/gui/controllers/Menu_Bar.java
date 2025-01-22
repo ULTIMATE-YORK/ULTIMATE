@@ -11,8 +11,13 @@ import org.json.JSONObject;
 import utils.*;
 import verification_engine.prism.PrismAPI;
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
+import javafx.scene.Node;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem; // JavaFX menu item class
+import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser; // JavaFX file chooser for file selection dialogs
 import javafx.stage.Stage; // JavaFX stage class representing the main application window
 import model.persistent_objects.*; // Custom class representing a model
@@ -39,6 +44,8 @@ public class Menu_Bar extends Controller {
     @FXML private MenuItem verifyProperty;
     @FXML private MenuItem deleteProperty;
     @FXML private MenuItem editProperty;
+    @FXML private MenuItem choosePrism;
+    @FXML private MenuItem chooseStorm;
     
     // Observable list of models representing the session data
     private ObservableList<Model> models;
@@ -46,7 +53,7 @@ public class Menu_Bar extends Controller {
     private Stage mainStage;
     
     private SharedData context;
-
+   
     /**
      * Initializes the controller. Called automatically after the FXML file is loaded.
      * Fetches shared data (models and stage) from the shared context.
@@ -58,7 +65,19 @@ public class Menu_Bar extends Controller {
         models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
         registerController();
+        setUpMenuActions();
 	}
+    
+    private void setUpMenuActions() {
+    	choosePrism.addEventFilter(ActionEvent.ACTION, event -> {
+    		context.setPMCEngine("PRISM");
+    		System.out.println(context.getPMCEngine());
+    	});
+    	chooseStorm.addEventFilter(ActionEvent.ACTION, event -> {
+    		context.setPMCEngine("STORM");
+    		System.out.println(context.getPMCEngine());
+    	});
+    }
     
     /**
      * Handles the 'Load' menu item. Opens a file chooser dialog to load a JSON file

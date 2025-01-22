@@ -27,5 +27,14 @@
         <MenuItem fx:id="editProperty" onAction="#handleEditProperty" mnemonicParsing="false" text="Edit Property" />
       </items>
       </Menu>
+      <!-- Options menu -->
+      <Menu mnemonicParsing="false" text="Options" >
+       <items>
+         <Menu mnemonicParsing="false" text="Choose PMC Engine" >
+          	<MenuItem fx:id="choosePrism" mnemonicParsing="false" text="PRISM" />
+            <MenuItem fx:id="chooseStorm" mnemonicParsing="false" text="STORM" />  
+         </Menu>
+       </items>
+      </Menu>
   </menus>
 </MenuBar>
