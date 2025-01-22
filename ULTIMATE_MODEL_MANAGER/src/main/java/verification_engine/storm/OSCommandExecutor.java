@@ -1,8 +1,12 @@
 package verification_engine.storm;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import model.persistent_objects.SharedData;
 
 public class OSCommandExecutor {
 
@@ -23,16 +27,21 @@ public class OSCommandExecutor {
 
             Process process = processBuilder.start();
 
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            // Create a file writer to write output to logs.txt
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                 BufferedWriter writer = new BufferedWriter(new FileWriter("logs.txt"))) {
+
                 String line;
                 while ((line = reader.readLine()) != null) {
-                    System.out.println(line);
-                    System.out.flush();  // Ensure output is displayed immediately
+                    writer.write(line);
+                    writer.newLine();  // Ensure each line is properly formatted
                 }
             }
 
             int exitCode = process.waitFor();
-            System.out.println("Exited with code: " + exitCode);
+            // update the logs via tab2
+    		SharedData context = SharedData.getInstance();
+    		context.getTab2Controller().updateLogs();
 
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

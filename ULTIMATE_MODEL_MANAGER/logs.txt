@@ -1,55 +1,25 @@
-PRISM
-=====
+Storm 1.9.0
 
-Version: 4.5.dev
-Date: Wed Jan 22 14:08:41 GMT 2025
-Hostname: nas-10-241-83-85.york.ac.uk
-Memory limits: cudd=1g, java(heap)=2g
+Date: Wed Jan 22 15:51:31 2025
+Command line arguments: --prism /Users/micahbassett/Desktop/test.prism --prop /Users/micahbassett/Desktop/test.pctl
+Current working directory: /Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER
 
-Type:        DTMC
-Modules:     Test 
-Variables:   s 
+Time for model input parsing: 0.010s.
 
----------------------------------------------------------------------
+Time for model construction: 0.045s.
 
-Model checking: P=? [ F s=1 ]
+-------------------------------------------------------------- 
+Model type: 	DTMC (sparse)
+States: 	3
+Transitions: 	4
+Reward Models:  none
+State Labels: 	3 labels
+   * deadlock -> 0 item(s)
+   * init -> 1 item(s)
+   * (s = 1) -> 1 item(s)
+Choice Labels: 	none
+-------------------------------------------------------------- 
 
-Building model...
-
-Computing reachable states...
-
-Reachability (BFS): 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Time for model construction: 0.009 seconds.
-
-Type:        DTMC
-States:      3 (1 initial)
-Transitions: 4
-
-Transition matrix: 14 nodes (4 terminal), 4 minterms, vars: 2r/2c
-
-Prob0: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Prob1: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-yes = 1, no = 1, maybe = 1
-
-Computing remaining probabilities...
-Engine: Hybrid
-
-Building hybrid MTBDD matrix... [levels=2, nodes=9] [0.4 KB]
-Adding explicit sparse matrices... [levels=2, num=1, compact] [0.0 KB]
-Creating vector for diagonals... [dist=1, compact] [0.0 KB]
-Creating vector for RHS... [dist=2, compact] [0.0 KB]
-Allocating iteration vectors... [2 x 0.0 KB]
-TOTAL: [0.5 KB]
-
-Starting iterations...
-
-Jacobi: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Value in the initial state: 0.4
-
-Time for model checking: 0.002 seconds.
-
-Result: 0.4 (value in the initial state)
+Model checking property "1": P=? [F (s = 1)] ...
+Result (for initial states): 0.4
+Time for model checking: 0.005s.
