@@ -71,11 +71,9 @@ public class Menu_Bar extends Controller {
     private void setUpMenuActions() {
     	choosePrism.addEventFilter(ActionEvent.ACTION, event -> {
     		context.setPMCEngine("PRISM");
-    		System.out.println(context.getPMCEngine());
     	});
     	chooseStorm.addEventFilter(ActionEvent.ACTION, event -> {
     		context.setPMCEngine("STORM");
-    		System.out.println(context.getPMCEngine());
     	});
     }
     
