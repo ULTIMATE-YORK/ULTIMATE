@@ -1,5 +1,6 @@
 package utils;
 
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.persistent_objects.Model;
@@ -11,6 +12,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,13 @@ public class FileUtils {
         fileChooser.setTitle(title);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter(description, extensions));
         return fileChooser.showOpenDialog(stage);
+    }
+    
+    public static File openDirectoryDialog(Stage stage, String title) {
+    	DirectoryChooser dirChooser = new DirectoryChooser();
+    	dirChooser.setTitle(title);
+    	return dirChooser.showDialog(stage);
+    	
     }
 
     public static JSONObject parseJSONFile(File file) throws IOException {
@@ -63,13 +72,14 @@ public class FileUtils {
 	}
 	
 	public static void updatePropertyFile(Model model) {
-		String fileName = model.getPropFile().getAbsolutePath();
+		String fileName = model.getPropFile();
 		ArrayList<Property> props = model.getProperties();
 		generatePropertyFile(fileName, props);
 	}
 	
-	public static ArrayList<Property> getPropertiesFromFile(File file) throws IOException {
-		List<String> allLines = Files.readAllLines(file.toPath());
+	public static ArrayList<Property> getPropertiesFromFile(String filepath) throws IOException {
+		Path path = Paths.get(filepath);
+		List<String> allLines = Files.readAllLines(path);
 		ArrayList<Property> props = new ArrayList<Property>();
 		for (String s : allLines) {
 			props.add(new Property(s));

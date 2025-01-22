@@ -10,6 +10,8 @@ import org.json.JSONObject;
 
 import utils.*;
 import verification_engine.prism.PrismAPI;
+import verification_engine.storm.OSCommandExecutor;
+import verification_engine.storm.StormAPI;
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
@@ -31,19 +33,7 @@ public class Menu_Bar extends Controller {
 	
 	// The file currently associated with the session (for saving/loading)
 	private File saveFile;
-	
-	// FXML-linked fields for menu items (these correspond to the items defined in the FXML file)
-    @FXML private MenuItem loadItem;
-    @FXML private MenuItem saveItem;
-    @FXML private MenuItem saveAsItem;
-    @FXML private MenuItem quitItem;
-    @FXML private MenuItem addProperty;
-    @FXML private MenuItem loadPropertyList;
-    @FXML private MenuItem savePropertyList;
-    @FXML private MenuItem saveAsPropertyList;
-    @FXML private MenuItem verifyProperty;
-    @FXML private MenuItem deleteProperty;
-    @FXML private MenuItem editProperty;
+
     @FXML private MenuItem choosePrism;
     @FXML private MenuItem chooseStorm;
     
@@ -73,7 +63,12 @@ public class Menu_Bar extends Controller {
     		context.setPMCEngine("PRISM");
     	});
     	chooseStorm.addEventFilter(ActionEvent.ACTION, event -> {
-    		context.setPMCEngine("STORM");
+    		if (context.getStormInstallation() == "") {
+    			Alerter.showAlert("No STORM installation found!", "Please configure STORM in Options -> cofigure storm");
+    		}
+    		else {
+        		context.setPMCEngine("STORM");
+    		}
     	});
     }
     
@@ -167,7 +162,7 @@ public class Menu_Bar extends Controller {
 	private void handleLoadPropertyList() throws IOException {
         File file = FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl");
         if (file != null) {
-        	context.getCurrentModel().setPropFile(file);
+        	context.getCurrentModel().setPropFile(file.getAbsolutePath());
         	context.update();
         }
         else {
@@ -198,12 +193,17 @@ public class Menu_Bar extends Controller {
         }
         
         // set the file for the current model
-        context.getCurrentModel().setPropFile(file);
+        context.getCurrentModel().setPropFile(file.getAbsolutePath());
 	}
 
 	@FXML
 	private void handleVerifyProperty() throws FileNotFoundException, PrismException {
-		PrismAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile());
+		if (context.getPMCEngine() == "PRISM") {
+			PrismAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile());
+		}
+		else {
+			StormAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile(), context.getStormInstallation());
+		}
 	}
 
 	@FXML
@@ -225,5 +225,18 @@ public class Menu_Bar extends Controller {
 	@Override
 	public void registerController() {
 		context.registerController(this);
+	}
+	
+	@FXML
+	private void configureStorm() {
+		if (context.getStormInstallation() != "") {
+			Alerter.showAlert("STORM has been configure already!", "STORM found at: " + context.getStormInstallation());
+		}
+		else {
+			File file = FileUtils.openDirectoryDialog(mainStage, "Locate STORM installation");
+			if (file != null) {
+				context.setStormInstallation(file.getAbsolutePath());
+			}
+		}
 	}
 }

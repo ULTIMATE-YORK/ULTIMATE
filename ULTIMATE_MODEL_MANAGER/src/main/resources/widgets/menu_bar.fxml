@@ -34,6 +34,7 @@
           	<MenuItem fx:id="choosePrism" mnemonicParsing="false" text="PRISM" />
             <MenuItem fx:id="chooseStorm" mnemonicParsing="false" text="STORM" />  
          </Menu>
+         <MenuItem fx:id="configureStorm" onAction="#configureStorm" mnemonicParsing="false" text="Configure STORM" />
        </items>
       </Menu>
   </menus>
