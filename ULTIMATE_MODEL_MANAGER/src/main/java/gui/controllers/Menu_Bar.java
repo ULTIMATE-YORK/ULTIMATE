@@ -207,6 +207,6 @@ public class Menu_Bar extends Controller {
 
 	@Override
 	public void registerController() {
-		context.setMenuBarController(this);
+		context.registerController(this);
 	}
 }

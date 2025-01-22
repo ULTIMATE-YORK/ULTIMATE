@@ -183,6 +183,5 @@ public class Model_List extends Controller {
 
 	@Override
 	public void registerController() {
-		context.setModelListController(this);
-	}
+		context.registerController(this);	}
 }

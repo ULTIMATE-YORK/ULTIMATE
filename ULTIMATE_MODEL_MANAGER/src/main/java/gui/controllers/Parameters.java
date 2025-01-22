@@ -463,6 +463,5 @@ public class Parameters extends Controller {
 
 	@Override
 	public void registerController() {
-		context.setParametersController(this);
-	}
+		context.registerController(this);	}
 }

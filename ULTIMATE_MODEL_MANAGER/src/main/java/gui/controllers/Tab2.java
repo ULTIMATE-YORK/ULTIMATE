@@ -45,8 +45,9 @@ public class Tab2 extends Controller {
                 content.append(line).append("\n");  // Read and append line by line
             }
             // Update TextArea on the JavaFX UI thread
-            logsField.appendText(content.toString());
-
+            // TODO move all UI updated to thread!!
+            Platform.runLater(() -> logsField.appendText(content.toString()));
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,8 +55,7 @@ public class Tab2 extends Controller {
 
 	@Override
 	public void registerController() {
-		context.setTab2Controller(this);
-	}
+		context.registerController(this);	}
 
 	@Override
 	public void update() {

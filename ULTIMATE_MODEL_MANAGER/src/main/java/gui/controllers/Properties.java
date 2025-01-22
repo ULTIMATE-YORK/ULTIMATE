@@ -123,7 +123,7 @@ public class Properties extends Controller {
 
 	@Override
 	public void registerController() {
-		context.setPropertiesController(this);
+		context.registerController(this);	
 	}
 	
 	public ArrayList<String> getProperties() {

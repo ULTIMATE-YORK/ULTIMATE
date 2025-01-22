@@ -111,6 +111,10 @@ public class SharedData {
     	return this.tab2Controller;
     }
     
+    public <T extends Controller >void registerController(T controller) {
+    	allControllers.add(controller);
+    }
+    
     public void update() {
     	for (Controller controller : allControllers) {
     		controller.update();
