@@ -4,23 +4,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.*;
 import verification_engine.prism.PrismAPI;
-import verification_engine.storm.OSCommandExecutor;
 import verification_engine.storm.StormAPI;
 import javafx.application.Platform;
 import javafx.collections.ObservableList; // JavaFX observable list for binding data
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
-import javafx.scene.Node;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem; // JavaFX menu item class
-import javafx.scene.input.MouseEvent;
 import javafx.stage.FileChooser; // JavaFX file chooser for file selection dialogs
 import javafx.stage.Stage; // JavaFX stage class representing the main application window
 import model.persistent_objects.*; // Custom class representing a model
@@ -46,7 +42,7 @@ public class MenuBarController extends Controller {
     private SharedData context;
    
     /**
-     * Initializes the controller. Called automatically after the FXML file is loaded.
+     * Initialises the controller. Called automatically after the FXML file is loaded.
      * Fetches shared data (models and stage) from the shared context.
      */
     @FXML
@@ -75,28 +71,45 @@ public class MenuBarController extends Controller {
     
     /**
      * Handles the 'Load' menu item. Opens a file chooser dialog to load a JSON file
-     * containing model data. If the file is valid, it initializes the models and updates the UI.
+     * containing model data. If the file is valid, it initialises the models and updates the UI.
      */
-	@FXML
-	private void handleLoad() {
+    @FXML
+    private void handleLoad() {
         // Open a file dialog for selecting a JSON file
-        File file = FileUtils.openFileDialog(mainStage, "Load Models", "loading JSON files", "*.json");
-        if (file != null) {
-            try {
+        FileUtils.openFileDialog(mainStage, "Load Models", "loading JSON files", "*.json", file -> {
+            if (file != null) {
                 // Update the window title with the file name (excluding the extension)
-            	Platform.runLater(() -> mainStage.setTitle(file.getName().replaceAll(".json", "")));                
-                // Parse the selected JSON file and initialize models
-                JSONObject root = FileUtils.parseJSONFile(file);
-                ModelUtils.parseAndInitializeModels(root, models);
-            } catch (IOException e) {
-                // Show an alert if there is an error reading the file
-                Platform.runLater( () -> Alerter.showAlert("Error loading file: " + e.getMessage(), "Failed to load models"));
-            } catch (JSONException e) {
-                // Show an alert if the JSON file has an invalid format
-                Platform.runLater( () -> Alerter.showAlert("Invalid JSON format: " + e.getMessage(), "Failed to load models"));
+                Platform.runLater(() -> mainStage.setTitle(file.getName().replaceAll(".json", "")));
+                // Parse the selected JSON file asynchronously
+                FileUtils.parseJSONFileAsync(file, new FileUtils.JSONCallback() {
+                    @Override
+                    public void onJSONParsed(JSONObject root) {
+                        try {
+                            // Process the parsed JSON and initialise models
+                            ModelUtils.parseAndInitializeModels(root, models);
+                        } catch (JSONException e) {
+                            // Show an alert if the JSON parsing fails during initialisation
+                            Platform.runLater(() -> Alerter.showAlert(
+                                    "Invalid JSON structure: " + e.getMessage(),
+                                    "Failed to load models"
+                            ));
+                        }
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+                        // Handle exceptions (IOException, JSONException, etc.)
+                        Platform.runLater(() -> Alerter.showAlert(
+                                "Error reading JSON file: " + e.getMessage(),
+                                "Failed to load models"
+                        ));
+                    }
+                });
+            } else {
+                // Handle case where no file was selected
+                Platform.runLater(() -> Alerter.showAlert("No file selected.", "Load Models"));
             }
-        }
-	}
+        });
+    }
 
     /**
      * Handles the 'Save' menu item. Saves the current models to the file associated with
@@ -104,14 +117,27 @@ public class MenuBarController extends Controller {
      */
 	@FXML
 	private void handleSave() {
-        List<Model> modelList = models;  // Convert the observable list to a standard list
-        if (saveFile != null) {
-        	// Save models to the existing save file
-        	ModelUtils.saveModelsToFile(modelList, saveFile.getAbsolutePath());
-        } else {
-        	// Prompt the user to select a file location if none is set
-        	handleSaveAs();
-        }
+	    List<Model> modelList = models;  // Convert the observable list to a standard list
+
+	    if (saveFile != null) {
+	        // Save models asynchronously to the existing save file
+	        ModelUtils.saveModelsToFileAsync(modelList, saveFile.getAbsolutePath(), new ModelUtils.FileSaveCallback() {
+	            @Override
+	            public void onSuccess() {
+	                // Notify the user on the JavaFX thread that the save operation was successful
+	                Platform.runLater(() -> Alerter.showAlert("Models saved successfully!", "Save Complete"));
+	            }
+
+	            @Override
+	            public void onError(Throwable e) {
+	                // Notify the user of an error that occurred during saving
+	                Platform.runLater(() -> Alerter.showAlert("Error saving models: " + e.getMessage(), "Save Failed"));
+	            }
+	        });
+	    } else {
+	        // Prompt the user to select a file location if none is set
+	        handleSaveAs();
+	    }
 	}
 
     /**
@@ -120,20 +146,40 @@ public class MenuBarController extends Controller {
      */
 	@FXML
 	private void handleSaveAs() {
-        // Convert the observable list to a standard list
-        List<Model> modelList = models;
+	    // Convert the observable list to a standard list
+	    List<Model> modelList = models;
 
-        // Open a file chooser dialog for selecting a save location
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
-        File file = fileChooser.showSaveDialog(mainStage);
+	    // Open the file chooser dialog on the JavaFX Application Thread
+	    Platform.runLater(() -> {
+	        FileChooser fileChooser = new FileChooser();
+	        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+	        
+	        // Show the save dialog and handle file selection asynchronously
+	        File file = fileChooser.showSaveDialog(mainStage);
 
-        if (file != null) {
-            // Update the saveFile reference for future saves
-            saveFile = file;
-            // Save the models to the selected file
-            ModelUtils.saveModelsToFile(modelList, file.getAbsolutePath());
-        }
+	        if (file != null) {
+	            // Update the saveFile reference for future saves
+	            saveFile = file;
+
+	            // Save the models asynchronously to the selected file
+	            ModelUtils.saveModelsToFileAsync(modelList, file.getAbsolutePath(), new ModelUtils.FileSaveCallback() {
+	                @Override
+	                public void onSuccess() {
+	                    // Notify the user of successful save on the JavaFX thread
+	                    Platform.runLater(() -> Alerter.showAlert("Models saved successfully!", "Save Complete"));
+	                }
+
+	                @Override
+	                public void onError(Throwable e) {
+	                    // Notify the user of an error that occurred during saving
+	                    Platform.runLater(() -> Alerter.showAlert("Error saving models: " + e.getMessage(), "Save Failed"));
+	                }
+	            });
+	        } else {
+	            // Notify the user that save was cancelled
+	            Platform.runLater(() -> Alerter.showAlert("Save operation canceled.", "Save Models"));
+	        }
+	    });
 	}
 
     /**
@@ -145,71 +191,161 @@ public class MenuBarController extends Controller {
 	    mainStage.close(); // Close the main stage (application window)
 	}
 
-	// TODO implement the menu item handlers for the 'Verification' menu
-	@FXML
-	private void handleAddProperty() throws IOException {
-		Model model = context.getCurrentModel();
-		if (model == null) {
-			Platform.runLater( () -> Alerter.showAlert("Error", "Please select a model from the list to add a property!"));
-			return;
-		}
-		else {
-			// FIXME make this thread safe
-			DialogLoader.load("/dialogs/add_property.fxml", "Add Property", context.getPropertiesController());
-		}
-	}
-
-	@FXML
-	private void handleLoadPropertyList() throws IOException {
-		// FIXME make this thread safe
-        File file = FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl");
-        if (file != null) {
-        	context.getCurrentModel().setPropFile(file.getAbsolutePath());
-        	context.update();
+    /**
+     * Handles the addition of a new property by loading the property dialog.
+     * Ensures thread safety by running UI operations on the JavaFX thread.
+     * 
+     * @throws IOException if the dialog fails to load
+     */
+    @FXML
+    private void handleAddProperty() throws IOException {
+        Model model = context.getCurrentModel();
+        if (model == null) {
+            // Ensure UI updates happen on the JavaFX thread
+            Platform.runLater(() -> Alerter.showAlert("Error", "Please select a model from the list to add a property!"));
+            return;
+        } else {
+            // Load the property addition dialog safely on the JavaFX thread
+            Platform.runLater(() -> {
+                try {
+                    DialogLoader.load("/dialogs/add_property.fxml", "Add Property", context.getPropertiesController());
+                } catch (IOException e) {
+                    Alerter.showAlert("Error", "Failed to load property dialog: " + e.getMessage());
+                }
+            });
         }
-        else {
-        	Platform.runLater( () -> Alerter.showAlert("No file Found", "Aborting..."));
+    }
+
+    /**
+     * Handles loading a property list file asynchronously and updates the model.
+     * Ensures file operations do not block the UI thread.
+     * 
+     * @throws IOException if file loading fails
+     */
+    @FXML
+    private void handleLoadPropertyList() throws IOException {
+        // Open the file dialog asynchronously to avoid blocking UI thread
+        FileUtils.openFileDialog(mainStage, "Load Properties File", "loading Properties files", "*.pctl", file -> {
+            if (file != null) {
+                // Safely update the model's property file on the JavaFX thread
+                Platform.runLater(() -> {
+                    try {
+						context.getCurrentModel().setPropFile(file.getAbsolutePath());
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                    context.update();
+                });
+            } else {
+                Platform.runLater(() -> Alerter.showAlert("No file Found", "Aborting..."));
+            }
+        });
+    }
+
+    /**
+     * Handles saving the current model's property list asynchronously.
+     * Ensures that file writing does not block the UI thread.
+     * 
+     * @throws IOException if file saving fails
+     */
+    @FXML
+    private void handleSavePropertyList() throws IOException {
+        // Check if the model has a property file set
+        if (context.getCurrentModel().hasPropFile()) {
+            // Save properties asynchronously using the correct method
+            FileUtils.updatePropertyFileAsync(context.getCurrentModel(), new FileUtils.TaskCallback() {
+                @Override
+                public void onSuccess() {
+                    Platform.runLater(() -> Alerter.showAlert("Success", "Property list saved successfully!"));
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    Platform.runLater(() -> Alerter.showAlert("Error", "Failed to save property list: " + e.getMessage()));
+                }
+            });
+        } else {
+            handleSaveAsPropertyList();
         }
-	}
+    }
 
-	@FXML
-	private void handleSavePropertyList() throws IOException {
-		// check if the current model has a prop file
-		if (context.getCurrentModel().hasPropFile()) {
-			// FIXME thread safe?
-			FileUtils.updatePropertyFile(context.getCurrentModel());
-		}
-		else {
-			handleSaveAsPropertyList();
-		}
-	}
+    /**
+     * Handles "Save As" for the property list, prompting the user for a save location.
+     * Runs the file dialog on the JavaFX thread and saves asynchronously.
+     * 
+     * @throws IOException if the save dialog fails
+     */
+    @FXML
+    private void handleSaveAsPropertyList() throws IOException {
+        // Open the file chooser on the JavaFX thread
+        Platform.runLater(() -> {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
+            File file = fileChooser.showSaveDialog(mainStage);
 
-	@FXML
-	private void handleSaveAsPropertyList() throws IOException {
-		// FIXME thread-safe?
-        // Open a file chooser dialog for selecting a save location
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Property Files", "*.pctl"));
-        File file = fileChooser.showSaveDialog(mainStage);
-        
-        if (file != null && !context.getCurrentModel().hasPropFile()) {
-        	FileUtils.generatePropertyFile(file.getAbsolutePath(), context.getCurrentModel().getProperties());
+            if (file != null) {
+                // Save properties asynchronously
+                FileUtils.generatePropertyFileAsync(file.getAbsolutePath(), context.getCurrentModel().getProperties(), new FileUtils.TaskCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Platform.runLater(() -> Alerter.showAlert("Success", "Property list saved successfully!"));
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Platform.runLater(() -> Alerter.showAlert("Error", "Failed to save property list: " + e.getMessage()));
+                    }
+                });
+
+                // Safely update the model's property file reference on the JavaFX thread
+                Platform.runLater(() -> {
+					try {
+						context.getCurrentModel().setPropFile(file.getAbsolutePath());
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				});
+            } else {
+                Platform.runLater(() -> Alerter.showAlert("Cancelled", "Save operation was cancelled."));
+            }
+        });
+    }
+
+    /**
+     * Verifies the current model's property list using the selected verification engine.
+     * Runs verification asynchronously to prevent UI blocking.
+     * 
+     * @throws FileNotFoundException if the property file is missing
+     * @throws PrismException if the verification fails
+     */
+    @FXML
+    private void handleVerifyProperty() throws FileNotFoundException, PrismException {
+        Model model = context.getCurrentModel();
+        String propFilePath = model.getPropFile();
+
+        if (context.getPMCEngine().equalsIgnoreCase("PRISM")) {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    PrismAPI.run(model, propFilePath);
+                    Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using PRISM."));
+                } catch (Exception e) {
+                    Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
+                }
+            });
+        } else {
+            CompletableFuture.runAsync(() -> {
+                try {
+                    StormAPI.run(model, propFilePath, context.getStormInstallation());
+                    Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using Storm."));
+                } catch (Exception e) {
+                    Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
+                }
+            });
         }
-        
-        // set the file for the current model
-        context.getCurrentModel().setPropFile(file.getAbsolutePath());
-	}
-
-	@FXML
-	private void handleVerifyProperty() throws FileNotFoundException, PrismException {
-		if (context.getPMCEngine() == "PRISM") {
-			PrismAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile());
-		}
-		else {
-			StormAPI.run(context.getCurrentModel(), context.getCurrentModel().getPropFile(), context.getStormInstallation());
-		}
-	}
-
+    }
+    
 	@FXML
 	private void handleDeleteProperty() {
 
@@ -231,17 +367,28 @@ public class MenuBarController extends Controller {
 		context.registerController(this);
 	}
 	
+	/**
+	 * Handles the configuration of the STORM model-checking tool.
+	 * Ensures that UI updates and file operations are performed in a thread-safe manner.
+	 */
 	@FXML
 	private void configureStorm() {
-		if (context.getStormInstallation() != "") {
-			Platform.runLater( () -> Alerter.showAlert("STORM has been configure already!", "STORM found at: " + context.getStormInstallation()));
-		}
-		else {
-			// FIXME thread-safe?
-			File file = FileUtils.openDirectoryDialog(mainStage, "Locate STORM installation");
-			if (file != null) {
-				context.setStormInstallation(file.getAbsolutePath());
-			}
-		}
+	    // Check if STORM is already configured
+	    if (!context.getStormInstallation().isEmpty()) {
+	        // Ensure UI updates happen on the JavaFX thread
+	        Platform.runLater(() -> Alerter.showAlert("STORM has already been configured!", 
+	                "STORM found at: " + context.getStormInstallation()));
+	    } else {
+	        // Open the directory chooser asynchronously to prevent blocking the UI thread
+	        FileUtils.openDirectoryDialog(mainStage, "Locate STORM installation", file -> {
+	            if (file != null) {
+	                // Safely update the STORM installation path on the JavaFX thread
+	                Platform.runLater(() -> context.setStormInstallation(file.getAbsolutePath()));
+	            } else {
+	                // Notify the user if the operation was cancelled
+	                Platform.runLater(() -> Alerter.showAlert("Configuration canceled", "No STORM installation selected."));
+	            }
+	        });
+	    }
 	}
 }
