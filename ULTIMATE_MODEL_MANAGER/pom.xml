@@ -61,6 +61,33 @@
         <version>5.4.0</version>
         <scope>test</scope>
     </dependency>
+        <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-junit-jupiter</artifactId>
+        <version>5.4.0</version>
+        <scope>test</scope>
+    </dependency>
+        <!-- JavaFX Testing (TestFX) -->
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-core</artifactId>
+        <version>4.0.16-alpha</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.testfx</groupId>
+        <artifactId>testfx-junit5</artifactId>
+        <version>4.0.16-alpha</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- AssertJ for Fluent Assertions -->
+    <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>3.24.2</version>
+        <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>org.modelChecker</groupId>
       <artifactId>PrismAPI</artifactId>

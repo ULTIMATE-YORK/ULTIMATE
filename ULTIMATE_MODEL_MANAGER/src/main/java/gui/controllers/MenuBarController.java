@@ -13,7 +13,6 @@ import utils.*;
 import verification_engine.prism.PrismAPI;
 import verification_engine.storm.StormAPI;
 import javafx.application.Platform;
-import javafx.collections.ObservableList; // JavaFX observable list for binding data
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
 import javafx.scene.control.MenuItem; // JavaFX menu item class
@@ -33,9 +32,6 @@ public class MenuBarController extends Controller {
 
     @FXML private MenuItem choosePrism;
     @FXML private MenuItem chooseStorm;
-    
-    // Observable list of models representing the session data
-    private ObservableList<Model> models;
     // The primary stage of the application, used for displaying dialogs
     private Stage mainStage;
     
@@ -49,7 +45,6 @@ public class MenuBarController extends Controller {
 	private void initialize() {
         // Obtain shared data from the singleton SharedData instance
         context = SharedData.getInstance();
-        models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
         registerController();
         setUpMenuActions();
@@ -86,7 +81,7 @@ public class MenuBarController extends Controller {
                     public void onJSONParsed(JSONObject root) {
                         try {
                             // Process the parsed JSON and initialise models
-                            ModelUtils.parseAndInitializeModels(root, models);
+                            ModelUtils.parseAndInitializeModels(root, context.getModels());
                         } catch (JSONException e) {
                             // Show an alert if the JSON parsing fails during initialisation
                             Platform.runLater(() -> Alerter.showAlert(
@@ -117,7 +112,7 @@ public class MenuBarController extends Controller {
      */
 	@FXML
 	private void handleSave() {
-	    List<Model> modelList = models;  // Convert the observable list to a standard list
+	    List<Model> modelList = context.getModels();  // Convert the observable list to a standard list
 
 	    if (saveFile != null) {
 	        // Save models asynchronously to the existing save file
@@ -147,7 +142,7 @@ public class MenuBarController extends Controller {
 	@FXML
 	private void handleSaveAs() {
 	    // Convert the observable list to a standard list
-	    List<Model> modelList = models;
+	    List<Model> modelList = context.getModels();
 
 	    // Open the file chooser dialog on the JavaFX Application Thread
 	    Platform.runLater(() -> {
@@ -229,12 +224,7 @@ public class MenuBarController extends Controller {
             if (file != null) {
                 // Safely update the model's property file on the JavaFX thread
                 Platform.runLater(() -> {
-                    try {
-						context.getCurrentModel().setPropFile(file.getAbsolutePath());
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+                    context.getCurrentModel().setPropFile(file.getAbsolutePath());
                     context.update();
                 });
             } else {
@@ -300,12 +290,7 @@ public class MenuBarController extends Controller {
 
                 // Safely update the model's property file reference on the JavaFX thread
                 Platform.runLater(() -> {
-					try {
-						context.getCurrentModel().setPropFile(file.getAbsolutePath());
-					} catch (IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
+					context.getCurrentModel().setPropFile(file.getAbsolutePath());
 				});
             } else {
                 Platform.runLater(() -> Alerter.showAlert("Cancelled", "Save operation was cancelled."));

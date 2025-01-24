@@ -242,14 +242,34 @@ public class Model {
     	this.properties = props;
     }
     
-    public void setPropFile(String propFile) throws IOException {
-    	if (propertiesFile == null) {
-    		propertiesFile = propFile;
-    		setProperties(FileUtils.getPropertiesFromFile(propFile));
-    	}
-    	else {
-    		Platform.runLater( () -> Alerter.showAlert("Model already has a pctl file!", "Aborting..."));
-    	}
+    /**
+     * Sets the property file for the model and loads its properties asynchronously.
+     * Ensures thread safety and proper UI updates.
+     *
+     * @param propFile The path to the property file.
+     */
+    public void setPropFile(String propFile) {
+        if (propertiesFile == null) {
+            propertiesFile = propFile;
+
+            // Load properties asynchronously using the updated FileUtils method
+            FileUtils.getPropertiesFromFileAsync(propFile, new FileUtils.PropertiesCallback() {
+                @Override
+                public void onPropertiesLoaded(ArrayList<Property> properties) {
+                    // Safely update the model properties on the JavaFX thread
+                    Platform.runLater(() -> setProperties(properties));
+                }
+
+                @Override
+                public void onError(Throwable e) {
+                    // Show an alert on the JavaFX thread if an error occurs during loading
+                    Platform.runLater(() -> Alerter.showAlert("Error loading properties file: " + e.getMessage(), "Aborting..."));
+                }
+            });
+        } else {
+            // Alert the user that a properties file is already set
+            Platform.runLater(() -> Alerter.showAlert("Model already has a PCTL file!", "Aborting..."));
+        }
     }
     
     public String getPropFile() {

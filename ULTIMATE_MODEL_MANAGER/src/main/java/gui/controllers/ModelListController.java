@@ -32,13 +32,8 @@ public class ModelListController extends Controller {
 
     // FXML-linked fields for UI components
     @FXML private ListView<Model> modelListView; // List view to display models
-    @FXML private Button addModelButton; // Button to add a new model
-    @FXML private Button upButton; // Button to move the selection up
-    @FXML private Button downButton; // Button to move the selection down
     @FXML public VBox modelListVBox; // Container for the model list view
 
-    // Observable list to hold models in the current session
-    private ObservableList<Model> models;
     // Reference to the main stage of the application
     private Stage mainStage;
     
@@ -52,7 +47,6 @@ public class ModelListController extends Controller {
     private void initialize() {
         // Fetch shared data from the singleton SharedData instance
         context = SharedData.getInstance();
-        models = context.getModels(); // Load the session's list of models
         mainStage = context.getMainStage(); // Load the primary stage of the application
 
         // Set up behavior and appearance of the model list view
@@ -67,7 +61,7 @@ public class ModelListController extends Controller {
         // Dynamically adjust the width of the VBox based on the parent container
 
         // Bind the model list to the observable list of models
-        modelListView.setItems(models);
+        modelListView.setItems(context.getModels());
 
         // Customize the appearance of each item in the list view
         modelListView.setCellFactory(param -> new ListCell<>() {
@@ -100,7 +94,7 @@ public class ModelListController extends Controller {
             if (event.getCode() == KeyCode.BACK_SPACE) {
                 Model selectedModel = modelListView.getSelectionModel().getSelectedItem();
                 if (selectedModel != null) {
-                    models.remove(selectedModel); // Remove the selected model
+                    context.getModels().remove(selectedModel); // Remove the selected model
                 }
             }
         });
@@ -115,40 +109,41 @@ public class ModelListController extends Controller {
         // Supported file types for model files
         String[] validFileTypes = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism"};
         // Open a file dialog for selecting a model file
-        File selectedFile = FileUtils.openFileDialog(mainStage, "Select Model File", "Prism Files", validFileTypes);
-        if (selectedFile != null) {
-            // Create a new Model instance with the file details
-            String id = selectedFile.getName().replaceFirst("[.][^.]+$", ""); // Extract the file name without extension
-            String filePath = selectedFile.getAbsolutePath();
-            Model model = new Model(id, filePath);
-            // if first model added, register it and select it
-            if (models.isEmpty()) {
-            	models.add(model); // Add the model to the list
-            	context.setCurrentModel(model);
-            	handleDown(); // select the model
-            }
-            else {
-                models.add(model); // Add the model to the list
-            }
-            // Parse the file for undefined parameters using PrismFileParser
-            PrismFileParser parser = new PrismFileParser();
-            try {
-                List<String> undefinedParams = parser.parseFile(filePath);
-
-                if (undefinedParams != null) {
-                    // Add each undefined parameter to the model
-                    for (String param : undefinedParams) {
-                        model.addUndefinedParameter(param);
-                    }
-                }
-            } catch (IOException e) {
-                // Log any errors during file parsing
-                e.printStackTrace();
-            }
-        } else {
-            // Show an alert if the selected file is invalid
-            Alerter.showAlert("Invalid file selected", "Please select a valid model file");
-        }
+        FileUtils.openFileDialog(mainStage, "Select Model File", "Prism Files", validFileTypes, selectedFile -> {
+	        if (selectedFile != null) {
+	            // Create a new Model instance with the file details
+	            String id = selectedFile.getName().replaceFirst("[.][^.]+$", ""); // Extract the file name without extension
+	            String filePath = selectedFile.getAbsolutePath();
+	            Model model = new Model(id, filePath);
+	            // if first model added, register it and select it
+	            if (context.getModels().isEmpty()) {
+	            	context.getModels().add(model); // Add the model to the list
+	            	context.setCurrentModel(model);
+	            	handleDown(); // select the model
+	            }
+	            else {
+	                context.getModels().add(model); // Add the model to the list
+	            }
+	            // Parse the file for undefined parameters using PrismFileParser
+	            PrismFileParser parser = new PrismFileParser();
+	            try {
+	                List<String> undefinedParams = parser.parseFile(filePath);
+	
+	                if (undefinedParams != null) {
+	                    // Add each undefined parameter to the model
+	                    for (String param : undefinedParams) {
+	                        model.addUndefinedParameter(param);
+	                    }
+	                }
+	            } catch (IOException e) {
+	                // Log any errors during file parsing
+	                e.printStackTrace();
+	            }
+	        } else {
+	            // Show an alert if the selected file is invalid
+	            Alerter.showAlert("Invalid file selected", "Please select a valid model file");
+	        }
+        });
     }
 
     /**
@@ -169,7 +164,7 @@ public class ModelListController extends Controller {
     @FXML
     private void handleDown() {
         int selectedIndex = modelListView.getSelectionModel().getSelectedIndex();
-        if (selectedIndex < models.size() - 1) {
+        if (selectedIndex < context.getModels().size() - 1) {
             // Select the item just below the current one
             modelListView.getSelectionModel().select(selectedIndex + 1);
         }
