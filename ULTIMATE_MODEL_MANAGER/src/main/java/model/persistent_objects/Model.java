@@ -1,10 +1,10 @@
 package model.persistent_objects;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.application.Platform;
 import utils.Alerter;
 import utils.FileUtils;
 
@@ -248,7 +248,7 @@ public class Model {
     		setProperties(FileUtils.getPropertiesFromFile(propFile));
     	}
     	else {
-    		Alerter.showAlert("Model already has a pctl file!", "Aborting...");
+    		Platform.runLater( () -> Alerter.showAlert("Model already has a pctl file!", "Aborting..."));
     	}
     }
     
