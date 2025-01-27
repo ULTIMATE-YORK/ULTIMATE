@@ -3,6 +3,7 @@ package model.persistent_objects;
 import java.util.ArrayList;
 
 import gui.controllers.*;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
@@ -156,8 +157,10 @@ public class SharedData {
     }
     
     public void update() {
-    	for (Controller controller : allControllers) {
-    		controller.update();
-    	}
+    	Platform.runLater( () -> {
+	    	for (Controller controller : allControllers) {
+	    		controller.update();
+	    	}
+    	});
     }
 }

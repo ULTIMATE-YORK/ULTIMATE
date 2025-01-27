@@ -198,7 +198,7 @@ public class ModelUtils {
     	return toReturn;
     }
     
-    public static void updateModelFileResults(Model model, HashMap<String, Float> constants) {
+    public static void updateModelFileResults(Model model, HashMap<String, Double> constants) {
         String filePath = model.getFilePath();
         
         try {
@@ -213,7 +213,7 @@ public class ModelUtils {
                 for (String key : constants.keySet()) {
                     String pattern = "const double " + key + ";";
                     if (line.contains(pattern)) {
-                        float value = constants.get(key);
+                        double value = constants.get(key);
                         updatedLine = "const double " + key + " = " + value + ";";
                         break; // Stop checking once a match is found for this line
                     }

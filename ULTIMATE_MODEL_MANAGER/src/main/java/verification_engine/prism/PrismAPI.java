@@ -50,7 +50,7 @@ public class PrismAPI {
 	 * @throws FileNotFoundException
 	 * @throws PrismException
 	 */
-	public static float run(Model model, String propertyFile, boolean singleProperty) throws FileNotFoundException, PrismException {
+	public static double run(Model model, String propertyFile, boolean singleProperty) throws FileNotFoundException, PrismException {
 		
 		// Create a log for PRISM output (hidden or stdout)
 		//PrismLog mainLog = new PrismDevNullLog();
@@ -84,7 +84,7 @@ public class PrismAPI {
 		mainLog.flush();
 		SharedData context = SharedData.getInstance();
 		context.getTab2Controller().updateLogs();
-		return (float) result.getResult();
+		return (Double) result.getResult();
 	}
 	
 	

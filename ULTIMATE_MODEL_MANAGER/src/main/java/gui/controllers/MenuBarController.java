@@ -217,6 +217,7 @@ public class MenuBarController extends Controller {
      * 
      * @throws IOException if file loading fails
      */
+    // FIXME Properties list doesn't show when first loading a file
     @FXML
     private void handleLoadPropertyList() throws IOException {
         // Open the file dialog asynchronously to avoid blocking UI thread
@@ -225,12 +226,12 @@ public class MenuBarController extends Controller {
                 // Safely update the model's property file on the JavaFX thread
                 Platform.runLater(() -> {
                     context.getCurrentModel().setPropFile(file.getAbsolutePath());
-                    context.update();
                 });
             } else {
                 Platform.runLater(() -> Alerter.showAlert("No file Found", "Aborting..."));
             }
         });
+        context.update();
     }
 
     /**

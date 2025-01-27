@@ -17,7 +17,7 @@ public class DependencySolver {
 	List<Model> models = context.getModels();
 	
 	// TODO make available to both APIs
-	public float solve(Model model, String property) throws FileNotFoundException, PrismException {
+	public double solve(Model model, String property) throws FileNotFoundException, PrismException {
 		// Base Case is when a mode has no dependencies
 		if (model.getDependencyParameters().isEmpty()) {
 			if (context.getPMCEngine() == "PRISM") {
@@ -25,7 +25,7 @@ public class DependencySolver {
 			}
 		}
 		else {
-			HashMap<String, Float> results = new HashMap<String, Float>();
+			HashMap<String, Double> results = new HashMap<String, Double>();
 			for (DependencyParameter dep: model.getDependencyParameters()) {
 				// get the details of the dependency
 				Model depModel = ModelUtils.getModelFromList(dep.getModelID(), models);
@@ -38,6 +38,6 @@ public class DependencySolver {
 			}
 		}
 		
-		return (float) 0.0;
+		return 0.0;
 	}
 }

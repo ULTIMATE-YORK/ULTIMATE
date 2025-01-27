@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -55,7 +56,7 @@ public class PropertiesController extends Controller {
             }
         });
         
-        propertyVBox.setVisible(false);
+        //propertyVBox.setVisible(false);
         
         // Manually manage visibility with animation
         propertyListView.getItems().addListener((ListChangeListener<? super Property>) change -> {
@@ -101,7 +102,7 @@ public class PropertiesController extends Controller {
 			Property prop = new Property(context.getCurrentModel().getModelId(), def);
 			context.getCurrentModel().addProperty(prop);
 		}
-		update(context.getCurrentModel());
+		update();
 		cancel();
 	}
 	
@@ -111,14 +112,12 @@ public class PropertiesController extends Controller {
         stage.close();
 	}
 	
-	public void update(Model currentModel) {
-        propertyListView.getItems().clear(); // Clear existing items
-        propertyListView.getItems().addAll(currentModel.getProperties()); // Add new items from the model
-	}
-
 	@Override
 	public void update() {
-		update(context.getCurrentModel());
+		Platform.runLater( () -> {
+			propertyListView.getItems().clear(); // Clear existing items
+			propertyListView.getItems().addAll(context.getCurrentModel().getProperties()); // Add new items from the model
+		});
 	}
 
 	@Override

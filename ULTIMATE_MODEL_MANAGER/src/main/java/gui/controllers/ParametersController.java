@@ -111,6 +111,7 @@ public class ParametersController extends Controller {
 		setUpListViewCellFactory(uParamList);
 	}
     
+	// FIXME shouldn't open if no current model 
     @FXML
     private void handleEParam() {
     	// load the pop up dialog for adding an environment parameter
