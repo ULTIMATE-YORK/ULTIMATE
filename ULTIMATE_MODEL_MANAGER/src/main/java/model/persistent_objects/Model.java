@@ -24,6 +24,8 @@ public class Model {
     private List<InternalParameter> internalParameters; // List of internal parameters
     private List<UndefinedParameter> undefinedParameters; // List of undefined parameters
     private ArrayList<Property> properties;
+    
+    private SharedData context = SharedData.getInstance();
 
     /**
      * Constructor to initialize a new Model object.
@@ -257,7 +259,7 @@ public class Model {
                 @Override
                 public void onPropertiesLoaded(ArrayList<Property> properties) {
                     // Safely update the model properties on the JavaFX thread
-                    Platform.runLater(() -> setProperties(properties));
+                    setProperties(properties);
                 }
 
                 @Override

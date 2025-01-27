@@ -7,6 +7,8 @@ import javafx.stage.Stage;
 import model.persistent_objects.Model;
 import model.persistent_objects.Property;
 import javafx.concurrent.Task;
+
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -170,7 +172,7 @@ public class FileUtils {
                 List<String> allLines = Files.readAllLines(path);
                 ArrayList<Property> props = new ArrayList<>();
                 for (String s : allLines) {
-                    props.add(new Property(s));
+                    props.add(new Property(StringUtils.chop(s)));
                 }
                 return props;
             }

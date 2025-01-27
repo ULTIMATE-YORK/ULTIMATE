@@ -28,7 +28,7 @@ import javafx.stage.Stage;
 public class ModelListController extends Controller {
 
     // Style for labels displayed in the list
-    private String font = "-fx-font-size: 30px;";
+    private String font = "-fx-font-size: 18px;";
 
     // FXML-linked fields for UI components
     @FXML private ListView<Model> modelListView; // List view to display models

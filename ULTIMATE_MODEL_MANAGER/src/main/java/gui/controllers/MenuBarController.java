@@ -12,12 +12,17 @@ import org.json.JSONObject;
 import utils.*;
 import verification_engine.prism.PrismAPI;
 import verification_engine.storm.StormAPI;
+import javafx.animation.KeyFrame;
+import javafx.animation.PauseTransition;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML; // JavaFX annotation for linking UI elements
 import javafx.scene.control.MenuItem; // JavaFX menu item class
 import javafx.stage.FileChooser; // JavaFX file chooser for file selection dialogs
 import javafx.stage.Stage; // JavaFX stage class representing the main application window
+import javafx.util.Duration;
 import model.persistent_objects.*; // Custom class representing a model
 import prism.PrismException;
 
@@ -226,12 +231,13 @@ public class MenuBarController extends Controller {
                 // Safely update the model's property file on the JavaFX thread
                 Platform.runLater(() -> {
                     context.getCurrentModel().setPropFile(file.getAbsolutePath());
+                    Alerter.showAlert("File loaded succesfully!", "Property file updated for model");
+                    context.update();
                 });
             } else {
                 Platform.runLater(() -> Alerter.showAlert("No file Found", "Aborting..."));
             }
         });
-        context.update();
     }
 
     /**

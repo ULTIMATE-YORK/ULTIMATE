@@ -21,7 +21,7 @@ import utils.Animations;
 
 public class PropertiesController extends Controller {
 	
-	private String font = "-fx-font-size: 30px;";
+	private String font = "-fx-font-size: 18px;";
 
 	@FXML private ListView<Property> propertyListView;
 	@FXML private VBox propertyVBox;
@@ -56,9 +56,9 @@ public class PropertiesController extends Controller {
             }
         });
         
-        //propertyVBox.setVisible(false);
+        //propertyVBox.setVisible(true);
         
-        // Manually manage visibility with animation
+        /** Manually manage visibility with animation
         propertyListView.getItems().addListener((ListChangeListener<? super Property>) change -> {
             if (!propertyListView.getItems().isEmpty()) {
                 // Animate VBox expansion when there are items
@@ -77,13 +77,14 @@ public class PropertiesController extends Controller {
                 timeline.play();
             }
         });
+        */
         
         // Add a listener for selection changes in the list view
         propertyListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 // Update the views
             	context.setCurrentProperty(newValue);
-                context.update();
+                update();
             }
         });
 
@@ -112,11 +113,27 @@ public class PropertiesController extends Controller {
         stage.close();
 	}
 	
+	@FXML
+	private void handleAddProperty() {
+		
+	}
+	
+	@FXML
+	private void handleUp() {
+		
+	}
+	
+	@FXML
+	private void handleDown() {
+		
+	}
+	
 	@Override
 	public void update() {
 		Platform.runLater( () -> {
 			propertyListView.getItems().clear(); // Clear existing items
 			propertyListView.getItems().addAll(context.getCurrentModel().getProperties()); // Add new items from the model
+			//System.out.print("\nUpdating Properties Controller...\nCurrent Model is: "+ context.getCurrentModel().getModelId() + "\nCurrent model properties: " + context.getCurrentModel().getProperties().toString()+ "\nList contains: " + propertyListView.getItems().toString() + "\n");
 		});
 	}
 
