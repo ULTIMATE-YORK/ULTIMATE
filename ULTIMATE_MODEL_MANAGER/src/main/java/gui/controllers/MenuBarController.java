@@ -313,7 +313,7 @@ public class MenuBarController extends Controller {
         if (context.getPMCEngine().equalsIgnoreCase("PRISM")) {
             CompletableFuture.runAsync(() -> {
                 try {
-                    PrismAPI.run(model, propFilePath);
+                    PrismAPI.run(model, propFilePath, false);
                     Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using PRISM."));
                 } catch (Exception e) {
                     Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
