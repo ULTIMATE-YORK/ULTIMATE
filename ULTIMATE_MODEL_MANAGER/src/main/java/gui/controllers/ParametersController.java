@@ -57,8 +57,8 @@ public class ParametersController extends Controller {
     @FXML private ChoiceBox<String> chooseModelID; // Specific to DependencyParameters\
     @FXML private TextField definition; // Specific to DependencyParameters
 	
-	private String font = "-fx-font-size: 30px;";
-	private String font2 = "-fx-font-size: 20px;";
+	private String font = "-fx-font-size: 18px;";
+	private String font2 = "-fx-font-size: 12px;";
 	
 	private SharedData context;
     

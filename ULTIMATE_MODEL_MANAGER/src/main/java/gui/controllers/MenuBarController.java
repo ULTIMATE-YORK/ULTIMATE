@@ -3,6 +3,7 @@ package gui.controllers;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -10,6 +11,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import utils.*;
+import verification_engine.graph_generator.DependencyGraph;
+import verification_engine.graph_generator.DependencySolver;
 import verification_engine.prism.PrismAPI;
 import verification_engine.storm.StormAPI;
 import javafx.animation.KeyFrame;
@@ -222,7 +225,6 @@ public class MenuBarController extends Controller {
      * 
      * @throws IOException if file loading fails
      */
-    // FIXME Properties list doesn't show when first loading a file
     @FXML
     private void handleLoadPropertyList() throws IOException {
         // Open the file dialog asynchronously to avoid blocking UI thread
@@ -315,18 +317,41 @@ public class MenuBarController extends Controller {
     @FXML
     private void handleVerifyProperty() throws FileNotFoundException, PrismException {
         Model model = context.getCurrentModel();
-        String propFilePath = model.getPropFile();
+        String propFilePath = context.getCurrentProperty().getDefinition();
+        
+        System.out.println("Model: " + model.getModelId() + "\nProperty: " + propFilePath + "\n");
+        
+        ArrayList<Model> models = new ArrayList<Model>();
+        models.addAll(context.getModels());
 
         if (context.getPMCEngine().equalsIgnoreCase("PRISM")) {
-            CompletableFuture.runAsync(() -> {
-                try {
-                    PrismAPI.run(model, propFilePath, false);
-                    Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using PRISM."));
-                } catch (Exception e) {
-                    Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
-                }
-            });
-        } else {
+            
+        	DependencyGraph dg = new DependencyGraph(models);
+            
+        	if (!dg.hasCycle()) {
+            	Platform.runLater( () -> {
+            		Alerter.showAlert("No Cycles detected!", "Close to continue");
+            	});
+            	
+            	CompletableFuture.runAsync(() -> {
+                    try {
+                        DependencySolver ds = new DependencySolver();
+                        ds.solve(model, propFilePath);
+                        Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using PRISM."));
+                    } catch (Exception e) {
+                        Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
+                    }
+                });
+            }
+        	else {
+        		Platform.runLater( () -> {
+        			Alerter.showAlert("Cycle detected!", "Aborting...");
+        		});
+        	}
+            
+        } 
+        
+        else {
             CompletableFuture.runAsync(() -> {
                 try {
                     StormAPI.run(model, propFilePath, context.getStormInstallation());
