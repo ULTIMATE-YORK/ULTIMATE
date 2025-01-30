@@ -265,12 +265,12 @@ public class Model {
                 @Override
                 public void onError(Throwable e) {
                     // Show an alert on the JavaFX thread if an error occurs during loading
-                    Platform.runLater(() -> Alerter.showAlert("Error loading properties file: " + e.getMessage(), "Aborting..."));
+                    Platform.runLater(() -> Alerter.showErrorAlert("Error loading properties file: " + e.getMessage(), "Aborting..."));
                 }
             });
         } else {
             // Alert the user that a properties file is already set
-            Platform.runLater(() -> Alerter.showAlert("Model already has a PCTL file!", "Aborting..."));
+            Platform.runLater(() -> Alerter.showWarningAlert("Model already has a PCTL file!", "Aborting..."));
         }
     }
     

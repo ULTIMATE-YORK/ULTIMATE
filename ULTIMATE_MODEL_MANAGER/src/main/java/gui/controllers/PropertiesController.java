@@ -97,7 +97,7 @@ public class PropertiesController extends Controller {
 		// run validation
 		String def = propertyDialogDefinition.getText();
 		if (def == "") {
-			Alerter.showAlert("ERROR: No Definition Found", "Please enter a definition!");
+			Alerter.showErrorAlert("ERROR: No Definition Found", "Please enter a definition!");
 		}
 		else {
 			Property prop = new Property(context.getCurrentModel().getModelId(), def);

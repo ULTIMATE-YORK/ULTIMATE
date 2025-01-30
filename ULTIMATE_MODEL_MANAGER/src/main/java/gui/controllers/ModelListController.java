@@ -141,7 +141,7 @@ public class ModelListController extends Controller {
 	            }
 	        } else {
 	            // Show an alert if the selected file is invalid
-	            Alerter.showAlert("Invalid file selected", "Please select a valid model file");
+	            Alerter.showWarningAlert("Invalid file selected", "Please select a valid model file");
 	        }
         });
     }

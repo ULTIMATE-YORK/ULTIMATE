@@ -64,7 +64,7 @@ public class MenuBarController extends Controller {
     	});
     	chooseStorm.addEventFilter(ActionEvent.ACTION, event -> {
     		if (context.getStormInstallation() == "") {
-    			Alerter.showAlert("No STORM installation found!", "Please configure STORM in Options -> cofigure storm");
+    			Alerter.showErrorAlert("No STORM installation found!", "Please configure STORM in Options -> cofigure storm");
     		}
     		else {
         		context.setPMCEngine("STORM");
@@ -92,7 +92,7 @@ public class MenuBarController extends Controller {
                             ModelUtils.parseAndInitializeModels(root, context.getModels());
                         } catch (JSONException e) {
                             // Show an alert if the JSON parsing fails during initialisation
-                            Platform.runLater(() -> Alerter.showAlert(
+                            Platform.runLater(() -> Alerter.showErrorAlert(
                                     "Invalid JSON structure: " + e.getMessage(),
                                     "Failed to load models"
                             ));
@@ -101,7 +101,7 @@ public class MenuBarController extends Controller {
                     @Override
                     public void onError(Throwable e) {
                         // Handle exceptions (IOException, JSONException, etc.)
-                        Platform.runLater(() -> Alerter.showAlert(
+                        Platform.runLater(() -> Alerter.showErrorAlert(
                                 "Error reading JSON file: " + e.getMessage(),
                                 "Failed to load models"
                         ));
@@ -109,7 +109,7 @@ public class MenuBarController extends Controller {
                 });
             } else {
                 // Handle case where no file was selected
-                Platform.runLater(() -> Alerter.showAlert("No file selected.", "Load Models"));
+                Platform.runLater(() -> Alerter.showWarningAlert("No file selected.", "Load Models"));
             }
         });
     }
@@ -128,13 +128,13 @@ public class MenuBarController extends Controller {
 	            @Override
 	            public void onSuccess() {
 	                // Notify the user on the JavaFX thread that the save operation was successful
-	                Platform.runLater(() -> Alerter.showAlert("Models saved successfully!", "Save Complete"));
+	                Platform.runLater(() -> Alerter.showInfoAlert("Models saved successfully!", "Save Complete"));
 	            }
 
 	            @Override
 	            public void onError(Throwable e) {
 	                // Notify the user of an error that occurred during saving
-	                Platform.runLater(() -> Alerter.showAlert("Error saving models: " + e.getMessage(), "Save Failed"));
+	                Platform.runLater(() -> Alerter.showErrorAlert("Error saving models: " + e.getMessage(), "Save Failed"));
 	            }
 	        });
 	    } else {
@@ -169,18 +169,18 @@ public class MenuBarController extends Controller {
 	                @Override
 	                public void onSuccess() {
 	                    // Notify the user of successful save on the JavaFX thread
-	                    Platform.runLater(() -> Alerter.showAlert("Models saved successfully!", "Save Complete"));
+	                    Platform.runLater(() -> Alerter.showInfoAlert("Models saved successfully!", "Save Complete"));
 	                }
 
 	                @Override
 	                public void onError(Throwable e) {
 	                    // Notify the user of an error that occurred during saving
-	                    Platform.runLater(() -> Alerter.showAlert("Error saving models: " + e.getMessage(), "Save Failed"));
+	                    Platform.runLater(() -> Alerter.showErrorAlert("Error saving models: " + e.getMessage(), "Save Failed"));
 	                }
 	            });
 	        } else {
 	            // Notify the user that save was cancelled
-	            Platform.runLater(() -> Alerter.showAlert("Save operation canceled.", "Save Models"));
+	            Platform.runLater(() -> Alerter.showWarningAlert("Save operation canceled.", "Save Models"));
 	        }
 	    });
 	}
@@ -205,7 +205,7 @@ public class MenuBarController extends Controller {
         Model model = context.getCurrentModel();
         if (model == null) {
             // Ensure UI updates happen on the JavaFX thread
-            Platform.runLater(() -> Alerter.showAlert("Error", "Please select a model from the list to add a property!"));
+            Platform.runLater(() -> Alerter.showErrorAlert("Error", "Please select a model from the list to add a property!"));
             return;
         } else {
             // Load the property addition dialog safely on the JavaFX thread
@@ -213,7 +213,7 @@ public class MenuBarController extends Controller {
                 try {
                     DialogLoader.load("/dialogs/add_property.fxml", "Add Property", context.getPropertiesController());
                 } catch (IOException e) {
-                    Alerter.showAlert("Error", "Failed to load property dialog: " + e.getMessage());
+                    Alerter.showErrorAlert("Error", "Failed to load property dialog: " + e.getMessage());
                 }
             });
         }
@@ -233,11 +233,11 @@ public class MenuBarController extends Controller {
                 // Safely update the model's property file on the JavaFX thread
                 Platform.runLater(() -> {
                     context.getCurrentModel().setPropFile(file.getAbsolutePath());
-                    Alerter.showAlert("File loaded succesfully!", "Property file updated for model");
+                    Alerter.showInfoAlert("File loaded succesfully!", "Property file updated for model");
                     context.update();
                 });
             } else {
-                Platform.runLater(() -> Alerter.showAlert("No file Found", "Aborting..."));
+                Platform.runLater(() -> Alerter.showWarningAlert("No file Found", "Aborting..."));
             }
         });
     }
@@ -256,12 +256,12 @@ public class MenuBarController extends Controller {
             FileUtils.updatePropertyFileAsync(context.getCurrentModel(), new FileUtils.TaskCallback() {
                 @Override
                 public void onSuccess() {
-                    Platform.runLater(() -> Alerter.showAlert("Success", "Property list saved successfully!"));
+                    Platform.runLater(() -> Alerter.showInfoAlert("Success", "Property list saved successfully!"));
                 }
 
                 @Override
                 public void onError(Throwable e) {
-                    Platform.runLater(() -> Alerter.showAlert("Error", "Failed to save property list: " + e.getMessage()));
+                    Platform.runLater(() -> Alerter.showErrorAlert("Error", "Failed to save property list: " + e.getMessage()));
                 }
             });
         } else {
@@ -288,12 +288,12 @@ public class MenuBarController extends Controller {
                 FileUtils.generatePropertyFileAsync(file.getAbsolutePath(), context.getCurrentModel().getProperties(), new FileUtils.TaskCallback() {
                     @Override
                     public void onSuccess() {
-                        Platform.runLater(() -> Alerter.showAlert("Success", "Property list saved successfully!"));
+                        Platform.runLater(() -> Alerter.showInfoAlert("Success", "Property list saved successfully!"));
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Platform.runLater(() -> Alerter.showAlert("Error", "Failed to save property list: " + e.getMessage()));
+                        Platform.runLater(() -> Alerter.showErrorAlert("Error", "Failed to save property list: " + e.getMessage()));
                     }
                 });
 
@@ -302,7 +302,7 @@ public class MenuBarController extends Controller {
 					context.getCurrentModel().setPropFile(file.getAbsolutePath());
 				});
             } else {
-                Platform.runLater(() -> Alerter.showAlert("Cancelled", "Save operation was cancelled."));
+                Platform.runLater(() -> Alerter.showWarningAlert("Cancelled", "Save operation was cancelled."));
             }
         });
     }
@@ -330,22 +330,22 @@ public class MenuBarController extends Controller {
             
         	if (!dg.hasCycle()) {
             	Platform.runLater( () -> {
-            		Alerter.showAlert("No Cycles detected!", "Close to continue");
+            		Alerter.showInfoAlert("No Cycles detected!", "Close to continue");
             	});
             	
             	CompletableFuture.runAsync(() -> {
                     try {
                         DependencySolver ds = new DependencySolver();
                         ds.solve(model, propFilePath);
-                        Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using PRISM."));
+                        Platform.runLater(() -> Alerter.showInfoAlert("Success", "Verification completed using PRISM."));
                     } catch (Exception e) {
-                        Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
+                        Platform.runLater(() -> Alerter.showErrorAlert("Error", "Verification failed: " + e.getMessage()));
                     }
                 });
             }
         	else {
         		Platform.runLater( () -> {
-        			Alerter.showAlert("Cycle detected!", "Aborting...");
+        			Alerter.showWarningAlert("Cycle detected!", "Aborting...");
         		});
         	}
             
@@ -355,9 +355,9 @@ public class MenuBarController extends Controller {
             CompletableFuture.runAsync(() -> {
                 try {
                     StormAPI.run(model, propFilePath, context.getStormInstallation());
-                    Platform.runLater(() -> Alerter.showAlert("Success", "Verification completed using Storm."));
+                    Platform.runLater(() -> Alerter.showInfoAlert("Success", "Verification completed using Storm."));
                 } catch (Exception e) {
-                    Platform.runLater(() -> Alerter.showAlert("Error", "Verification failed: " + e.getMessage()));
+                    Platform.runLater(() -> Alerter.showErrorAlert("Error", "Verification failed: " + e.getMessage()));
                 }
             });
         }
@@ -393,7 +393,7 @@ public class MenuBarController extends Controller {
 	    // Check if STORM is already configured
 	    if (!context.getStormInstallation().isEmpty()) {
 	        // Ensure UI updates happen on the JavaFX thread
-	        Platform.runLater(() -> Alerter.showAlert("STORM has already been configured!", 
+	        Platform.runLater(() -> Alerter.showConfirmationAlert("STORM has already been configured!", 
 	                "STORM found at: " + context.getStormInstallation()));
 	    } else {
 	        // Open the directory chooser asynchronously to prevent blocking the UI thread
@@ -403,7 +403,7 @@ public class MenuBarController extends Controller {
 	                Platform.runLater(() -> context.setStormInstallation(file.getAbsolutePath()));
 	            } else {
 	                // Notify the user if the operation was cancelled
-	                Platform.runLater(() -> Alerter.showAlert("Configuration canceled", "No STORM installation selected."));
+	                Platform.runLater(() -> Alerter.showWarningAlert("Configuration canceled", "No STORM installation selected."));
 	            }
 	        });
 	    }
