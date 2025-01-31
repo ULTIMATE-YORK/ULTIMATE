@@ -81,4 +81,4 @@ The following sequence diagram details what happens when the user chooses *Load 
 <p align="center">
 	<img src="uml/load_project.png">
 	
-The above describes a realisation of the user carring out the action *Load Project*. 
+The above describes a realisation of the user carring out the action *Load Project*. It is clear that the process of loading a project is an extension of the launch behaviour of the tool. One
