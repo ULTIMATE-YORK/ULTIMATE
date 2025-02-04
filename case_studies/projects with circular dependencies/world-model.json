@@ -1,0 +1,51 @@
+{"models": {
+    "DressingWorkFlow": {
+        "fileName": "/Users/micahbassett/Desktop/dressing.pomdp",
+        "id": "DressingWorkFlow",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "energyPickGarment": {
+                    "modelId": "PickGarment",
+                    "name": "energyPickGarment",
+                    "property": "R{\"energy\"}=?[F \"done\"]"
+                },
+                "pPickGarment": {
+                    "modelId": "PickGarment",
+                    "name": "pPickGarment",
+                    "property": "P=? [F<=90 'succ']"
+                }
+            }
+        }
+    },
+    "PickGarment": {
+        "fileName": "/Users/micahbassett/Desktop/pick-garment.ctmc",
+        "id": "PickGarment",
+        "parameters": {
+            "environment": {
+                "psucc": {
+                    "name": "pSucc",
+                    "dataFile": "pick-garment-pSucc.dat",
+                    "type": "probability"
+                },
+                "rPick": {
+                    "name": "rPick",
+                    "dataFile": "pick-garment-rPick.dat",
+                    "type": "rate"
+                }
+            },
+            "internal": {"maxRetries": {"name": "maxRetries"}},
+            "dependency": {}
+        }
+    },
+    "PerceiveUserState": {
+        "fileName": "/Users/micahbassett/Desktop/perceive-user.dtmc",
+        "id": "PerceiveUserState",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        }
+    }
+}}

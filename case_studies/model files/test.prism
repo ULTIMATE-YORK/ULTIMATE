@@ -1,0 +1,8 @@
+dtmc
+
+module Test
+  s : [0..2];
+
+  [] s=0 -> 0.4:(s'=1) + 0.6:(s'=2);
+  [] s>0 -> true;
+endmodule
