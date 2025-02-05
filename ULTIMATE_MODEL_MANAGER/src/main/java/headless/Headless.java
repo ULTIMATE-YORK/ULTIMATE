@@ -7,6 +7,7 @@ import org.apache.commons.cli.ParseException;
 import model.persistent_objects.Model;
 import prism.PrismException;
 import verification_engine.graph_generator.DependencySolver;
+import verification_engine.storm.StormAPI;
 
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -101,6 +102,7 @@ public class Headless {
 	    if (help) {
 		    HelpFormatter formatter = new HelpFormatter();
 		    formatter.printHelp("headless", options);
+		    return;
 	    }
 	    
 	    // get the models from the project file
@@ -113,10 +115,17 @@ public class Headless {
 	    	}
 	    }
 	    
-	    //Double result = Solver.prism(pModel, property);
-	    DependencySolver ds = new DependencySolver();
-	    Double result = ds.solve(pModel, property, models);
-	    
-	    System.out.println("Prism result: " + result.toString());
+	    if (pmc.equals("prism")) {
+		    DependencySolver ds = new DependencySolver();
+		    Double result = ds.solve(pModel, property, models);
+		    System.out.println("Prism result: " + result.toString());
+	    }
+	    else if (pmc.equals("storm")) {
+	    	//System.out.println(property);
+	    	StormAPI.run(pModel, property, stormInstall);
+	    }
+	    else {
+	    	StormAPI.runPars(pModel, property, stormInstall);
+	    }
 	}
 }
