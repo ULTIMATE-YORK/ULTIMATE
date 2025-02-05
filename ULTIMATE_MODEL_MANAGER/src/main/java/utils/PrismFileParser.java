@@ -15,8 +15,8 @@ public class PrismFileParser {
      * @return an array of strings, each representing a parameter in the form "const <type> <name>"
      * @throws IOException if an error occurs while reading the file
      */
-    public List<String> parseFile(String filePath) throws IOException {
-        List<String> parameters = new ArrayList<>();
+    public ArrayList<String> parseFile(String filePath) throws IOException {
+        ArrayList<String> parameters = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;

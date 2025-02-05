@@ -2,54 +2,6 @@ PRISM
 =====
 
 Version: 4.5.dev
-Date: Wed Jan 29 10:43:42 GMT 2025
+Date: Wed Feb 05 10:46:01 GMT 2025
 Hostname: Micahs-MacBook-Air.local
 Memory limits: cudd=1g, java(heap)=2g
-
-Type:        DTMC
-Modules:     Test 
-Variables:   s 
-
----------------------------------------------------------------------
-
-Model checking: P=? [ F s=1 ]
-
-Building model...
-
-Computing reachable states...
-
-Reachability (BFS): 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Time for model construction: 0.001 seconds.
-
-Type:        DTMC
-States:      3 (1 initial)
-Transitions: 4
-
-Transition matrix: 14 nodes (4 terminal), 4 minterms, vars: 2r/2c
-
-Prob0: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Prob1: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-yes = 1, no = 1, maybe = 1
-
-Computing remaining probabilities...
-Engine: Hybrid
-
-Building hybrid MTBDD matrix... [levels=2, nodes=9] [0.4 KB]
-Adding explicit sparse matrices... [levels=2, num=1, compact] [0.0 KB]
-Creating vector for diagonals... [dist=1, compact] [0.0 KB]
-Creating vector for RHS... [dist=2, compact] [0.0 KB]
-Allocating iteration vectors... [2 x 0.0 KB]
-TOTAL: [0.5 KB]
-
-Starting iterations...
-
-Jacobi: 2 iterations in 0.00 seconds (average 0.000000, setup 0.00)
-
-Value in the initial state: 0.4
-
-Time for model checking: 0.0 seconds.
-
-Result: 0.4 (value in the initial state)
