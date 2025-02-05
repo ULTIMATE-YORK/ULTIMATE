@@ -52,16 +52,11 @@ public class DependencyGraph {
         return cycleDetector.detectCycles();
 	}
 	
-	public List<Set<String>> getSCCs() {
+	public List<Set<String>> getSCC() {
         
 		// Use the StrongConnectivityInspector to find strongly connected components
 		KosarajuStrongConnectivityInspector<String, DefaultEdge> sci = new KosarajuStrongConnectivityInspector<>(dependencyGraph);
         List<Set<String>> stronglyConnectedSubgraphs = sci.stronglyConnectedSets();
-
-        // Print the strongly connected components
-        for (Set<String> component : stronglyConnectedSubgraphs) {
-            System.out.println("Component: " + component);
-        }
         
         return stronglyConnectedSubgraphs;
 	}
