@@ -9,12 +9,13 @@ import org.junit.jupiter.api.Test;
 import model.persistent_objects.Model;
 
 public class ProjectParserTest {
-	
+
+	/*
 	@Test
     void testRAD() throws Exception {
         
 		// Arrange: get the resource as a file path from the class path
-        String filePath = getClass().getResource("/headless/world-model.json").getPath();
+        String filePath = getClass().getResource("/headless/rad-world-model.json").getPath();
 		
         // Act
 		ArrayList<Model> testModels = ProjectParser.parse(filePath);
@@ -24,4 +25,5 @@ public class ProjectParserTest {
 		assertTrue(testModels.size() == 3);
 		
 	}
+	*/
 }

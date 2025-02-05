@@ -1,0 +1,24 @@
+{"models": {
+    "die": {
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/non-circular/Dice/die.prism",
+        "id": "die",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        }
+    },
+    "die2": {
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/non-circular/Dice/die2.prism",
+        "id": "die2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {"p": {
+                "modelId": "die",
+                "name": "p",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    }
+}}
