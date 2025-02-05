@@ -75,6 +75,10 @@ public class Model {
 		dependencyParameters.add(parameter);
 	}
 	
+	public void setDependencyParameter(List<DependencyParameter> parameters) {
+		this.dependencyParameters = parameters;
+	}
+	
 	public void addInternalParameter(InternalParameter parameter) {	
 		internalParameters.add(parameter);
 	}
