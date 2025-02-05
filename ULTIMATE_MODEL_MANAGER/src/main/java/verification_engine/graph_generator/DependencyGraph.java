@@ -1,8 +1,11 @@
 package verification_engine.graph_generator;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.KosarajuStrongConnectivityInspector;
 import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
@@ -47,5 +50,19 @@ public class DependencyGraph {
 		// Detect cycles
         CycleDetector<String, DefaultEdge> cycleDetector = new CycleDetector<>(dependencyGraph);
         return cycleDetector.detectCycles();
+	}
+	
+	public List<Set<String>> getSCCs() {
+        
+		// Use the StrongConnectivityInspector to find strongly connected components
+		KosarajuStrongConnectivityInspector<String, DefaultEdge> sci = new KosarajuStrongConnectivityInspector<>(dependencyGraph);
+        List<Set<String>> stronglyConnectedSubgraphs = sci.stronglyConnectedSets();
+
+        // Print the strongly connected components
+        for (Set<String> component : stronglyConnectedSubgraphs) {
+            System.out.println("Component: " + component);
+        }
+        
+        return stronglyConnectedSubgraphs;
 	}
 }
