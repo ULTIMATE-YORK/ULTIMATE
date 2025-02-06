@@ -129,7 +129,8 @@ public class Headless {
 		    System.out.println("Storm result: " + result.toString());
 	    }
 	    else {
-	    	StormAPI.runPars(pModel, property, stormInstall);
+	    	String result = StormAPI.runPars(pModel, property, stormInstall);
+		    System.out.println("Storm result: " + result.toString());
 	    }
 	}
 }

@@ -12,9 +12,11 @@ public class StormAPI {
 		return result;
 	}
 	
-	public static void runPars(Model model, String propFile, String stormInstallLocation) {
+	public static String runPars(Model model, String propFile, String stormInstallLocation) {
 		String command = stormInstallLocation + " --mode solutionfunction --prism " + model.getFilePath()  + " --prop \"" + propFile + "\"";
-		OSCommandExecutor.executeCommand(command);
+		String output = OSCommandExecutor.executeCommand(command);
+		String result = StormOutputParser.getSResult(output);
+		return result;
 	}
 
 }
