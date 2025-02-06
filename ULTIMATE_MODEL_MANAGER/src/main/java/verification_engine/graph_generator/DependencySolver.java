@@ -9,6 +9,7 @@ import model.persistent_objects.DependencyParameter;
 import model.persistent_objects.Model;
 import prism.PrismException;
 import utils.ModelUtils;
+import verification_engine.storm.StormAPI;
 
 public class DependencySolver {
 	
@@ -34,5 +35,29 @@ public class DependencySolver {
 			ModelUtils.updateModelFileResults(model, results);
 			return Solver.prism(model, property);
 		}		
+	}
+	
+	public double solveStorm(Model model, String property, ArrayList<Model> models, String stormInstallation) {
+		// Base Case is when a mode has no dependencies
+		if (model.getDependencyParameters().isEmpty()) {
+			return StormAPI.run(model, property, stormInstallation);
+		}
+		else {
+			HashMap<String, Double> results = new HashMap<String, Double>();
+			for (DependencyParameter dep: model.getDependencyParameters()) {
+				// get the details of the dependency
+				Model depModel = null;
+				for (Model m: models) {
+					if (dep.getModelID().equals(m.getModelId())) {
+						depModel = m;
+					}
+				}
+				results.put(dep.getName(), StormAPI.run(depModel, property, stormInstallation));
+			}
+			
+			// update the model file to define constants
+			ModelUtils.updateModelFileResults(model, results);
+			return StormAPI.run(model, property, stormInstallation);
+		}	
 	}
 }

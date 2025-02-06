@@ -1,12 +1,15 @@
 package verification_engine.storm;
 
+import headless.StormOutputParser;
 import model.persistent_objects.Model;
 
 public class StormAPI {
 	
-	public static void run(Model model, String propFile, String stormInstallLocation) {
+	public static double run(Model model, String propFile, String stormInstallLocation) {
 		String command = stormInstallLocation + " --prism " + model.getFilePath()  + " --prop \"" + propFile + "\"";
-		OSCommandExecutor.executeCommand(command);
+		String output = OSCommandExecutor.executeCommand(command);
+		Double result = StormOutputParser.getDResult(output);
+		return result;
 	}
 	
 	public static void runPars(Model model, String propFile, String stormInstallLocation) {

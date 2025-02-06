@@ -6,15 +6,16 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import model.persistent_objects.SharedData;
+import headless.StormOutputParser;
 
 public class OSCommandExecutor {
 
-    public static void executeCommand(String command) {
+    public static String executeCommand(String command) {
     	
     	String shell = "";
     	String flag = "";
-    	
+        String line = "";
+
         String os = System.getProperty("os.name").toLowerCase();
         if (os.contains("win")) {
         	shell = "cmd.exe";
@@ -34,16 +35,21 @@ public class OSCommandExecutor {
             // Create a file writer to write output to logs.txt
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
                  BufferedWriter writer = new BufferedWriter(new FileWriter("logs.txt"))) {
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                	System.out.println(line);
-                    //writer.write(line);
+            	
+            	String readLine;
+                while ((readLine = reader.readLine()) != null) {
+                	line += readLine;
+                	line += "\n";
+                	//writer.write(line);
                     //writer.newLine();  // Ensure each line is properly formatted
                 }
             }
-
-            int exitCode = process.waitFor();
+        	
+            //System.out.println(line);
+        	//System.out.println(StormOutputParser.getSResult(line).toString());
+            
+        	
+        	int exitCode = process.waitFor();
             // update the logs via tab2
     		//SharedData context = SharedData.getInstance();
     		//context.getTab2Controller().updateLogs();
@@ -51,5 +57,7 @@ public class OSCommandExecutor {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+        
+        return line;
     }
 }

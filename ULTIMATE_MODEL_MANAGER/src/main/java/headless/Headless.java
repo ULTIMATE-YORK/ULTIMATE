@@ -76,17 +76,21 @@ public class Headless {
 	        projectFile = line.getOptionValue("pf");
 	        modelID = line.getOptionValue("m");
 	        property = line.getOptionValue("p");
-	        if (line.hasOption("si")) {
-	        	stormInstall = line.getOptionValue("si");
-	        }
-	        if (line.hasOption("help")) {
-	        	help = true;
-	        }
+	        
 	        if (line.hasOption("pmc")) {
 	        	if (!line.getOptionValue("pmc").equals("prism") && !line.getOptionValue("pmc").equals("storm") && !line.getOptionValue("pmc").equals("storm-pars")) { 
 	        		throw new IllegalArgumentException("A PMC must be one of ['prism' 'storm' 'storm-pars']");
 	        	}
 	        	pmc = line.getOptionValue("pmc");
+	        }
+	        if (line.hasOption("si") && (pmc.equals("storm") || pmc.equals("storm-pars") )) {
+	        	stormInstall = line.getOptionValue("si");
+	        }
+	        else if (line.hasOption("si")) {
+	        	throw new IllegalArgumentException("If passing a storm installation, set the pmc to ['storm' or 'storm-pars']");
+	        }
+	        if (line.hasOption("help")) {
+	        	help = true;
 	        }
 		} catch (ParseException e) {
 	        System.err.println("Parsing failed.  Reason: " + e.getMessage());
@@ -107,7 +111,8 @@ public class Headless {
 	    
 	    // get the models from the project file
 	    ArrayList<Model> models = ProjectParser.parse(projectFile);
-	    
+	    DependencySolver ds = new DependencySolver();
+
 	    Model pModel = null;
 	    for (Model m : models) {
 	    	if (m.getModelId().equals(modelID)) {
@@ -116,13 +121,12 @@ public class Headless {
 	    }
 	    
 	    if (pmc.equals("prism")) {
-		    DependencySolver ds = new DependencySolver();
 		    Double result = ds.solve(pModel, property, models);
 		    System.out.println("Prism result: " + result.toString());
 	    }
 	    else if (pmc.equals("storm")) {
-	    	//System.out.println(property);
-	    	StormAPI.run(pModel, property, stormInstall);
+	    	Double result = ds.solveStorm(pModel, property, models, stormInstall);
+		    System.out.println("Storm result: " + result.toString());
 	    }
 	    else {
 	    	StormAPI.runPars(pModel, property, stormInstall);
