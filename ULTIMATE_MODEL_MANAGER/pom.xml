@@ -78,6 +78,12 @@
         <version>5.4.0</version>
         <scope>test</scope>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/gov.nist.math/jama -->
+	<dependency>
+   		<groupId>gov.nist.math</groupId>
+    	<artifactId>jama</artifactId>
+    	<version>1.0.3</version>
+	</dependency>
         <!-- JavaFX Testing (TestFX) -->
     <dependency>
         <groupId>org.testfx</groupId>
