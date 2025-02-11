@@ -6,6 +6,7 @@ import org.apache.commons.cli.ParseException;
 
 import model.persistent_objects.Model;
 import prism.PrismException;
+import verification_engine.graph_generator.DependencyGraph;
 import verification_engine.graph_generator.DependencySolver;
 import verification_engine.storm.StormAPI;
 
@@ -112,7 +113,8 @@ public class Headless {
 	    // get the models from the project file
 	    ArrayList<Model> models = ProjectParser.parse(projectFile);
 	    DependencySolver ds = new DependencySolver();
-
+	    DependencyGraph dg = new DependencyGraph(models);
+	    
 	    Model pModel = null;
 	    for (Model m : models) {
 	    	if (m.getModelId().equals(modelID)) {
