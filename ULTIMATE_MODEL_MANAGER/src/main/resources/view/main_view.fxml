@@ -16,20 +16,15 @@
     <RowConstraints vgrow="NEVER" />
     <RowConstraints vgrow="ALWAYS" />
   </rowConstraints>
-
-  <!-- Children (Menu, VBoxes) -->
-  <children>
     
     <!-- Include the MenuBar -->
     <fx:include source="/widgets/menu_bar.fxml" GridPane.columnSpan="2" />
     
 	<TabPane GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.columnSpan="2" id="MainTabs" tabClosingPolicy="UNAVAILABLE" >
     	<tabs>
-    		<fx:include source="/tabs/main_view_tab1.fxml"/>
+    		<fx:include source="/tabs/manager_tab.fxml"/>
     		<fx:include source="/tabs/logs_tab.fxml" />
     	</tabs>
 	</TabPane>
-  
-  </children>
 
 </GridPane>

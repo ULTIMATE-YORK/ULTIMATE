@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<Tab text="Logs" fx:controller="gui.controllers.Tab2Controller" fx:id="logs_tab" xmlns:fx="http://javafx.com/fxml">
+<Tab text="Logs" fx:id="logs_tab" xmlns:fx="http://javafx.com/fxml">
     
     <!-- This GridPane is a 1x1 grid where the HBox should expand to fill the space -->
     <GridPane fx:id="parentGridPane" hgap="10" vgap="10">
