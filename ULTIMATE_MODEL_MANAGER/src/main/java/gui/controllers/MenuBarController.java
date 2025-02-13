@@ -336,7 +336,7 @@ public class MenuBarController extends Controller {
             	CompletableFuture.runAsync(() -> {
                     try {
                         DependencySolver ds = new DependencySolver();
-                        ds.solve(model, propFilePath);
+                        ds.solve(model, propFilePath, models);
                         Platform.runLater(() -> Alerter.showInfoAlert("Success", "Verification completed using PRISM."));
                     } catch (Exception e) {
                         Platform.runLater(() -> Alerter.showErrorAlert("Error", "Verification failed: " + e.getMessage()));
