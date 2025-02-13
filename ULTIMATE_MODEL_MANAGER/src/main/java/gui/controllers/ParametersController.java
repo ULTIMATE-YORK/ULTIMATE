@@ -227,7 +227,9 @@ public class ParametersController extends Controller {
         String[] fields = item.toString().split(",");
         String f1 = fields.length > 0 ? fields[0] : "";
         String f2 = fields.length > 1 ? fields[1] : "";
+        // FIXME glitch here which cuts off properties with ',' in the definition 
         String f3 = fields.length > 2 ? fields[2] : "";
+        //f3 = fields.length > 3 ? fields[2] + fields[3] : "";
 
         // Create a VBox for the overall layout
         VBox vbox = new VBox(5);
