@@ -9,26 +9,26 @@
         }
     },
     "dressing": {
-        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/non-circular/RAD/dressing.pomdp",
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/non-circular/RAD/dressing.prism",
         "id": "dressing",
         "parameters": {
             "environment": {},
             "internal": {},
             "dependency": {
                 "pOkCorrect": {
-                    "modelId": "pick-garment",
+                    "modelId": "perceive-user",
                     "name": "pOkCorrect",
-                    "property": "P=? [F 'done' & ok & predictedOk] / P=? [F 'done' & ok]"
+                    "property": "P=? [F \"done\" & userOk & userPredictedOk] / P=? [F \"done\" & userOk]"
                 },
                 "pPickGarnment": {
                     "modelId": "pick-garment",
                     "name": "pPickGarnment",
-                    "property": "P=? [F [0,90] 'success']"
+                    "property": "P=? [F [0,90] \"succ\"]"
                 },
                 "pNotOkCorrect": {
-                    "modelId": "pick-garment",
+                    "modelId": "perceive-user",
                     "name": "pNotOkCorrect",
-                    "property": "P=? [F 'done' & !ok & !predictedOk] / P=? [F 'done' & !ok]"
+                    "property": "P=? [F \"done\" & !userOk & !userPredictedOk] / P=? [F \"done\" & !userOk]"
                 }
             }
         }

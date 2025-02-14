@@ -47,6 +47,7 @@ public class Solver {
 		Result result = null;
 		
 		if (singleProperty) {
+			//System.out.print("\nProperty to be verified on the above: " + property + "\n");
 			propertiesFile = prism.parsePropertiesString(property);
 			result = prism.modelCheck(property);
 		}
