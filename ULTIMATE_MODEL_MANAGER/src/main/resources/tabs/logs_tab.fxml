@@ -18,18 +18,25 @@
         <RowConstraints vgrow="ALWAYS" />
       </rowConstraints>
 
-      <!-- HBox containing the TextField -->
-      <HBox fx:id="logsContainer" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0" 
-            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
-          
-          <GridPane.margin>
+	<VBox GridPane.columnIndex="0" GridPane.rowIndex="0" 
+            GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" spacing="10.0" > 
+            
+           <GridPane.margin>
               <Insets top="10" right="10" bottom="10" left="10" />
           </GridPane.margin>
+		      <!-- HBox containing the TextField -->
+      
+      <HBox fx:id="logsContainer" spacing="10.0" alignment="CENTER" >
           
+          <Button text="Copy Logs"/>
+          <Button text="Save Logs to file"/>
           <!-- Ensure TextField expands within HBox -->
-          <TextArea fx:id="logsField" editable="false" HBox.hgrow="ALWAYS"/>
               
       </HBox>
+	  
+	  <TextArea fx:id="logsField" editable="false" VBox.vgrow="ALWAYS" />
+	
+	</VBox>     
       
     </GridPane>
     

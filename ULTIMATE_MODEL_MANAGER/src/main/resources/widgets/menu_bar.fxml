@@ -5,26 +5,26 @@
 <?import javafx.geometry.*?>
 
 
-<MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="gui.controllers.MenuBarController">
+<MenuBar xmlns:fx="http://javafx.com/fxml" >
   <menus>
     <Menu mnemonicParsing="false" text="File">
       <items>
-        <MenuItem fx:id="loadItem" onAction="#handleLoad" mnemonicParsing="false" text="Load" />
-        <MenuItem fx:id="saveItem" onAction="#handleSave" mnemonicParsing="false" text="Save" />
-        <MenuItem fx:id="saveAsItem" onAction="#handleSaveAs" mnemonicParsing="false" text="Save As" />
-        <MenuItem fx:id="quitItem" onAction="#handleQuit" mnemonicParsing="false" text="Quit" />
+        <MenuItem mnemonicParsing="false" text="Load" />
+        <MenuItem mnemonicParsing="false" text="Save" />
+        <MenuItem mnemonicParsing="false" text="Save As" />
+        <MenuItem mnemonicParsing="false" text="Quit" />
       </items>
     </Menu>
     <!-- Verification Menu -->
     <Menu mnemonicParsing="false" text="Verification">
       <items>
-        <MenuItem fx:id="addProperty" onAction="#handleAddProperty" mnemonicParsing="false" text="Add Property" />
-        <MenuItem fx:id="loadPropertyList" onAction="#handleLoadPropertyList" mnemonicParsing="false" text="Load Property List" />
-        <MenuItem fx:id="savePropertyList" onAction="#handleSavePropertyList" mnemonicParsing="false" text="Save Property List" />
-        <MenuItem fx:id="saveAsPropertyList" onAction="#handleSaveAsPropertyList" mnemonicParsing="false" text="Save Property List As" />
-        <MenuItem fx:id="verifyProperty" onAction="#handleVerifyProperty" mnemonicParsing="false" text="Verify Property" />
-        <MenuItem fx:id="deleteProperty" onAction="#handleDeleteProperty" mnemonicParsing="false" text="Delete Property" />
-        <MenuItem fx:id="editProperty" onAction="#handleEditProperty" mnemonicParsing="false" text="Edit Property" />
+        <MenuItem mnemonicParsing="false" text="Add Property" />
+        <MenuItem mnemonicParsing="false" text="Load Property List" />
+        <MenuItem mnemonicParsing="false" text="Save Property List" />
+        <MenuItem mnemonicParsing="false" text="Save Property List As" />
+        <MenuItem mnemonicParsing="false" text="Verify Property" />
+        <MenuItem mnemonicParsing="false" text="Delete Property" />
+        <MenuItem mnemonicParsing="false" text="Edit Property" />
       </items>
       </Menu>
       <!-- Options menu -->
@@ -34,7 +34,7 @@
           	<MenuItem fx:id="choosePrism" mnemonicParsing="false" text="PRISM" />
             <MenuItem fx:id="chooseStorm" mnemonicParsing="false" text="STORM" />  
          </Menu>
-         <MenuItem fx:id="configureStorm" onAction="#configureStorm" mnemonicParsing="false" text="Configure STORM" />
+         <MenuItem mnemonicParsing="false" text="Configure STORM" />
        </items>
       </Menu>
   </menus>

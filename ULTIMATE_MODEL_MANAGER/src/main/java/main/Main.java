@@ -1,6 +1,5 @@
 package main;
 
-import model.persistent_objects.*;
 import javafx.application.Application; // Importing the base Application class for JavaFX
 import javafx.fxml.FXMLLoader; // For loading FXML files
 import javafx.scene.Scene; // For creating and managing scenes
@@ -24,8 +23,8 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // Set up the shared context singleton instance for sharing data across the application
-        SharedData sharedContext = SharedData.getInstance(); // Obtain the shared data instance
-        sharedContext.setMainStage(stage); // Store the primary stage in the shared context
+        //SharedData sharedContext = SharedData.getInstance(); // Obtain the shared data instance
+        //sharedContext.setMainStage(stage); // Store the primary stage in the shared context
 
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
@@ -37,11 +36,11 @@ public class Main extends Application {
         stage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
 
         // Set the title of the primary stage (window)
-        stage.setTitle("Ultimate Model Manager"); // Customize the window title as needed
+        stage.setTitle("Ultimate Stochastic World Model Manager"); // Customize the window title as needed
 
         // Set minimum dimensions for the primary stage
-        stage.setMinWidth(800); // Ensure the stage cannot be resized smaller than 800px in width
-        stage.setMinHeight(600); // Ensure the stage cannot be resized smaller than 600px in height
+        stage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width
+        stage.setMinHeight(800); // Ensure the stage cannot be resized smaller than 600px in height
 
         // Display the stage (window) to the user
         stage.show(); // Makes the primary stage visible
