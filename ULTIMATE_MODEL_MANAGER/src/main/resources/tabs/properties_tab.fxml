@@ -46,6 +46,7 @@
 		
 		<HBox alignment="CENTER" spacing="10.0">
 			<Label text="Properties file" />
+			<Button text="Generate File" />
 			<Button text="Save File"/>
 		</HBox>
 		
