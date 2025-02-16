@@ -4,6 +4,7 @@ public class DependencyParameter extends Parameter {
     private String name;
     private String modelID;
     private String definition;
+    // TODO make this a result type?
     private String result;
     
     public DependencyParameter(String name, String modelID, String definition) {
