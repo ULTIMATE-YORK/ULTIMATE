@@ -4,6 +4,7 @@ public class DependencyParameter extends Parameter {
     private String name;
     private String modelID;
     private String definition;
+    private String result;
     
     public DependencyParameter(String name, String modelID, String definition) {
         this.name = name;
@@ -25,6 +26,10 @@ public class DependencyParameter extends Parameter {
     	return this.definition;
     }
     
+	public String getResult() {
+		return this.result;
+	}
+    
     // SETTER METHODS
     
     public void setName(String newName) {
@@ -38,6 +43,10 @@ public class DependencyParameter extends Parameter {
     public void setDefinition(String newDefinition) {
     	this.definition = newDefinition;
     }
+    
+	public void setResult(String newResult) {
+		this.result = newResult;
+	}
     
     public String toString() {
     	return getName() + ", " + getModelID() + ", " + getDefinition();
