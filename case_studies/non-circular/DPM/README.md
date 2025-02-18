@@ -1,5 +1,10 @@
-# Dynamic Power Management
+# Dynamic Power Management 
 
+### Description
+Dynamic Power Management (DPM) is an automatic system available in multiple devices such as Network Interface Cards (NICs), DRAM and disk devices to implement different power management strategies, usually switching between power modes that have different tradeoffs between performance and energy consumption. 
+
+In this scenario, we considered a device
+![image](https://github.com/user-attachments/assets/bc5b5464-69eb-4322-b6c2-b7cb09df43e3)
 
 
 ### References
