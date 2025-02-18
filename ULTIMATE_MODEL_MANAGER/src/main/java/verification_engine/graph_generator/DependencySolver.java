@@ -52,7 +52,8 @@ public class DependencySolver {
 						depModel = m;
 					}
 				}
-				results.put(dep.getName(), StormAPI.run(depModel, property, stormInstallation));
+				System.out.println(dep.getDefinition());
+				results.put(dep.getName(), StormAPI.run(depModel, dep.getDefinition(), stormInstallation));
 			}
 			
 			// update the model file to define constants

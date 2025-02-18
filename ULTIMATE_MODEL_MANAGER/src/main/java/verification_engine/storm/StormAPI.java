@@ -6,8 +6,9 @@ import model.persistent_objects.Model;
 public class StormAPI {
 	
 	public static double run(Model model, String propFile, String stormInstallLocation) {
-		String command = stormInstallLocation + " --prism " + model.getFilePath()  + " --prop \"" + propFile + "\"";
+		String command = stormInstallLocation + " --prism " + model.getFilePath()  + " --prop \"" + propFile + "\"" + " -pc";
 		String output = OSCommandExecutor.executeCommand(command);
+		System.out.print(output);
 		Double result = StormOutputParser.getDResult(output);
 		return result;
 	}

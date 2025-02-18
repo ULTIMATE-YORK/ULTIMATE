@@ -18,17 +18,17 @@
                 "pOkCorrect": {
                     "modelId": "perceive-user",
                     "name": "pOkCorrect",
-                    "property": "P=? [F \"done\" & userOk & userPredictedOk] / P=? [F \"done\" & userOk]"
+                    "property": "P=? [F s=3 & userOk & userPredictedOk || F s=3 & userOk]"
                 },
                 "pPickGarnment": {
                     "modelId": "pick-garment",
                     "name": "pPickGarnment",
-                    "property": "P=? [F [0,90] \"succ\"]"
+                    "property": "P=? [F [0,90] s=1]"
                 },
                 "pNotOkCorrect": {
                     "modelId": "perceive-user",
                     "name": "pNotOkCorrect",
-                    "property": "P=? [F \"done\" & !userOk & !userPredictedOk] / P=? [F \"done\" & !userOk]"
+                    "property": "P=? [F s=3 & !userOk & !userPredictedOk || F s=3 & !userOk]"
                 }
             }
         }

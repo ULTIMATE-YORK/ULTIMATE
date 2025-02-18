@@ -19,7 +19,7 @@ const double p1_notok_false_correct=0.61;  // probability that ML model 1 percei
 const double p2_ok_correct=0.93;           // probability that ML model 2 perceives the user state correctly when the user is ok
 const double p2_notok_correct=0.92;        // probability that ML model 2 perceives the user state correctly when the user is not ok
 // Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
-const int modelUsed = 0; // 1 - use model 1, 2 - use model 2, 3 - use first model 1, verify its prediction and return it if verified, or otherwise use also model 2 and return its prediction
+const int modelUsed = 1; // 1 - use model 1, 2 - use model 2, 3 - use first model 1, verify its prediction and return it if verified, or otherwise use also model 2 and return its prediction
 
 label "done" = s=3;
 
