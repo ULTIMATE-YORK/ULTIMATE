@@ -6,6 +6,7 @@ import org.apache.commons.cli.ParseException;
 
 import model.persistent_objects.Model;
 import prism.PrismException;
+import verification_engine.Algorithm1;
 import verification_engine.graph_generator.DependencyGraph;
 import verification_engine.graph_generator.DependencySolver;
 import verification_engine.storm.StormAPI;
@@ -128,7 +129,8 @@ public class Headless {
 		    System.out.println("Prism result: " + result.toString());
 	    }
 	    else if (pmc.equals("storm")) {
-	    	Double result = ds.solveStorm(pModel, property, models, stormInstall);
+	    	//Double result = ds.solveStorm(pModel, property, models, stormInstall);
+	    	Double result = Algorithm1.Verify(pModel, property, models, stormInstall);
 		    System.out.println("Storm result: " + result.toString());
 	    }
 	    else {

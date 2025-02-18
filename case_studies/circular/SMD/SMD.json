@@ -1,0 +1,35 @@
+{"models": {
+    "SmartLighting": {
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/circular/SMD/SmartLighting.prism",
+        "id": "SmartLighting",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {"pDetected": {
+                "modelId": "MotionSensor",
+                "name": "pDetected",
+                "property": "P=? [F step=2 & detected]"
+            }}
+        }
+    },
+    "MotionSensor": {
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/circular/SMD/MotionSensor.prism",
+        "id": "MotionSensor",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pLow": {
+                    "modelId": "SmartLighting",
+                    "name": "pLow",
+                    "property": "R{\"low\"}=? [C<=10000] / 10000"
+                },
+                "pMed": {
+                    "modelId": "SmartLighting",
+                    "name": "pMed",
+                    "property": "R{\"medium\"}=? [C<=10000] / 10000"
+                }
+            }
+        }
+    }
+}}

@@ -31,7 +31,7 @@ public class DependencySolver {
 				results.put(dep.getName(), solve(depModel, dep.getDefinition(), models));
 			}
 			
-			// update the model file to define constants
+			// update the model file to define dependencies
 			ModelUtils.updateModelFileResults(model, results);
 			return Solver.prism(model, property);
 		}		
@@ -56,7 +56,7 @@ public class DependencySolver {
 				results.put(dep.getName(), StormAPI.run(depModel, dep.getDefinition(), stormInstallation));
 			}
 			
-			// update the model file to define constants
+			// update the model file to define dependencies
 			ModelUtils.updateModelFileResults(model, results);
 			return StormAPI.run(model, property, stormInstallation);
 		}	

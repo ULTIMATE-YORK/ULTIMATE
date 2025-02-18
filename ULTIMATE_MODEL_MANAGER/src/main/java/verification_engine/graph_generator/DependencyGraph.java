@@ -21,10 +21,12 @@ public class DependencyGraph {
 	
 	private Graph<String, DefaultEdge> dependencyGraph;
 	private ArrayList<Model> models;
+	private List<Set<String>> scc;
 	
 	public DependencyGraph(ArrayList<Model> models) {
 		this.models = models;
 		this.dependencyGraph = createDependencyGraph();
+		this.scc = getSCC();
 	}
 	
 	private Graph<String, DefaultEdge> createDependencyGraph() {
@@ -60,4 +62,14 @@ public class DependencyGraph {
         
         return stronglyConnectedSubgraphs;
 	}
+	
+	public boolean inSCC(Model model) {
+		for (Set<String> s : scc) {
+            if (s.contains(model.getModelId()) && s.size() > 1) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
+
