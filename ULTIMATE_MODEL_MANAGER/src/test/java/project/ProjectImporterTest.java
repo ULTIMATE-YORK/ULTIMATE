@@ -19,6 +19,20 @@ public class ProjectImporterTest {
 		Set<Model> projectModels = importer.importProject();
 	    assertTrue(projectModels.size() == 3);
 	}
+	
+	@Test
+	void testDeserializeParameters() throws IOException {
+		ProjectImporter importer = new ProjectImporter(getResourcePath("projectTestResources/RAD.ultimate"));
+		Set<Model> projectModels = importer.importProject();
+		
+		projectModels.forEach(model -> {
+			if (model.getModelId().equals("dressing")) {
+				assertTrue(model.getDependencyParameters().size() == 3);
+				assertTrue(model.getEnvironmentParameters().size() == 0);
+				assertTrue(model.getInternalParameters().size() == 0);
+			}
+		});
+	}
     
 	private String getResourcePath(String resource) {
         URL resourceUrl = getClass().getClassLoader().getResource(resource);
