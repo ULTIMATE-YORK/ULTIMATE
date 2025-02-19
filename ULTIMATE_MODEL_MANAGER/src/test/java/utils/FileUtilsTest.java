@@ -11,8 +11,6 @@ import java.nio.file.Paths;
 
 import org.junit.jupiter.api.Test;
 
-import model.Model;
-
 public class FileUtilsTest {
 	
     @Test
@@ -38,12 +36,23 @@ public class FileUtilsTest {
     void testNoFile() {
         assertFalse(FileUtils.isFile("noFile.txt"));
     }
+    
+    @Test
+	void testIsUltimateFile() throws IOException {
+		assertTrue(FileUtils.isUltimateFile(getResourcePath("utilTestResources/empty.ultimate")));
+	}
+    
+    @Test
+	void testNotUltimateFile() {
+		// Assert that an IOException is thrown when checking if a non-existent file is
+		// an ultimate file
+		assertThrows(IOException.class, () -> {
+			FileUtils.isUltimateFile(getResourcePath("utilTestResources/notAFile.txt"));
+		});
+	}
 
     private String getResourcePath(String resource) {
         URL resourceUrl = getClass().getClassLoader().getResource(resource);
-        if (resourceUrl == null) {
-            throw new IllegalArgumentException("Resource not found: " + resource);
-        }
         return Paths.get(resourceUrl.getPath()).toString();
     }
 }

@@ -19,8 +19,23 @@ public class FileUtils {
 			return true;
 		}
 		else {
-			throw new IOException("File does not exist or is not a prism model file");
+			throw new IOException("File at " + filePath + " does not exist or is not a prism model file");
 		}
+	}
+	
+	/*
+	 * Check if a file is an existing ultimate file by checking the file extension
+	 * 
+	 * @param projectPath
+	 * @return boolean
+	 */
+	public static boolean isUltimateFile(String projectPath) throws IOException {
+        if (isFile(projectPath) && projectPath.toLowerCase().endsWith(".ultimate")) {
+            return true;
+        }
+        else {
+            throw new IOException("File does not exist or is not an ultimate file");
+        }
 	}
 	
 	/**
@@ -67,4 +82,5 @@ public class FileUtils {
         }
         return false;
 	}
+	
 }
