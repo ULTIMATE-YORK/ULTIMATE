@@ -79,12 +79,6 @@ Properties to check from [2]:
 //   e^{sp}_3 = service     //rate from sleep to idle
 // Internal parameters
 //   x^{sp}_1 = p_Qn        //probability of |queue| >0
-// 
-// Dependency and external params. are define with dummy values.
-
-//References: 
-// https://inria.hal.science/inria-00458053/document
-// https://www.prismmodelchecker.org/casestudies/power_ctmc3.php
 
 ctmc
 
