@@ -1,0 +1,44 @@
+pomdp
+
+//
+// Model of simple dressing workflow
+//
+
+// Model parameters
+// Dependency parameters (obtained through the analysis of other models)
+const double pPickGarnment;  // from garment picking model
+const double pOkCorrect;     // from user perception model
+const double pNotOkCorrect;  // from user perception model
+// Environment parameters (derived from data collected from observing the environment)
+const double pOk;            // probability that the user is in an 'ok' state
+const double pDressOkSlow;   // probability that dressing succeeds when the user is in 'ok' state
+const double pDressOkFast;       // probability that dressing succeeds when the user is in 'ok' state
+const double pDressNotOkSlow;    // probability that dressing succeeds when the user is in 'not ok' state
+const double pDressNotOkFast;    // probability that dressing succeeds when the user is in 'not ok' state
+const double pPermissionToRetryGranted; // probability that the user allows retry after unsuccessful dressing attempt
+// Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
+// - these are implicit in the POMDP policy
+
+observables step, userPredictedOk endobservables
+
+module Workflow
+  step : [1..6] init 1;             // the steps of the workflow
+  userOk : bool init true;          // true state of the user (hidden)
+  userPredictedOk : bool init true; // predicted state of the user
+  
+  [pickGarment] step=1 -> pPickGarnment:(step'=2) + (1-pPickGarnment):(step'=6);
+  [observeUser] step=2 -> pOk*pOkCorrect:(step'=3)&(userOk'=true)&(userPredictedOk'=true) +
+                          pOk*(1-pOkCorrect):(step'=3)&(userOk'=true)&(userPredictedOk'=false) +
+                          (1-pOk)*pNotOkCorrect:(step'=3)&(userOk'=false)&(userPredictedOk'=false) +
+                          (1-pOk)*(1-pNotOkCorrect):(step'=3)&(userOk'=false)&(userPredictedOk'=true);
+
+  // decision to be made: dress slowly (higher success probability, longer time) or at fast speed
+  [dressSlow] step=3 & userOk -> pDressOkSlow:(step'=5) + (1-pDressOkSlow):(step'=4);
+  [dressFast] step=3 & userOk -> pDressOkFast:(step'=5) + (1-pDressOkFast):(step'=4);
+  [dressSlow] step=3 & !userOk -> pDressNotOkSlow:(step'=5) + (1-pDressNotOkSlow):(step'=4);
+  [dressFast] step=3 & !userOk -> pDressNotOkFast:(step'=5) + (1-pDressNotOkFast):(step'=4);
+
+  [retry] step=4 -> pPermissionToRetryGranted:(step'=3) + (1-pPermissionToRetryGranted):(step'=6);
+  [succ] step=5 -> true;
+  [fail] step=6 -> true;      
+endmodule
