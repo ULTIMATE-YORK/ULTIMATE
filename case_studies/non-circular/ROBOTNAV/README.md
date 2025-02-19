@@ -7,7 +7,7 @@ There are N different robots working in parallel across different grid spaces. E
 There is a human manager in charge of the operations of all robots. The manager must intervene when there is a failure with one of the robots. 
 The problem is to estimate how much the human manager will be payed if it is only called to work when robots fail.
 
-The files provided in this repository contain an example of two robots $r1$ and $r2$, one of them described below.
+The files provided in this repository contain an example of two robots $robot 1$ and $robot 2$, one of them described below.
 
 
 ## Example of a robot's model
