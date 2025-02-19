@@ -3,54 +3,86 @@
 ## Description
 Dynamic Power Management (DPM) is an automatic system available in multiple devices such as Network Interface Cards (NICs), DRAM and disk devices to implement different power management strategies, usually switching between power modes that have different tradeoffs between performance and energy consumption. 
 
-In this scenario, we considered a device with a DPM consisting of four parts: a service requester (SR) with a service request queue (SRQ), a service provider (SP) and a power manager (PM).
+In this scenario, we considered a device with a DPM consisting of four parts: a service requester (SR), a service request queue (SRQ), a service provider (SP) and a power manager (PM). These are further explained in the following.
 
 <img src="https://github.com/user-attachments/assets/bc5b5464-69eb-4322-b6c2-b7cb09df43e3" style="width: 40%;">
 
 ## Models
-### SR and SRQ
-The SR requests are added into the queue
+### SR, SRQ and PM
+The SR requests are added into the queue SRQ. These are modelled as a single module and synchronise with the PM module. We check the probability of ```P=?[ G<1 (q!=0 => P>=1[X q=0]) ]```
 
 ```
-// This is the Service Requester (SR) and the Service Request Queue (SRQ)
-// models combined.
-// This model has no dependencies and two environmental parameters:
-//
+// This is the Service Requester (SR), the Service Request Queue (SRQ)
+// and Power manager (PM) models combined.
+
+// There are external parameters:
+//   e^{sr}_1 = request  //rate on which services are requested 
+// Internal parameters:
+//   x^{sr}_1 = QMAX
 
 ctmc
-
-// size of queue
-const int QMAX=20;
-
-// rate of arrivals
-const double request; //=100/72; 
+//internal
+const int QMAX=20;// size of queue
+//external
+const double request=100/72; // rate of arrivals
 
 // SERVICE REQUESTER AND SERVICE REQUEST QUEUE
 module SRQ
 
 	q : [0..QMAX]; //request queue states
 	//State transition
-	[request] true -> request : (q'=min(q+1,QMAX)); // request arrives
+	[request] true -> request : (q'=min(q+1,QMAX)) ;// request arrives
 	[serve]  q>0 -> (q'=q-1); // request served
-	
+endmodule
+
+// POWER MANAGER performance constraint 1
+// when the SRQ is full and the SP is in sleep go to idle
+// when the SRQ is empty and the SP is in idle:
+// go to sleep with probability 0.008963 and stay in idle with probability 0.991037
+
+module PM
+	p : [0..1];
+	// p=0 - loop or go sleep to idle
+	// p=1 - idle to sleep
+
+	// queue is full so go from sleep to idle
+	[sleep2idle] q=QMAX -> (p'=p);
+	// probabilistic choice when queue becomes empty
+	[serve] q=1 -> 0.008963 : (p'=1);
+	[serve] q=1 -> 0.991037 : (p'=0);
+	[serve] q>1 -> true; // loops for remaining states
+	[request] true -> (p'=0); // idle to sleep
+	[idle2sleep] p=1 -> (p'=0); // reset p when queue is no longer empty
 endmodule
 ```
 
+
+
 ## SP
+Service Provider depends on the previous model as describe in the following model's comments.
+
+Properties to check from [2]:
+```R{"power"}=? [C <= referenceTimeInterval]```
+
+```R{"queueLength"}=? [C ≤ referenceTimeInterval]```
+
 ```
 // This is the Service Provider (SP) model of a Power Distribution Management.
 // The SP model depends on the probability of having no requests in the Service
 // Request Queue (SRQ). Hence, the dependency param. is: 
-//   d^{sp}_1 = p_Q0     //probability of no requests queued (used as a rate)
+//   d^{sp}_1 = p_Q0 == PMC(m_{srq},P=?[ G<1 (q!=0 => P>=1[X q=0]) ])  //probability of no requests queued within 0.85 time units (used as a rate)
 // There are external parameters:
 //   e^{sp}_1 = sleep2idle  //transition rate from sleep to idle
 //   e^{sp}_2 = idle2sleep  //transition rate from idle to sleep
 //   e^{sp}_3 = service     //rate from sleep to idle
 // Internal parameters
-//   x^{sp}_1 = p_Qn        
+//   x^{sp}_1 = p_Qn        //probability of |queue| >0
 // 
 // Dependency and external params. are define with dummy values.
 
+//References: 
+// https://inria.hal.science/inria-00458053/document
+// https://www.prismmodelchecker.org/casestudies/power_ctmc3.php
 
 ctmc
 
@@ -60,7 +92,7 @@ const double idle2sleep=100/67;
 // rate of service
 const double service=1000/8;  //service rate
 
-const double p_Q0 = 1/10; //prob. of no requests queued
+const double p_Q0 = 0.249; //1/10; //prob. of no requests queued
 const double p_Qn = 1-p_Q0; //prob. of queued more than one request
 
 // SERVICE PROVIDER
@@ -91,7 +123,22 @@ module SP
 	[serve] sp=2 & q>1 -> service : (sp'=2); 
 	[serve] sp=2 & q=1 -> service : (sp'=1); 
 endmodule
+
+const int referenceTimeInterval = 100;
+
+rewards "power" // expected average power over 100s .
+ sp=0 : 0.13/referenceTimeInterval;
+ sp=1 : 0.95/referenceTimeInterval;
+ sp=2 : 2.15/referenceTimeInterval;
+ [sleep2idle] true : 7.0/referenceTimeInterval;
+ [idle2sleep] true : 0.067/referenceTimeInterval;
+endrewards
+
+rewards "queueLength" // expected average queue length over 100s
+ true : q/referenceTimeInterval;
+endrewards
 ```
+
 
 
 
