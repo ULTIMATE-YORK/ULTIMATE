@@ -9,7 +9,9 @@ In this scenario, we considered a device with a DPM consisting of four parts: a 
 
 ## Models
 ### SR, SRQ and PM
-The SR requests are added into the queue SRQ. These are modelled as a single module and synchronise with the PM module. We check the probability of ```P=?[ G<1 (q!=0 => P>=1[X q=0]) ]``` as described in the SP model's comments.
+The SR requests are added into the queue SRQ. These are modelled as a single module and synchronise with the power manager PM module. 
+
+We check the probability of getting a queue size 0 (q!=0 => P>=1[X q=0]) in the first time unit (G<1) checking the property ```P=?[ G<1 (q!=0 => P>=1[X q=0]) ]```. The result of this is used in the SP model.
 
 ```
 // This is the Service Requester (SR), the Service Request Queue (SRQ)
