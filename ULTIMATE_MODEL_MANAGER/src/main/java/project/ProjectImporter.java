@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.json.JSONObject;
@@ -15,8 +14,6 @@ import model.Model;
 import parameters.DependencyParameter;
 import parameters.EnvironmentParameter;
 import parameters.InternalParameter;
-import parameters.UncategorisedParameter;
-import utils.PrismFileParser;
 
 public class ProjectImporter {
 	
@@ -72,7 +69,7 @@ public class ProjectImporter {
 		});
 		
 		models.forEach(model -> {
-			addUncategorisedParameters(model);
+			model.addUncategorisedParameters();
 		});
 		return models;
 	}
@@ -136,21 +133,6 @@ public class ProjectImporter {
 	private String getDirectory(String projectPath) {
         Path path = Paths.get(projectPath);
         return path.toAbsolutePath().getParent().toString(); // Get directory
-	}
-	
-	/*
-	 * Adds the uncategorised parameters to the model
-	 */
-	private void addUncategorisedParameters(Model model) {
-        PrismFileParser parser = new PrismFileParser();
-        try {
-            List<String> params =  parser.parseFile(model.getFilePath());
-            for (String parsedParam : params) {
-            	model.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
-                }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-	}
+	}	
 
 }
