@@ -20,6 +20,7 @@ public class Algorithm1 {
 		}
 		else {
 			System.out.println("Model is in a cycle");
+			System.out.println(dg.getSCC());
 			return 0.0;
 		}
 	}
