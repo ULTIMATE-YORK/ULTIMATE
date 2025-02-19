@@ -1,5 +1,6 @@
 package utils;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,9 +12,15 @@ public class FileUtils {
 	 * 
 	 * @param filePath
 	 * @return boolean
+	 * @throws IOException 
 	 */
-	public static boolean isPrismFile(String filePath) {
-		return (isFile(filePath) && isPrismModelFile(filePath));
+	public static boolean isPrismFile(String filePath) throws IOException {
+		if (isFile(filePath) && isPrismModelFile(filePath)) {
+			return true;
+		}
+		else {
+			throw new IOException("File does not exist or is not a prism model file");
+		}
 	}
 	
 	/**
@@ -32,17 +39,15 @@ public class FileUtils {
 	 * @param filePath
 	 * @return String the file name without the file extension
 	 */
-	public static String removeFileExtension(String filePath) {
-		if (isPrismModelFile(filePath)) {
+	public static String removeFileExtension(String filePath) throws IOException {
+		if (isPrismFile(filePath)) {
 	        Path path = Paths.get(filePath);
 	        String fileName = path.getFileName().toString(); // Get "c.prism"
 	        
 	        int lastDotIndex = fileName.lastIndexOf('.');
 	        return (lastDotIndex == -1) ? fileName : fileName.substring(0, lastDotIndex);
 		}
-		else {
-			throw new IllegalArgumentException("File is not a prism model file");
-		}
+		return null;
 	}
 	
 	// PRIVATE METHODS
