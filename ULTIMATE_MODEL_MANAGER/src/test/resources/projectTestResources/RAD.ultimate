@@ -1,0 +1,45 @@
+{"models": {
+    "perceive-user": {
+        "fileName": "perceive-user.dtmc",
+        "id": "perceive-user",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        }
+    },
+    "dressing": {
+        "fileName": "dressing.pomdp",
+        "id": "dressing",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pOkCorrect": {
+                    "modelId": "pick-garment",
+                    "name": "pOkCorrect",
+                    "property": "P=? [F 'done' & ok & predictedOk] / P=? [F 'done' & ok]"
+                },
+                "pPickGarnment": {
+                    "modelId": "pick-garment",
+                    "name": "pPickGarnment",
+                    "property": "P=? [F [0,90] 'success']"
+                },
+                "pNotOkCorrect": {
+                    "modelId": "pick-garment",
+                    "name": "pNotOkCorrect",
+                    "property": "P=? [F 'done' & !ok & !predictedOk] / P=? [F 'done' & !ok]"
+                }
+            }
+        }
+    },
+    "pick-garment": {
+        "fileName": "pick-garment.ctmc",
+        "id": "pick-garment",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        }
+    }
+}}
