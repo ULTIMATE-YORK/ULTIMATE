@@ -1,5 +1,6 @@
 package utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URL;
@@ -17,6 +18,15 @@ public class FileUtilsTest {
         assertTrue(FileUtils.isPrismFile(getResourcePath("utilTestResources/c.dtmc")));
         assertTrue(FileUtils.isPrismFile(getResourcePath("utilTestResources/c.mdp")));
         assertTrue(FileUtils.isPrismFile(getResourcePath("utilTestResources/c.pomdp")));
+    }
+    
+    @Test
+    void testRemoveFileExtension() {
+    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.prism")), "c");
+    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.ctmc")), "c");
+    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.dtmc")), "c");
+    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.mdp")), "c");
+    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.pomdp")), "c");
     }
 
     private String getResourcePath(String resource) {
