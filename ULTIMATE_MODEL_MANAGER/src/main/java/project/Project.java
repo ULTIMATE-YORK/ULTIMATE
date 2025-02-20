@@ -14,6 +14,7 @@ public class Project {
 	
 	private Set<Model> models; // set of models in the project
     private ObservableList<Model> observableModels;    // The observable list used for UI binding
+    private Model currentModel;
 	private String projectName;
 	private ProjectImporter importer;
 	//private ProjectExporter exporter;
@@ -22,6 +23,7 @@ public class Project {
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
+		currentModel = models.iterator().next();
         // Initialize the observable list with the contents of the set
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
@@ -67,6 +69,14 @@ public class Project {
 	
 	public String getProjectName() {
 		return projectName;
+	}
+	
+	public void setModel(Model model) {
+		this.currentModel = model;
+	}
+	
+	public Model getCurrentModel() {
+		return currentModel;
 	}
 }
 	
