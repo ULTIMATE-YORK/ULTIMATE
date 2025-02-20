@@ -26,7 +26,7 @@ public class Main extends Application {
     public void start(Stage stage) throws Exception {
         // Set up the shared context singleton instance for sharing data across the application
         SharedContext sharedContext = SharedContext.getInstance(); // Obtain the shared data instance
-        //sharedContext.setMainStage(stage); // Store the primary stage in the shared context
+        sharedContext.setMainStage(stage); // Store the primary stage in the shared context
         
         // set up blank project
         Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
