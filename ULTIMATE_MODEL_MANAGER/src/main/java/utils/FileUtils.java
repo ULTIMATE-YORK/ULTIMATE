@@ -83,6 +83,13 @@ public class FileUtils {
 		return null;
 	}
 	
+	public static String getFileContent(String filePath) throws IOException {
+		if (isFile(filePath)) {
+			return Files.readString(Paths.get(filePath));
+		}
+		return null;
+	}
+	
 	// PRIVATE METHODS
 	
 	/*

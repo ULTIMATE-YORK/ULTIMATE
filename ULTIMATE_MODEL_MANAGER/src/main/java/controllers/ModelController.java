@@ -23,11 +23,10 @@ public class ModelController {
 	@FXML private ListView<Model> modelListView;
 	
 	private SharedContext sharedContext = SharedContext.getInstance();
+	private Project project = sharedContext.getProject();
 
     @FXML
     public void initialize() {
-        // Get the shared project instance
-        Project project = sharedContext.getProject();
         // Bind the ListView to the project's observable models
         modelListView.setItems(project.getObservableModels());
         setUpModelListView();
@@ -38,7 +37,7 @@ public class ModelController {
 	    String filePath = DialogOpener.openPrismFileDialog(sharedContext.getMainStage());
 
 	    if (filePath == null) {
-	        // User canceled file selection; no need to proceed
+	        // User cancelled file selection; no need to proceed
 	        return;
 	    }
 
@@ -53,7 +52,7 @@ public class ModelController {
 	    // Handle success (update UI safely on JavaFX thread)
 	    task.setOnSucceeded(event -> {
 	        Model newModel = task.getValue();
-	        sharedContext.getProject().addModel(newModel);
+	        project.addModel(newModel);
 	        System.out.println("Model added successfully: " + newModel);
 	    });
 
