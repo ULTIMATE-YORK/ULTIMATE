@@ -107,6 +107,7 @@ public class ProjectImporter {
                     String depDefinition = depObj.getString("property");
 					models.forEach(modelo -> {
 						if (modelo.getModelId().equals(depId)) {
+							// FIXME: what if a model is not in the project? 
 		                    DependencyParameter depParam = new DependencyParameter(depName, modelo, depDefinition);
 		                    model.addDependencyParameter(depParam);
 						}
