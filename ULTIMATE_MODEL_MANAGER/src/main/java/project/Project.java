@@ -27,4 +27,13 @@ public class Project {
 		return modelIDs;
 	}
 	
+	public void addModel(Model addModel) {
+		models.forEach(model -> {
+			if (model.getModelId().equals(addModel.getModelId())) {
+				throw new IllegalArgumentException("Model already exists in project");
+			}
+		});
+		models.add(addModel);
+	}
 }
+	

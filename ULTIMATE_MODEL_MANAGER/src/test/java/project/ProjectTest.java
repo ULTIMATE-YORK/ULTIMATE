@@ -1,6 +1,7 @@
 package project;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+
+import model.Model;
 
 public class ProjectTest {
 	
@@ -25,6 +28,15 @@ public class ProjectTest {
 		assertTrue(modelIDs.contains("dressing"));
 		assertTrue(modelIDs.contains("perceive-user"));
 		assertTrue(modelIDs.contains("pick-garment"));
+	}
+	
+	@Test
+	void testAddingDuplicateModel() throws IOException {
+		Project project = new Project(getResourcePath("projectTestResources/RAD.ultimate"));
+		Model model = new Model(getResourcePath("projectTestResources/dressing.pomdp"));
+		assertThrows(IllegalArgumentException.class, () -> {
+			project.addModel(model);
+		});
 	}
 
 	private String getResourcePath(String resource) {
