@@ -54,8 +54,24 @@ public class FileUtils {
 	 * @param filePath
 	 * @return String the file name without the file extension
 	 */
-	public static String removeFileExtension(String filePath) throws IOException {
+	public static String removePrismFileExtension(String filePath) throws IOException {
 		if (isPrismFile(filePath)) {
+	        Path path = Paths.get(filePath);
+	        String fileName = path.getFileName().toString(); // Get "c.prism"
+	        
+	        int lastDotIndex = fileName.lastIndexOf('.');
+	        return (lastDotIndex == -1) ? fileName : fileName.substring(0, lastDotIndex);
+		}
+		return null;
+	}
+	
+	/*
+	 * Returns the name of a file without the file extension
+	 * @param filePath
+	 * @return String the file name without the file extension
+	 */
+	public static String removeUltimateFileExtension(String filePath) throws IOException {
+		if (isUltimateFile(filePath)) {
 	        Path path = Paths.get(filePath);
 	        String fileName = path.getFileName().toString(); // Get "c.prism"
 	        

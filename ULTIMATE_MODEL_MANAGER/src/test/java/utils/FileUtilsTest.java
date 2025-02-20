@@ -24,12 +24,17 @@ public class FileUtilsTest {
     }
     
     @Test
-    void testRemoveFileExtension() throws IOException {
-    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.prism")), "c");
-    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.ctmc")), "c");
-    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.dtmc")), "c");
-    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.mdp")), "c");
-    	assertEquals(FileUtils.removeFileExtension(getResourcePath("utilTestResources/c.pomdp")), "c");
+    void testRemovePrismFileExtension() throws IOException {
+    	assertEquals(FileUtils.removePrismFileExtension(getResourcePath("utilTestResources/c.prism")), "c");
+    	assertEquals(FileUtils.removePrismFileExtension(getResourcePath("utilTestResources/c.ctmc")), "c");
+    	assertEquals(FileUtils.removePrismFileExtension(getResourcePath("utilTestResources/c.dtmc")), "c");
+    	assertEquals(FileUtils.removePrismFileExtension(getResourcePath("utilTestResources/c.mdp")), "c");
+    	assertEquals(FileUtils.removePrismFileExtension(getResourcePath("utilTestResources/c.pomdp")), "c");
+    }
+    
+    @Test
+    void testRemoveUltimateFileExtension() throws IOException {
+    	assertEquals(FileUtils.removeUltimateFileExtension(getResourcePath("utilTestResources/empty.ultimate")), "empty");
     }
     
     @Test
