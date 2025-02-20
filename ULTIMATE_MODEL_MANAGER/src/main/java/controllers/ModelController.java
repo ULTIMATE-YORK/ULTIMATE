@@ -30,6 +30,7 @@ public class ModelController {
         // Bind the ListView to the project's observable models
         modelListView.setItems(project.getObservableModels());
         setUpModelListView();
+        scrollDown();
     }
 
 	@FXML

@@ -22,19 +22,24 @@ public class ModelFileController {
 	
 	private void setListeners() {
         // Listen for changes to the current model
-        project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
-            if (newModel != null) {
-                try {
-                    String fileContent = FileUtils.getFileContent(newModel.getFilePath());
-                    Platform.runLater(() -> {
-                        modelFile.setText(fileContent);
-                    });
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-            }
-        });
+	    project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
+	        if (newModel != null) {
+	            // Off load file I/O to a background thread
+	            new Thread(() -> {
+	                try {
+	                    String fileContent = FileUtils.getFileContent(newModel.getFilePath());
+	                    // Update UI on the JavaFX thread
+	                    Platform.runLater(() -> modelFile.setText(fileContent));
+	                } catch (IOException e) {
+	                    e.printStackTrace();
+	                    // Optionally update UI to reflect error
+	                    Platform.runLater(() -> {
+	                        modelFile.setText("Error loading file.");
+	                    });
+	                }
+	            }).start();
+	        }
+	    });
 	}
 
 }
