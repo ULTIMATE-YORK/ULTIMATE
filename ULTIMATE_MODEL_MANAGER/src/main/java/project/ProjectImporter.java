@@ -69,7 +69,7 @@ public class ProjectImporter {
 		});
 		
 		models.forEach(model -> {
-			model.addUncategorisedParameters();
+			model.addUncategorisedParametersFromFile();
 		});
 		return models;
 	}

@@ -38,7 +38,7 @@ public class Model {
         this.environmentParameters = new ArrayList<>();
         this.internalParameters = new ArrayList<>();
         this.uncategorisedParameters = new ArrayList<>();
-        addUncategorisedParameters();
+        addUncategorisedParametersFromFile();
         
         //this.properties = new ArrayList<>();
     }
@@ -184,7 +184,7 @@ public class Model {
 	/*
 	 * Adds the uncategorised parameters to the model
 	 */
-	public void addUncategorisedParameters() {
+	public void addUncategorisedParametersFromFile() {
         PrismFileParser parser = new PrismFileParser();
         try {
             List<String> params =  parser.parseFile(this.getFilePath());
