@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
@@ -14,7 +16,7 @@ public class Project {
 	
 	private Set<Model> models; // set of models in the project
     private ObservableList<Model> observableModels;    // The observable list used for UI binding
-    private Model currentModel;
+    private ObjectProperty<Model> currentModel; // Observable property for current model
 	private String projectName;
 	private ProjectImporter importer;
 	//private ProjectExporter exporter;
@@ -23,7 +25,8 @@ public class Project {
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
-		currentModel = models.iterator().next();
+        // Initialize currentModel property (first model in the set or null)
+        currentModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
         // Initialize the observable list with the contents of the set
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
@@ -32,6 +35,7 @@ public class Project {
 	public Project() {
 		this.models = new HashSet<Model>();
         this.observableModels = FXCollections.observableArrayList();
+        this.currentModel = new SimpleObjectProperty<>(null);
 		this.projectName = "untitled project";
     }
 	
@@ -71,12 +75,17 @@ public class Project {
 		return projectName;
 	}
 	
-	public void setCurrentModel(Model model) {
-		this.currentModel = model;
-	}
-	
-	public Model getCurrentModel() {
-		return currentModel;
-	}
+    // Getter for currentModel property (for binding)
+    public ObjectProperty<Model> currentModelProperty() {
+        return currentModel;
+    }
+
+    public void setCurrentModel(Model model) {
+        this.currentModel.set(model);
+    }
+
+    public Model getCurrentModel() {
+        return currentModel.get();
+    }
 }
 	
