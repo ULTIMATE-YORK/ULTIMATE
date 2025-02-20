@@ -2,14 +2,19 @@ package project;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.Model;
 import utils.FileUtils;
 
 public class Project {
 	
 	private Set<Model> models; // set of models in the project
+    private ObservableList<Model> observableModels;    // The observable list used for UI binding
+	private String projectName;
 	private ProjectImporter importer;
 	//private ProjectExporter exporter;
 	
@@ -17,6 +22,15 @@ public class Project {
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
+        // Initialize the observable list with the contents of the set
+        observableModels = FXCollections.observableArrayList(models);
+		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
+    }
+	
+	public Project() {
+		this.models = new HashSet<Model>();
+        this.observableModels = FXCollections.observableArrayList();
+		this.projectName = "untitled project";
     }
 	
 	public ArrayList<String> getModelIDs() {
@@ -27,21 +41,32 @@ public class Project {
 		return modelIDs;
 	}
 	
-	public void addModel(Model addModel) {
-		models.forEach(model -> {
-			if (model.getModelId().equals(addModel.getModelId())) {
-				throw new IllegalArgumentException("Model already exists in project");
-			}
-		});
-		models.add(addModel);
-	}
+    public ObservableList<Model> getObservableModels() {
+        return observableModels;
+    }
+    
+    public void addModel(Model addModel) {
+        // Check if the model already exists using the set
+        for (Model model : models) {
+            if (model.getModelId().equals(addModel.getModelId())) {
+                throw new IllegalArgumentException("Model already exists in project");
+            }
+        }
+        // Add to the set
+        models.add(addModel);
+        // Update the observable list
+        observableModels.add(addModel);
+    }
+    
+    public void removeModel(Model removeModel) {
+        // Remove from the set (by id comparison)
+        models.removeIf(model -> model.getModelId().equals(removeModel.getModelId()));
+        // Remove from the observable list
+        observableModels.removeIf(model -> model.getModelId().equals(removeModel.getModelId()));
+    }
 	
-	public void removeModel(Model removeModel) {
-		models.forEach(model -> {
-			if (model.getModelId().equals(removeModel.getModelId())) {
-				models.remove(model);
-			}
-		});
+	public String getProjectName() {
+		return projectName;
 	}
 }
 	

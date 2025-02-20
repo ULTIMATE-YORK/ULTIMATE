@@ -40,7 +40,7 @@ public class ProjectTest {
 	}
 	
 	@Test
-	void testRemovenodel() throws IOException {
+	void testRemoveModel() throws IOException {
 		Project project = new Project(getResourcePath("projectTestResources/RAD.ultimate"));
 		Model model = new Model(getResourcePath("projectTestResources/dressing.pomdp"));
 		ArrayList<String> modelIDs1 = project.getModelIDs(); // should be 3
