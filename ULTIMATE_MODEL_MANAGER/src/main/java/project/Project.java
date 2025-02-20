@@ -35,5 +35,13 @@ public class Project {
 		});
 		models.add(addModel);
 	}
+	
+	public void removeModel(Model removeModel) {
+		models.forEach(model -> {
+			if (model.getModelId().equals(removeModel.getModelId())) {
+				models.remove(model);
+			}
+		});
+	}
 }
 	

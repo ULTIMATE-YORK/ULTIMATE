@@ -38,6 +38,16 @@ public class ProjectTest {
 			project.addModel(model);
 		});
 	}
+	
+	@Test
+	void testRemovenodel() throws IOException {
+		Project project = new Project(getResourcePath("projectTestResources/RAD.ultimate"));
+		Model model = new Model(getResourcePath("projectTestResources/dressing.pomdp"));
+		ArrayList<String> modelIDs1 = project.getModelIDs(); // should be 3
+		project.removeModel(model);
+		ArrayList<String> modelIDs2 = project.getModelIDs(); // should be 2
+		assertTrue(modelIDs1.size() == modelIDs2.size() + 1);
+	}
 
 	private String getResourcePath(String resource) {
         URL resourceUrl = getClass().getClassLoader().getResource(resource);
