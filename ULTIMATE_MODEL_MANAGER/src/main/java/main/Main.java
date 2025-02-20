@@ -5,6 +5,8 @@ import javafx.fxml.FXMLLoader; // For loading FXML files
 import javafx.scene.Scene; // For creating and managing scenes
 import javafx.scene.layout.GridPane; // The layout for the UI root element
 import javafx.stage.Stage; // The main stage/window of the JavaFX application
+import project.Project;
+import sharedContext.SharedContext;
 
 /**
  * Main class for the Ultimate Model Manager JavaFX application.
@@ -23,8 +25,13 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // Set up the shared context singleton instance for sharing data across the application
-        //SharedData sharedContext = SharedData.getInstance(); // Obtain the shared data instance
+        SharedContext sharedContext = SharedContext.getInstance(); // Obtain the shared data instance
         //sharedContext.setMainStage(stage); // Store the primary stage in the shared context
+        
+        // set up blank project
+        Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
+        // set the reference
+        sharedContext.setProject(blankProject);
 
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
@@ -36,7 +43,7 @@ public class Main extends Application {
         stage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
 
         // Set the title of the primary stage (window)
-        stage.setTitle("Ultimate Stochastic World Model Manager"); // Customize the window title as needed
+        stage.setTitle("Ultimate Stochastic World Model Manager: " + sharedContext.getProject().getProjectName()); // Customize the window title as needed
 
         // Set minimum dimensions for the primary stage
         stage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width

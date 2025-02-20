@@ -32,7 +32,7 @@ public class Model {
      * @throws IOException if the file is not a valid PRISM model
      */
     public Model(String filePath) throws IOException {
-        this.modelId = FileUtils.removeFileExtension(filePath); // will throw an error if the file is not prism file
+        this.modelId = FileUtils.removePrismFileExtension(filePath); // will throw an error if the file is not prism file
         this.filePath = filePath;
         this.dependencyParameters = new ArrayList<>();
         this.environmentParameters = new ArrayList<>();
