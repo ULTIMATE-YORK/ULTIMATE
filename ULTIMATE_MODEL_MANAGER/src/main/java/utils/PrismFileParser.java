@@ -16,8 +16,8 @@ public class PrismFileParser {
      * @throws IOException if an error occurs while reading the file
      */
     public List<String> parseFile(String filePath) throws IOException {
-        List<String> parameters = new ArrayList<>();
-
+    	FileUtils.isPrismFile(filePath);         // check valid prism file
+    	List<String> parameters = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -46,7 +46,7 @@ public class PrismFileParser {
         // Split the line into tokens
         String[] tokens = line.split("\\s+");
         if (tokens.length >= 3 && tokens[0].equals("const")) {
-            String type = tokens[1];
+            //String type = tokens[1];
             String name = tokens[2];
 
             // Ensure the name ends with a semicolon and remove it
