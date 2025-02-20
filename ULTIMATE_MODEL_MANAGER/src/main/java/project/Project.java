@@ -71,7 +71,7 @@ public class Project {
 		return projectName;
 	}
 	
-	public void setModel(Model model) {
+	public void setCurrentModel(Model model) {
 		this.currentModel = model;
 	}
 	
