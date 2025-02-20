@@ -7,6 +7,8 @@ import java.nio.file.Paths;
 
 public class FileUtils {
 	
+	public static final String[] VALID_PRISM_FILE_EXTENSIONS = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism", "*.mdp"};
+	
 	/**
 	 * Check if a file is an existing prism file by checking the file exists and ends with a prism model file extension
 	 * 
