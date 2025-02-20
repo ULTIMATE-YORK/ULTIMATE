@@ -27,7 +27,7 @@
 			<Label text="Model file" />
 		</HBox>
 	
-		<TextArea fx:id="modeFile" editable="false" VBox.vgrow="ALWAYS">
+		<TextArea fx:id="modelFile" editable="false" VBox.vgrow="ALWAYS">
 
         
   		 </TextArea>

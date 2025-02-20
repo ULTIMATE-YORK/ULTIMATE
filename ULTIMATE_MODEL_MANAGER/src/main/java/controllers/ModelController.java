@@ -93,7 +93,7 @@ public class ModelController {
     	// When a new model is selected, the property is updated and the current model is set
     	modelListView.getSelectionModel().selectedItemProperty().addListener((obs, oldModel, newModel) -> {
     	    if (newModel != null) {
-    	        sharedContext.getProject().setCurrentModel(newModel);
+    	        project.setCurrentModel(newModel);
     	    }
     	});
     	

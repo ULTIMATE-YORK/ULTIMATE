@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<GridPane xmlns:fx="http://javafx.com/fxml" fx:id="parameterGridPane" hgap="10" vgap="10" fx:controller="gui.controllers.ParametersController" >
+<GridPane xmlns:fx="http://javafx.com/fxml" fx:id="parameterGridPane" hgap="10" vgap="10" fx:controller="controllers.ParameterController" >
 
 	  <columnConstraints>
 	    <ColumnConstraints hgrow="ALWAYS" />
@@ -40,7 +40,7 @@
     		<HBox alignment="CENTER" spacing="10.0">
       			<children>
         			<Label text="Environment Parameters" />
-        			<Button fx:id="addEnvironmentParamButton" onAction="#handleEParam" mnemonicParsing="false" text="+" />
+        			<Button fx:id="addEnvironmentParamButton" mnemonicParsing="false" text="+" />
       			</children>
     		</HBox>
     		
@@ -55,7 +55,7 @@
     		<HBox alignment="CENTER" spacing="10.0">
       			<children>
         			<Label text="Dependency Parameters" />
-       		 		<Button fx:id="addDependencyParamButton" onAction="#handleDParam" mnemonicParsing="false" text="+" />
+       		 		<Button fx:id="addDependencyParamButton" mnemonicParsing="false" text="+" />
       			</children>
    			
    			</HBox>
@@ -71,7 +71,7 @@
            	<HBox alignment="CENTER" spacing="10.0">
              <children>
              	<Label text="Internal Parameters" />
-               	<Button fx:id="addInternalParamButton" onAction="#handleIParam" mnemonicParsing="false" text="+" />
+               	<Button fx:id="addInternalParamButton" mnemonicParsing="false" text="+" />
              </children>
            </HBox>
            
@@ -85,7 +85,7 @@
    </VBox>
 
 	<!-- Third VBox -->
-	<VBox fx:id="undefinedParametersVBox" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0" VBox.vgrow="ALWAYS" GridPane.hgrow="ALWAYS">
+	<VBox spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="0" VBox.vgrow="ALWAYS" GridPane.hgrow="ALWAYS">
 		
 		<GridPane.margin>
 			<Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
