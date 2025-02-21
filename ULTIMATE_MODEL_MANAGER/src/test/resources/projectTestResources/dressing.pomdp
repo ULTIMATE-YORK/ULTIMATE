@@ -6,9 +6,9 @@ pomdp
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pPickGarnment;  // from garment picking model
-const double pOkCorrect;     // from user perception model
-const double pNotOkCorrect;  // from user perception model
+//const double pPickGarnment;  // from garment picking model
+//const double pOkCorrect;     // from user perception model
+//const double pNotOkCorrect;  // from user perception model
 // Environment parameters (derived from data collected from observing the environment)
 const double pOk;            // probability that the user is in an 'ok' state
 const double pDressOkSlow;   // probability that dressing succeeds when the user is in 'ok' state

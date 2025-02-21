@@ -2,7 +2,10 @@ package model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
 import parameters.EnvironmentParameter;
 import parameters.InternalParameter;
@@ -19,10 +22,10 @@ public class Model {
     private String modelId; // Unique identifier for the model
     private String filePath; // Path to the model's file
     //private String propertiesFile; // file of properties list
-    private List<DependencyParameter> dependencyParameters; // List of dependency parameters
+    private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
-    private List<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
+    private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     //private ArrayList<Property> properties;
     
     /**
@@ -34,10 +37,10 @@ public class Model {
     public Model(String filePath) throws IOException {
         this.modelId = FileUtils.removePrismFileExtension(filePath); // will throw an error if the file is not prism file
         this.filePath = filePath;
-        this.dependencyParameters = new ArrayList<>();
+        this.dependencyParameters = FXCollections.observableArrayList();
         this.environmentParameters = new ArrayList<>();
         this.internalParameters = new ArrayList<>();
-        this.uncategorisedParameters = new ArrayList<>();
+        this.uncategorisedParameters = FXCollections.observableArrayList();
         addUncategorisedParametersFromFile();
         
         //this.properties = new ArrayList<>();
@@ -57,7 +60,7 @@ public class Model {
 	 * 
 	 * @param parameters the list of dependency parameters to add
 	 */
-	public void setDependencyParameters(List<DependencyParameter> parameters) {
+	public void setDependencyParameters(ObservableList<DependencyParameter> parameters) {
 		dependencyParameters = parameters;
 	}
 	
@@ -111,7 +114,7 @@ public class Model {
 	 * 
 	 * @param parameters the list of uncategorised parameters to add
 	 */
-	public void setUncategorisedParameters(List<UncategorisedParameter> parameters) {
+	public void setUncategorisedParameters(ObservableList<UncategorisedParameter> parameters) {
 		uncategorisedParameters = parameters;
 	}
 
@@ -150,7 +153,7 @@ public class Model {
      * 
      * @return the list of dependency parameters
      */
-    public List<DependencyParameter> getDependencyParameters() {
+    public ObservableList<DependencyParameter> getDependencyParameters() {
         return dependencyParameters;
     }
     
@@ -177,14 +180,14 @@ public class Model {
      * 
      * @return the list of uncategorised parameters
      */
-    public List<UncategorisedParameter> getUncategorisedParameters() {
+    public ObservableList<UncategorisedParameter> getUncategorisedParameters() {
         return uncategorisedParameters;
     }
     
 	/*
 	 * Adds the uncategorised parameters to the model
 	 */
-	public void addUncategorisedParametersFromFile() {
+	private void addUncategorisedParametersFromFile() {
         PrismFileParser parser = new PrismFileParser();
         try {
             List<String> params =  parser.parseFile(this.getFilePath());
@@ -195,5 +198,19 @@ public class Model {
             e.printStackTrace();
         }
 	}
-
+	
+	/*
+	 * Removes an DependencyParameter and adds an UncategorisedParameter
+	 */
+	public void removeDependencyParameter(DependencyParameter dp) {
+	    Iterator<DependencyParameter> iter = this.dependencyParameters.iterator();
+	    while (iter.hasNext()) {
+	        DependencyParameter current = iter.next();
+	        if (current.getName().equals(dp.getName())) {
+	            iter.remove(); // Safely remove from dependencyParameters
+	            this.uncategorisedParameters.add(new UncategorisedParameter(current.getName()));
+	            break; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	}
 }
