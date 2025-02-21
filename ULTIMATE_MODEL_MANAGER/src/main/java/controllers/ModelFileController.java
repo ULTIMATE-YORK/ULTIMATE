@@ -1,12 +1,14 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import project.Project;
 import sharedContext.SharedContext;
+import utils.Alerter;
 import utils.FileUtils;
 
 public class ModelFileController {
@@ -18,26 +20,37 @@ public class ModelFileController {
 	@FXML
 	public void initialize() {
 		setListeners();
+		firstcall();
+		
+	}
+	
+	private void firstcall() {
+		CompletableFuture.supplyAsync( () -> {
+            try {
+                return FileUtils.getFileContent(project.getCurrentModel().getFilePath());
+            } catch (IOException e) {
+            	Alerter.showErrorAlert("Model File not found!", e.getMessage());
+            	return null;
+            }
+		}).thenAccept(fileContent -> 
+        	Platform.runLater(() -> modelFile.setText(fileContent))
+		);
 	}
 	
 	private void setListeners() {
-        // Listen for changes to the current model
+	    // Listen for changes to the current model
 	    project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
 	        if (newModel != null) {
-	            // Off load file I/O to a background thread
-	            new Thread(() -> {
+	            CompletableFuture.supplyAsync(() -> {
 	                try {
-	                    String fileContent = FileUtils.getFileContent(newModel.getFilePath());
-	                    // Update UI on the JavaFX thread
-	                    Platform.runLater(() -> modelFile.setText(fileContent));
+	                    return FileUtils.getFileContent(newModel.getFilePath());
 	                } catch (IOException e) {
-	                    e.printStackTrace();
-	                    // Optionally update UI to reflect error
-	                    Platform.runLater(() -> {
-	                        modelFile.setText("Error loading file.");
-	                    });
+	                	Alerter.showErrorAlert("Model File not found!", e.getMessage());
+	                	return null;
 	                }
-	            }).start();
+	            }).thenAccept(fileContent -> 
+	                Platform.runLater(() -> modelFile.setText(fileContent))
+	            );
 	        }
 	    });
 	}

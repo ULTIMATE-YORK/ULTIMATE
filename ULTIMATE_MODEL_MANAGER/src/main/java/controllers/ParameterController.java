@@ -19,6 +19,13 @@ public class ParameterController {
 	@FXML
 	public void initialize() {
 		setListeners();
+		firstcall();
+	}
+	
+	private void firstcall() {
+        Platform.runLater(() -> {
+            uParamList.setItems(javafx.collections.FXCollections.observableArrayList(project.getCurrentModel().getUncategorisedParameters()));
+        });
 	}
 	
 	private void setListeners() {	
