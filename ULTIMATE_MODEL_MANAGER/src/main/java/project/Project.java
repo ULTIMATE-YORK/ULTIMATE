@@ -59,7 +59,7 @@ public class Project {
             }
         }
         // Add to the set
-        models.add(addModel);
+        //models.add(addModel);
         // Update the observable list
         observableModels.add(addModel);
     }
