@@ -67,10 +67,6 @@ public class ProjectImporter {
 	            deserializeParameters(parametersObject, model, parameterType, models);
 	        }
 		});
-		
-		models.forEach(model -> {
-			model.addUncategorisedParametersFromFile();
-		});
 		return models;
 	}
 	
