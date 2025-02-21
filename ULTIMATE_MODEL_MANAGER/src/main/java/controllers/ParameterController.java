@@ -32,8 +32,6 @@ public class ParameterController {
 		setListCells();
 		firstcall();
 		setModelChangeListener();
-		setUCchange();
-		setDPchange();
 	}
 	
 	private void firstcall() {
@@ -64,22 +62,6 @@ public class ParameterController {
         			}
                 });
             }
-        });
-	}
-	
-	private void setUCchange() {
-        project.getCurrentModel().getUncategorisedParameters().addListener((javafx.collections.ListChangeListener<UncategorisedParameter>) change -> {
-            Platform.runLater(() -> {
-                uParamList.setItems(project.getCurrentModel().getUncategorisedParameters());
-            });
-       });
-	}
-	
-	private void setDPchange() {
-		project.getCurrentModel().getDependencyParameters().addListener((javafx.collections.ListChangeListener<DependencyParameter>) change -> {
-            Platform.runLater(() -> {
-                dParamList.setItems(project.getCurrentModel().getDependencyParameters());
-            });
         });
 	}
 	
@@ -114,7 +96,6 @@ public class ParameterController {
                 @Override
                 public void onRemove(DependencyParameter dp) {
                     // Handle remove action for the dependency parameter dp
-                    System.out.println("Remove pressed for: " + dp.getName());
                     project.getCurrentModel().removeDependencyParameter(dp);
                 }
             });
