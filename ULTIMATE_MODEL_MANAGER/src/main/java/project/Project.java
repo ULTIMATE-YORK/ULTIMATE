@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
+import utils.Alerter;
 import utils.FileUtils;
 
 public class Project {
@@ -55,11 +56,12 @@ public class Project {
         // Check if the model already exists using the set
         for (Model model : models) {
             if (model.getModelId().equals(addModel.getModelId())) {
-                throw new IllegalArgumentException("Model already exists in project");
+            	Alerter.showErrorAlert("Model Already Exists!", "The model could not be added as it exists in the project.");
+            	return;
             }
         }
         // Add to the set
-        //models.add(addModel);
+        models.add(addModel);
         // Update the observable list
         observableModels.add(addModel);
     }
