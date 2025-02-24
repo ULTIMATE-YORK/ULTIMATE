@@ -95,7 +95,7 @@ public class ParameterController {
                 @Override
                 public void onEdit(DependencyParameter dp) {
                 	try {
-                        DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_Dependency_param.fxml", "Edit Dependency Parameter");
+                        DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_Dependency_param.fxml", "Edit Dependency Parameter", dp);
                 	} catch (IOException e) {
                 		e.printStackTrace();
                 	}
