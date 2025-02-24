@@ -100,5 +100,5 @@ rewards "queue_size"
 endrewards
 
 rewards "time"
-	[] true: 1; //I don;t think this is correct as not a DTMC but CTMC
+	true: 1; //I don;t think this is correct as not a DTMC but CTMC
 endrewards
