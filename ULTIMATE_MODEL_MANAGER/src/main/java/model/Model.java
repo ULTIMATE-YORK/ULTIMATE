@@ -200,7 +200,7 @@ public class Model {
 	}
 	
 	/*
-	 * Removes an DependencyParameter and adds an UncategorisedParameter
+	 * Removes a DependencyParameter
 	 */
 	public void removeDependencyParameter(DependencyParameter dp) {
 	    Iterator<DependencyParameter> iter = this.dependencyParameters.iterator();
@@ -208,7 +208,6 @@ public class Model {
 	        DependencyParameter current = iter.next();
 	        if (current.getName().equals(dp.getName())) {
 	            iter.remove(); // Safely remove from dependencyParameters
-	            this.uncategorisedParameters.add(new UncategorisedParameter(current.getName()));
 	            break; // Assuming names are unique, break out of the loop.
 	        }
 	    }
