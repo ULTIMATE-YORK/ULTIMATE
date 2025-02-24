@@ -82,8 +82,8 @@ public class PrismAPI {
 				
 		// update the logs tab
 		mainLog.flush();
-		SharedData context = SharedData.getInstance();
-		context.getTab2Controller().updateLogs();
+		//SharedData context = SharedData.getInstance();
+		//context.getTab2Controller().updateLogs();
 		return (Double) result.getResult();
 	}
 	
