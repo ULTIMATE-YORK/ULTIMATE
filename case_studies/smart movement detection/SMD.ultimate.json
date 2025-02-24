@@ -1,6 +1,6 @@
 {"models": {
     "SmartLighting": {
-        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/circular/SMD/SmartLighting.prism",
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/smart movement detection/SmartLighting.prism",
         "id": "SmartLighting",
         "parameters": {
             "environment": {},
@@ -13,7 +13,7 @@
         }
     },
     "MotionSensor": {
-        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/circular/SMD/MotionSensor.prism",
+        "fileName": "/Users/micahbassett/Desktop/WorldModel/case_studies/smart movement detection/MotionSensor.prism",
         "id": "MotionSensor",
         "parameters": {
             "environment": {},
