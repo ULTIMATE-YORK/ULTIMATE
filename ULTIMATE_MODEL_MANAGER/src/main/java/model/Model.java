@@ -213,4 +213,22 @@ public class Model {
 	        }
 	    }
 	}
+	
+	/*
+	 * Removes an UncategorisedParameter
+	 */
+	public void removeUncategorisedParameter(UncategorisedParameter uc) {
+	    Iterator<UncategorisedParameter> iter = this.uncategorisedParameters.iterator();
+	    while (iter.hasNext()) {
+	        UncategorisedParameter current = iter.next();
+	        if (current.getName().equals(uc.getName())) {
+	            iter.remove(); // Safely remove from uncategorisedParameters
+	            break; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	}
+	
+	public String toString() {
+		return this.modelId;
+	}
 }
