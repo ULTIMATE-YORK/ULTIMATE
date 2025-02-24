@@ -20,10 +20,9 @@ public class DialogOpener {
 	    return (selectedFile != null) ? selectedFile.getAbsolutePath() : null; 
 	}
 	
-	public static Object openDialogWindow(Stage ownerStage, String path, String title) throws IOException {
+	public static void openDialogWindow(Stage ownerStage, String path, String title) throws IOException {
 	    FXMLLoader loader = new FXMLLoader(DialogOpener.class.getResource(path));
 	    Parent root = loader.load();
-	    Object controller = loader.getController();
 	    // Create a new Stage
 	    Stage dialogStage = new Stage();
 	    // Set the owner of the dialog stage to the passed stage.
@@ -33,7 +32,6 @@ public class DialogOpener {
 	    dialogStage.setTitle(title);
 	    dialogStage.setScene(new Scene(root));
 	    dialogStage.showAndWait(); // Alternatively, show() if you don't need to wait.
-	    return controller;
 	}
 
 }
