@@ -6,7 +6,7 @@ import project.Project;
 public class SharedContext {
     
 	private static final SharedContext instance = new SharedContext(); // Singleton instance
-	private Project project;
+	private Project project = null;
     private Stage mainStage;
     
     private SharedContext() {}

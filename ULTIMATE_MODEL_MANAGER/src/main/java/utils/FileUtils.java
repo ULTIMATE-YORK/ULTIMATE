@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 public class FileUtils {
 	
 	public static final String[] VALID_PRISM_FILE_EXTENSIONS = {"*.ctmc", "*.dtmc", "*.pomdp", "*.prism", "*.mdp"};
+	public static final String VALID_ULT_FILE_EXTENSIONS = "*.ultimate";
 	
 	/**
 	 * Check if a file is an existing prism file by checking the file exists and ends with a prism model file extension
@@ -63,6 +64,14 @@ public class FileUtils {
 	        
 	        int lastDotIndex = fileName.lastIndexOf('.');
 	        return (lastDotIndex == -1) ? fileName : fileName.substring(0, lastDotIndex);
+		}
+		return null;
+	}
+	
+	public static String removeFullPathPrism(String filePath) throws IOException {
+		if (isPrismFile(filePath)) {
+	        Path path = Paths.get(filePath);
+	        return path.getFileName().toString(); // Get "c.prism"
 		}
 		return null;
 	}

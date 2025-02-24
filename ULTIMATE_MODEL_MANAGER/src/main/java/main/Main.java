@@ -29,9 +29,10 @@ public class Main extends Application {
         sharedContext.setMainStage(stage); // Store the primary stage in the shared context
         
         // set up blank project
-        Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
+        Project blankProject = new Project();
+        //Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
         // set the reference
-        sharedContext.setProject(blankProject);
+        //sharedContext.setProject(blankProject);
 
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
@@ -43,7 +44,7 @@ public class Main extends Application {
         stage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
 
         // Set the title of the primary stage (window)
-        stage.setTitle("Ultimate Stochastic World Model Manager: " + sharedContext.getProject().getProjectName()); // Customize the window title as needed
+        //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed
 
         // Set minimum dimensions for the primary stage
         stage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width

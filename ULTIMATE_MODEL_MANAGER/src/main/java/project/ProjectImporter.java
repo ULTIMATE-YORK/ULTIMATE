@@ -14,6 +14,7 @@ import model.Model;
 import parameters.DependencyParameter;
 import parameters.EnvironmentParameter;
 import parameters.InternalParameter;
+import utils.Alerter;
 
 public class ProjectImporter {
 	
@@ -54,8 +55,12 @@ public class ProjectImporter {
 		// create the models
 		for (String modelId : modelObjects.keySet()) {
 			// FIXME is this OS-dependent?
-			Model model = new Model(directory + "/" +  modelObjects.get(modelId).getString("fileName"));
-			models.add(model);
+			try {
+				Model model = new Model(directory + "/" +  modelObjects.get(modelId).getString("fileName"));
+				models.add(model);
+			} catch (IOException e) {
+				Alerter.showErrorAlert("Project Error", "The model with ID {"+modelId+"} was not created!\nMake sure the model file is in the same directory as the project file.");
+			}
 		}
 		
 		// Initialise the models parameters

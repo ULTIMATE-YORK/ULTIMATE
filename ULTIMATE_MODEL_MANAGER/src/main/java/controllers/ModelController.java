@@ -54,7 +54,7 @@ public class ModelController {
 	    task.setOnSucceeded(event -> {
 	        Model newModel = task.getValue();
 	        project.addModel(newModel);
-	        System.out.println("Model added successfully: " + newModel);
+	        //System.out.println("Model added successfully: " + newModel);
 	    });
 
 	    // Handle failure (show error alert)

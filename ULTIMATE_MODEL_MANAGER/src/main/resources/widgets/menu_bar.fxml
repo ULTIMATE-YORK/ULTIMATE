@@ -5,14 +5,14 @@
 <?import javafx.geometry.*?>
 
 
-<MenuBar xmlns:fx="http://javafx.com/fxml" >
+<MenuBar xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.MenuBarController" >
   <menus>
     <Menu mnemonicParsing="false" text="File">
       <items>
-        <MenuItem mnemonicParsing="false" text="Load" />
-        <MenuItem mnemonicParsing="false" text="Save" />
-        <MenuItem mnemonicParsing="false" text="Save As" />
-        <MenuItem mnemonicParsing="false" text="Quit" />
+        <MenuItem fx:id="loadButton" onAction="#load" mnemonicParsing="false" text="Load" />
+        <MenuItem fx:id="saveButton" onAction="#save" mnemonicParsing="false" text="Save" />
+        <MenuItem fx:id="saveAsButton" onAction="#saveAs" mnemonicParsing="false" text="Save As" />
+        <MenuItem fx:id="quitButton" onAction="#quit" mnemonicParsing="false" text="Quit" />
       </items>
     </Menu>
     <!-- Verification Menu -->
@@ -31,8 +31,8 @@
       <Menu mnemonicParsing="false" text="Options" >
        <items>
          <Menu mnemonicParsing="false" text="Choose PMC Engine" >
-          	<MenuItem fx:id="choosePrism" mnemonicParsing="false" text="PRISM" />
-            <MenuItem fx:id="chooseStorm" mnemonicParsing="false" text="STORM" />  
+          	<MenuItem mnemonicParsing="false" text="PRISM" />
+            <MenuItem mnemonicParsing="false" text="STORM" />  
          </Menu>
          <MenuItem mnemonicParsing="false" text="Configure STORM" />
        </items>

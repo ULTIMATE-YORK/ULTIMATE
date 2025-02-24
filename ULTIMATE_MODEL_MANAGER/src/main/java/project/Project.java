@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
+import sharedContext.SharedContext;
 import utils.Alerter;
 import utils.FileUtils;
 
@@ -20,7 +21,9 @@ public class Project {
     private ObjectProperty<Model> currentModel; // Observable property for current model
 	private String projectName;
 	private ProjectImporter importer;
-	//private ProjectExporter exporter;
+	private ProjectExporter exporter;
+	private String saveLocation; // set when a project has been saved as, used for subsequent saves
+    private SharedContext sharedContext = SharedContext.getInstance();
 	
 	public Project(String projectPath) throws IOException {
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
@@ -31,13 +34,17 @@ public class Project {
         // Initialize the observable list with the contents of the set
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
+        sharedContext.setProject(this);
+		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
     }
 	
 	public Project() {
 		this.models = new HashSet<Model>();
         this.observableModels = FXCollections.observableArrayList();
         this.currentModel = new SimpleObjectProperty<>(null);
-		this.projectName = "untitled project";
+		this.projectName = "UNTITLED";
+        sharedContext.setProject(this);
+		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
     }
 	
 	public ArrayList<String> getModelIDs() {
@@ -77,6 +84,10 @@ public class Project {
 		return projectName;
 	}
 	
+	public Set<Model> getModels() {
+		return this.models;
+	}
+	
     // Getter for currentModel property (for binding)
     public ObjectProperty<Model> currentModelProperty() {
         return currentModel;
@@ -88,6 +99,24 @@ public class Project {
 
     public Model getCurrentModel() {
         return currentModel.get();
+    }
+    
+    public void save(String saveLocation) {
+    	exporter = new ProjectExporter(this);
+    	exporter.saveExport(saveLocation);
+    }
+    
+    public void save() {
+    	exporter = new ProjectExporter(this);
+    	exporter.saveExport(saveLocation);
+    }
+    
+    public void setSaveLocation(String location) {
+    	this.saveLocation = location;
+    }
+    
+    public String getSaveLocation() {
+    	return this.saveLocation;
     }
 }
 	
