@@ -46,7 +46,6 @@ public class ParameterController {
         });
 	}
 	
-	
 	private void setModelChangeListener() {
         // When a new model is selected, update the ListView with its uncategorised parameters
         project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
