@@ -94,14 +94,19 @@ public class ParameterController {
             cell.setDependencyUnitListener(new DependencyParameterCell.DependencyUnitListener() {
                 @Override
                 public void onEdit(DependencyParameter dp) {
-                    // Handle edit action for the dependency parameter dp
-                    System.out.println("Edit pressed for: " + dp.getName());
+                	try {
+                        DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_Dependency_param.fxml", "Edit Dependency Parameter");
+                	} catch (IOException e) {
+                		e.printStackTrace();
+                	}
                 }
 
                 @Override
                 public void onRemove(DependencyParameter dp) {
+                	String name = dp.getName();
                     // Handle remove action for the dependency parameter dp
                     project.getCurrentModel().removeDependencyParameter(dp);
+                    project.getCurrentModel().addUncategorisedParameter(new UncategorisedParameter(name));
                 }
             });
             return cell;
@@ -109,6 +114,7 @@ public class ParameterController {
 
 	}
 	
+	// TODO handle the IOE better here with an alerter and same for the edit button above
 	@FXML
 	private void addDepParam() throws IOException {
 		DialogOpener.openDialogWindow(sharedContext.getMainStage(),"/dialogs/add_Dependency_param.fxml", "Add Dependency Parameter");
