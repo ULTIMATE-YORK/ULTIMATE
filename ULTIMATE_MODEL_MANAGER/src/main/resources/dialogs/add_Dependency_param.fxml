@@ -13,11 +13,8 @@
 	<Label text="Choose from list of undefined paramters"/>
 	<ChoiceBox fx:id="undefinedParameters"/>
 	
-	<Label text="Dependency Parameter Name" />
-	<TextField fx:id="nameField" />
-	
 	<Label text="Model ID of Dependency Parameter" />
- 	<ChoiceBox fx:id="chooseModelID" />
+ 	<ChoiceBox fx:id="chooseModel" />
 	
 	<Label text="Definition of Property" />
 	<TextField fx:id="definition" />
