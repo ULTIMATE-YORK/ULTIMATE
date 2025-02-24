@@ -111,8 +111,7 @@ public class ParameterController {
 	
 	@FXML
 	private void addDepParam() throws IOException {
-		AddDependencyController adc = (AddDependencyController) DialogOpener.openDialogWindow(sharedContext.getMainStage(),"/dialogs/add_Dependency_param.fxml", "Add Dependency Parameter");
-		
+		DialogOpener.openDialogWindow(sharedContext.getMainStage(),"/dialogs/add_Dependency_param.fxml", "Add Dependency Parameter");
 	}
 
 }
