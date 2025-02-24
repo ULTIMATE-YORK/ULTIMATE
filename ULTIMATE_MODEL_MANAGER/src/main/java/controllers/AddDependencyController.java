@@ -31,15 +31,16 @@ public class AddDependencyController {
 	
 	@FXML
 	private void saveDParam() {
-		String name = undefinedParameters.getValue().toString();
+		UncategorisedParameter name = undefinedParameters.getValue();
 		Model model = chooseModel.getValue();
 		String def = definition.getText();
-		if (name.equals("") || model.equals(null) || def.equals("")) {
+		// FIXME: add check that definition is valid
+		if (name == null || model == null || def.equals("")) {
 			Alerter.showErrorAlert("Invalid Parameter", "Please define all parameters!");
 			return;
 		}
 		else {
-			DependencyParameter depParam = new DependencyParameter(name, model, def);
+			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def);
 			project.getCurrentModel().addDependencyParameter(depParam);
 			project.getCurrentModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();
