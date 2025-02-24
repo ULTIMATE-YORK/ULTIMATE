@@ -4,7 +4,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="400" prefHeight="300">
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="400" prefHeight="300" fx:controller="controllers.AddDependencyController">
 	
 	<padding>
 		<Insets top="10" right="10" bottom="10" left="10"/>
