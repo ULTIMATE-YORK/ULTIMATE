@@ -11,7 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import sharedContext.SharedContext;
-import utils.Alerter;
+//import utils.Alerter;
 import utils.FileUtils;
 
 public class Project {
@@ -35,7 +35,10 @@ public class Project {
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
         sharedContext.setProject(this);
-		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
+        if (sharedContext.getMainStage() != null) {
+    		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
+
+        }
     }
 	
 	public Project() {
@@ -44,8 +47,11 @@ public class Project {
         this.currentModel = new SimpleObjectProperty<>(null);
 		this.projectName = "untitled";
         sharedContext.setProject(this);
-		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
-    }
+        if (sharedContext.getMainStage() != null) {
+    		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
+
+        }    
+   }
 	
 	public ArrayList<String> getModelIDs() {
 		ArrayList<String> modelIDs = new ArrayList<String>();
@@ -63,8 +69,8 @@ public class Project {
         // Check if the model already exists using the set
         for (Model model : models) {
             if (model.getModelId().equals(addModel.getModelId())) {
-            	Alerter.showErrorAlert("Model Already Exists!", "The model could not be added as it exists in the project.");
-            	return;
+            	throw new IllegalArgumentException();
+            	//Alerter.showErrorAlert("Model Already Exists!", "The model could not be added as it exists in the project.");
             }
         }
         // Add to the set

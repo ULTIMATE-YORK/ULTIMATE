@@ -8,10 +8,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
+import model.Model;
 import project.Project;
 import property.Property;
 import sharedContext.SharedContext;
+import utils.Alerter;
 import utils.DialogOpener;
 import utils.Font;
 
@@ -20,6 +23,8 @@ public class PropertiesController {
 	@FXML private Button addProperty;
 	@FXML private Button scrollUp;
 	@FXML private Button scrollDown;
+	@FXML private Button verifyButton;
+	@FXML private TextArea verifyResults;
 	@FXML private ListView<Property> propertyListView;
 	
     private SharedContext sharedContext = SharedContext.getInstance();
@@ -57,6 +62,19 @@ public class PropertiesController {
         }
 	}
 	
+	@FXML
+	private void verify() throws IOException {
+		//DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/verify_dialog.fxml", "Verification");
+		Model vModel = project.getCurrentModel();
+		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
+		if (vModel == null || vProp == null) {
+			Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
+			return;
+		}
+		else {
+			// TODO add verificaion here and put results in the 
+		}
+	}
 	
 	private void setListeners() {
         project.currentModelProperty().addListener((obs, oldModel, newModel) -> {

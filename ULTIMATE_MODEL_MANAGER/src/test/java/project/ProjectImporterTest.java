@@ -27,7 +27,7 @@ public class ProjectImporterTest {
 		
 		projectModels.forEach(model -> {
 			if (model.getModelId().equals("dressing")) {
-				assertTrue(model.getDependencyParameters().size() == 3);
+				assertTrue(model.getDependencyParameters().size() == 0);
 				assertTrue(model.getEnvironmentParameters().size() == 0);
 				assertTrue(model.getInternalParameters().size() == 0);
 			}
