@@ -39,13 +39,21 @@ public class PropertiesController {
 	}
 	
 	@FXML
-	private void scrollUp() {
-		
+	public void scrollUp() {
+        int selectedIndex = propertyListView.getSelectionModel().getSelectedIndex();
+        if (selectedIndex > 0) {
+            // Select the item just above the current one
+        	propertyListView.getSelectionModel().select(selectedIndex - 1);
+        }
 	}
 	
 	@FXML
-	private void scrollDown() {
-		
+	public void scrollDown() {
+        int selectedIndex = propertyListView.getSelectionModel().getSelectedIndex();
+        if (selectedIndex < propertyListView.getItems().size() - 1) {
+            // Select the item just below the current one
+        	propertyListView.getSelectionModel().select(selectedIndex + 1);
+        }
 	}
 	
 	
