@@ -4,10 +4,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
 
-<Tab text="Properties" fx:id="logs_tab" xmlns:fx="http://javafx.com/fxml">
+<Tab text="Properties" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.PropertiesController">
     
     <!-- This GridPane is a 1x1 grid where the HBox should expand to fill the space -->
-    <GridPane fx:id="parentGridPane" hgap="10" vgap="10">
+    <GridPane hgap="10" vgap="10">
       
       <columnConstraints>
         <ColumnConstraints hgrow="ALWAYS" />
@@ -27,12 +27,12 @@
 		
 		<HBox alignment="CENTER" spacing="10.0" >
 			<Label text="Properties of Selected Model" />
-			<Button mnemonicParsing="false" text="+" />
-			<Button mnemonicParsing="false" text="↑" />
-			<Button mnemonicParsing="false" text="↓" />
+			<Button fx:id="addProperty" onAction="#addProperty" mnemonicParsing="false" text="+" />
+			<Button fx:id="scrollUp" onAction="#scrollUp" mnemonicParsing="false" text="↑" />
+			<Button fx:id="scrollDown" onAction="#scrollDown" mnemonicParsing="false" text="↓" />
 		</HBox>
 		
-		<VBox fx:id="propertyVBox" VBox.vgrow="ALWAYS" spacing="10.0">
+		<VBox VBox.vgrow="ALWAYS" spacing="10.0">
 			<ListView fx:id="propertyListView" VBox.vgrow="ALWAYS" />
 		</VBox>
 
@@ -50,7 +50,7 @@
 			<Button text="Save File"/>
 		</HBox>
 		
-		<TextArea fx:id="logsField" editable="false" VBox.vgrow="ALWAYS">
+		<TextArea editable="false" VBox.vgrow="ALWAYS">
 
 	        
 	   </TextArea>

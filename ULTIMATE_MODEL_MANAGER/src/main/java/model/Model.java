@@ -10,6 +10,8 @@ import parameters.DependencyParameter;
 import parameters.EnvironmentParameter;
 import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
+import property.Property;
+import utils.Alerter;
 import utils.FileUtils;
 import utils.PrismFileParser;
 
@@ -26,7 +28,7 @@ public class Model {
     private List<EnvironmentParameter> environmentParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
-    //private ArrayList<Property> properties;
+    private ObservableList<Property> properties;
     
     /**
      * Constructor to initialise a new Model object.
@@ -43,7 +45,33 @@ public class Model {
         this.uncategorisedParameters = FXCollections.observableArrayList();
         addUncategorisedParametersFromFile();
         
-        //this.properties = new ArrayList<>();
+       this.properties = FXCollections.observableArrayList();
+    }
+    
+    public void addProperty(String newProp) {
+    	// check the property is novel
+    	for (Property p : properties) {
+    		if (p.getProperty().equals(newProp)) {
+    			Alerter.showWarningAlert("Property Already Exists", "The property could not be added to the model");
+    			return;
+    		}
+    	}
+		//Alerter.showInfoAlert("SUCCESS", "The property was added");
+		properties.add(new Property(newProp));
+    }
+    
+    public void removeProperty(Property remove) {
+    	boolean removed = properties.remove(remove);
+    	if (removed) {
+    		Alerter.showInfoAlert("SUCCESS", "The property was removed");
+    	}
+    	else {
+    		Alerter.showWarningAlert("FAILED", "The property could not be removed!");
+    	}
+    }
+    
+    public ObservableList<Property> getProperties() {
+    	return properties;
     }
 
     /**

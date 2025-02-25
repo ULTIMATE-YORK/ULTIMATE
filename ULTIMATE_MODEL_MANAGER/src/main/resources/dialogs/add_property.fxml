@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.*?>
 
-<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0">
+<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0" fx:controller="controllers.AddPropertyController" >
 
 	<padding>
 		<Insets top="10" right="10" bottom="10" left="10"/>

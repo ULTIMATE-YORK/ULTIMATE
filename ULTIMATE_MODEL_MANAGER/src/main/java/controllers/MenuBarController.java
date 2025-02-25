@@ -37,6 +37,7 @@ public class MenuBarController {
 			return;
 		}
 		if (quit()) {
+			// TODO: pull this out into method
 			Stage newMainStage = new Stage();
 			sharedContext.setMainStage(newMainStage);
 			Project project = new Project(file);

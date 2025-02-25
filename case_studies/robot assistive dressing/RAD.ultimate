@@ -14,23 +14,7 @@
         "parameters": {
             "environment": {},
             "internal": {},
-            "dependency": {
-                "pOkCorrect": {
-                    "modelId": "pick-garment",
-                    "name": "pOkCorrect",
-                    "property": "P=? [F 'done' & ok & predictedOk] / P=? [F 'done' & ok]"
-                },
-                "pPickGarnment": {
-                    "modelId": "pick-garment",
-                    "name": "pPickGarnment",
-                    "property": "P=? [F [0,90] 'success']"
-                },
-                "pNotOkCorrect": {
-                    "modelId": "pick-garment",
-                    "name": "pNotOkCorrect",
-                    "property": "P=? [F 'done' & !ok & !predictedOk] / P=? [F 'done' & !ok]"
-                }
-            }
+            "dependency": {}
         }
     },
     "pick-garment": {
