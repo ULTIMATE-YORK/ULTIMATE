@@ -113,17 +113,17 @@ public class Headless {
 	    
 	    // get the models from the project file
 	    ArrayList<Model> models = ProjectParser.parse(projectFile);
-	    DependencySolver ds = new DependencySolver();
-	    DependencyGraph dg = new DependencyGraph(models);
+	   // DependencySolver ds = new DependencySolver();
+	   // DependencyGraph dg = new DependencyGraph(models);
 	   
 	    
-	    Model pModel = null;
-	    for (Model m : models) {
-	    	if (m.getModelId().equals(modelID)) {
-	    		pModel = m;
-	    		//System.out.println(m.getModelId());
-	    	}
-	    }
+//	    Model pModel = null;
+//	    for (Model m : models) {
+//	    	if (m.getModelId().equals(modelID)) {
+//	    		pModel = m;
+//	    		//System.out.println(m.getModelId());
+//	    	}
+//	    }
 	    //call to general verification
 	    PMCVerification verification = new PMCVerification(models);
 	    verification.verify(modelID, property);
