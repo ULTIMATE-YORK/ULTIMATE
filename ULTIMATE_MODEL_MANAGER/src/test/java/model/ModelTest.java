@@ -37,6 +37,7 @@ public class ModelTest {
     @Test
 	void testAddUncategorizedParameter() throws IOException {
 		Model model = new Model(getResourcePath("modelTestResources/MotionSensor.prism"));
+		model.addUncategorisedParametersFromFile();
 		assertEquals(model.getUncategorisedParameters().size(), 2);
         
 		String[] expected = {"pLow", "pMed"};

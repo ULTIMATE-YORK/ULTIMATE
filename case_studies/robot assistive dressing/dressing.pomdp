@@ -15,7 +15,7 @@ const double pDressOkSlow = 0.8;   // probability that dressing succeeds when th
 const double pDressOkFast = 0.7;       // probability that dressing succeeds when the user is in 'ok' state
 const double pDressNotOkSlow = 0.8;    // probability that dressing succeeds when the user is in 'not ok' state
 const double pDressNotOkFast = 0.7;    // probability that dressing succeeds when the user is in 'not ok' state
-const double pPermissionToRetryGranted; // probability that the user allows retry after unsuccessful dressing attempt
+const double pPermissionToRetryGranted = 0.7; // probability that the user allows retry after unsuccessful dressing attempt
 // Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
 // - these are implicit in the POMDP policy
 

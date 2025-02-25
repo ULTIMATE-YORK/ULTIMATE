@@ -1,6 +1,5 @@
 package verification;
 
-import verification.DependencyGraph;
 import java.util.*;
 import model.Model;
 import parameters.DependencyParameter;
