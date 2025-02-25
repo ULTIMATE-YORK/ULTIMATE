@@ -32,7 +32,7 @@ public class Main extends Application {
         Project blankProject = new Project();
         //Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
         // set the reference
-        //sharedContext.setProject(blankProject);
+        sharedContext.setProject(blankProject);
 
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path

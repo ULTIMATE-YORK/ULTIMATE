@@ -36,50 +36,30 @@ public class MenuBarController {
 		if (file == null) {
 			return;
 		}
-		quit();
-		Stage newMainStage = new Stage();
-		sharedContext.setMainStage(newMainStage);
-		Project project = new Project(file);
-		sharedContext.setProject(project);
-        // Load the FXML file and initialize its associated controller
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
-        
-        // Load the root layout from the FXML file (in this case, a GridPane layout)
-        GridPane root = loader.load(); // The root layout is defined in main_view.fxml
+		if (quit()) {
+			Stage newMainStage = new Stage();
+			sharedContext.setMainStage(newMainStage);
+			Project project = new Project(file);
+			sharedContext.setProject(project);
+	        // Load the FXML file and initialize its associated controller
+	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
+	        
+	        // Load the root layout from the FXML file (in this case, a GridPane layout)
+	        GridPane root = loader.load(); // The root layout is defined in main_view.fxml
 
-        // Create a Scene using the root layout and set its dimensions
-        newMainStage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
+	        // Create a Scene using the root layout and set its dimensions
+	        newMainStage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
 
-        // Set the title of the primary stage (window)
-        //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed
+	        // Set the title of the primary stage (window)
+	        //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed
 
-        // Set minimum dimensions for the primary stage
-        newMainStage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width
-        newMainStage.setMinHeight(800); // Ensure the stage cannot be resized smaller than 600px in height
+	        // Set minimum dimensions for the primary stage
+	        newMainStage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width
+	        newMainStage.setMinHeight(800); // Ensure the stage cannot be resized smaller than 600px in height
 
-        // Display the stage (window) to the user
-        newMainStage.show(); // Makes the primary stage visible
-		/*
-		if (sharedContext.getProject() == null) {
-			String file = DialogOpener.openUltimateFileDialog(sharedContext.getMainStage());
-			if (file == null) {
-				return;
-			}
-			sharedContext.setProject(new Project(file));
+	        // Display the stage (window) to the user
+	        newMainStage.show(); // Makes the primary stage visible
 		}
-		// FIXME: open a new window?
-		else {
-			boolean confirmation = Alerter.showConfirmationAlert("Project in progress", "Would you like to open a new project?");
-			if (confirmation) {
-				String file = DialogOpener.openUltimateFileDialog(sharedContext.getMainStage());
-				if (file == null) {
-					return;
-				}
-				sharedContext.setProject(new Project(file));
-			}
-		}
-	}
-	*/
 	}
 	
 	@FXML
@@ -104,11 +84,12 @@ public class MenuBarController {
 	}
 	
 	@FXML
-	private void quit() {
+	private boolean quit() {
 		boolean q = Alerter.showConfirmationAlert("Project Not Saved!", "Are you sure you want to quit without saving?");
 		if (q) {
 			sharedContext.getMainStage().close();
 		}
+		return q;
 	}
 
 }
