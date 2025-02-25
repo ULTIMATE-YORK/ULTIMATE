@@ -10,11 +10,11 @@ const double pPickGarnment;  // from garment picking model
 const double pOkCorrect;     // from user perception model
 const double pNotOkCorrect;  // from user perception model
 // Environment parameters (derived from data collected from observing the environment)
-const double pOk;            // probability that the user is in an 'ok' state
-const double pDressOkSlow;   // probability that dressing succeeds when the user is in 'ok' state
-const double pDressOkFast;       // probability that dressing succeeds when the user is in 'ok' state
-const double pDressNotOkSlow;    // probability that dressing succeeds when the user is in 'not ok' state
-const double pDressNotOkFast;    // probability that dressing succeeds when the user is in 'not ok' state
+const double pOk = 0.7;            // probability that the user is in an 'ok' state
+const double pDressOkSlow = 0.8;   // probability that dressing succeeds when the user is in 'ok' state
+const double pDressOkFast = 0.7;       // probability that dressing succeeds when the user is in 'ok' state
+const double pDressNotOkSlow = 0.8;    // probability that dressing succeeds when the user is in 'not ok' state
+const double pDressNotOkFast = 0.7;    // probability that dressing succeeds when the user is in 'not ok' state
 const double pPermissionToRetryGranted; // probability that the user allows retry after unsuccessful dressing attempt
 // Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
 // - these are implicit in the POMDP policy

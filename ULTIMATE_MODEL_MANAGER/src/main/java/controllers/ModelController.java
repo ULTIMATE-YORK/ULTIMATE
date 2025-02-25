@@ -54,6 +54,7 @@ public class ModelController {
 	    // Handle success (update UI safely on JavaFX thread)
 	    task.setOnSucceeded(event -> {
 	        Model newModel = task.getValue();
+	        newModel.addUncategorisedParametersFromFile();
 	        project.addModel(newModel);
 	        //System.out.println("Model added successfully: " + newModel);
 	    });

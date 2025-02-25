@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+
+import model.Model;
 
 public class FileUtils {
 	
@@ -116,5 +119,37 @@ public class FileUtils {
         }
         return false;
 	}
+	
+   public static void updateModelFileResults(Model model, HashMap<String, Double> constants) {
+        String filePath = model.getFilePath();
+        
+        try {
+            // Read all lines from the file
+            Path path = Paths.get(filePath);
+            StringBuilder updatedContent = new StringBuilder();
+
+            for (String line : Files.readAllLines(path)) {
+                String updatedLine = line;
+
+                // Check if the line contains the pattern "const double NAME;"
+                for (String key : constants.keySet()) {
+                    String pattern = "const double " + key + ";";
+                    if (line.contains(pattern)) {
+                        double value = constants.get(key);
+                        updatedLine = "const double " + key + " = " + value + ";";
+                        break; // Stop checking once a match is found for this line
+                    }
+                }
+
+                updatedContent.append(updatedLine).append(System.lineSeparator());
+            }
+
+            // Write the updated content back to the file
+            Files.write(path, updatedContent.toString().getBytes());
+
+        } catch (IOException e) {
+            System.err.println("Error updating model file: " + e.getMessage());
+        }
+    }
 	
 }

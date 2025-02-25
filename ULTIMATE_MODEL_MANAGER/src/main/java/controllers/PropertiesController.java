@@ -1,6 +1,8 @@
 package controllers;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ import sharedContext.SharedContext;
 import utils.Alerter;
 import utils.DialogOpener;
 import utils.Font;
+import verification.PMCVerification;
 
 public class PropertiesController {
 	
@@ -41,6 +44,10 @@ public class PropertiesController {
 	
 	@FXML
 	private void addProperty() throws IOException {
+		if (project.getCurrentModel() == null) {
+			Alerter.showErrorAlert("No Model Selected", "Select a model to add a property to!");
+			return;
+		}
 		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/add_property.fxml", "Add Property");
 	}
 	
@@ -72,7 +79,17 @@ public class PropertiesController {
 			return;
 		}
 		else {
-			// TODO add verificaion here and put results in the 
+
+			// TODO add verification
+			ArrayList<Model> models = new ArrayList<>();
+			models.addAll(project.getModels());
+			PMCVerification verifier = new PMCVerification(models);
+
+			CompletableFuture.supplyAsync(() -> verifier.verify(vModel.getModelId(), vProp.getProperty()))
+			    .thenAccept(result -> Platform.runLater(() -> {
+			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
+			    }));
+
 		}
 	}
 	
