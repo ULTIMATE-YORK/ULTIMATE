@@ -42,13 +42,16 @@ public class ParameterController {
 	
 	private void firstcall() {
         Platform.runLater(() -> {
-            uParamList.setItems(project.getCurrentModel().getUncategorisedParameters());
-            dParamList.setItems(project.getCurrentModel().getDependencyParameters());
-            try {
-				modelDetails.setText("Model ID: " + project.getCurrentModel().getModelId() + "\nFile: " + FileUtils.removePrismFileExtension(project.getCurrentModel().getFilePath()));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+        	if (project.getCurrentModel() != null) {
+				try {
+					modelDetails.setText("Model ID: " + project.getCurrentModel().getModelId() + "\nFile: " + FileUtils.removePrismFileExtension(project.getCurrentModel().getFilePath()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	            uParamList.setItems(project.getCurrentModel().getUncategorisedParameters());
+	            dParamList.setItems(project.getCurrentModel().getDependencyParameters());
+        	}
         });
 	}
 	
@@ -119,5 +122,4 @@ public class ParameterController {
 	private void addDepParam() throws IOException {
 		DialogOpener.openDialogWindow(sharedContext.getMainStage(),"/dialogs/add_Dependency_param.fxml", "Add Dependency Parameter");
 	}
-
 }

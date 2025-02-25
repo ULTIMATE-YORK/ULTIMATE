@@ -42,7 +42,7 @@ public class Project {
 		this.models = new HashSet<Model>();
         this.observableModels = FXCollections.observableArrayList();
         this.currentModel = new SimpleObjectProperty<>(null);
-		this.projectName = "UNTITLED";
+		this.projectName = "untitled";
         sharedContext.setProject(this);
 		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
     }
