@@ -1,0 +1,29 @@
+{"models": {
+    "die2": {
+        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/non-circular/Dice/die2.prism",
+        "id": "die2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+            "p2": {
+                "modelId": "die3",
+                "name": "p2",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    },
+    "die3": {
+        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/non-circular/Dice/die3.prism",
+        "id": "die3",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {"p3": {
+                "modelId": "die2",
+                "name": "p3",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    }
+}}

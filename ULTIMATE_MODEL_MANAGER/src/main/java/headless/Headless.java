@@ -6,7 +6,11 @@ import org.apache.commons.cli.ParseException;
 
 import model.persistent_objects.Model;
 import prism.PrismException;
+<<<<<<< HEAD
 import verification_engine.Algorithm1;
+=======
+import verification_engine.PMCVerification;
+>>>>>>> feature/headless-main
 import verification_engine.graph_generator.DependencyGraph;
 import verification_engine.graph_generator.DependencySolver;
 import verification_engine.storm.StormAPI;
@@ -113,17 +117,22 @@ public class Headless {
 	    
 	    // get the models from the project file
 	    ArrayList<Model> models = ProjectParser.parse(projectFile);
-	    DependencySolver ds = new DependencySolver();
-	    DependencyGraph dg = new DependencyGraph(models);
+	   // DependencySolver ds = new DependencySolver();
+	   // DependencyGraph dg = new DependencyGraph(models);
+	   
 	    
-	    Model pModel = null;
-	    for (Model m : models) {
-	    	if (m.getModelId().equals(modelID)) {
-	    		pModel = m;
-	    		//System.out.println(m.getModelId());
-	    	}
-	    }
+//	    Model pModel = null;
+//	    for (Model m : models) {
+//	    	if (m.getModelId().equals(modelID)) {
+//	    		pModel = m;
+//	    		//System.out.println(m.getModelId());
+//	    	}
+//	    }
+	    //call to general verification
+	    PMCVerification verification = new PMCVerification(models);
+	    verification.verify(modelID, property);
 	    
+<<<<<<< HEAD
 	    if (pmc.equals("prism")) {
 		    Double result = ds.solve(pModel, property, models);
 		    System.out.println("Prism result: " + result.toString());
@@ -137,5 +146,19 @@ public class Headless {
 	    	String result = StormAPI.runPars(pModel, property, stormInstall);
 		    System.out.println("Storm result: " + result.toString());
 	    }
+=======
+//	    if (pmc.equals("prism")) {
+//		    Double result = ds.solve(pModel, property, models);
+//		    System.out.println("Prism result: " + result.toString());
+//	    }
+//	    else if (pmc.equals("storm")) {
+//	    	Double result = ds.solveStorm(pModel, property, models, stormInstall);
+//		    System.out.println("Storm result: " + result.toString());
+//	    }
+//	    else {
+//	    	String result = StormAPI.runPars(pModel, property, stormInstall);
+//		    System.out.println("Storm result: " + result.toString());
+//	    }
+>>>>>>> feature/headless-main
 	}
 }
