@@ -43,7 +43,7 @@ public class Model {
         this.environmentParameters = new ArrayList<>();
         this.internalParameters = new ArrayList<>();
         this.uncategorisedParameters = FXCollections.observableArrayList();
-        addUncategorisedParametersFromFile();
+        //addUncategorisedParametersFromFile();
         
        this.properties = FXCollections.observableArrayList();
     }
@@ -215,17 +215,21 @@ public class Model {
 	/*
 	 * Adds the uncategorised parameters to the model
 	 */
-	private void addUncategorisedParametersFromFile() {
+    public void addUncategorisedParametersFromFile() {
         PrismFileParser parser = new PrismFileParser();
         try {
-            List<String> params =  parser.parseFile(this.getFilePath());
+            List<String> params = parser.parseFile(this.getFilePath());
             for (String parsedParam : params) {
-            	this.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
+                boolean exists = dependencyParameters.stream()
+                    .anyMatch(dp -> dp.getName().equals(parsedParam));
+                if (!exists) {
+                    this.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
                 }
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
-	}
+    }
 	
 	/*
 	 * Removes a DependencyParameter
