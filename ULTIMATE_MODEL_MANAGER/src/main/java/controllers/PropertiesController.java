@@ -8,6 +8,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.KeyCode;
 import project.Project;
 import property.Property;
 import sharedContext.SharedContext;
@@ -81,6 +82,17 @@ public class PropertiesController {
                     label.setStyle(Font.UC_LIST_FONT); // Apply font styling
                     setGraphic(label); // Set the label as the cell's graphic
                     setText(null); // Clear any text (not needed with graphic)
+                }
+            }
+        });
+		
+		//TODO: make this OS independent
+        // Add a key event handler to allow deletion of models using the Backspace key
+		propertyListView.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.BACK_SPACE) {
+                Property selectedProperty = propertyListView.getSelectionModel().getSelectedItem();
+                if (selectedProperty != null) {
+                    project.getCurrentModel().removeProperty(selectedProperty); // Remove the selected property
                 }
             }
         });
