@@ -7,7 +7,11 @@ import org.apache.commons.cli.ParseException;
 import model.persistent_objects.Model;
 import prism.PrismException;
 <<<<<<< HEAD
+<<<<<<< HEAD
 import verification_engine.Algorithm1;
+=======
+import verification_engine.PMCVerification;
+>>>>>>> feature/headless-main
 =======
 import verification_engine.PMCVerification;
 >>>>>>> feature/headless-main
@@ -133,6 +137,7 @@ public class Headless {
 	    verification.verify(modelID, property);
 	    
 <<<<<<< HEAD
+<<<<<<< HEAD
 	    if (pmc.equals("prism")) {
 		    Double result = ds.solve(pModel, property, models);
 		    System.out.println("Prism result: " + result.toString());
@@ -147,6 +152,8 @@ public class Headless {
 		    System.out.println("Storm result: " + result.toString());
 	    }
 =======
+=======
+>>>>>>> feature/headless-main
 //	    if (pmc.equals("prism")) {
 //		    Double result = ds.solve(pModel, property, models);
 //		    System.out.println("Prism result: " + result.toString());
@@ -159,6 +166,9 @@ public class Headless {
 //	    	String result = StormAPI.runPars(pModel, property, stormInstall);
 //		    System.out.println("Storm result: " + result.toString());
 //	    }
+<<<<<<< HEAD
+>>>>>>> feature/headless-main
+=======
 >>>>>>> feature/headless-main
 	}
 }

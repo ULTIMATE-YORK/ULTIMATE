@@ -1,16 +1,38 @@
 // Knuth's model of a fair die using only fair coins
 dtmc
 
+<<<<<<< HEAD:case_studies/additional_tests/Dice/die1.prism
+<<<<<<<< HEAD:case_studies/additional_tests/Dice/die1.prism
 const double p1 = 4.0000032E-7;
 module die
+========
+//const double p;
+const double p2 = 1.6E-6;
+
+module die2
+>>>>>>>> feature/headless-main:case_studies/non-circular/Dice/die2.prism
+=======
+const double p1 = 4.0000032E-7;
+module die
+>>>>>>> feature/headless-main:case_studies/non-circular/Dice/die1.prism
 
 	// local state
 	s : [0..7] init 0;
 	// value of the dice
 	d : [0..6] init 0;
 	
+<<<<<<< HEAD:case_studies/additional_tests/Dice/die1.prism
+<<<<<<<< HEAD:case_studies/additional_tests/Dice/die1.prism
 	[] s=0 -> p1 : (s'=1) + (1-p1) : (s'=2);
 	[] s=1 -> 0.5 : (s'=3) + 0.5 : (s'=4);
+========
+	[] s=0 -> 0.5 : (s'=1) + 0.5 : (s'=2);
+	[] s=1 -> p2 : (s'=3) + (1-p2) : (s'=4);
+>>>>>>>> feature/headless-main:case_studies/non-circular/Dice/die2.prism
+=======
+	[] s=0 -> p1 : (s'=1) + (1-p1) : (s'=2);
+	[] s=1 -> 0.5 : (s'=3) + 0.5 : (s'=4);
+>>>>>>> feature/headless-main:case_studies/non-circular/Dice/die1.prism
 	[] s=2 -> 0.5 : (s'=5) + 0.5 : (s'=6);
 	[] s=3 -> 0.5 : (s'=1) + 0.5 : (s'=7) & (d'=1);
 	[] s=4 -> 0.5 : (s'=7) & (d'=2) + 0.5 : (s'=7) & (d'=3);
