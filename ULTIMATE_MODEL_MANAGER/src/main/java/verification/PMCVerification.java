@@ -302,8 +302,8 @@ public class PMCVerification {
         if (originalModel == null) {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
-
-        String equationStr = StormAPI.runPars(originalModel, property, "/Users/micahbassett/Desktop/storm/build/bin/storm-pars");
+        StormAPI sAPI = new StormAPI();
+        String equationStr = sAPI.runPars(originalModel, property);
         System.out.println("Received equation: " + equationStr);
 
         return equationStr;
@@ -318,8 +318,8 @@ public class PMCVerification {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
         FileUtils.updateModelFileResults(originalModel, model.getParameters());
-
-        return StormAPI.run(originalModel, property, "/Users/micahbassett/Desktop/storm/build/bin/storm");
+        StormAPI spAPI = new StormAPI();
+        return spAPI.run(originalModel, property);
         //return PrismAPI.run(originalModel, property, true);
          
         

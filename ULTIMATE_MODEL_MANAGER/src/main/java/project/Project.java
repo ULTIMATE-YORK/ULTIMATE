@@ -1,9 +1,14 @@
 package project;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.json.JSONObject;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -11,6 +16,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import sharedContext.SharedContext;
+import utils.Alerter;
 //import utils.Alerter;
 import utils.FileUtils;
 
@@ -22,6 +28,8 @@ public class Project {
 	private String projectName;
 	private ProjectImporter importer;
 	private ProjectExporter exporter;
+	private String stormInstall = null;
+	private String stormParsInstall = null;
 	private String saveLocation; // set when a project has been saved as, used for subsequent saves
     private SharedContext sharedContext = SharedContext.getInstance();
 	
@@ -39,6 +47,12 @@ public class Project {
     		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
 
         }
+		try {
+			setupConfigs();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 	
 	public Project() {
@@ -50,7 +64,13 @@ public class Project {
         if (sharedContext.getMainStage() != null) {
     		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
 
-        }    
+        }
+		try {
+			setupConfigs();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
    }
 	
 	public ArrayList<String> getModelIDs() {
@@ -124,5 +144,51 @@ public class Project {
     public String getSaveLocation() {
     	return this.saveLocation;
     }
+    
+    public void setStormInstall(String stormInstall) {
+        if (FileUtils.isFile(stormInstall)) {
+        	this.stormInstall = stormInstall;
+        }
+        else {
+        	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
+        }
+    }
+    
+    public void setStormParsInstall(String stormParsInstall) {
+        if (FileUtils.isFile(stormParsInstall)) {
+        	this.stormParsInstall = stormParsInstall;
+        }
+        else {
+        	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
+        }
+    }
+    
+    public String getStormInstall() {
+    	return this.stormInstall;
+    }
+    
+    public String getStormParsInstall() {
+    	return this.stormParsInstall;
+    }
+    
+	private void setupConfigs() throws IOException {
+        File configFile = new File("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/config.json");
+        String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
+        JSONObject configJSON = new JSONObject(content);
+        String stormInstall = configJSON.getString("stormInstall");
+        if (FileUtils.isFile(stormInstall)) {
+        	this.stormInstall = stormInstall;
+        }
+        else {
+        	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
+        }
+        String stormParsInstall = configJSON.getString("stormParsInstall");
+        if (FileUtils.isFile(stormParsInstall)) {
+        	this.stormParsInstall = stormParsInstall;
+        }
+        else {
+        	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
+        }
+	}
 }
 	

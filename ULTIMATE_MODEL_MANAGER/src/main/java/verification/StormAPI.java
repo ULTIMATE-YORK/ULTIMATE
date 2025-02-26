@@ -1,19 +1,26 @@
 package verification;
 
 import model.Model;
+import project.Project;
+import sharedContext.SharedContext;
 
 public class StormAPI {
 	
-	public static double run(Model model, String propFile, String stormInstallLocation) {
-		String command = stormInstallLocation + " --prism " + model.getFilePath()  + " --prop " + "'" + propFile + "'" + " -pc";
+    private SharedContext sharedContext = SharedContext.getInstance();
+    private Project project = sharedContext.getProject();
+    private String si = project.getStormInstall();
+    private String spi = project.getStormParsInstall();
+	
+	public double run(Model model, String propFile) {
+		String command = si + " --prism " + model.getFilePath()  + " --prop " + "'" + propFile + "'" + " -pc";
 		String output = OSCommandExecutor.executeCommand(command);
 		System.out.print(output);
 		Double result = StormOutputParser.getDResult(output);
 		return result;
 	}
 	
-	public static String runPars(Model model, String propFile, String stormInstallLocation) {
-		String command = stormInstallLocation + " --mode solutionfunction --prism " + model.getFilePath()  + " --prop " + "'" + propFile + "'" + " -pc";
+	public String runPars(Model model, String propFile) {
+		String command = spi + " --mode solutionfunction --prism " + model.getFilePath()  + " --prop " + "'" + propFile + "'" + " -pc";
 		String output = OSCommandExecutor.executeCommand(command);
 		System.out.print(output);
 		String result = StormOutputParser.getSResult(output);
