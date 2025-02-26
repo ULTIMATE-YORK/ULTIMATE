@@ -19,6 +19,7 @@ public class MenuBarController {
 	@FXML private MenuItem saveButton;
 	@FXML private MenuItem saveAsButton;
 	@FXML private MenuItem quitButton;
+	@FXML private MenuItem configureStorm;
 
 	private boolean saved = false;
 	
@@ -91,6 +92,11 @@ public class MenuBarController {
 			sharedContext.getMainStage().close();
 		}
 		return q;
+	}
+	
+	@FXML
+	private void configureStorm() throws IOException {
+		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/widgets/configure_storm.fxml", "Configure Storm");
 	}
 
 }
