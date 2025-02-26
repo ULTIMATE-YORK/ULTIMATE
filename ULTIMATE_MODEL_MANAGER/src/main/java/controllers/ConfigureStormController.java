@@ -1,5 +1,12 @@
 package controllers;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+
+import org.json.JSONObject;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -20,7 +27,7 @@ public class ConfigureStormController {
     private Project project = sharedContext.getProject();	
 	
 	@FXML
-	private void save() {
+	private void save() throws IOException {
 		String si = stormField.getText();
 		String spi = stormParsField.getText();
 		if (si.equals("") || spi.equals("")) {
@@ -33,6 +40,12 @@ public class ConfigureStormController {
 		}
 		project.setStormInstall(si);
 		project.setStormParsInstall(spi);
+		// reflect this in the config file
+		JSONObject root = new JSONObject();
+		root.put("stormInstall", si);
+		root.put("stormParsInstall", spi);
+		String content = root.toString();
+		Files.write(Paths.get("config.json"), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		cancel();
 	}
 	

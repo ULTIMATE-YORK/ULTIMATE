@@ -172,18 +172,18 @@ public class Project {
     }
     
 	private void setupConfigs() throws IOException {
-        File configFile = new File("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/config.json");
+        File configFile = new File("config.json");
         String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
         JSONObject configJSON = new JSONObject(content);
         String stormInstall = configJSON.getString("stormInstall");
-        if (FileUtils.isFile(stormInstall)) {
+        if (FileUtils.isFile(stormInstall) && !stormInstall.equals("")) {
         	this.stormInstall = stormInstall;
         }
         else {
         	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
         }
         String stormParsInstall = configJSON.getString("stormParsInstall");
-        if (FileUtils.isFile(stormParsInstall)) {
+        if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
         	this.stormParsInstall = stormParsInstall;
         }
         else {
