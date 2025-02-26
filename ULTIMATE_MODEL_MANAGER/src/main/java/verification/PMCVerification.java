@@ -1,9 +1,22 @@
 package verification;
 
-import java.util.*;
+
+import verification.DependencyGraph;
+import verification.Equation;
+//import verification_engine.prism.PrismAPI;
+import verification.StormAPI;
+import prism.PrismException;
+import utils.FileUtils;
+
+//import com.irurueta.mathsolver.MathSolver;
+//import com.irurueta.mathsolver.NonLinearEquation;
+import org.mariuszgromada.math.mxparser.*;
+
 import model.Model;
 import parameters.DependencyParameter;
-import utils.FileUtils;
+
+import java.io.FileNotFoundException;
+import java.util.*;
 
 public class PMCVerification {
     static class VerificationModel {
@@ -52,6 +65,8 @@ public class PMCVerification {
     private ArrayList<Model> originalModels;
 
     public PMCVerification(ArrayList<Model> models) {
+    	//License.iConfirmNonCommercialUse("Sinem, University of York");  // Add this line to confirm license
+    	mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -87,10 +102,19 @@ public class PMCVerification {
 
     public double verify(String startModelId, String property) {
         VerificationModel startModel = modelMap.get(startModelId);
-        return verifyModel(startModel, property);
+        try {
+			return verifyModel(startModel, property);
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PrismException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return 0.0;
     }
 
-    private double verifyModel(VerificationModel verificationModel, String property) {
+    private double verifyModel(VerificationModel verificationModel, String property) throws FileNotFoundException, PrismException {
         System.out.println("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
         
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
@@ -127,56 +151,140 @@ public class PMCVerification {
         return result;
     }
     
+//    private void resolveSCC(List<VerificationModel> sccModels) {
+//        Map<String, String> equations = new HashMap<>();
+//        List<Map.Entry<VerificationModel, String>> paramList = new ArrayList<>();
+//        
+//        System.out.println("Starting SCC resolution for models: " + sccModels);
+//        
+//        for (VerificationModel model : sccModels) {
+//            System.out.println("\nGetting dependencies for model: " + model);
+//            for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
+//                VerificationModel targetModel = modelMap.get(dep.getModelID());
+//                if (sccModels.contains(targetModel)) {
+//                    String equation = getRationalFunction(targetModel, dep.getDefinition());
+//                    System.out.println("  Adding equation: " + dep.getName() + " = " + equation);
+//                    equations.put(dep.getName(), equation);
+//                    paramList.add(new AbstractMap.SimpleEntry<>(model, dep.getName()));
+//                }
+//            }
+//        }
+//        
+//        System.out.println("\nSolving equations: " + equations);
+//        Map<String, Double> solution = solveEquations(equations);
+//        System.out.println("Solutions found: " + solution);
+//        
+//        for (Map.Entry<VerificationModel, String> param : paramList) {
+//            param.getKey().setParameter(param.getValue(), solution.get(param.getValue()));
+//        }
+//    }
+    
     private void resolveSCC(List<VerificationModel> sccModels) {
+    	 mXparser.consolePrintln(false);  // Disable mXparser console output
         System.out.println("Starting SCC resolution for models: " + sccModels);
+        
+        // Store equations and their variables
+        List<String> equations = new ArrayList<>();
+        Set<String> variableSet = new HashSet<>();
+        Map<String, String> equationMap = new HashMap<>();
 
-        int numVariables = sccModels.size();
-        double[][] coefficients = new double[numVariables][numVariables]; // Matrix A
-        double[] constants = new double[numVariables]; // Vector B
-
-        Map<String, Integer> paramIndexMap = new HashMap<>();
-        List<String> paramNames = new ArrayList<>();
-        int index = 0;
-
+        // Collect equations and variables
         for (VerificationModel model : sccModels) {
+            System.out.println("\nGetting dependencies for model: " + model);
             for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
                 VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
-
+                
                 if (sccModels.contains(targetModel)) {
-                    if (!paramIndexMap.containsKey(dep.getName())) {
-                        paramIndexMap.put(dep.getName(), index);
-                        paramNames.add(dep.getName());
-                        index++;
-                    }
-
-                    int paramIndex = paramIndexMap.get(dep.getName());
-                    RationalFunction rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), paramNames);
-
-                    coefficients[paramIndex] = rationalFunction.getCoefficients();
-                    constants[paramIndex] = rationalFunction.getConstant();
-
-                    System.out.println("  Added equation: " + dep.getName());
+                    String rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), null);
+                    String equation = dep.getName() + " = " + rationalFunction;
+                    System.out.println("  Adding equation: " + equation);
+                    
+                    // Transform equation to standard form f(x) = 0
+                    String transformedEq = transformEquation(equation);
+                    equations.add(transformedEq);
+                    equationMap.put(dep.getName(), transformedEq);
+                    variableSet.add(dep.getName());
                 }
             }
         }
 
-        if (paramIndexMap.size() < numVariables) {
-            throw new IllegalStateException("Equation system is incomplete! Missing parameters.");
+        // Convert variables set to array for ordering
+        String[] variables = variableSet.toArray(new String[0]);
+        System.out.println("\nSolving equation system:");
+        System.out.println("Variables: " + Arrays.toString(variables));
+        System.out.println("Equations: " + equations);
+
+        // Initialize arguments with starting values
+        Argument[] args = new Argument[variables.length];
+        for (int i = 0; i < variables.length; i++) {
+            args[i] = new Argument(variables[i] + " = 1");
         }
 
-        Equation equationSystem = new Equation(coefficients, constants);
-        double[] solution = equationSystem.solve();
+        // Solve the system iteratively
+        boolean converged = false;
+        int maxIterations = 100;
+        double tolerance = 0.0001;
+        Map<String, Double> solutions = new HashMap<>();
 
-        for (int i = 0; i < solution.length; i++) {
-            String paramName = paramNames.get(i);
+        for (int iteration = 0; iteration < maxIterations && !converged; iteration++) {
+            System.out.println("\nIteration " + (iteration + 1) + ":");
+            boolean iterationConverged = true;
+
+            // Solve for each variable
+            for (int i = 0; i < variables.length; i++) {
+                String variable = variables[i];
+                String equation = equationMap.get(variable);
+                
+                // Create expression to solve for current variable
+                String solveExpr = "solve(" + equation + ", " + variable + ", 0, 1)";
+                Expression e = new Expression(solveExpr, args);
+                
+                double newValue = e.calculate();
+                if (Double.isNaN(newValue)) {
+                    System.out.println("  Failed to solve for " + variable);
+                    continue;
+                }
+
+                // Check convergence for this variable
+                double oldValue = args[i].getArgumentValue();
+                double diff = Math.abs(oldValue - newValue);
+                if (diff > tolerance) {
+                    iterationConverged = false;
+                }
+
+                // Update value
+                args[i].setArgumentValue(newValue);
+                solutions.put(variable, newValue);
+                System.out.println("  " + variable + " = " + newValue);
+            }
+
+            converged = iterationConverged;
+        }
+
+        if (!converged) {
+            System.out.println("\nWarning: Maximum iterations reached without convergence");
+        }
+
+        // Set the solved values to the models
+        System.out.println("\nFinal solutions:");
+        for (Map.Entry<String, Double> solution : solutions.entrySet()) {
+            System.out.println(solution.getKey() + " = " + solution.getValue());
             for (VerificationModel model : sccModels) {
-                model.setParameter(paramName, solution[i]);
+                model.setParameter(solution.getKey(), solution.getValue());
             }
         }
-
-        System.out.println("SCC solution complete: " + paramNames + " → " + Arrays.toString(solution));
     }
+    
+    private String transformEquation(String equation) {
+        // Split equation into left and right sides
+        String[] sides = equation.split("\\s*=\\s*");
+        if (sides.length != 2) {
+            throw new IllegalArgumentException("Invalid equation format: " + equation);
+        }
 
+        // Move everything to left side (subtract right side)
+        return "(" + sides[0] + ")-(" + sides[1] + ")";
+    }
     
     private List<DependencyParameter> getDependencyParams(String modelId) {
         for (Model model : originalModels) {
@@ -187,7 +295,7 @@ public class PMCVerification {
         return new ArrayList<>();
     }
     
-    private RationalFunction getRationalFunction(VerificationModel model, String property, List<String> paramNames) {
+    private String getRationalFunction(VerificationModel model, String property, List<String> paramNames) {
         System.out.println("Performing parametric MC for " + model + " with property " + property);
         
         Model originalModel = getOriginalModel(model.getModelId());
@@ -195,16 +303,15 @@ public class PMCVerification {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
 
-        String equationStr= StormAPI.runPars(originalModel, property, "/Users/micahbassett/Desktop/storm/build/bin/storm-pars");
+        String equationStr = StormAPI.runPars(originalModel, property, "/Users/micahbassett/Desktop/storm/build/bin/storm-pars");
         System.out.println("Received equation: " + equationStr);
 
-        return new RationalFunction(equationStr, paramNames);
+        return equationStr;
     }
-
     
     
 
-    private double performPMC(VerificationModel model, String property) {
+    private double performPMC(VerificationModel model, String property) throws FileNotFoundException, PrismException {
         System.out.println("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
@@ -213,6 +320,9 @@ public class PMCVerification {
         FileUtils.updateModelFileResults(originalModel, model.getParameters());
 
         return StormAPI.run(originalModel, property, "/Users/micahbassett/Desktop/storm/build/bin/storm");
+        //return PrismAPI.run(originalModel, property, true);
+         
+        
     }
     
     
@@ -223,43 +333,5 @@ public class PMCVerification {
             }
         }
         return null;
-    }
-}
-
- class RationalFunction {
-    private final double[] coefficients;
-    private final double constant;
-
-    public RationalFunction(String equationStr, List<String> variableNames) {
-        this.coefficients = new double[variableNames.size()];
-        this.constant = parseEquation(equationStr, variableNames);
-    }
-
-    private double parseEquation(String equationStr, List<String> variableNames) {
-        String[] terms = equationStr.split("\\+"); // Splitting terms
-
-        double constantTerm = 0.0;
-        for (String term : terms) {
-            term = term.trim();
-            if (term.matches("-?\\d+(\\.\\d+)?")) {  // Constant term
-                constantTerm += Double.parseDouble(term);
-            } else {
-                for (int i = 0; i < variableNames.size(); i++) {
-                    if (term.contains(variableNames.get(i))) {
-                        String coefficientStr = term.replace(variableNames.get(i), "").trim();
-                        this.coefficients[i] = coefficientStr.isEmpty() ? 1.0 : Double.parseDouble(coefficientStr);
-                    }
-                }
-            }
-        }
-        return constantTerm;
-    }
-
-    public double[] getCoefficients() {
-        return coefficients;
-    }
-
-    public double getConstant() {
-        return constant;
     }
 }
