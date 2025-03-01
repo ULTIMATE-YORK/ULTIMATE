@@ -7,7 +7,7 @@ Software for creating world models for complex and heterogeneous systems
 <table>
   <tr>
     <td>
-      <a href="">
+      <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/robot%20assistive%20dressing">
         <img src="https://github.com/user-attachments/assets/baa82fa9-8c51-4b25-bd46-9b3023a4b3eb" alt="Image 1" width="300">
       </a>
     </td>
@@ -19,11 +19,12 @@ Software for creating world models for complex and heterogeneous systems
   </tr>
   <tr>
     <td>
-      <a href="https://example.com/link3">
+      <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/smart%20movement%20detection">
         <img src="https://github.com/user-attachments/assets/8345c45c-76e9-49c0-ae13-a5e182094ed7" alt="Image 3" width="300">
       </a>
     </td>
     <td>
+      <!>
       <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/ROBOTNAV">
         <img src="https://github.com/user-attachments/assets/2dbf2139-0afa-402f-9332-baac0c43fe13" alt="Image 4" width="300">
       </a>
