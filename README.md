@@ -33,3 +33,9 @@ Click on a case study to learn more.
     </td>
   </tr>
 </table>
+
+
+## Installation
+
+The ULTIMATE tool is currently supported in XX OS.
+To install it...
