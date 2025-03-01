@@ -132,19 +132,19 @@ state : [0..11] init 0;
 endmodule
 
 
+const double avr_num_disk_ops_remain_in_queue = 1.45; //<---- From DPM model
 
 // ---- Reward for number of expected disk operations---------
 const int num_disk_operations_Technical_analysis = 12; // environmental var.
 const int num_disk_operations_Fundamental_analysis = 20; // environmental var.
 label "done" = state=10 | state=9; //10=completed succ. 9=failed
 rewards "disk_operations"
-	state=OP1 : num_disk_operations_Technical_analysis;
-	state=OP2 : num_disk_operations_Fundamental_analysis;
+	state=OP1 : num_disk_operations_Technical_analysis/avr_num_disk_ops_remain_in_queue;
+	state=OP2 : num_disk_operations_Fundamental_analysis/avr_num_disk_ops_remain_in_queue;
 endrewards
 
 
 // ----- Reward for time -----------
-const double avr_num_disk_ops_remain_in_queue = 1.45; //<---- From DPM model
 const double c = 1; //<---- time units per disk operation
 
 const double SvcTime = c * avr_num_disk_ops_remain_in_queue;
