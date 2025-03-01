@@ -4,6 +4,8 @@ Software for creating world models for complex and heterogeneous systems
 
 ## Case studies
 
+Click on a case study to learn more.
+
 <table>
   <tr>
     <td>
