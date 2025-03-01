@@ -1,5 +1,5 @@
 # ULTIMATE
-Software for creating world models for complex and heteregonous systems
+Software for creating world models for complex and heterogeneous systems
 
 
 ## Case studies
@@ -24,7 +24,7 @@ Software for creating world models for complex and heteregonous systems
       </a>
     </td>
     <td>
-      <a href="https://example.com/link4">
+      <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/ROBOTNAV">
         <img src="https://github.com/user-attachments/assets/2dbf2139-0afa-402f-9332-baac0c43fe13" alt="Image 4" width="300">
       </a>
     </td>
