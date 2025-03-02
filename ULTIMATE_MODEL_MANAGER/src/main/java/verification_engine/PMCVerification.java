@@ -140,33 +140,6 @@ public class PMCVerification {
         return result;
     }
     
-//    private void resolveSCC(List<VerificationModel> sccModels) {
-//        Map<String, String> equations = new HashMap<>();
-//        List<Map.Entry<VerificationModel, String>> paramList = new ArrayList<>();
-//        
-//        System.out.println("Starting SCC resolution for models: " + sccModels);
-//        
-//        for (VerificationModel model : sccModels) {
-//            System.out.println("\nGetting dependencies for model: " + model);
-//            for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
-//                VerificationModel targetModel = modelMap.get(dep.getModelID());
-//                if (sccModels.contains(targetModel)) {
-//                    String equation = getRationalFunction(targetModel, dep.getDefinition());
-//                    System.out.println("  Adding equation: " + dep.getName() + " = " + equation);
-//                    equations.put(dep.getName(), equation);
-//                    paramList.add(new AbstractMap.SimpleEntry<>(model, dep.getName()));
-//                }
-//            }
-//        }
-//        
-//        System.out.println("\nSolving equations: " + equations);
-//        Map<String, Double> solution = solveEquations(equations);
-//        System.out.println("Solutions found: " + solution);
-//        
-//        for (Map.Entry<VerificationModel, String> param : paramList) {
-//            param.getKey().setParameter(param.getValue(), solution.get(param.getValue()));
-//        }
-//    }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
     	 mXparser.consolePrintln(false);  // Disable mXparser console output
@@ -308,8 +281,16 @@ public class PMCVerification {
         }
         ModelUtils.updateModelFileResults(originalModel, model.getParameters());
 
-        return StormAPI.run(originalModel, property, "/Users/sinem/Desktop/storm/build/bin/storm");
-        //return PrismAPI.run(originalModel, property, true);
+        try {
+            return StormAPI.run(originalModel, property, "/Users/sinem/Desktop/storm/build/bin/storm");
+        } catch (Exception e) {
+            System.err.println("Error running Storm: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Try with PRISM as fallback
+            System.out.println("Trying fallback with PRISM...");
+            return PrismAPI.run(originalModel, property, true);
+        }
          
         
     }
@@ -324,4 +305,3 @@ public class PMCVerification {
         return null;
     }
 }
-
