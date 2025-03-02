@@ -1,13 +1,16 @@
 # Robot navigation system
 
 ## Description
-
 There are N different robots working in parallel across different grid spaces. Each grid has different configurations of static obstacles and the robot must reach a goal configuration where a task has to be completed. Each robot's model is an MDP. The property under consideration is the probability of failure ```1 - Pmax=?[F done]```. This property results in finding an MDP policy that results in the maximum probability of the mission being done successfully, then substracts 1 to this probability. Each MDP results in the best policy driving the robots to the desired goal configuration.
 
 There is a human manager in charge of the operations of all robots. The manager must intervene when there is a failure with one of the robots. 
 The problem is to estimate how much the human manager will be payed if it is only called to work when robots fail.
 
 The files provided in this repository contain an example of two robots $robot 1$ and $robot 2$, one of them described below.
+
+<img src="https://github.com/user-attachments/assets/2dbf2139-0afa-402f-9332-baac0c43fe13" 
+     style="width: 40%; display: block; margin: auto;">
+
 
 
 ## Example of a robot's model
