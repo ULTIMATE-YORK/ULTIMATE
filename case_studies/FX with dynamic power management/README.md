@@ -3,7 +3,7 @@
 ## Description
 This Ultimate world consists of two systems, a foreign exchange (FX) system [1]  and a dynamic power management (DPM) system [2,3]. 
 
-<img src="https://github.com/user-attachments/assets/72554d0a-f18b-4c37-bcea-041b80085135" style="width: 60%;">
+<img src="https://github.com/user-attachments/assets/5c5b817d-97b4-4563-9bfa-9e16dbe0d34e" style="width: 60%;">
 
 
 ## FX model
