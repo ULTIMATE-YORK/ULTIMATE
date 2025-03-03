@@ -5,8 +5,8 @@
 
 // SERVICE PROVIDER
 // assume SP automatically
-// moves from idle to busy when ever a request arrives
-// moves from busy to idle when ever a request is served
+// moves from idle to busy whenever a request arrives
+// moves from busy to idle whenever a request is served
 
 ctmc
 
@@ -45,10 +45,7 @@ endmodule
 const int QMAX=20;
 
 // rate of arrivals
-//const double nRequests = 85.08123943822898; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
-//const int timeForFX = 2; //<---- Also get from FX
-
-const double disk_ops = 85.081; //<---- From FX
+const double disk_ops; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
 const int FX_execution_per_time_unit = 2; //<---Fixed
 const double nRequests = disk_ops * FX_execution_per_time_unit;
 
@@ -88,17 +85,12 @@ module PM
 endmodule
 
 
-//Use the DPM model to compute the expected request 
-//service time SvcTime as some 
-// constant*average_number_of_requests_awaiting_service 
-// (NB: the average_number_of_requests_awaiting_service is one 
-// of the DPM model properties explored in the PRISM case study).
-
-// added rewards (to be checked):
+// ----- Reward for avr queue size -----------
 rewards "queue_size"
 	true : q;
 endrewards
 
+// ----- Reward for time -----------
 rewards "time"
 	true: 1; //I don;t think this is correct as not a DTMC but CTMC
 endrewards
