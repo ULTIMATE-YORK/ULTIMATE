@@ -42,13 +42,10 @@ endmodule
 // SERVICE REQUESTER AND SERVICE REQUEST QUEUE
 // average disk operations required for FX system
 const double disk_ops; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
-const int FX_execution_per_time_unit = 2; //<---Fixed num. of FX total executions per time unit
-//
-const double nRequests = disk_ops * FX_execution_per_time_unit;
-// rate of arrivals
-const double request=1/nRequests; //(time units per operation)
-// size of queue
-const int QMAX=20;
+const int FX_execution_per_time_unit = 2; // num. of FX total executions per time unit
+const double nRequests = disk_ops * FX_execution_per_time_unit; // avr. number of disk op. requests per time unit
+const double request=1/nRequests; //rate of requests (time units per operation)
+const int QMAX=20; // size of queue
 module SRQ
 	q : [0..QMAX];
 	[request] true -> request : (q'=min(q+1,QMAX)); // request arrives
