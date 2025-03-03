@@ -120,15 +120,13 @@ The properties to verify for the DPM model are the following.
 
 | Property              | Description |
 |-----------------------|-------------|
-|R{"power"}=?[C<=referenceTimeInterval] | The expected average queue lenght duiring the first  _referenceTimeInterval_ seconds of operation.|
-
-
+|R{"power"}=?[C<=referenceTimeInterval] | The expected average queue length during the first  _referenceTimeInterval_ seconds of operation.|
 | P=?[F<=t (q > M)]     | The probability that the queue size becomes greater than or equal to M by time t. |
 | P=?[F<=t (lost > M)]  | The probability that at least M requests get lost by time t. |
-| R=?[C<=t]            | The expected power consumption by time t or the expected number of lost customers by time t (depending on whether the first or third reward structure is used). |
-| R{"time"}=?[I=t]          | The expected queue size at time t (using the second reward structure). |
-| R=?[S]              | The long-run average power consumption or long-run average queue size (depending on which reward structure is used). |
-| R=?[S]              | The long-run average power consumption or long-run average queue size (depending on which reward structure is used). |
+| R{"power"}=?[C<=t]            | The expected power consumption by time t or the expected number of lost customers by time t (depending on whether the first or third reward structure is used). |
+| R{"queue_size"}=?[I=t]          | The expected queue size at time t (using the second reward structure). |
+| R{"power"}=?[S]              | The long-run average power consumption. |
+| R{"queue_size"}=?[S]              | The long-run average queue size. |
 
 
 
