@@ -80,8 +80,3 @@ endmodule
 rewards "queue_size"
 	true : q;
 endrewards
-
-// ----- Reward for time -----------
-rewards "time"
-	true: 1; //I don;t think this is correct as not a DTMC but CTMC
-endrewards
