@@ -60,7 +60,6 @@ const int WF_SUCC=10;
 
 
 module fx
-inter : [1..2] init 1;  //<--- not used
 op1 : [0..2] init 0;
 op2 : [0..2] init 0;
 op3 : [0..2] init 0;
@@ -83,22 +82,16 @@ state : [0..11] init 0;
 
 
 //Op1: Market watch
-
 //[marketwatch] state = OP1->prob1:(state'=OP2)+(1-prob1):(state'=WF_FAIL);  //invoke op1
 //Op2: Technical Analysis
-
 //[techanalysis]state = OP2->prob2:(state'=TA_RESULT)+(1-prob2):(state'=WF_FAIL);//invoke op2
 //Op3: Alarm
-
 //[alarm] state=OP3->prob3:(state'=OP6)+(1-prob3):(state'=WF_FAIL);
 //Op4: Fundamental Analysis
-
 //[fundanalysis] state=OP4->prob4:(state'=FA_RESULT)+(1-prob4):(state'=WF_FAIL);
 //Op5: Place Order
-
 //[placeorder]state=OP5->prob5:(state'=OP6)+(1-prob5):(state'=WF_FAIL);
 //Op6: Notify trader
-
 //[notification]state=OP6->prob6:(state'=WF_SUCC)+(1-prob6):(state'=WF_FAIL);
 
 // -- These depend on Expert mode chossen -- 
@@ -132,7 +125,7 @@ state : [0..11] init 0;
 endmodule
 
 
-const double avr_num_disk_ops_remain_in_queue = 1.45; //<---- From DPM model
+const double avr_num_disk_ops_remain_in_queue; //<---- From DPM model
 
 // ---- Reward for number of expected disk operations---------
 const int num_disk_operations_Technical_analysis = 12; // environmental var.
@@ -162,4 +155,3 @@ rewards "time"
      state=OP5 : time5;
      state=OP6 : time6;
 endrewards
-
