@@ -17,6 +17,8 @@ The FX system has two execution modes. In an expert mode, it uses a Market Watch
 ### Reward 1
 The [FX DTMC model](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/FX.pm) has two reward structures. The first is for the number of expected disk operations when the system performs a Market Watch or a Technical Analysis operation. We assume that the services Technical Analysis and Fundamental Analysis are deployed and run on the same server and that their executions require, on average, 12 and 20 disk operations. 
 
+This reward obtains the number of disk operations to be requested by the FX system. These disk operation requests are added to the queue of the DPM system model. The larger the size of the queue, the fewer requests from FX to avoid filling up the DPM queue. Hence, the number of operations to queue when the FX system performs a Technical Analysis is given by ```num_disk_operations_Technical_analysis/avr_num_disk_ops_remain_in_queue```.
+
 ```
 // ---- Reward for number of expected disk operations---------
 const int num_disk_operations_Technical_analysis = 12; // environmental var.
@@ -37,9 +39,10 @@ Given that the same server runs a DPM, the value of ```avr_num_disk_ops_remain_i
 
 where ```m_{DPM}``` is the DPM model.
 
+
 ### Reward 2
 
-A second reward obtained adds the time spent at each FX operation. As the service time (SvcTime) for the Technical and Fundamental s also depends on the value of ```avr_num_disk_ops_remain_in_queue``` as before, and a constant ```c``` representing the time required per disk operation.
+A second reward obtained adds the time spent at each FX operation. The service time (SvcTime) for the Technical and Fundamental also depends on the value of ```avr_num_disk_ops_remain_in_queue``` as before, and a constant ```c``` representing the time required per disk operation.
 
 ```
 // ----- Reward for time -----------
@@ -62,24 +65,16 @@ endrewards
 ```
 
 
+
+
+
 ## DPM model
 
-The [DPM DTMC model](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/DPM.pm)
+The [DPM CTMC](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/DPM.pm) models a power management system with four different components as shown in the following figure: PM, SR, SRQ and SP.
 
 <img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" style="width: 70%;">
 
-##
-
-
-| Property              | Description |
-|-----------------------|-------------|
-| P=?[Q₆ₜ(q > M)]     | The probability that the queue size becomes greater than or equal to M by time t. |
-| P=?[Q₆ₜ (lost > M)]  | The probability that at least M requests get lost by time t. |
-| R=?[C₆ₜ]            | The expected power consumption by time t or the expected number of lost customers by time t (depending on whether the first or third reward structure is used). |
-| R=?[I = t]          | The expected queue size at time t (using the second reward structure). |
-| R=?[S]              | The long-run average power consumption, long-run average queue size, or long-run average number of requests lost per unit time (depending on which reward structure is used). |
-
-
+## 
 
 
 
