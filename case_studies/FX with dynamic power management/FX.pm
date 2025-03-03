@@ -132,8 +132,9 @@ const int num_disk_operations_Technical_analysis = 12; // environmental var.
 const int num_disk_operations_Fundamental_analysis = 20; // environmental var.
 label "done" = state=10 | state=9; //10=completed succ. 9=failed
 rewards "disk_operations"
-	state=OP1 : num_disk_operations_Technical_analysis/avr_num_disk_ops_remain_in_queue;
-	state=OP2 : num_disk_operations_Fundamental_analysis/avr_num_disk_ops_remain_in_queue;
+        //expert (Technical-OP2=2) or normal model (Fund-OP4=4)
+	state=OP2 : num_disk_operations_Technical_analysis/avr_num_disk_ops_remain_in_queue;
+	state=OP4 : num_disk_operations_Fundamental_analysis/avr_num_disk_ops_remain_in_queue;
 endrewards
 
 
