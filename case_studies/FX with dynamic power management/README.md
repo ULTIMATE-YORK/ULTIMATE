@@ -33,7 +33,7 @@ endrewards
 
 Given that the same server runs a DPM, the value of ```avr_num_disk_ops_remain_in_queue``` is obtained from the verification DPM system's model.
 
-| Parameter              | Value |
+| Dependency parameter              | Value |
 |-----------------------|-------------|
 |avr_num_disk_ops_remain_in_queue| PMC( m_{DPM} , R{"queue_size"}=? [ S]) |
 
@@ -70,11 +70,42 @@ endrewards
 
 ## DPM model
 
-The [DPM CTMC](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/DPM.pm) models a power management system with four different components as shown in the following figure: PM, SR, SRQ and SP.
+The [DPM CTMC](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/DPM.pm) models a dynamic power management system to save energy in devices that can be turn on and off. Examples of DPM schemes are ACPI and OnNow. The DPM model consists of four different components as shown in the following figure. A **Service Provider (SP)**, representing the device under power management control; a **Service Requester (SR)**, responsible for sending requests to the device; a **Service Request Queue (SRQ)**, which holds pending requests awaiting service; and a **Power Manager (PM)**, which monitors the system and issues commands to the SP based on a stochastic Dynamic Power Management (DPM) policy.
+
+<!--There are three PM power states with different power consumption rates: sleep (when the SP is inactive and no requests are served), idle (when the SP is active but not working on any requests) and busy (where the SP is active and serving requests). Transitions between sleep and idle are controlled by the PM. Transitions between idle and busy are controlled by the SRQ's state. -->
 
 <img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" style="width: 70%;">
 
-## 
+The SRQ and SR are modelled together as shown in the module below. Its rates of transitions depend on the arrival of a request, which in turn depend on the verification of the FX model. 
+
+
+```
+// SERVICE REQUESTER AND SERVICE REQUEST QUEUE
+// average disk operations required for FX system
+const double disk_ops; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
+const int FX_execution_per_time_unit = 2; // num. of FX total executions per time unit
+const double nRequests = disk_ops * FX_execution_per_time_unit; // avr. number of disk op. requests per time unit
+const double request=1/nRequests; //rate of requests (time units per operation)
+const int QMAX=20; // size of queue
+module SRQ
+	q : [0..QMAX];
+	[request] true -> request : (q'=min(q+1,QMAX)); // request arrives
+	[serve]  q>0 -> (q'=q-1); // request served
+endmodule
+```
+
+Hence,
+
+| Dependency parameter              | Value |
+|-----------------------|-------------|
+|disk_ops| PMC( m_{FX} , R{"disk_operations"}=?[F "done"]) |
+
+where ```m_{FX}``` is the FX model.
+
+
+
+
+
 
 
 
