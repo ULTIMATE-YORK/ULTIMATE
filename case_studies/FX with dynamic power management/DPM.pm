@@ -80,3 +80,13 @@ endmodule
 rewards "queue_size"
 	true : q;
 endrewards
+
+const double referenceTimeInterval = 1; // per time unit
+// ----- Reward expected average power -----------
+rewards "power" 
+	sp=0 : 0.13/referenceTimeInterval;
+	sp=1 : 0.95/referenceTimeInterval;
+	sp=2 : 2.15/referenceTimeInterval;
+	[sleep2idle] true : 7.0/referenceTimeInterval;
+ 	[idle2sleep] true : 0.067/referenceTimeInterval;
+endrewards
