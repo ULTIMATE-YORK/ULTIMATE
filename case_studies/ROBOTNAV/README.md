@@ -9,7 +9,7 @@ The problem is to estimate how much the human manager will be payed if it is onl
 The files provided in this repository contain an example of two robots $robot 1$ and $robot 2$, one of them described below.
 
 <img src="https://github.com/user-attachments/assets/2dbf2139-0afa-402f-9332-baac0c43fe13" 
-     style="width: 40%; display: block; margin: auto;">
+     style="width: 60%; display: block; margin: auto;">
 
 
 
