@@ -8,12 +8,14 @@ This Ultimate world consists of two systems, a foreign exchange (FX) system [1] 
 
 ## FX model
 
-The FX system has two execution modes. In a expert mode, it uses a Market Watch to obtain real-time exchange rates and a Technical Analysis to evaluate trading conditions, future price movements, etc. In a normal mode, it utilises a Fundamental Analysis evaluating th economic outlook of a country. A representation of the probabilistic model is depicted below, where ```x,y1,y2,z1,z2``` represent system probabilities. The system is designed to avoid single-point failures by implementing two (functionally equivalent) services at each state.  
+The FX system has two execution modes. In an expert mode, it uses a Market Watch to obtain real-time exchange rates and a Technical Analysis to evaluate trading conditions, future price movements, etc. In a normal mode, it utilises a Fundamental Analysis evaluating the economic outlook of a country. A representation of the probabilistic model is depicted below, where ```x,y1,y2,z1,z2``` represent system probabilities. The system is designed to avoid single-point failures by implementing two (functionally equivalent) services at each state.  
+
+<img src="https://github.com/user-attachments/assets/5d14ea78-ad25-4380-975b-0afd1edb8528" style="width: 70%;">
+
+
 
 ### Reward 1
-The [FX DTMC model](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/FX.pm) has two reward structures. The first, for the expected number of disk operations, which depends on the number of operations required by the Technical and Fundamental analysis, and the  
-
-The first for the number of expected disk operations when the system perform a Market Watch or a Technical Analysis operation. We assume that the services Technical Analysis and Fundamental Analysis are deployed and run on the same server, that their executions require, on average, 12 and 20 disk operations. 
+The [FX DTMC model](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/FX.pm) has two reward structures. The first is for the number of expected disk operations when the system performs a Market Watch or a Technical Analysis operation. We assume that the services Technical Analysis and Fundamental Analysis are deployed and run on the same server and that their executions require, on average, 12 and 20 disk operations. 
 
 ```
 // ---- Reward for number of expected disk operations---------
@@ -27,9 +29,55 @@ rewards "disk_operations"
 endrewards
 ```
 
-The value of ```const double avr_num_disk_ops_remain_in_queue``` is obtained from the DPM model.
+Given that the same server runs a DPM, the value of ```avr_num_disk_ops_remain_in_queue``` is obtained from the verification DPM system's model.
+
+| Parameter              | Value |
+|-----------------------|-------------|
+|avr_num_disk_ops_remain_in_queue| PMC( m_{DPM} , R{"queue_size"}=? [ S]) |
+
+where ```m_{DPM}``` is the DPM model.
 
 ### Reward 2
+
+A second reward obtained adds the time spent at each FX operation. As the service time (SvcTime) for the Technical and Fundamental s also depends on the value of ```avr_num_disk_ops_remain_in_queue``` as before, and a constant ```c``` representing the time required per disk operation.
+
+```
+// ----- Reward for time -----------
+const double c = 1; //<---- time units per disk operation
+const double SvcTime = c * avr_num_disk_ops_remain_in_queue;
+const double time1 = 10;
+const double time2 = SvcTime;
+const double time3 = 10;
+const double time4 = SvcTime;
+const double time5 = 10;
+const double time6 = 10;
+rewards "time"
+     state=OP1 : time1;
+     state=OP2 : time2 *num_disk_operations_Technical_analysis; //technical analysis
+     state=OP3 : time3;
+     state=OP4 : time4 *num_disk_operations_Fundamental_analysis;//fund. analysis
+     state=OP5 : time5;
+     state=OP6 : time6;
+endrewards
+```
+
+
+## DPM model
+
+The [DPM DTMC model](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studies/FX%20with%20dynamic%20power%20management/DPM.pm)
+
+<img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" style="width: 70%;">
+
+##
+
+
+| Property              | Description |
+|-----------------------|-------------|
+| P=?[Q₆ₜ(q > M)]     | The probability that the queue size becomes greater than or equal to M by time t. |
+| P=?[Q₆ₜ (lost > M)]  | The probability that at least M requests get lost by time t. |
+| R=?[C₆ₜ]            | The expected power consumption by time t or the expected number of lost customers by time t (depending on whether the first or third reward structure is used). |
+| R=?[I = t]          | The expected queue size at time t (using the second reward structure). |
+| R=?[S]              | The long-run average power consumption, long-run average queue size, or long-run average number of requests lost per unit time (depending on which reward structure is used). |
 
 
 
