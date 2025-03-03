@@ -64,6 +64,15 @@ rewards "time"
 endrewards
 ```
 
+This "time" reward is used in the following property.
+
+### FX verification properties
+The property to verify for the FX model is the following.
+
+
+| Property              | Description |
+|-----------------------|-------------|
+| R{"time"}=?[F "done"]<=100 | The expected time to complete the FX workflow is less than or equal to 100 time units. |
 
 
 
@@ -76,7 +85,7 @@ The [DPM CTMC](https://github.com/ULTIMATE-YORK/WorldModel/blob/main/case_studie
 
 <img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" style="width: 70%;">
 
-The SRQ and SR are modelled together as shown in the module below. Its rates of transitions depend on the arrival of a request, which in turn depend on the verification of the FX model. 
+The SRQ and SR are modelled together as shown in the module below. Its rates of transitions depend on the arrival of a request, which in turn depends on the verification of the FX model. 
 
 
 ```
@@ -94,7 +103,7 @@ module SRQ
 endmodule
 ```
 
-Hence,
+Hence, the disk_ops parameter value is computed as follows.
 
 | Dependency parameter              | Value |
 |-----------------------|-------------|
@@ -103,6 +112,23 @@ Hence,
 where ```m_{FX}``` is the FX model.
 
 
+
+### DPM verification properties
+The properties to verify for the DPM model are the following.
+
+
+
+| Property              | Description |
+|-----------------------|-------------|
+|R{"power"}=?[C<=referenceTimeInterval] | The expected average queue lenght duiring the first  _referenceTimeInterval_ seconds of operation.|
+
+
+| P=?[F<=t (q > M)]     | The probability that the queue size becomes greater than or equal to M by time t. |
+| P=?[F<=t (lost > M)]  | The probability that at least M requests get lost by time t. |
+| R=?[C<=t]            | The expected power consumption by time t or the expected number of lost customers by time t (depending on whether the first or third reward structure is used). |
+| R{"time"}=?[I=t]          | The expected queue size at time t (using the second reward structure). |
+| R=?[S]              | The long-run average power consumption or long-run average queue size (depending on which reward structure is used). |
+| R=?[S]              | The long-run average power consumption or long-run average queue size (depending on which reward structure is used). |
 
 
 
@@ -116,3 +142,5 @@ where ```m_{FX}``` is the FX model.
 [2] PRISM repository of case studies: https://www.prismmodelchecker.org/casestudies/power_ctmc3.php
 
 [3] Kwiatkowska, M., Norman, G., & Parker, D. (2007). Stochastic model checking. Formal Methods for Performance Evaluation: 7th International School on Formal Methods for the Design of Computer, Communication, and Software Systems, SFM 2007, Bertinoro, Italy, May 28-June 2, 2007. (page 40)
+
+[4] Calinescu, Radu, and Marta Kwiatkowska. "Using quantitative analysis to implement autonomic IT systems." 2009 IEEE 31st International Conference on Software Engineering. IEEE, 2009.
