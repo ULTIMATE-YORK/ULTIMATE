@@ -10,7 +10,7 @@ Click on a case study to learn more.
   <tr>
     <td>
       <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/robot%20assistive%20dressing">
-        <img src="https://github.com/user-attachments/assets/baa82fa9-8c51-4b25-bd46-9b3023a4b3eb" alt="Image 1" width="300">
+        <img src="https://github.com/user-attachments/assets/f39ed8e4-4566-426b-8aff-daa3f55aecfb" alt="Image 1" width="300">
       </a>
     </td>
     <td>
