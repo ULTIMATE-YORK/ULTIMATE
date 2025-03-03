@@ -40,25 +40,19 @@ module SP
 endmodule
 
 // SERVICE REQUESTER AND SERVICE REQUEST QUEUE
-
+// average disk operations required for FX system
+const double disk_ops; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
+const int FX_execution_per_time_unit = 2; //<---Fixed num. of FX total executions per time unit
+//
+const double nRequests = disk_ops * FX_execution_per_time_unit;
+// rate of arrivals
+const double request=1/nRequests; //(time units per operation)
 // size of queue
 const int QMAX=20;
-
-// rate of arrivals
-const double disk_ops; //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
-const int FX_execution_per_time_unit = 2; //<---Fixed
-const double nRequests = disk_ops * FX_execution_per_time_unit;
-
-const double request=1/nRequests; //sec. per operation
-
-
 module SRQ
-
 	q : [0..QMAX];
-	
 	[request] true -> request : (q'=min(q+1,QMAX)); // request arrives
 	[serve]  q>0 -> (q'=q-1); // request served
-	
 endmodule
 
 
