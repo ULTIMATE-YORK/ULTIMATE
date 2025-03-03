@@ -15,7 +15,7 @@ Click on a case study to learn more.
     </td>
     <td>
       <a href="https://github.com/ULTIMATE-YORK/WorldModel/tree/main/case_studies/FX%20with%20dynamic%20power%20management">
-        <img src="https://github.com/user-attachments/assets/72d4d4a5-82f2-4df3-b50c-5783ef86e39a" alt="Image 2" width="300">
+        <img src="https://github.com/user-attachments/assets/72554d0a-f18b-4c37-bcea-041b80085135" alt="Image 2" width="300">
       </a>
     </td>
   </tr>
