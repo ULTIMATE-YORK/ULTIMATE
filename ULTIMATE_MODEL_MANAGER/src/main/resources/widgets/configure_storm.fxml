@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0" fx:controller="controllers.ConfigureStormController" >
+	
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10"/>
+	</padding>
+	
+	<Label text="Enter the path to storm below:"/>
+	<TextField fx:id="stormField" />
+	<Label text="Enter the path to storm-pars below:"/>
+	<TextField fx:id="stormParsField" />
+	
+	<HBox alignment="CENTER" spacing="10.0" >
+		<Button fx:id="saveButton" text="save" onAction="#save" />
+		<Button fx:id="cancelButton" text="cancel" onAction="#cancel" />
+	</HBox>
+
+</VBox>

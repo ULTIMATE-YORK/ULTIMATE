@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0" fx:controller="controllers.ModelController">
+	
+	<HBox alignment="CENTER" spacing="10.0" >
+		<Label text="Models" />
+		<Button fx:id="addButton" onAction="#addModel" mnemonicParsing="false" text="+" />
+		<Button fx:id="upButton" onAction="#scrollUp" mnemonicParsing="false" text="↑" />
+		<Button fx:id="downButton" onAction="#scrollDown" mnemonicParsing="false" text="↓" />
+	</HBox>
+	
+	<ListView fx:id="modelListView" VBox.vgrow="ALWAYS" />
+	
+</VBox>

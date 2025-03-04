@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<Tab text="Model File" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.ModelFileController">
+    
+<GridPane fx:id="parameterGridPane" hgap="10" vgap="10"  >
+	  
+	  <columnConstraints>
+	    <ColumnConstraints hgrow="ALWAYS" />
+	  </columnConstraints>
+	  
+	  <!-- Row Constraints: First row is fixed height, second row will grow to fill available space -->
+	  <rowConstraints>
+	    <RowConstraints vgrow="ALWAYS" />
+	  </rowConstraints>
+  
+  	<VBox VBox.vgrow="ALWAYS" spacing="10.0" GridPane.columnIndex="0" GridPane.rowIndex="0" >
+		
+		<GridPane.margin>
+	      	<Insets bottom="10.0" left="0.0" right="10.0" top="10.0" />
+	    </GridPane.margin>
+	
+		<HBox alignment="CENTER" spacing="10.0">
+			<Label text="Model file" />
+		</HBox>
+	
+		<TextArea fx:id="modelFile" editable="false" VBox.vgrow="ALWAYS">
+
+        
+  		 </TextArea>
+   
+   </VBox>
+
+</GridPane>
+
+</Tab>

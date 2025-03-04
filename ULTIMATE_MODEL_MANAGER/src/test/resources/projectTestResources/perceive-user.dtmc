@@ -1,0 +1,61 @@
+dtmc
+
+//
+// Model of deep-learning component perceiving the user state as 'ok' or 'no ok'
+//
+
+// Model parameters
+// Dependency parameters (obtained through the analysis of other models)
+// - no dependency parameter
+// Environment parameters (derived from data collected from observing the environment)
+const double p1_ok_correct=0.7;           // probability that ML model 1 perceives the user state correctly when the user is ok
+const double p1_ok_verified=0.8;          // probability that ML model 1 yields verified prediction when the user is ok
+const double p1_ok_true_correct=0.92;      // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier confirms the classifier output is likely correct 
+const double p1_ok_false_correct=0.63;     // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier does not confirm the classifier output is likely correct 
+const double p1_notok_correct=0.72;        // probability that ML model 1 perceives the user state correctly when the user is not ok
+const double p1_notok_verified=0.79;       // probability that ML model 1 yields verified prediction when the user is not ok
+const double p1_notok_true_correct=0.93;   // probability that ML model 1 perceives the user state correctly when the user is not ok and the verifier confirms the classifier output is likely correct 
+const double p1_notok_false_correct=0.61;  // probability that ML model 1 perceives the user state correctly when the user is not ok and the verifier does not confirm the classifier output is likely correct 
+const double p2_ok_correct=0.93;           // probability that ML model 2 perceives the user state correctly when the user is ok
+const double p2_notok_correct=0.92;        // probability that ML model 2 perceives the user state correctly when the user is not ok
+// Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
+const int modelUsed = 2; // 1 - use model 1, 2 - use model 2, 3 - use first model 1, verify its prediction and return it if verified, or otherwise use also model 2 and return its prediction
+
+label "done" = s=3;
+
+module Perception
+  s : [0..3] init 0;
+  userOk : bool;
+  userPredictedOk : bool;
+  verified : bool; 
+
+  [initialise] s=0 -> 0.5:(s'=1)&(userOk'=false) + 0.5:(s'=1)&(userOk'=true); 
+
+  // Use only ML model 1 
+  [predictM1]  s=1 & userOk & modelUsed=1 -> p1_ok_correct:(s'=3)&(userPredictedOk'=true) +
+                                             (1-p1_ok_correct):(s'=3)&(userPredictedOk'=false);
+  [predictM1]  s=1 & !userOk & modelUsed=1 -> p1_notok_correct:(s'=3)&(userPredictedOk'=false) +
+                                              (1-p1_notok_correct):(s'=3)&(userPredictedOk'=true);
+
+  // Use only ML model 2 
+  [predictM2]  s=1 & userOk & modelUsed=2 -> p2_ok_correct:(s'=3)&(userPredictedOk'=true) +
+                                             (1-p2_ok_correct):(s'=3)&(userPredictedOk'=false);
+  [predictM2]  s=1 & !userOk & modelUsed=2 -> p2_notok_correct:(s'=3)&(userPredictedOk'=false) +
+                                              (1-p2_notok_correct):(s'=3)&(userPredictedOk'=true);
+
+  // Use first ML model 1, and then ML model M2 if the prediction of model M1 is not verified  
+  [predictM12a] s=1 & userOk & modelUsed=3 -> p1_ok_verified*p1_ok_true_correct:(s'=3)&(verified'=true)&(userPredictedOk'=true) +
+                                             p1_ok_verified*(1-p1_ok_true_correct):(s'=3)&(verified'=true)&(userPredictedOk'=false) +
+                                             (1-p1_ok_verified)*p1_ok_false_correct:(s'=2)&(verified'=false)&(userPredictedOk'=true) +
+                                             (1-p1_ok_verified)*(1-p1_ok_false_correct):(s'=2)&(verified'=false)&(userPredictedOk'=false);
+  [predictM12a] s=1 & !userOk & modelUsed=3 -> p1_notok_verified*p1_notok_true_correct:(s'=3)&(verified'=true)&(userPredictedOk'=false) +
+                                              p1_notok_verified*(1-p1_notok_true_correct):(s'=3)&(verified'=true)&(userPredictedOk'=true) +
+                                              (1-p1_notok_verified)*p1_notok_false_correct:(s'=2)&(verified'=false)&(userPredictedOk'=false) +
+                                              (1-p1_notok_verified)*(1-p1_notok_false_correct):(s'=2)&(verified'=false)&(userPredictedOk'=true);
+  [predictM12b] s=2 & userOk -> p2_ok_correct:(s'=3)&(userPredictedOk'=true) +
+                               (1-p2_ok_correct):(s'=3)&(userPredictedOk'=false);
+  [predictM12b]  s=2 & !userOk -> p2_notok_correct:(s'=3)&(userPredictedOk'=false) +
+                                (1-p2_notok_correct):(s'=3)&(userPredictedOk'=true);
+
+  [done] s=3 -> true;
+endmodule
