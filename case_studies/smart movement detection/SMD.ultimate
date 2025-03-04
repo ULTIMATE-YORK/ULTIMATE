@@ -1,6 +1,6 @@
 {"models": {
     "SmartLighting": {
-        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/circular/SMD/SmartLighting.prism",
+        "fileName": "SmartLighting.prism",
         "id": "SmartLighting",
         "parameters": {
             "environment": {},
@@ -8,12 +8,12 @@
             "dependency": {"pDetected": {
                 "modelId": "MotionSensor",
                 "name": "pDetected",
-                "property": "P=? [F step=2 & detected]"
+                "property": "P=?[F step=2 & detected]"
             }}
         }
     },
     "MotionSensor": {
-        "fileName": "/Users/sinem/Documents/research/ULTIMATE/WorldModel/case_studies/circular/SMD/MotionSensor.prism",
+        "fileName": "MotionSensor.prism",
         "id": "MotionSensor",
         "parameters": {
             "environment": {},
@@ -22,12 +22,12 @@
                 "pLow": {
                     "modelId": "SmartLighting",
                     "name": "pLow",
-                    "property": "'R{\"low\"}=? [C<=10000]' / 10000"
+                    "property": "R{\\\"low\\\"}=? [C<=10000]"
                 },
                 "pMed": {
                     "modelId": "SmartLighting",
                     "name": "pMed",
-                    "property": "'R{\"medium\"}=? [C<=10000]'"
+                    "property": "R{\\\"medium\\\"}=? [C<=10000]"
                 }
             }
         }

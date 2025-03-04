@@ -7,7 +7,7 @@
 dtmc
 
 // Dependency parameter from the other model
-const double pDetected = 0.142;
+const double pDetected;
 
 module LightingSystem
   lightLevel : [0..2] init 0; // 0=low, 1=medium, 2=high
@@ -23,11 +23,11 @@ module LightingSystem
 endmodule
 
 rewards "low"
-  lightLevel=0 : 1;
+  lightLevel=0 : 1/10000;
 endrewards
 
 rewards "medium"
-  lightLevel=1 : 1;
+  lightLevel=1 : 1/10000;
 endrewards
 
 // 

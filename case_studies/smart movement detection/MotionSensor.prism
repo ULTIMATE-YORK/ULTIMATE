@@ -27,7 +27,7 @@
 dtmc
 
 // Dependency parameters from the other model
-const double pLow; 
+const double pLow;
 const double pMed;
 const double pHigh=1-pLow-pMed;
 
