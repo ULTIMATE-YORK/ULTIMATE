@@ -50,7 +50,6 @@ public class Project {
 		try {
 			setupConfigs();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
     }
@@ -180,14 +179,18 @@ public class Project {
         	this.stormInstall = stormInstall;
         }
         else {
-        	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
+        	if (sharedContext.getMainStage() != null) {
+            	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
+        	}
         }
         String stormParsInstall = configJSON.getString("stormParsInstall");
         if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
         	this.stormParsInstall = stormParsInstall;
         }
         else {
-        	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
+        	if (sharedContext.getMainStage() != null) {
+            	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
+        	}
         }
 	}
 }

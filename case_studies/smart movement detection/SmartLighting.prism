@@ -23,7 +23,7 @@ module LightingSystem
 endmodule
 
 rewards "low"
-  lightLevel=0 : 1;
+  lightLevel=0 : 1/10000;
 endrewards
 
 rewards "medium"
