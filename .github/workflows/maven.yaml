@@ -25,6 +25,9 @@ jobs:
       - name: Verify Java Version
         run: java -version
 
+      - name: Manually install PrismAPI
+        run: mvn install:install-file -Dfile=ULTIMATE_MODEL_MANAGER/libs/PrismAPI-1.0.18.jar -DgroupId=org.modelChecker -DartifactId=PrismAPI -Dversion=1.0.18 -Dpackaging=jar
+
       - name: Build with Maven
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn clean install
