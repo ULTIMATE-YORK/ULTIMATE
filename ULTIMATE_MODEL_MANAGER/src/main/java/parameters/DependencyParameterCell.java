@@ -39,7 +39,7 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
             // Build the left column: A Label showing the dependency details.
             Label details = new Label("DependencyParameter Name: " + dp.getName() + 
                                         "\nModel ID: " + dp.getModel().getModelId() +
-                                        "\nProperty Definition: " + dp.getDefinition());
+                                        "\nProperty Definition: " + dp.getDefinition().replace("\\", ""));
             details.setWrapText(true);
 
             // Wrap the details in a VBox (so we can later bind its width)
