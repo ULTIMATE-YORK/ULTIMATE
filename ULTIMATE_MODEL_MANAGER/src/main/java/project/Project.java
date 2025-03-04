@@ -37,9 +37,9 @@ public class Project {
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
-        // Initialize currentModel property (first model in the set or null)
+        // Initialise currentModel property (first model in the set or null)
         currentModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
-        // Initialize the observable list with the contents of the set
+        // Initialise the observable list with the contents of the set
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
         sharedContext.setProject(this);
@@ -67,7 +67,6 @@ public class Project {
 		try {
 			setupConfigs();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
    }
