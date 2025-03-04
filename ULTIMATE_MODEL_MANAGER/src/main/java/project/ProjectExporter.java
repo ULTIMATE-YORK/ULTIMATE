@@ -50,7 +50,7 @@ public class ProjectExporter {
                 JSONObject depObj = new JSONObject();
                 depObj.put("name", dep.getName());
                 depObj.put("modelId", dep.getModel().getModelId());
-                depObj.put("property", dep.getDefinition());
+                depObj.put("property", formatDefinition(dep.getDefinition()));
                 dependencyObject.put(dep.getName(), depObj);
             }
             parametersObject.put("dependency", dependencyObject);
@@ -92,6 +92,23 @@ public class ProjectExporter {
     	Alerter.showErrorAlert("Project Not Saved!", e.getMessage());
     	return;    
     	}
+	}
+	
+    /*
+     * This method will extract labels in definitions and escape them correctly
+     */
+    private String formatDefinition(String definition) {
+    	String formattedDef = "";
+    	for (int i = 0; i < definition.length(); i++) {
+    		if (definition.charAt(i) == '"') {
+    			formattedDef += '\\';
+    			formattedDef += definition.charAt(i);
+    		}
+    		else {
+    			formattedDef += definition.charAt(i);
+    		}
+    	}
+    	return formattedDef;
 	}
 
 }
