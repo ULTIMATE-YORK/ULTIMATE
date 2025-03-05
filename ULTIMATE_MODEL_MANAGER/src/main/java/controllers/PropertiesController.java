@@ -79,8 +79,6 @@ public class PropertiesController {
 			return;
 		}
 		else {
-
-			// TODO add verification
 			ArrayList<Model> models = new ArrayList<>();
 			models.addAll(project.getModels());
 			PMCVerification verifier = new PMCVerification(models);

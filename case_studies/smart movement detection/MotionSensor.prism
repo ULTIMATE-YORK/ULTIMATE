@@ -27,8 +27,8 @@
 dtmc
 
 // Dependency parameters from the other model
-const double pLow;
-const double pMed;
+const double pLow = 0.78012565;
+const double pMed = 0.10311348;
 const double pHigh=1-pLow-pMed;
 
 module Sensor
