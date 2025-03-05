@@ -52,7 +52,7 @@ public class DependencyParameter {
 	}
     
     public String toString() {
-    	return "Dependency Parameter: " + name + "\nModel ID of dependency: " + model.getModelId() + " \nProperty definition to be verified on model" + definition + "\n";
+    	return "Dependency Parameter: " + name + "\nModel ID: " + model.getModelId() + "\nProperty Definition: " + definition.replace("\\", "") + "\n";
     }
     
 }
