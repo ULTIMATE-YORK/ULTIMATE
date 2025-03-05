@@ -10,7 +10,7 @@
 		<Insets top="10" right="10" bottom="10" left="10"/>
 	</padding>
 	
-	<Label text="Choose from list of undefined paramters"/>
+	<Label text="Choose from list of undefined parameters"/>
 	<ChoiceBox fx:id="undefinedParameters"/>
 	
 	<Label text="Model ID of Dependency Parameter" />

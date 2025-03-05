@@ -7,7 +7,7 @@ import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
-import parameters.EnvironmentParameter;
+import parameters.ExternalParameter;
 import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
 import property.Property;
@@ -25,7 +25,7 @@ public class Model {
     private String filePath; // Path to the model's file
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
-    private List<EnvironmentParameter> environmentParameters; // List of environment parameters
+    private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
     private List<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
@@ -40,7 +40,7 @@ public class Model {
         this.modelId = FileUtils.removePrismFileExtension(filePath); // will throw an error if the file is not prism file
         this.filePath = filePath;
         this.dependencyParameters = FXCollections.observableArrayList();
-        this.environmentParameters = new ArrayList<>();
+        this.externalParameters = FXCollections.observableArrayList();
         this.internalParameters = new ArrayList<>();
         this.uncategorisedParameters = FXCollections.observableArrayList();
         //addUncategorisedParametersFromFile();
@@ -97,8 +97,8 @@ public class Model {
      * 
      * @param parameter the dependency parameter to add
      */
-	public void addEnvironmentParameter(EnvironmentParameter parameter) {
-		environmentParameters.add(parameter);
+	public void addExternalParameter(ExternalParameter parameter) {
+		externalParameters.add(parameter);
 	}
 	
 	/*
@@ -106,8 +106,8 @@ public class Model {
 	 * 
 	 * @param parameters the list of environment parameters to add
 	 */
-	public void setEnvironmentParameters(List<EnvironmentParameter> parameters) {
-		environmentParameters = parameters;
+	public void setExternalParameters(ObservableList<ExternalParameter> parameters) {
+		externalParameters = parameters;
 	}
 	
     /**
@@ -190,8 +190,8 @@ public class Model {
      * 
      * @return the list of environment parameters
      */
-    public List<EnvironmentParameter> getEnvironmentParameters() {
-        return environmentParameters;
+    public ObservableList<ExternalParameter> getExternalParameters() {
+        return externalParameters;
     }
     
     /**
@@ -239,6 +239,17 @@ public class Model {
 	    while (iter.hasNext()) {
 	        DependencyParameter current = iter.next();
 	        if (current.getName().equals(dp.getName())) {
+	            iter.remove(); // Safely remove from dependencyParameters
+	            break; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	}
+	
+	public void removeExternalParameter(ExternalParameter ep) {
+	    Iterator<ExternalParameter> iter = this.externalParameters.iterator();
+	    while (iter.hasNext()) {
+	        ExternalParameter current = iter.next();
+	        if (current.getName().equals(ep.getName())) {
 	            iter.remove(); // Safely remove from dependencyParameters
 	            break; // Assuming names are unique, break out of the loop.
 	        }

@@ -11,7 +11,7 @@ import org.json.JSONObject;
 
 import model.Model;
 import parameters.DependencyParameter;
-import parameters.EnvironmentParameter;
+import parameters.ExternalParameter;
 import parameters.InternalParameter;
 import utils.Alerter;
 import utils.FileUtils;
@@ -57,11 +57,11 @@ public class ProjectExporter {
 
             // Handling environment parameters
             JSONObject environmentObject = new JSONObject();
-            for (EnvironmentParameter env : model.getEnvironmentParameters()) {
+            for (ExternalParameter env : model.getExternalParameters()) {
                 JSONObject envObj = new JSONObject();
                 envObj.put("name", env.getName());
-                envObj.put("type", env.getCalculation());
-                envObj.put("dataFile", env.getFilePath());
+                envObj.put("type", env.getType());
+                envObj.put("value", env.getValue());
                 environmentObject.put(env.getName(), envObj);
             }
             parametersObject.put("environment", environmentObject);

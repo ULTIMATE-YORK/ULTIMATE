@@ -1,14 +1,14 @@
 package parameters;
 
-public class EnvironmentParameter {
+public class ExternalParameter {
     private String name;
-    private String filePath;
-    private String calculation;
+    private String type;
+    private String value;
     
-    public EnvironmentParameter(String name, String filePath, String calculation) {
+    public ExternalParameter(String name, String type, String value) {
         this.name = name;
-        this.filePath = filePath;
-        this.calculation = calculation;
+        this.type = type;
+        this.value = value;
     }
     
     // GETTER METHODS
@@ -17,12 +17,12 @@ public class EnvironmentParameter {
     	return this.name;	
     }
     
-    public String getFilePath() {
-    	return this.filePath;
+    public String getType() {
+    	return this.type;
     }
     
-    public String getCalculation() {
-    	return this.calculation;
+    public String getValue() {
+    	return this.value;
     }
     
     // SETTER METHODS
@@ -31,14 +31,14 @@ public class EnvironmentParameter {
     	this.name = newName;
     }
     
-    public void setFilePath(String newFilePath) {
-    	this.filePath = newFilePath;
+    public void setType(String newtype) {
+    	this.type = newtype;
     }
     
-    public void setCalculation(String newCalculation) {
-    	this.calculation = newCalculation;
+    public void setValue(String newValue) {
+    	this.value = newValue;
     }
     public String toString() {
-    	return getName() + ", " + getFilePath() + ", " + getCalculation();
+    	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + value + "\n";
     }
 }

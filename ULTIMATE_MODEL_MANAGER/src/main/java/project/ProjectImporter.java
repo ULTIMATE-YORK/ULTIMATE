@@ -12,7 +12,7 @@ import java.util.Set;
 import org.json.JSONObject;
 import model.Model;
 import parameters.DependencyParameter;
-import parameters.EnvironmentParameter;
+import parameters.ExternalParameter;
 import parameters.InternalParameter;
 import utils.Alerter;
 
@@ -94,8 +94,8 @@ public class ProjectImporter {
                     JSONObject envObj = environmentObject.getJSONObject(envName);
                     String filePathEnv = envObj.getString("dataFile");
                     String calculation = envObj.getString("type");
-                    EnvironmentParameter envParam = new EnvironmentParameter(envName, filePathEnv, calculation);
-                    model.addEnvironmentParameter(envParam);
+                    ExternalParameter envParam = new ExternalParameter(envName, filePathEnv, calculation);
+                    model.addExternalParameter(envParam);
                 });
             }
 			break;
