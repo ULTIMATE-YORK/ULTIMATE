@@ -1,9 +1,0 @@
-//Requirement
-P=?[F step=2 & object=2 & detected] / P=? [F step=2 & object=2] 
-
-//{ ( -34 ) pLow - 14 pMed + 49  | 50  }
-//(-34*pLow -14*pMed + 49) / 50
-
-
-pDetected = P=?[F step=2 & detected]
-//(19*pMed+152*pLow+113)/(2000)
