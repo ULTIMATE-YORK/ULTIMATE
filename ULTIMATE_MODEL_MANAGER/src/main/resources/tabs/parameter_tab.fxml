@@ -35,22 +35,7 @@
              		maxWidth="Infinity" />
   	 		</content>
 		</ScrollPane>
-
-      	<!-- Environment Parameters VBox -->
-		<VBox spacing="10.0" VBox.vgrow="ALWAYS">
-  			<children>
-    		<HBox alignment="CENTER" spacing="10.0">
-      			<children>
-        			<Label text="Environment Parameters" />
-        			<Button fx:id="addEnvironmentParamButton"  mnemonicParsing="false" text="+" />
-      			</children>
-    		</HBox>
-    		
-    		<ListView fx:id="eParamList" VBox.vgrow="ALWAYS">
-    		</ListView>
-  			</children>
-		</VBox>
-
+		
 		<!-- Dependency Parameters VBox -->
 		<VBox spacing="10.0" VBox.vgrow="ALWAYS">
   			<children>
@@ -67,7 +52,22 @@
   			</children>
 		</VBox>
 
-		<!-- Internal Parameters VBox -->
+      	<!-- Environment Parameters VBox -->
+		<VBox spacing="10.0" VBox.vgrow="ALWAYS">
+  			<children>
+    		<HBox alignment="CENTER" spacing="10.0">
+      			<children>
+        			<Label text="External Parameters" />
+        			<Button fx:id="addExternalParamButton"  onAction="#addEParam" mnemonicParsing="false" text="+" />
+      			</children>
+    		</HBox>
+    		
+    		<ListView fx:id="eParamList" VBox.vgrow="ALWAYS">
+    		</ListView>
+  			</children>
+		</VBox>
+
+		<!-- Internal Parameters VBox 
        <VBox spacing="10.0" VBox.vgrow="ALWAYS">
         	<children>
            	<HBox alignment="CENTER" spacing="10.0">
@@ -82,7 +82,8 @@
          
          </children>
       </VBox>
-   
+   	  -->
+   	  
    	</children>
    </VBox>
 
