@@ -1,10 +1,6 @@
 package verification;
 
-
-import verification.DependencyGraph;
-import verification.Equation;
 //import verification_engine.prism.PrismAPI;
-import verification.StormAPI;
 import prism.PrismException;
 import utils.FileUtils;
 
@@ -17,8 +13,13 @@ import parameters.DependencyParameter;
 
 import java.io.FileNotFoundException;
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PMCVerification {
+    
+	private static final Logger logger = LoggerFactory.getLogger(PMCVerification.class);
+
     static class VerificationModel {
         private String modelId;
         private HashMap<String, Double> parameters;
@@ -30,7 +31,7 @@ public class PMCVerification {
         
         public void setParameter(String paramName, double value) {
             this.parameters.put(paramName, value);
-            System.out.println("    → Setting parameter " + paramName + " = " + value + " for model " + modelId);
+            logger.info("    → Setting parameter " + paramName + " = " + value + " for model " + modelId);
         }
         
         public HashMap<String, Double> getParameters() {
@@ -73,7 +74,7 @@ public class PMCVerification {
     }
 
     private void initializeFromModels(ArrayList<Model> models) {
-        System.out.println("Initializing verification from models...");
+        logger.info("Initializing verification from models...");
         
         // Create VerificationModel objects
         for (Model model : models) {
@@ -97,7 +98,7 @@ public class PMCVerification {
             }
         }
 
-        System.out.println("Found SCCs: " + sccs);
+        logger.info("Found SCCs: " + sccs);
     }
 
     public double verify(String startModelId, String property) {
@@ -115,39 +116,39 @@ public class PMCVerification {
     }
 
     private double verifyModel(VerificationModel verificationModel, String property) throws FileNotFoundException, PrismException {
-        System.out.println("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
+        logger.info("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
         
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
-        System.out.println("Current SCC: " + currentSCC);
+        logger.info("Current SCC: " + currentSCC);
         
         for (VerificationModel model : currentSCC) {
-            System.out.println("\nProcessing model: " + model);
+            logger.info("\nProcessing model: " + model);
             List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
-            System.out.println("Dependencies found: " + dependencies);
+            logger.info("Dependencies found: " + dependencies);
             
             for (DependencyParameter dep : dependencies) {
                 VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
                 List<VerificationModel> targetSCC = sccMap.get(targetModel);
                 
                 if (!targetSCC.equals(currentSCC)) {
-                    System.out.println("  Processing dependency: " + dep);
-                    System.out.println("  Target model " + targetModel + " is in different SCC: " + targetSCC);
+                    logger.info("  Processing dependency: " + dep);
+                    logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
                     double result = verifyModel(targetModel, dep.getDefinition());
                     model.setParameter(dep.getName(), result); 
                     
                 } else {
-                    System.out.println("  Skipping dependency: " + dep + " (same SCC)");
+                    logger.info("  Skipping dependency: " + dep + " (same SCC)");
                 }
             }
         }
         
         if (currentSCC.size() > 1) {
-            System.out.println("\nResolving SCC for models: " + currentSCC);
+            logger.info("\nResolving SCC for models: " + currentSCC);
             resolveSCC(currentSCC);
         }
         
         double result = performPMC(verificationModel, property);
-        System.out.println("Final PMC result for " + verificationModel + ": " + result);
+        logger.info("Final PMC result for " + verificationModel + ": " + result);
         return result;
     }
     
@@ -155,24 +156,24 @@ public class PMCVerification {
 //        Map<String, String> equations = new HashMap<>();
 //        List<Map.Entry<VerificationModel, String>> paramList = new ArrayList<>();
 //        
-//        System.out.println("Starting SCC resolution for models: " + sccModels);
+//        logger.info("Starting SCC resolution for models: " + sccModels);
 //        
 //        for (VerificationModel model : sccModels) {
-//            System.out.println("\nGetting dependencies for model: " + model);
+//            logger.info("\nGetting dependencies for model: " + model);
 //            for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
 //                VerificationModel targetModel = modelMap.get(dep.getModelID());
 //                if (sccModels.contains(targetModel)) {
 //                    String equation = getRationalFunction(targetModel, dep.getDefinition());
-//                    System.out.println("  Adding equation: " + dep.getName() + " = " + equation);
+//                    logger.info("  Adding equation: " + dep.getName() + " = " + equation);
 //                    equations.put(dep.getName(), equation);
 //                    paramList.add(new AbstractMap.SimpleEntry<>(model, dep.getName()));
 //                }
 //            }
 //        }
 //        
-//        System.out.println("\nSolving equations: " + equations);
+//        logger.info("\nSolving equations: " + equations);
 //        Map<String, Double> solution = solveEquations(equations);
-//        System.out.println("Solutions found: " + solution);
+//        logger.info("Solutions found: " + solution);
 //        
 //        for (Map.Entry<VerificationModel, String> param : paramList) {
 //            param.getKey().setParameter(param.getValue(), solution.get(param.getValue()));
@@ -181,7 +182,7 @@ public class PMCVerification {
     
     private void resolveSCC(List<VerificationModel> sccModels) {
     	 mXparser.consolePrintln(false);  // Disable mXparser console output
-        System.out.println("Starting SCC resolution for models: " + sccModels);
+        logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables
         List<String> equations = new ArrayList<>();
@@ -190,14 +191,14 @@ public class PMCVerification {
 
         // Collect equations and variables
         for (VerificationModel model : sccModels) {
-            System.out.println("\nGetting dependencies for model: " + model);
+            logger.info("\nGetting dependencies for model: " + model);
             for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
                 VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
                 
                 if (sccModels.contains(targetModel)) {
                     String rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), null);
                     String equation = dep.getName() + " = " + rationalFunction;
-                    System.out.println("  Adding equation: " + equation);
+                    logger.info("  Adding equation: " + equation);
                     
                     // Transform equation to standard form f(x) = 0
                     String transformedEq = transformEquation(equation);
@@ -210,9 +211,9 @@ public class PMCVerification {
 
         // Convert variables set to array for ordering
         String[] variables = variableSet.toArray(new String[0]);
-        System.out.println("\nSolving equation system:");
-        System.out.println("Variables: " + Arrays.toString(variables));
-        System.out.println("Equations: " + equations);
+        logger.info("\nSolving equation system:");
+        logger.info("Variables: " + Arrays.toString(variables));
+        logger.info("Equations: " + equations);
 
         // Initialize arguments with starting values
         Argument[] args = new Argument[variables.length];
@@ -227,7 +228,7 @@ public class PMCVerification {
         Map<String, Double> solutions = new HashMap<>();
 
         for (int iteration = 0; iteration < maxIterations && !converged; iteration++) {
-            System.out.println("\nIteration " + (iteration + 1) + ":");
+            logger.info("\nIteration " + (iteration + 1) + ":");
             boolean iterationConverged = true;
 
             // Solve for each variable
@@ -241,7 +242,7 @@ public class PMCVerification {
                 
                 double newValue = e.calculate();
                 if (Double.isNaN(newValue)) {
-                    System.out.println("  Failed to solve for " + variable);
+                    logger.info("  Failed to solve for " + variable);
                     continue;
                 }
 
@@ -255,20 +256,20 @@ public class PMCVerification {
                 // Update value
                 args[i].setArgumentValue(newValue);
                 solutions.put(variable, newValue);
-                System.out.println("  " + variable + " = " + newValue);
+                logger.info("  " + variable + " = " + newValue);
             }
 
             converged = iterationConverged;
         }
 
         if (!converged) {
-            System.out.println("\nWarning: Maximum iterations reached without convergence");
+            logger.info("\nWarning: Maximum iterations reached without convergence");
         }
 
         // Set the solved values to the models
-        System.out.println("\nFinal solutions:");
+        logger.info("\nFinal solutions:");
         for (Map.Entry<String, Double> solution : solutions.entrySet()) {
-            System.out.println(solution.getKey() + " = " + solution.getValue());
+            logger.info(solution.getKey() + " = " + solution.getValue());
             for (VerificationModel model : sccModels) {
                 model.setParameter(solution.getKey(), solution.getValue());
             }
@@ -296,7 +297,7 @@ public class PMCVerification {
     }
     
     private String getRationalFunction(VerificationModel model, String property, List<String> paramNames) {
-        System.out.println("Performing parametric MC for " + model + " with property " + property);
+        logger.info("Performing parametric MC for " + model + " with property " + property);
         
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
@@ -304,7 +305,7 @@ public class PMCVerification {
         }
         StormAPI sAPI = new StormAPI();
         String equationStr = sAPI.runPars(originalModel, property);
-        System.out.println("Received equation: " + equationStr);
+        logger.info("Received equation: " + equationStr);
 
         return equationStr;
     }
@@ -312,7 +313,7 @@ public class PMCVerification {
     
 
     private double performPMC(VerificationModel model, String property) throws FileNotFoundException, PrismException {
-        System.out.println("Performing PMC for " + model + " with property " + property);
+        logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
