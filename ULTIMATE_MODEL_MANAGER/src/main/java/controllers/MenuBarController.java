@@ -75,7 +75,7 @@ public class MenuBarController {
 	}
 	
 	@FXML private void saveAs() {
-		String location = DialogOpener.openSaveDialog(sharedContext.getMainStage());
+		String location = DialogOpener.openUltimateSaveDialog(sharedContext.getMainStage());
 		// deal with cancel neatly
 		if (location == null) {
 			return;

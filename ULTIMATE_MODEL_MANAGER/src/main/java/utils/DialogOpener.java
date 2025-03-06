@@ -40,7 +40,7 @@ public class DialogOpener {
 	    return (selectedFile != null) ? selectedFile.getAbsolutePath() : null; 
 	}
 	
-	public static String openSaveDialog(Stage stage) {
+	public static String openUltimateSaveDialog(Stage stage) {
 	    DirectoryChooser directoryChooser = new DirectoryChooser();
 	    directoryChooser.setTitle("Choose Save Directory");
 	    File selectedDirectory = directoryChooser.showDialog(stage);
@@ -54,6 +54,14 @@ public class DialogOpener {
 	        return (selectedFile != null) ? selectedFile.getAbsolutePath() : null;
 	    }
 	    return null;
+	}
+	
+	public static String openLogsSaveDialog(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Ultimate Log files (*.ulog)", "*.ulog"));
+        File selectedFile = fileChooser.showSaveDialog(stage);
+        return (selectedFile != null) ? selectedFile.getAbsolutePath() : null;
 	}
 	
 	public static void openDialogWindow(Stage ownerStage, String path, String title) throws IOException {

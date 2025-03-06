@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.*?>
+<?import javafx.scene.text.TextFlow?>
 
 <Tab text="Logs" xmlns:fx="http://javafx.com/fxml" fx:controller="controllers.LogController" >
     
@@ -28,13 +29,17 @@
       
       <HBox spacing="10.0" alignment="CENTER" >
           
-          <Button text="Copy Logs"/>
-          <Button text="Save Logs to file"/>
+          <Button fx:id="saveLogs" onAction="#saveLogs" text="Save Logs to file"/>
           <!-- Ensure TextField expands within HBox -->
               
       </HBox>
 	  
-	  <TextArea fx:id="logsField" editable="false" VBox.vgrow="ALWAYS" />
+	        <!-- Wrap TextFlow in a ScrollPane to enable scrolling and add borders -->
+      <ScrollPane VBox.vgrow="ALWAYS" fitToWidth="true" style="-fx-border-color: gray; -fx-border-width: 1;">
+        <content>
+          <TextFlow fx:id="logsField" />
+        </content>
+      </ScrollPane>
 	
 	</VBox>     
       
