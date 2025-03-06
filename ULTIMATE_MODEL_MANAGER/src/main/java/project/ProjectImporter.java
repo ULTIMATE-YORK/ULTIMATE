@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import model.Model;
 import parameters.DependencyParameter;
@@ -72,6 +74,11 @@ public class ProjectImporter {
 	            deserializeParameters(parametersObject, model, parameterType, models);
 	        }
 	        model.addUncategorisedParametersFromFile();
+	        // add the properties
+	        JSONArray properties = modelObjects.get(model.getModelId()).getJSONArray("properties");
+	        for (int i = 0; i < properties.length(); i++) {
+	        	model.addProperty(properties.getString(i));
+	        }
 		});
 		return models;
 	}

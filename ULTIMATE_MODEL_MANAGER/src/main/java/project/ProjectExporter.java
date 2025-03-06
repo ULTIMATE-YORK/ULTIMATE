@@ -6,6 +6,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Set;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -13,6 +14,7 @@ import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
 import parameters.InternalParameter;
+import property.Property;
 import utils.Alerter;
 import utils.FileUtils;
 
@@ -74,8 +76,15 @@ public class ProjectExporter {
                 internalObject.put(internal.getName(), internalObj);
             }
             parametersObject.put("internal", internalObject);
+            
+            // the properties
+            JSONArray propertiesArray = new JSONArray();
+            for (Property p : model.getProperties()) {
+            	propertiesArray.put(p.getProperty());
+            }
 
             modelObject.put("parameters", parametersObject);
+            modelObject.put("properties", propertiesArray);
             modelsObject.put(model.getModelId(), modelObject);
         }
 

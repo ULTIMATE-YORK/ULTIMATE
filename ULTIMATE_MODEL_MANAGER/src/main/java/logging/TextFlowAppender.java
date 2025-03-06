@@ -5,8 +5,6 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import javafx.application.Platform;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class TextFlowAppender extends AppenderBase<ILoggingEvent> {
     // A static reference to the TextFlow where log messages will be displayed.

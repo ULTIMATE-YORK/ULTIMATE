@@ -10,7 +10,8 @@
                 "name": "pDetected",
                 "property": "P=?[F step=2 & detected]"
             }}
-        }
+        },
+        "properties": []
     },
     "MotionSensor": {
         "fileName": "MotionSensor.prism",
@@ -22,14 +23,15 @@
                 "pLow": {
                     "modelId": "SmartLighting",
                     "name": "pLow",
-                    "property": "R{\\\"low\\\"}=? [C<=10000]"
+                    "property": "R{\\\\\\\"low\\\\\\\"}=? [C<=10000]"
                 },
                 "pMed": {
                     "modelId": "SmartLighting",
                     "name": "pMed",
-                    "property": "R{\\\"medium\\\"}=? [C<=10000]"
+                    "property": "R{\\\\\\\"medium\\\\\\\"}=? [C<=10000]"
                 }
             }
-        }
+        },
+        "properties": ["P=?[F step=2 & object=2 & detected]"]
     }
 }}

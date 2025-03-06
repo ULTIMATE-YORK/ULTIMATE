@@ -26,7 +26,7 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-    private List<InternalParameter> internalParameters; // List of internal parameters
+   private List<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     
