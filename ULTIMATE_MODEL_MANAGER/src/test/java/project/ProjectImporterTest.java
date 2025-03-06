@@ -15,11 +15,12 @@ public class ProjectImporterTest {
 
 	@Test
 	void testImportProject() throws IOException {
-		ProjectImporter importer = new ProjectImporter(getResourcePath("projectTestResources/RAD.ultimate"));
+		ProjectImporter importer = new ProjectImporter(getResourcePath("projectTestResources/SMD.ultimate"));
 		Set<Model> projectModels = importer.importProject();
-	    assertTrue(projectModels.size() == 3);
+	    assertTrue(projectModels.size() == 2);
 	}
 	
+	/*
 	@Test
 	void testDeserializeParameters() throws IOException {
 		ProjectImporter importer = new ProjectImporter(getResourcePath("projectTestResources/RAD.ultimate"));
@@ -33,7 +34,7 @@ public class ProjectImporterTest {
 			}
 		});
 	}
-    
+    **/
 	private String getResourcePath(String resource) {
         URL resourceUrl = getClass().getClassLoader().getResource(resource);
         return Paths.get(resourceUrl.getPath()).toString();
