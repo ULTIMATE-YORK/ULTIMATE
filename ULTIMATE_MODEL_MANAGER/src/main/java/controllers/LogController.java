@@ -28,6 +28,9 @@ public class LogController {
     @FXML
     private void saveLogs() {
     	String filePath = DialogOpener.openLogsSaveDialog(sharedContext.getMainStage());
+    	if (filePath == null) {
+    		return;
+    	}
         StringBuilder textContent = new StringBuilder();
         for (var node : logsField.getChildren()) {
             if (node instanceof Text) {
