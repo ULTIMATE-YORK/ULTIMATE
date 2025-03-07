@@ -33,13 +33,6 @@ public class DialogOpener {
 	    return (selectedFile != null) ? selectedFile.getAbsolutePath() : null; 
 	}
 	
-	public static String openDataFileDialog(Stage stage) {
-	    FileChooser fileChooser = new FileChooser();
-	    fileChooser.setTitle("Choose a Data File");
-	    File selectedFile = fileChooser.showOpenDialog(stage);
-	    return (selectedFile != null) ? selectedFile.getAbsolutePath() : null; 
-	}
-	
 	public static String openUltimateSaveDialog(Stage stage) {
 	    DirectoryChooser directoryChooser = new DirectoryChooser();
 	    directoryChooser.setTitle("Choose Save Directory");

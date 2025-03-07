@@ -1,16 +1,22 @@
 package controllers;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import parameters.ExternalParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
-import utils.DialogOpener;
 
 public class EditExternalParameter {
 	
@@ -27,6 +33,8 @@ public class EditExternalParameter {
     private Project project = sharedContext.getProject();
     
     private ExternalParameter ep;
+    
+	private static final Logger logger = LoggerFactory.getLogger(EditExternalParameter.class);
     
 	@FXML
 	private void initialize() {
@@ -64,7 +72,7 @@ public class EditExternalParameter {
 	
 	@FXML
 	private void chooseDataFile() {
-		dataFile = DialogOpener.openDataFileDialog(sharedContext.getMainStage());
+		dataFile = openDataFileDialog(sharedContext.getMainStage());
 	}
 	
 	@FXML
@@ -74,6 +82,17 @@ public class EditExternalParameter {
 		if (dataFile == null) {
 			value = chooseText.getText();
 			// check its a number
+			try {
+			    double doubleValue = Double.parseDouble(value);
+		        if (!(doubleValue >= 0.0 && doubleValue <= 1.0)) {
+		            // Value is a valid double in the range [0.0, 1.0]
+		            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
+		            return;
+		        }
+			} catch (NumberFormatException e) {
+	            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
+	            return;
+			}
 		}
 		else {
 			value = dataFile;
@@ -84,10 +103,14 @@ public class EditExternalParameter {
 			return;
 		}
 		else {
-			ExternalParameter eParam = new ExternalParameter(ep.getName(), type, value);
-			project.getCurrentModel().addExternalParameter(eParam);
-			project.getCurrentModel().removeExternalParameter(ep);
-			closeDialog();
+			try {
+				ExternalParameter eParam = new ExternalParameter(ep.getName(), type, value);
+				project.getCurrentModel().addExternalParameter(eParam);
+				project.getCurrentModel().removeExternalParameter(ep);
+				closeDialog();
+			} catch (IOException e) {
+				
+			}
 		}
 	}
 	
@@ -99,6 +122,37 @@ public class EditExternalParameter {
 	
 	public void setEP(ExternalParameter ep) {
 		this.ep = ep;
+	}
+	
+	private String openDataFileDialog(Stage stage) {
+	    FileChooser fileChooser = new FileChooser();
+	    fileChooser.setTitle("Choose a Data File");
+	    // Set the initial directory (change the path to your specific directory)
+	    File initialDir = new File(project.directory());
+	    if(initialDir.exists() && initialDir.isDirectory()){
+	        fileChooser.setInitialDirectory(initialDir);
+	    }
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Data files (*.dat, *txt)", "*.dat", "*.txt"));
+	    File selectedFile = fileChooser.showOpenDialog(stage);
+	    // Check if the file is in the desired directory
+	    if (selectedFile != null) {
+	        try {
+	            // Get the canonical paths to compare accurately (handles symbolic links, etc.)
+	            String selectedPath = selectedFile.getCanonicalPath();
+	            String allowedDirPath = initialDir.getCanonicalPath();
+
+	            if (!selectedPath.startsWith(allowedDirPath)) {
+	                // The file is not in the allowed directory
+	            	Alerter.showErrorAlert("Data File must be in project directory!", "Choose a file from the same directory as the project");
+	                return null;
+	            }
+	        } catch (IOException e) {
+	        	logger.error(e.getMessage());
+	        	return null;
+	        }
+	        return selectedFile.getName();
+	    }
+	    return null; 
 	}
 
 }

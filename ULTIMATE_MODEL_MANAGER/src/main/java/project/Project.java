@@ -3,6 +3,7 @@ package project;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,9 +32,11 @@ public class Project {
 	private String stormInstall = null;
 	private String stormParsInstall = null;
 	private String saveLocation; // set when a project has been saved as, used for subsequent saves
+	private String directory;
     private SharedContext sharedContext = SharedContext.getInstance();
 	
 	public Project(String projectPath) throws IOException {
+		this.directory = getDirectory(projectPath);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
@@ -191,6 +194,18 @@ public class Project {
             	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
         	}
         }
+	}
+	
+	/*
+	 * Gets the directory of the project
+	 */
+	private String getDirectory(String projectPath) {
+        Path path = Paths.get(projectPath);
+        return path.toAbsolutePath().getParent().toString(); // Get directory
+	}
+	
+	public String directory() {
+		return this.directory;
 	}
 }
 	
