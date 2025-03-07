@@ -518,31 +518,28 @@ public class PMCVerification {
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
             System.err.println("Error running Storm: " + stormException.getMessage());
-            return PrismAPI.run(originalModel, property, true);
-
         }
         
-//        // Try with PRISM as first fallback
-//        System.out.println("Trying fallback with PRISM API...");
-//        try {
-//            return PrismAPI.run(originalModel, property, true);
-//        } catch (Exception prismException) {
-//            // Extract just the error message without stack trace
-//            System.err.println("Error running PRISM API: " + prismException.getMessage());
-//        }
-//        
+        // Try with PRISM as first fallback
+        System.out.println("Trying fallback with PRISM API...");
+        try {
+            return PrismAPI.run(originalModel, property, true);
+        } catch (Exception prismException) {
+            // Extract just the error message without stack trace
+            System.err.println("Error running PRISM API: " + prismException.getMessage());
+        }
+        
         // Try with PrismProcessAPI as second fallback
-//        System.out.println("Trying second fallback with PRISM Process API...");
-//        try {
-//            String prismPath = "/Users/sinem/Documents/prism-4.8.1-mac64-arm/bin/prism";
-//            return verification_engine.prism.PrismProcessAPI.run(originalModel, property, prismPath);
-//        } catch (IOException prismProcessException) {
-//            // Extract just the error message without stack trace
-//            System.err.println("Error running PRISM Process API: " + prismProcessException.getMessage());
-//            // Only throw if all attempts fail
-//            throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
-//                                      ": " + prismProcessException.getMessage());
-//        }
+        System.out.println("Trying second fallback with PRISM Process API...");
+        try {
+            String prismPath = "/Users/sinem/Documents/prism-4.8.1-mac64-arm/bin/prism";
+            return verification_engine.prism.PrismProcessAPI.run(originalModel, property, prismPath);
+        } catch (IOException prismProcessException) {
+            System.err.println("Error running PRISM Process API: " + prismProcessException.getMessage());
+            // Only throw if all attempts fail
+            throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
+                                      ": " + prismProcessException.getMessage());
+        }
     }
     
     private Model getOriginalModel(String modelId) {
