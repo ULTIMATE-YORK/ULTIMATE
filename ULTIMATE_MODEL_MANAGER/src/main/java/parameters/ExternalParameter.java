@@ -22,6 +22,7 @@ public class ExternalParameter {
         this.name = name;
         this.type = type;
         this.value = value;
+        System.out.print("Name: " + name + " Type: " + type + " Value: " + project.directory() + value + "\n");
         if (!verifyFile()) {
         	Platform.runLater(() -> Alerter.showErrorAlert("Could not create External Paramater", "The file format is invalid."));
             throw new IllegalArgumentException("Invalid file format!");
@@ -167,7 +168,12 @@ public class ExternalParameter {
     
     public String toString() {
     	try {
-        	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\n";
+    		if (type.equals("Fixed")) {
+            	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\n";
+    		}
+    		else {
+            	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\nSource: " + value + "\n";
+    		}
     	} finally {}
     }
 }

@@ -37,6 +37,7 @@ public class Project {
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
+        sharedContext.setProject(this);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		models = importer.importProject();
@@ -45,7 +46,6 @@ public class Project {
         // Initialise the observable list with the contents of the set
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
-        sharedContext.setProject(this);
         if (sharedContext.getMainStage() != null) {
     		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
 

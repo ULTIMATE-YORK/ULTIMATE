@@ -99,10 +99,10 @@ public class ProjectImporter {
             if (environmentObject != null) {
                 environmentObject.keySet().forEach(envName -> {
                     JSONObject envObj = environmentObject.getJSONObject(envName);
-                    String filePathEnv = envObj.getString("dataFile");
-                    String calculation = envObj.getString("type");
+                    String type = envObj.getString("type");
+                    String value = envObj.getString("value");
                     try {
-                        ExternalParameter envParam = new ExternalParameter(envName, filePathEnv, calculation);
+                        ExternalParameter envParam = new ExternalParameter(envName, type, value);
                         model.addExternalParameter(envParam);
                     } catch (IOException e) {
                     	

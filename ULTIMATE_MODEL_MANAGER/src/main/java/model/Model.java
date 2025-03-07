@@ -220,9 +220,10 @@ public class Model {
         try {
             List<String> params = parser.parseFile(this.getFilePath());
             for (String parsedParam : params) {
-                boolean exists = dependencyParameters.stream()
+                boolean dexists = dependencyParameters.stream()
                     .anyMatch(dp -> dp.getName().equals(parsedParam));
-                if (!exists) {
+                boolean eexists = externalParameters.stream().anyMatch(ep -> ep.getName().equals(parsedParam));
+                if (!dexists && !eexists) {
                     this.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
                 }
             }
