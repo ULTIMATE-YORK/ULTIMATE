@@ -43,6 +43,10 @@ public class ExternalParameter {
     	return this.value;
     }
     
+	public double getLearnedValue() {
+		return this.learnedValue;
+	}
+    
     // SETTER METHODS
     
     public void setName(String newName) {
