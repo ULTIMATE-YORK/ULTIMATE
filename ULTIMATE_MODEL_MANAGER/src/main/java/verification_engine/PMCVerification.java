@@ -1,6 +1,5 @@
 package verification_engine;
 
-
 import verification_engine.graph_generator.DependencyGraph;
 import verification_engine.graph_generator.Equation;
 import verification_engine.prism.PrismAPI;
@@ -8,12 +7,12 @@ import verification_engine.storm.StormAPI;
 import model.persistent_objects.*;
 import prism.PrismException;
 import utils.ModelUtils;
-//import com.irurueta.mathsolver.MathSolver;
-//import com.irurueta.mathsolver.NonLinearEquation;
 import org.mariuszgromada.math.mxparser.*;
 
-
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
+import java.io.InputStreamReader;
+import java.io.IOException;
 import java.util.*;
 
 public class PMCVerification {
@@ -61,13 +60,56 @@ public class PMCVerification {
     private Map<String, VerificationModel> modelMap;
     private Map<VerificationModel, List<VerificationModel>> sccMap;
     private ArrayList<Model> originalModels;
-
+    private boolean usePythonSolver = false;
+    private String pythonSolverPath = "/Users/sinem/Documents/research/ULTIMATE/WorldModel/numerical_solver/ULTIMATE_numerical_solver.py";
+    private String modelsBasePath = "";
+    
     public PMCVerification(ArrayList<Model> models) {
-    	License.iConfirmNonCommercialUse("Sinem, University of York");  // Add this line to confirm license
-    	mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        License.iConfirmNonCommercialUse("Sinem, University of York");  // Add this line to confirm license
+        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
+    }
+    
+    public void setPythonSolverPath(String path) {
+        this.pythonSolverPath = path;
+    }
+    
+    public void setModelsBasePath(String path) {
+        this.modelsBasePath = path;
+    }
+    
+    /**
+     * Determines the file extension for a model (.dtmc, .ctmc, etc.)
+     * @param model The model to check
+     * @return The file extension including the dot
+     */
+    private String determineModelExtension(Model model) {
+        if (model == null) {
+            return ".dtmc"; // Default to DTMC if model not found
+        }
+        
+        // Try to infer model type from the file path
+        String filePath = model.getFilePath();
+        if (filePath != null && !filePath.isEmpty()) {
+            // Extract extension from file path if it exists
+            if (filePath.endsWith(".dtmc")) {
+                return ".dtmc";
+            } else if (filePath.endsWith(".ctmc")) {
+                return ".ctmc";
+            } else if (filePath.endsWith(".mdp")) {
+                return ".mdp";
+            } else if (filePath.endsWith(".prism")) {
+                return ".prism";
+            }
+            
+            // If the file path doesn't have a recognizable extension,
+            // we can try to look for keywords in the file content or property files
+            // For now, we'll default to .dtmc
+        }
+        
+        return ".dtmc"; // Default to DTMC for most models
     }
 
     private void initializeFromModels(ArrayList<Model> models) {
@@ -98,41 +140,61 @@ public class PMCVerification {
         System.out.println("Found SCCs: " + sccs);
     }
 
-    public double verify(String startModelId, String property) throws FileNotFoundException, PrismException {
+    public double verify(String startModelId, String property) throws PrismException, IOException {
         VerificationModel startModel = modelMap.get(startModelId);
         return verifyModel(startModel, property);
     }
 
-    private double verifyModel(VerificationModel verificationModel, String property) throws FileNotFoundException, PrismException {
+    private double verifyModel(VerificationModel verificationModel, String property) throws PrismException, IOException {
         System.out.println("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
         
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
         System.out.println("Current SCC: " + currentSCC);
         
-        for (VerificationModel model : currentSCC) {
-            System.out.println("\nProcessing model: " + model);
-            List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
-            System.out.println("Dependencies found: " + dependencies);
-            
-            for (DependencyParameter dep : dependencies) {
-                VerificationModel targetModel = modelMap.get(dep.getModelID());
-                List<VerificationModel> targetSCC = sccMap.get(targetModel);
+        // Check if we need to use Python solver for this SCC
+        if (!usePythonSolver) {
+            for (VerificationModel model : currentSCC) {
+                System.out.println("\nProcessing model: " + model);
+                List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
+                System.out.println("Dependencies found: " + dependencies);
                 
-                if (!targetSCC.equals(currentSCC)) {
-                    System.out.println("  Processing dependency: " + dep);
-                    System.out.println("  Target model " + targetModel + " is in different SCC: " + targetSCC);
-                    double result = verifyModel(targetModel, dep.getDefinition());
-                    model.setParameter(dep.getName(), result); 
+                for (DependencyParameter dep : dependencies) {
+                    VerificationModel targetModel = modelMap.get(dep.getModelID());
+                    List<VerificationModel> targetSCC = sccMap.get(targetModel);
                     
-                } else {
-                    System.out.println("  Skipping dependency: " + dep + " (same SCC)");
+                    if (!targetSCC.equals(currentSCC)) {
+                        System.out.println("  Processing dependency: " + dep);
+                        System.out.println("  Target model " + targetModel + " is in different SCC: " + targetSCC);
+                        double result = verifyModel(targetModel, dep.getDefinition());
+                        model.setParameter(dep.getName(), result); 
+                    } else {
+                        System.out.println("  Skipping dependency: " + dep + " (same SCC)");
+                    }
                 }
             }
-        }
-        
-        if (currentSCC.size() > 1) {
-            System.out.println("\nResolving SCC for models: " + currentSCC);
-            resolveSCC(currentSCC);
+            
+            if (currentSCC.size() > 1) {
+                System.out.println("\nResolving SCC for models: " + currentSCC);
+                try {
+                    resolveSCC(currentSCC);
+                } catch (Exception e) {
+                    System.err.println("Failed to resolve SCC using parametric model checking: " + e.getMessage());
+                    System.out.println("Switching to Python numerical solver...");
+                    usePythonSolver = true;
+                    // Reset any partial parameter values that might have been calculated
+                    for (VerificationModel model : currentSCC) {
+                        model.getParameters().clear();
+                    }
+                    // Call Python solver
+                    resolveSCCWithPythonSolver(currentSCC);
+                }
+            }
+        } else {
+            // If we've already switched to Python solver, use it directly for this SCC
+            if (currentSCC.size() > 1) {
+                System.out.println("\nResolving SCC using Python solver for models: " + currentSCC);
+                resolveSCCWithPythonSolver(currentSCC);
+            }
         }
         
         double result = performPMC(verificationModel, property);
@@ -140,9 +202,168 @@ public class PMCVerification {
         return result;
     }
     
+    private void resolveSCCWithPythonSolver(List<VerificationModel> sccModels) {
+        System.out.println("Starting SCC resolution using Python solver for models: " + sccModels);
+        
+        try {
+            // Prepare input for Python solver
+            List<String> inputData = new ArrayList<>();
+            VerificationModel startVerificationModel = sccModels.get(0);
+            String startModelId = startVerificationModel.getModelId();
+            String pmcPath = "/Users/sinem/Desktop/storm/build/bin/storm"; // Update as needed
+            
+            // Get the file path of the start model
+            Model originalStartModel = getOriginalModel(startModelId);
+            if (originalStartModel == null) {
+                throw new RuntimeException("Could not find original model for ID: " + startModelId);
+            }
+            
+            String modelFilePath = originalStartModel.getFilePath();
+            if (modelFilePath == null || modelFilePath.isEmpty()) {
+                throw new RuntimeException("Model path is empty for model: " + startModelId);
+            }
+            
+            for (VerificationModel model : sccModels) {
+                Model originalModel = getOriginalModel(model.getModelId());
+                if (originalModel == null) {
+                    System.err.println("Warning: Could not find original model for ID: " + model.getModelId());
+                    continue;
+                }
+                
+                String currentModelFilePath = originalModel.getFilePath();
+                if (currentModelFilePath == null || currentModelFilePath.isEmpty()) {
+                    System.err.println("Warning: File path is empty for model: " + model.getModelId());
+                    continue;
+                }
+                
+                for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
+                    VerificationModel targetModel = modelMap.get(dep.getModelID());
+                    
+                    if (sccModels.contains(targetModel)) {
+                        Model originalTargetModel = getOriginalModel(targetModel.getModelId());
+                        if (originalTargetModel == null) {
+                            System.err.println("Warning: Could not find original target model for ID: " + targetModel.getModelId());
+                            continue;
+                        }
+                        
+                        String targetModelFilePath = originalTargetModel.getFilePath();
+                        if (targetModelFilePath == null || targetModelFilePath.isEmpty()) {
+                            System.err.println("Warning: File path is empty for target model: " + targetModel.getModelId());
+                            continue;
+                        }
+                        
+                        // Format: "dependent_model, source_model, property, variable_name"
+                        String inputLine = currentModelFilePath + ", " + 
+                                           targetModelFilePath + ", " + 
+                                           dep.getDefinition() + ", " + 
+                                           dep.getName();
+                        inputData.add(inputLine);
+                    }
+                }
+            }
+            
+            if (inputData.isEmpty()) {
+                System.out.println("No dependencies found for SCC models. Skipping Python solver.");
+                return;
+            }
+            
+            // Build command for Python solver
+            List<String> command = new ArrayList<>();
+            command.add("/Library/Frameworks/Python.framework/Versions/3.11/bin/python3");
+            command.add(pythonSolverPath);
+            command.add("--pmc");
+            command.add(pmcPath);
+            command.add("--model");
+            command.add(modelFilePath);
+            command.add("--input");
+            command.addAll(inputData);
+            
+            System.out.println("Executing Python solver with command: ");
+            for (String cmd : command) {
+                System.out.print(cmd + " ");
+            }
+            System.out.println();
+            System.out.println("Input data:");
+            for (String input : inputData) {
+                System.out.println(input);
+            }
+            
+            // Execute Python solver
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.redirectErrorStream(true);
+            long startTime = System.currentTimeMillis();
+            Process process = processBuilder.start();
+            long endTime = System.currentTimeMillis();
+
+            // Read output
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            Map<String, Double> results = new HashMap<>();
+            
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+                
+                // Parse results from Python output
+                if (line.startsWith("Optimal parameters:")) {
+                    // Parse parameters from line like "Optimal parameters: {'param1': 0.123, 'param2': 0.456}"
+                    String paramsStr = line.substring(line.indexOf('{') + 1, line.lastIndexOf('}'));
+                    String[] params = paramsStr.split(", ");
+                    
+                    for (String param : params) {
+                        String[] keyValue = param.split(":");
+                        if (keyValue.length == 2) {
+                            String key = keyValue[0].trim().replace("'", "");
+                            double value = Double.parseDouble(keyValue[1].trim());
+                            results.put(key, value);
+                        }
+                    }
+                }
+            }
+            
+            int exitCode = process.waitFor();
+            System.out.println("Python solver exited with code: " + exitCode+" Time elapsed: "+(endTime-startTime));
+            
+            if (exitCode != 0) {
+                throw new RuntimeException("Python solver failed with exit code " + exitCode);
+            }
+            
+            // Set calculated parameters to models
+            if (!results.isEmpty()) {
+                for (Map.Entry<String, Double> entry : results.entrySet()) {
+                    String paramName = entry.getKey();
+                    Double paramValue = entry.getValue();
+                    
+                    // Find which model this parameter belongs to
+                    for (VerificationModel model : sccModels) {
+                        for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
+                            if (dep.getName().equals(paramName)) {
+                                model.setParameter(paramName, paramValue);
+                                break;
+                            }
+                        }
+                    }
+                }
+            } else {
+                throw new RuntimeException("Failed to get results from Python solver");
+            }
+            
+        } catch (IOException e) {
+            System.err.println("IOException when executing Python solver: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Failed to execute Python solver: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            System.err.println("Process interrupted: " + e.getMessage());
+            Thread.currentThread().interrupt(); // Restore interrupted state
+            throw new RuntimeException("Python solver process interrupted: " + e.getMessage(), e);
+        } catch (Exception e) {
+            System.err.println("Unexpected error during Python solver execution: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Python solver failed: " + e.getMessage(), e);
+        }
+    }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-    	 mXparser.consolePrintln(false);  // Disable mXparser console output
+        mXparser.consolePrintln(false);  // Disable mXparser console output
         System.out.println("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables
@@ -158,6 +379,13 @@ public class PMCVerification {
                 
                 if (sccModels.contains(targetModel)) {
                     String rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), null);
+                    
+                    // Check if rational function is null or empty
+                    if (rationalFunction == null || rationalFunction.trim().isEmpty()) {
+                        throw new RuntimeException("Failed to get rational function for " + dep.getName() + 
+                                                   " in model " + model.getModelId());
+                    }
+                    
                     String equation = dep.getName() + " = " + rationalFunction;
                     System.out.println("  Adding equation: " + equation);
                     
@@ -265,13 +493,16 @@ public class PMCVerification {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
 
-        String equationStr = StormAPI.runPars(originalModel, property, "/Users/sinem/Desktop/storm/build/bin/storm-pars");
-        System.out.println("Received equation: " + equationStr);
-
-        return equationStr;
+        try {
+            String equationStr = StormAPI.runPars(originalModel, property, "/Users/sinem/Desktop/storm/build/bin/storm-pars");
+            System.out.println("Received equation: " + equationStr);
+            return equationStr;
+        } catch (Exception e) {
+            System.err.println("Error in parametric model checking: " + e.getMessage());
+            System.out.println("Will try Python numerical solver instead");
+            return null;
+        }
     }
-    
-    
 
     private double performPMC(VerificationModel model, String property) throws FileNotFoundException, PrismException {
         System.out.println("Performing PMC for " + model + " with property " + property);
@@ -281,20 +512,38 @@ public class PMCVerification {
         }
         ModelUtils.updateModelFileResults(originalModel, model.getParameters());
 
+        // First try with Storm
         try {
             return StormAPI.run(originalModel, property, "/Users/sinem/Desktop/storm/build/bin/storm");
-        } catch (Exception e) {
-            System.err.println("Error running Storm: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Try with PRISM as fallback
-            System.out.println("Trying fallback with PRISM...");
+        } catch (Exception stormException) {
+            // Extract just the error message without stack trace
+            System.err.println("Error running Storm: " + stormException.getMessage());
             return PrismAPI.run(originalModel, property, true);
+
         }
-         
         
+//        // Try with PRISM as first fallback
+//        System.out.println("Trying fallback with PRISM API...");
+//        try {
+//            return PrismAPI.run(originalModel, property, true);
+//        } catch (Exception prismException) {
+//            // Extract just the error message without stack trace
+//            System.err.println("Error running PRISM API: " + prismException.getMessage());
+//        }
+//        
+        // Try with PrismProcessAPI as second fallback
+//        System.out.println("Trying second fallback with PRISM Process API...");
+//        try {
+//            String prismPath = "/Users/sinem/Documents/prism-4.8.1-mac64-arm/bin/prism";
+//            return verification_engine.prism.PrismProcessAPI.run(originalModel, property, prismPath);
+//        } catch (IOException prismProcessException) {
+//            // Extract just the error message without stack trace
+//            System.err.println("Error running PRISM Process API: " + prismProcessException.getMessage());
+//            // Only throw if all attempts fail
+//            throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
+//                                      ": " + prismProcessException.getMessage());
+//        }
     }
-    
     
     private Model getOriginalModel(String modelId) {
         for (Model model : originalModels) {
