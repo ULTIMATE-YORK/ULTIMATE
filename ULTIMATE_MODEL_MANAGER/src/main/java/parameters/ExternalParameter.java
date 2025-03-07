@@ -22,7 +22,6 @@ public class ExternalParameter {
         this.name = name;
         this.type = type;
         this.value = value;
-        System.out.print("Name: " + name + " Type: " + type + " Value: " + project.directory() + value + "\n");
         if (!verifyFile()) {
         	Platform.runLater(() -> Alerter.showErrorAlert("Could not create External Paramater", "The file format is invalid."));
             throw new IllegalArgumentException("Invalid file format!");
