@@ -109,7 +109,10 @@ public class ProjectExporter {
     private String formatDefinition(String definition) {
     	String formattedDef = "";
     	for (int i = 0; i < definition.length(); i++) {
-    		if (definition.charAt(i) == '"') {
+			if (definition.charAt(i) == '\\') {
+				;
+			}
+			else if (definition.charAt(i) == '"') {
     			formattedDef += '\\';
     			formattedDef += definition.charAt(i);
     		}

@@ -23,12 +23,12 @@
                 "pLow": {
                     "modelId": "SmartLighting",
                     "name": "pLow",
-                    "property": "R{\\\\\\\"low\\\\\\\"}=? [C<=10000]"
+                    "property": "R{\\\"low\\\"}=? [C<=10000]"
                 },
                 "pMed": {
                     "modelId": "SmartLighting",
                     "name": "pMed",
-                    "property": "R{\\\\\\\"medium\\\\\\\"}=? [C<=10000]"
+                    "property": "R{\\\"medium\\\"}=? [C<=10000]"
                 }
             }
         },
