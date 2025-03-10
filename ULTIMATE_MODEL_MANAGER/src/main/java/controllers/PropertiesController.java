@@ -84,9 +84,15 @@ public class PropertiesController {
 			PMCVerification verifier = new PMCVerification(models);
 
 			CompletableFuture.supplyAsync(() -> verifier.verify(vModel.getModelId(), vProp.getProperty()))
-			    .thenAccept(result -> Platform.runLater(() -> {
-			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
-			    }));
+		    .thenAccept(result -> Platform.runLater(() -> {
+		        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
+		    }))
+		    .exceptionally(ex -> {
+		        Platform.runLater(() -> {
+		            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
+		        });
+		        return null;
+		    });
 
 		}
 	}
