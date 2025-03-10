@@ -1,0 +1,84 @@
+{"models": {
+    "humanIntervention": {
+        "fileName": "humanIntervention.dtmc",
+        "id": "humanIntervention",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "p_r1": {
+                    "modelId": "robot1",
+                    "name": "p_r1",
+                    "property": "1 - Pmax=?[F done]"
+                },
+                "p_r2": {
+                    "modelId": "robot2",
+                    "name": "p_r2",
+                    "property": "1 - Pmax=?[F done]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "robot1": {
+        "fileName": "robot1.mdp",
+        "id": "robot1",
+        "parameters": {
+            "environment": {
+                "p_l1": {
+                    "name": "p_l1",
+                    "type": "Fixed",
+                    "value": "0.7"
+                },
+                "p_l2": {
+                    "name": "p_l2",
+                    "type": "Fixed",
+                    "value": "0.6"
+                },
+                "p_l3": {
+                    "name": "p_l3",
+                    "type": "Fixed",
+                    "value": "0.5"
+                },
+                "p_l4": {
+                    "name": "p_l4",
+                    "type": "Fixed",
+                    "value": "0.5"
+                },
+                "p_l9": {
+                    "name": "p_l9",
+                    "type": "Fixed",
+                    "value": "0.6"
+                },
+                "p_l5": {
+                    "name": "p_l5",
+                    "type": "Fixed",
+                    "value": "0.6"
+                },
+                "p_l6": {
+                    "name": "p_l6",
+                    "type": "Fixed",
+                    "value": "0.6"
+                },
+                "p_l8": {
+                    "name": "p_l8",
+                    "type": "Fixed",
+                    "value": "0.5"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "robot2": {
+        "fileName": "robot2.mdp",
+        "id": "robot2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    }
+}}
