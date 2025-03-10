@@ -86,11 +86,11 @@ public class AddExternalController {
 			// check its a number
 			try {
 			    double doubleValue = Double.parseDouble(value);
-		        if (!(doubleValue >= 0.0 && doubleValue <= 1.0)) {
+		        //if (!(doubleValue >= 0.0 && doubleValue <= 1.0)) {
 		            // Value is a valid double in the range [0.0, 1.0]
-		            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
-		            return;
-		        }
+		            //Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
+		            //return;
+		        //}
 			} catch (NumberFormatException e) {
 	            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
 	            return;
@@ -128,8 +128,13 @@ public class AddExternalController {
 	    FileChooser fileChooser = new FileChooser();
 	    fileChooser.setTitle("Choose a Data File");
 	    // Set the initial directory (change the path to your specific directory)
-	    File initialDir = new File(project.directory());
-	    if(initialDir.exists() && initialDir.isDirectory()){
+	    File initialDir = null;
+	    try {
+	    	 initialDir = new File(project.directory());
+	    } catch (Exception e) {
+	    	
+	    }
+	    if(initialDir != null){
 	        fileChooser.setInitialDirectory(initialDir);
 	    }
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Data files (*.dat, *txt)", "*.dat", "*.txt"));
@@ -146,7 +151,7 @@ public class AddExternalController {
 	            	Alerter.showErrorAlert("Data File must be in project directory!", "Choose a file from the same directory as the project");
 	                return null;
 	            }
-	        } catch (IOException e) {
+	        } catch (Exception e) {
 	        	logger.error(e.getMessage());
 	        	return null;
 	        }

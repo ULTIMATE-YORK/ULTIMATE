@@ -1,6 +1,8 @@
 package controllers;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
@@ -57,6 +59,11 @@ public class ModelController {
 	        newModel.addUncategorisedParametersFromFile();
 	        project.addModel(newModel);
 	        //System.out.println("Model added successfully: " + newModel);
+	        if (project.directory() == null) {
+	        	Path file = Paths.get(filePath);
+	        	Path parent = file.getParent(); 
+	        	project.setDirectory(parent.toString());
+	        }
 	    });
 
 	    // Handle failure (show error alert)

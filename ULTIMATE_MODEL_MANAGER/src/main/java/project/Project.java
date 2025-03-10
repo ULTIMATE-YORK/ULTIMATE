@@ -32,7 +32,7 @@ public class Project {
 	private String stormInstall = null;
 	private String stormParsInstall = null;
 	private String saveLocation; // set when a project has been saved as, used for subsequent saves
-	private String directory;
+	private String directory = null;
     private SharedContext sharedContext = SharedContext.getInstance();
 	
 	public Project(String projectPath) throws IOException {
@@ -206,6 +206,10 @@ public class Project {
 	
 	public String directory() {
 		return this.directory;
+	}
+	
+	public void setDirectory(String directory) {
+		this.directory = directory;
 	}
 }
 	

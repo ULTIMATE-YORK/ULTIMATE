@@ -128,8 +128,13 @@ public class EditExternalParameter {
 	    FileChooser fileChooser = new FileChooser();
 	    fileChooser.setTitle("Choose a Data File");
 	    // Set the initial directory (change the path to your specific directory)
-	    File initialDir = new File(project.directory());
-	    if(initialDir.exists() && initialDir.isDirectory()){
+	    File initialDir = null;
+	    try {
+	    	 initialDir = new File(project.directory());
+	    } catch (Exception e) {
+	    	
+	    }
+	    if(initialDir != null){
 	        fileChooser.setInitialDirectory(initialDir);
 	    }
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Data files (*.dat, *txt)", "*.dat", "*.txt"));
