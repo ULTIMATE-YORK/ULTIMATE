@@ -45,8 +45,8 @@ For this model, we can verify the following system properties.
 |-----------------------|-------------|
 | Rmax=?[F done] | The expected cost to complete the robot's mission either successfully or not. |
 | P=?[w=0 U w=3] | The probability of success without any intervention. |
-| P=?[G !w=4] == P=?[F w3| The probability of not solving a failure.|
-| P=?[(F w=1) & (F w=2)] == P=?[F w=2] | The probability of an intervention (by the manager and system's reset).|
+| P=?[G !w=4] == P=?[F w3]| The probability of not solving a failure.|
+| P=?[(F w=1) & (F w=2)] == P=?[F w=2] | The probability of a human intervention and system's reset required.|
 
 
 
