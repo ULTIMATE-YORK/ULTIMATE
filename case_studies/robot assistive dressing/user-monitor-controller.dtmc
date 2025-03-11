@@ -1,0 +1,14 @@
+dtmc
+
+const double pOkCorrect;
+const double pNotOkCorrect;
+const double precision = 
+                pNotOkCorrect/(0.5+pNotOkCorrect-pOkCorrect);
+const double recall = 2*pNotOkCorrect;
+const double F1 = 2*precision*recall/(precision+recall);
+
+module ModelSelector
+  s : [0..3] init 0;
+  [] s=0 -> 0.47*F1:(s'=1)+(1-0.82*F1):(s'=2)+0.35*F1:(s'=3);
+  [] s>0 -> 1:(s'=s);
+endmodule

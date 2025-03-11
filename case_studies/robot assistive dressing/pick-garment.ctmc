@@ -1,33 +1,23 @@
 ctmc
 
 //
-// Model of garment picking by the robotic arm
+// Model of garnment picking by the robotic arm
 //
 
 // Model parameters
-
 // Dependency parameters (obtained through the analysis of other models)
-
-// External parameters (derived from data collected from observing the environment)
-const double rPick;        // garment picking rate
-const double psucc;        // probability of successful picking the garment when attempting to do it
-const double rRetry;
-
-// Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
-
-// Labels
-label "done" = s=1 | tries=maxRetries;
-label "succ" = s=1;
+// - no dependency parameter
+// External parameters (derived from data collected from observations)
+const double rPick;        // garnment picking rate
+const double psucc;        // probability of successful picking the garnment when attempting to do it
+const double pRetry;       // probability of retry if the garnment picking is unsuccessful
 
 module pickGarment
- s : [0..3] init 0;              // 0 - initial/try state/give up, 1 - success
+ s : [0..2] init 0;              // 0 - initial, 1 - success, 2 - fail
  
- [try]     s=0 -> psucc*rPick:(s'=1) + (1-psucc)*rPick:(s'=2); // try to pick garment
- [retry]   s=2 -> (1-pRetry):(s'=3) + pRetry:(s'=0);
- [success] s=1 -> true;
- [giveUp]  s=3 -> true;                                                 // give up after maxRetries unsuccessful attempts
+ [try]  s=0 -> psucc*rPick:(s'=1) + (1-psucc)*rPick*pRetry:(s'=0) + (1-psucc)*rPick*(1-pRetry):(s'=2);
+ [succ] s=1 -> 1:(s'=1);
+ [fail] s=2 -> 1:(s'=2);
 endmodule
 
-rewards "energy"
-  [try] true : 30;  // energy used for each garment picking attempt
-endrewards
+label "succ" = s=1;
