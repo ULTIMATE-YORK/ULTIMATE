@@ -2,7 +2,7 @@
 
 ## Description
 
-<img src="https://github.com/user-attachments/assets/d9eb07fa-64aa-4a5f-b1ee-5d5b24de6e79" style="width: 60%;">
+<img src="https://github.com/user-attachments/assets/8973fd94-ce10-4f0c-9c14-7856c216a7cb" style="width: 60%;">
 
 
 ## Models
