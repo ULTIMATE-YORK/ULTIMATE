@@ -45,10 +45,11 @@ For this model, we can verify the following system properties.
 |-----------------------|-------------|
 | Rmax=?[F done] | The expected cost to complete the robot's mission either successfully or not. |
 | P=?[w=0 U w=3] | The probability of success without any intervention. |
-| P=?[G !w=4]| The probability of not solving a failure (== P=?[F w3]).|
-| P=?[(F w=1) & (F w=2)] | The probability of a human intervention and system's reset required (== P=?[F w=2]).|
+| P=?[G !w=4]| The probability of not solving a failure.|
+| P=?[(F w=1) & (F w=2)] | The probability of a human intervention and system's reset required.|
 
 
+Note. For this model, P=?[G !w=4]== P=?[F w3] as these are the only two terminal states and P=?[(F w=1) & (F w=2)]==== P=?[F w=2] as w=2 happens after w=1.
 
 ## Example of a robot's model
 The self-descriptive model of robot 1 is shown below.
