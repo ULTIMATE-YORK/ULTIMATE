@@ -1,0 +1,22 @@
+dtmc
+
+const double pOkCorrect;
+const double pNotOkCorrect;
+
+const double precision = pNotOkCorrect / (0.5 + pNotOkCorrect - pOkCorrect);
+const double recall = 2*pNotOkCorrect;
+const double F1 = 2 * precision * recall / (precision + recall);
+
+module ModelSelector
+  s : [0..5] init 0;
+
+  [] s=0 -> 0.4765*F1:(s'=1) + (1-0.8338*F1):(s'=2) + 0.3573*F1:(s'=3);
+  [] s>0 -> true;
+endmodule
+
+// The two dependency parameters of model perceive_user.dtmc are computed as
+//
+// pModel1 = P=?[F s=1] = (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1)))
+// pModel2 = P=?[F s=2] = (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1)))
+//
+// (The algebraic expressions were obtained with Storm.)
