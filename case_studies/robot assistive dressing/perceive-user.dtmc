@@ -6,10 +6,13 @@ dtmc
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-// - no dependency parameter
-// Environment parameters (derived from data collected from observing the environment)
-const double p1_ok_correct=0.7;           // probability that ML model 1 perceives the user state correctly when the user is ok
-const double p1_ok_verified=0.8;          // probability that ML model 1 yields verified prediction when the user is ok
+const double pModel1;                      // probability that model 1 is used
+const double pModel2;                      // probability that model 2 is used
+const double pModel12=1-pModel1-pModel2;   // probabilistiy that model 1 and 2 are used
+
+// External parameters (derived from data collected from observing the system and its environment)
+const double p1_ok_correct=0.7;            // probability that ML model 1 perceives the user state correctly when the user is ok
+const double p1_ok_verified=0.8;           // probability that ML model 1 yields verified prediction when the user is ok
 const double p1_ok_true_correct=0.92;      // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier confirms the classifier output is likely correct 
 const double p1_ok_false_correct=0.63;     // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier does not confirm the classifier output is likely correct 
 const double p1_notok_correct=0.72;        // probability that ML model 1 perceives the user state correctly when the user is not ok
@@ -18,18 +21,23 @@ const double p1_notok_true_correct=0.93;   // probability that ML model 1 percei
 const double p1_notok_false_correct=0.61;  // probability that ML model 1 perceives the user state correctly when the user is not ok and the verifier does not confirm the classifier output is likely correct 
 const double p2_ok_correct=0.93;           // probability that ML model 2 perceives the user state correctly when the user is ok
 const double p2_notok_correct=0.92;        // probability that ML model 2 perceives the user state correctly when the user is not ok
+
 // Internal parameters (configurable to meet assumptions about the modelled system aspect, or to comply with requirements)
-const int modelUsed; // 1 - use model 1, 2 - use model 2, 3 - use first model 1, verify its prediction and return it if verified, or otherwise use also model 2 and return its prediction
+// no internal parameters
 
 label "done" = s=3;
 
 module Perception
   s : [0..3] init 0;
+  modelUsed : [1..3]; // 1 - use model 1, 2 - use model 2, 3 - use first model 1, verify its prediction and return it if verified, or otherwise use also model 2 and return its prediction
+
   userOk : bool;
   userPredictedOk : bool;
   verified : bool; 
 
-  [initialise] s=0 -> 0.5:(s'=1)&(userOk'=false) + 0.5:(s'=1)&(userOk'=true); 
+  [initialise] s=0 -> 0.5*pModel1:(s'=1)&(userOk'=false)&(modelUsed'=1) + 0.5*pModel1:(s'=1)&(userOk'=true)&(modelUsed'=1) +
+                      0.5*pModel2:(s'=1)&(userOk'=false)&(modelUsed'=2) + 0.5*pModel2:(s'=1)&(userOk'=true)&(modelUsed'=2) +
+                      0.5*pModel12:(s'=1)&(userOk'=false)&(modelUsed'=3) + 0.5*pModel12:(s'=1)&(userOk'=true)&(modelUsed'=3); 
 
   // Use only ML model 1 
   [predictM1]  s=1 & userOk & modelUsed=1 -> p1_ok_correct:(s'=3)&(userPredictedOk'=true) +
@@ -59,3 +67,16 @@ module Perception
 
   [done] s=3 -> true;
 endmodule
+
+
+// The two dependency parameters of model select_perception_model.dtmc are computed as
+//
+// pOkCorrect = P=? [F ("done" & (userOk & userPredictedOk))] = (4*pModel2+(-111)*pModel1+461)/(1000)
+// pNotOkCorrect = P=? [F ("done" & (!(userOk) & !(userPredictedOk)))] = (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000)
+//
+// (Note that these are the absolute probabilities, not the conditional probabilities 
+//     P=? [F ("done" & (userOk & userPredictedOk))] / P=? [F ("done" & userOk)]
+//     P=? [F ("done" & (!userOk & !userPredictedOk))] / P=? [F ("done" & !userOk)]
+// which would be twice as large since we fixed P=? [F ("done" & userOk)] = P=? [F ("done" & !userOk)] = 0.5 in lines 38-40.)
+//
+// (The algebraic expressions were obtained with Storm.)
