@@ -1,0 +1,10 @@
+const int k; // step bound
+
+// maximum probability robot 1 can guarantee to reach its goal without crashing
+<<robot1>>Pmax=? [ !"crash" U "goal1" ]
+
+// maximum probability robot 1 can guarantee to reach its goal without crashing within a deadline
+<<robot1>>Pmax=? [ !"crash" U<=k "goal1" ]
+
+// minimum expected time robot 1 can guarantee to reach its goal
+<<robot1>>R{"time1"}min=? [ F "goal1" ]
