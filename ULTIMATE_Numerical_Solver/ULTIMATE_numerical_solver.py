@@ -211,7 +211,7 @@ class ULTIMATE_Dependency:
             res = float(match.group(1))
         else:#if there is an issue with the verification - give back a very wrong/bad value
             res = 0
-            print(output)#sys.float_info.max
+            #print(output)#sys.float_info.max
         
         # return
         return res
