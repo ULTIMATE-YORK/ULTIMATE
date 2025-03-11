@@ -1,12 +1,18 @@
 // Human intervention model
 
+// Aim:
+// This model is used to obtained the expected cost to be paid
+// for a suppervisor in charge of fixing a series of robots
+// everytime any gets stock in their activities.
+// Rmax=?[F done]
+
 // Model description:
 // The model describes a supervisor, worker @w, intervining when an error is detected.
 // The probability of error depends on the independent models of each robot.
 
 dtmc
 
-formula done = w=3;
+formula done = w=3 | w=4;
 
 //--prob. of failing with their activities, from each robot's model.
 const double p_r1;
