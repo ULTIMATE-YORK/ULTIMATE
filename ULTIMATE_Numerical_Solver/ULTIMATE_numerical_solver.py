@@ -8,7 +8,7 @@ from enum import Enum
 
 
 class ULTIMATE_Solver:
-    def __init__(self, dependencies_list, pmc, ultimate_solver_enum):
+    def __init__(self, dependencies_list, pmc, path, ultimate_solver_enum):
 
         #dictionary to keep the dependency params
         #e.g., {'x': ULTIMATE_Dependency(x)}
@@ -27,9 +27,9 @@ class ULTIMATE_Solver:
 
         for dep in dependencies_list:
             if ultimate_solver_enum is ULTIMATE_Solver_Enum.Numerical:
-                dependency = ULTIMATE_Dependency(dep[0], dep[1], dep[2], dep[3], pmc)
+                dependency = ULTIMATE_Dependency(dep[0], dep[1], dep[2], dep[3], dep[4], pmc, path)
             else:
-                dependency = ULTIMATE_Dependency_Formula(dep[0], dep[1], dep[2], dep[3])
+                dependency = ULTIMATE_Dependency_Formula(dep[0], dep[1], dep[2], dep[3], dep[4])
             
             #update the dependencies dictionary
             self.dependencies[dep[0]].append(dependency)
@@ -61,8 +61,8 @@ class ULTIMATE_Solver:
         bounds = [(0.00001, 1) for i in range(len(optimisation_parameters))]
 
         # Use the different algorithms to minimise the objective function and log the progress
-        result = minimize(self.objective_Eval, x0, args=(optimisation_parameters, init_model), method='powell', bounds=bounds, tol=1e-4) #callback=callback_pModel)
-
+        result = minimize(self.objective_Eval, x0, args=(optimisation_parameters, init_model), method='Powell', bounds=bounds, tol=1e-5) #callback=callback_pModel)
+        # 'L-BFGS-B'
         # return results and minimum loss
         return self.evaluated_params, result.fun
 
@@ -92,7 +92,7 @@ class ULTIMATE_Solver:
             
             #calculate loss for param
             loss += np.power(evaluated_optimisation_parameter_value-x0[i], 2)
-            loss = np.sqrt(loss/len(args))
+            loss = np.sqrt(loss/len(self.dependencies[init_model]))
         
         print (loss, "\t->", self.evaluated_params)
         return loss
@@ -100,12 +100,14 @@ class ULTIMATE_Solver:
 
 
 class ULTIMATE_Dependency:
-    def __init__(self, dependent_model, source_model, property, variable, pmc):
+    def __init__(self, dependent_model, source_model, property, variable, params, pmc=None, path=None):
         self.__dependent_model = dependent_model
         self.__source_model = source_model
         self.__property_str = property
         self.__variable = variable
         self.__pmc = pmc
+        self.__path = path
+        self.__params = params
 
         #read source model
         with open(source_model, "r") as model_file:
@@ -117,12 +119,17 @@ class ULTIMATE_Dependency:
 
 
     def eval(self, values):
-        #Solution 1: Appending to the template file (EvoChecker style)
-        # result = self.invokePMC(values)
+        if self.__pmc is PMC.Prism:
+            #Solution 1: Appending to the template file (EvoChecker style)
+            # result = self.invokePrism(values)
 
-        #Solution 2: use the constant flag
-        result = self.invokePMC2(values)
-        return result
+            #Solution 2: use the constant flag
+            result = self.invokePrism2(values)
+            return result
+        else:     
+            #Solution 3: use Storm
+            result = self.invokeStorm(values)
+            return result
     
 
     def prepareTempFile(self, values):
@@ -144,7 +151,7 @@ class ULTIMATE_Dependency:
         return source_model_temp
 
 
-    def invokePMC(self, values):
+    def invokePrism(self, values):
         ''' Verify the provided model by invoking Prism
         '''
         #prepare temporary model file
@@ -155,12 +162,12 @@ class ULTIMATE_Dependency:
         result = subprocess.run([self.__pcm, source_model_temp, "-pf", self.__property_str], capture_output=True, text=True)
 
         # parse output
-        v = self.parsePMCResult(result)
+        v = self.parsePMCResult(result, Prism=True)
         
         return v
 
     
-    def invokePMC2(self, values):
+    def invokePrism2(self, values):
         '''
             Use the proposed values and verify the model using the const flag
         '''
@@ -174,7 +181,7 @@ class ULTIMATE_Dependency:
         values_str = values_str[:-1]
 
         # run PRISM
-        result = subprocess.run([self.__pmc, self.__source_model, "-pf", self.__property_str, "-const", values_str ], capture_output=True, text=True)
+        result = subprocess.run([self.__path, self.__source_model, "-pf", self.__property_str, "-const", values_str ], capture_output=True, text=True)
 
         # parse output
         v = self.parsePMCResult(result)
@@ -182,7 +189,7 @@ class ULTIMATE_Dependency:
         return v
 
 
-    def parsePMCResult (self, result):
+    def parsePMCResult (self, result, Prism=True):
         # Print PRISM output
         # print("STDOUT:", result.stdout)
         if len(result.stderr)>0:
@@ -190,21 +197,48 @@ class ULTIMATE_Dependency:
 
         # parse output
         output = result.stdout
-        match = re.search(r'Result: (\d+\.\d+)', output)  # Extract floating-point result
+        if Prism:
+            match = re.search(r'Result: (\d+\.\d+)', output)  # Extract floating-point result
+        else:
+            match = re.search(r"Result \(for initial states\): ([+-]?\d*\.\d+)", output)
         if match:
             res = float(match.group(1))
         else:#if there is an issue with the verification - give back a very wrong/bad value
-            res = 0#sys.float_info.max
+            res = 0
+            print(output)#sys.float_info.max
         
         # return
         return res
 
 
+    def invokeStorm (self, values):
+        '''
+            Use the proposed values and verify the model using the const flag
+        '''
+        values_str = ""
+        # for k in self.__params:
+        for k in values.keys():
+            if k not in self.__params:
+                values_str += k + "="
+                if isinstance(values[k], np.float64):
+                    values_str += str(values[k].item()) +","
+                else:
+                    values_str += str(values[k]) +","
+        values_str = values_str[:-1]
+
+        # run Storm
+        result = subprocess.run([self.__path, "--prism", self.__source_model, "--prop", self.__property_str, "--constants", values_str ], capture_output=True, text=True)
+
+        # parse output
+        v = self.parsePMCResult(result, Prism=False)
+        
+        return v
+
 
 
 class ULTIMATE_Dependency_Formula(ULTIMATE_Dependency):
-    def __init__(self, dependent_model, source_model, equation, variable, pmc=None):
-        super().__init__(dependent_model, source_model, equation, variable, pmc)
+    def __init__(self, dependent_model, source_model, equation, variable, params):
+        super().__init__(dependent_model, source_model, equation, variable, params)
         #construct equation as a function 
         self.equation_func = compile(equation, "<string>", "eval")
 
@@ -228,7 +262,8 @@ def parse_arguments():
 
     # new command-line arguments
     parser.add_argument("-I", "--input", help="input data", nargs='+', type=str, required=False)
-    parser.add_argument("-C", "--pmc", help="model checker", nargs=1, required=False, type=str)
+    parser.add_argument("-P", "--path", help="model checker path", nargs=1, required=False, type=str)
+    parser.add_argument("-C", "--mc", help="model checker",  nargs=1, required=False, type=str)
     parser.add_argument("-M", "--model", help="first model to check", nargs=1, required=False, type=str)
     args = parser.parse_args()
 
@@ -246,26 +281,39 @@ class ULTIMATE_Solver_Enum(Enum):
     Numerical  = 2
 
 
+class PMC(Enum):
+    Prism = 1
+    Storm  = 2
+
+
 if __name__ == "__main__":
     #parse command line arguments
     args = parse_arguments()
-    pmc         = args['pmc'][0]
+    if args['mc'][0].lower() ==  PMC.Prism.name.lower():
+        pmc = PMC.Prism
+    else:
+        pmc = PMC.Storm
+    path        = args['path'][0]
     input       = args['input']
     model_order = (args['model'])
 
     # init dependencies list
     dependencies_list = []
 
-    #FOR TESTING
-    # pmc = "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism"
-    # model_order = ("Models/RAD/select_perception_model.dtmc", "")
-    # 
-    #Normal MC
+    # FOR TESTING
+    # path = "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism"
+    # pmc = PMC.Prism
+    # path = "storm"
+    # pmc = PMC.Storm
+
+    # model_order = ("select_perception_model.dtmc", "")
+    
+    # # Normal MC
     # input = [
-    #     "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect",
-    #     "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect", 
-    #     "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, P=?[F s=1], pModel1",
-    #     "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, P=?[F s=2], pModel2" 
+    #     "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect, pNotOkCorrect",
+    #     "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect, pOkCorrect", 
+    #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1, pModel2",
+    #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2, pModel1" 
     # ]
     # 
     #Parametric MC (note: set ULTIMATE_Solver_Enum.Parametric)
@@ -284,11 +332,18 @@ if __name__ == "__main__":
         dep.append(v[1].strip()) #source model
         dep.append(v[2].strip()) #property/equation
         dep.append(v[3].strip()) #variable name in dependent
+        
+        params = []
+        for param in v[3:]:
+            param = param.strip()
+            params.append(param)
+        dep.append(params)
+        #print(dep[0],"\t", dep[3], "\t", dep[4])
     
         dependencies_list.append(dep)    
 
     #create the ULTIMATE solver instance
-    ulSolver = ULTIMATE_Solver(dependencies_list, pmc, ULTIMATE_Solver_Enum.Numerical)
+    ulSolver = ULTIMATE_Solver(dependencies_list, pmc, path, ULTIMATE_Solver_Enum.Numerical)
     
     #given the SCC list, solve them based on the model order (starting from the model given)
     result, loss = ulSolver.optimise(model_order)
@@ -301,11 +356,19 @@ if __name__ == "__main__":
 
 ## RUN COMMAND EXAMPLES##
 
+#RAD - Storm invocation
+#  python3 ULTIMATE_numerical_solver.py \
+#  --path "storm" \
+#  --mc "Storm" \
+#  --model "select_perception_model.dtmc" \
+#  --input "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect, pNotOkCorrect" "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect, pOkCorrect" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1, pModel2" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2, pModel1"
+
 # RAD - Prism invocation
-# python3 Models/RAD/ULTIMATE_numerical_solver.py \
-# --pmc "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism" \
-# --model "Models/RAD/select_perception_model.dtmc" \
-# --input "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect" "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect" "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, P=?[F s=1], pModel1" "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, P=?[F s=2], pModel2"
+#  python3 ULTIMATE_numerical_solver.py \
+#  --path "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism" \
+#  --mc "Prism" \
+#  --model "select_perception_model.dtmc" \
+#  --input "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect, pNotOkCorrect" "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect, pOkCorrect" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1, pModel2" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2, pModel1"
  
 # RAD - Parametric Model Checking
 # python3 Models/RAD/ULTIMATE_numerical_solver.py \
