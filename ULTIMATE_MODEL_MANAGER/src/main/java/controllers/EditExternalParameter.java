@@ -84,11 +84,6 @@ public class EditExternalParameter {
 			// check its a number
 			try {
 			    double doubleValue = Double.parseDouble(value);
-		        if (!(doubleValue >= 0.0 && doubleValue <= 1.0)) {
-		            // Value is a valid double in the range [0.0, 1.0]
-		            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
-		            return;
-		        }
 			} catch (NumberFormatException e) {
 	            Alerter.showErrorAlert("Invalid Value", "The value must be in the range 0.0 <= x <= 1.0");
 	            return;

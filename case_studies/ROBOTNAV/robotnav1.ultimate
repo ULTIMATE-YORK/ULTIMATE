@@ -9,12 +9,12 @@
                 "p_r1": {
                     "modelId": "robot1",
                     "name": "p_r1",
-                    "property": "1 - Pmax=?[F done]"
+                    "property": "Pmax=?[F done]"
                 },
                 "p_r2": {
                     "modelId": "robot2",
                     "name": "p_r2",
-                    "property": "1 - Pmax=?[F done]"
+                    "property": "Pmax=?[F done]"
                 }
             }
         },
@@ -69,7 +69,7 @@
             "internal": {},
             "dependency": {}
         },
-        "properties": ["1 - Pmax=?[F done]"]
+        "properties": ["Pmax=?[F done]"]
     },
     "robot2": {
         "fileName": "robot2.mdp",
@@ -120,6 +120,6 @@
             "internal": {},
             "dependency": {}
         },
-        "properties": ["1 - Pmax=?[F done]"]
+        "properties": ["Pmax=?[F done]"]
     }
 }}

@@ -81,7 +81,7 @@ public class PMCVerification {
             VerificationModel vm = new VerificationModel(model.getModelId());
             modelMap.put(model.getModelId(), vm);
         }
-
+        
         // Compute SCCs using DependencyGraph
         DependencyGraph depGraph = new DependencyGraph(models);
         List<Set<String>> sccs = depGraph.getSCC();
@@ -242,7 +242,7 @@ public class PMCVerification {
                 
                 double newValue = e.calculate();
                 if (Double.isNaN(newValue)) {
-                    logger.info("  Failed to solve for " + variable);
+                    logger.warn("  Failed to solve for " + variable);
                     continue;
                 }
 
@@ -263,7 +263,7 @@ public class PMCVerification {
         }
 
         if (!converged) {
-            logger.info("\nWarning: Maximum iterations reached without convergence");
+            logger.warn("\nWarning: Maximum iterations reached without convergence");
         }
 
         // Set the solved values to the models
@@ -280,6 +280,7 @@ public class PMCVerification {
         // Split equation into left and right sides
         String[] sides = equation.split("\\s*=\\s*");
         if (sides.length != 2) {
+        	logger.error("Invalid equation format: " + equation);
             throw new IllegalArgumentException("Invalid equation format: " + equation);
         }
 

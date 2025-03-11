@@ -31,15 +31,17 @@ formula done = l=9; // task done at T1
 const int fail = 10; // robot failed to travel through an location area
 
 //--prob. of success when travelling through a location lx
-const double p_l1 = 1; // assume a probability of one of leaving the initial area
-const double p_l2 = 0.8;
-const double p_l3 = 0.6;
-const double p_l4 = 0.8;
+const double p_l1 = 0.35714285714285715;
+// assume a probability of one of leaving the initial area
+const double p_l2 = 1.3333333333333333;
+const double p_l3 = 2.8;
+const double p_l4 = 0.75;
 // l5 is blocked
-const double p_l6 = 0.8;
-const double p_l7 = 0.9; //****
-const double p_l8 = 0.8;
-const double p_l9 = 1; // assume a prob. of one of travelling in the goal location's area, l9
+const double p_l6 = 0.75;
+const double p_l7 = 2.8;
+const double p_l8 = 0.75;
+const double p_l9 = 0.35714285714285715;
+// assume a prob. of one of travelling in the goal location's area, l9
 //--
 
 module robot2

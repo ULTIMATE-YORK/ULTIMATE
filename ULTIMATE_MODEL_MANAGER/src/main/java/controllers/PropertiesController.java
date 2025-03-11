@@ -18,6 +18,7 @@ import property.Property;
 import sharedContext.SharedContext;
 import utils.Alerter;
 import utils.DialogOpener;
+import utils.FileUtils;
 import utils.Font;
 import verification.PMCVerification;
 
@@ -81,6 +82,11 @@ public class PropertiesController {
 		else {
 			ArrayList<Model> models = new ArrayList<>();
 			models.addAll(project.getModels());
+			// update the mode files here
+			// TODO: in future, make seperate model files
+			for (Model m : models) {
+				FileUtils.updateModelFileResults(m, m.getHashExternalParameters());
+			}
 			PMCVerification verifier = new PMCVerification(models);
 
 			CompletableFuture.supplyAsync(() -> verifier.verify(vModel.getModelId(), vProp.getProperty()))

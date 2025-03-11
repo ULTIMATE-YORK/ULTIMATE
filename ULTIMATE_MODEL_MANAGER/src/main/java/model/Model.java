@@ -2,6 +2,7 @@ package model;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import javafx.collections.FXCollections;
@@ -192,6 +193,14 @@ public class Model {
      */
     public ObservableList<ExternalParameter> getExternalParameters() {
         return externalParameters;
+    }
+    
+    public HashMap<String, Double> getHashExternalParameters() throws NumberFormatException, IOException {
+		HashMap<String, Double> hash = new HashMap<>();
+		for (ExternalParameter ep : externalParameters) {
+			hash.put(ep.getName(), ep.evaluate());
+		}
+		return hash;
     }
     
     /**
