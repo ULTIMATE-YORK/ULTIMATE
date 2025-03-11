@@ -47,7 +47,7 @@ public class Project {
         observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
         if (sharedContext.getMainStage() != null) {
-    		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
+    		sharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
 
         }
 		try {
@@ -64,7 +64,7 @@ public class Project {
 		this.projectName = "untitled";
         sharedContext.setProject(this);
         if (sharedContext.getMainStage() != null) {
-    		sharedContext.getMainStage().setTitle("Ultimate Stochastic World Model Manager: " + projectName);
+    		sharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
 
         }
 		try {
