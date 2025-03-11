@@ -11,6 +11,43 @@ The files provided in this repository contain an example of two robots $robot 1$
 <img src="https://github.com/user-attachments/assets/2dbf2139-0afa-402f-9332-baac0c43fe13" 
      style="width: 60%; display: block; margin: auto;">
 
+## Human Manager intervention model
+
+This model depends on the verification of the N robot models. It models the probability of failure as the joint probability of the robots' failure events and assumes these events are disjoint. For example, the probability of at least one of two robots failing, defined by events A and B, respectivelly, is given by ```P(A∪B)=P(A)+P(B)−P(A∩B)```. 
+The human manager model can intervene in order to help the robots suceed. If this intervention fails, a hard reset of the system is needed which can solve the problem with a higher probability but at a higher cost.
+
+```
+ //w=0 - robots working fine, no human intervention
+ //w=1 - robot failure detected, human intervene
+ //w=2 - robot reset after first human intervention failed - more costly as require hard stop
+ //w=3 - done successfully
+ //w=4 - fail
+ [ ]  w=0 -> (p_r1+p_r2-p_r1*p_r2):(w'=1) + (1-((p_r1+p_r2-p_r1*p_r2))):(w'=3);
+ [interveneAfterFail] w=1 -> p_fix1:(w'=3) + 1-p_fix1:(w'=2);
+ [hardReset] w=2 -> p_fix2:(w'=3) + 1-p_fix2:(w'=4);
+ [succ] w=3 -> (w'=3);
+ [fail] w=4 -> (w'=4);
+```
+where robot probabilities of failure are defined as dependency parameters.
+
+| Dependency parameter              | Value |
+|-----------------------|-------------|
+|p_r1| PMC( m_{R1} , 1 - Pmax=?[F done]) |
+|p_r2| PMC( m_{R2} , 1 - Pmax=?[F done]) |
+
+
+where ```m_{RN}``` is the N robot model.
+
+
+For this model, we can verify the following system properties.
+
+| Property              | Description |
+|-----------------------|-------------|
+| Rmax=?[F done] | The expected cost to complete the robot's mission either successfully or not. |
+| P=?[w=0 U w=3] | The probability of success without any intervention. |
+| P=?[G !w=4] == P=?[F w3| The probability of not solving a failure.|
+| P=?[(F w=1) & (F w=2)] == P=?[F w=2] | The probability of an intervention (by the manager and system's reset).|
+
 
 
 ## Example of a robot's model
@@ -98,40 +135,4 @@ endmodule
 ```
 
 
-## Human Manager intervention model
 
-The self-descriptive model of the manager is shown below. To estimate the expected cost, we assume a reward structure where the manager charges 100 for his work. However, it only gets payed when a robot fails. The property under consideration, ```Rmax=?[F done]```, checks for the all activities to be done.
-
-```
-// Human intervention model
-
-// Aim:
-// This model is used to obtained the expected cost to be paid
-// for a suppervisor in charge of fixing a series of robots
-// everytime any gets stock in their activities.
-// Rmax=?[F done]
-
-// Model description:
-// The model describes a supervisor, worker @w, intervining when an error is detected.
-// The probability of error depends on the independent models of each robot.
-
-dtmc
-
-formula done = w=2; // task done at T1
-
-//--prob. of failing with their activities, from each robot's model.
-const double p_r1;
-const double p_r2;
-
-module supervisor1
- w:[0..2] init 0;
- [ ]  w=0 -> (p_r1+p_r2-p_r1*p_r2):(w'=1) + (1-((p_r1+p_r2-p_r1*p_r2))):(w'=2);
- [interveneAfterFail] w=1 -> 1:(w'=2);  // worker intervention
- [completed] w=2 -> 1:(w'=2);
-endmodule
-
-
-rewards "intervation_cost"
- w=1 : 100;
-endrewards
-```
