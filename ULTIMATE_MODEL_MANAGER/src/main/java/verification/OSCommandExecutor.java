@@ -6,7 +6,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class OSCommandExecutor {
+	
+	private static final Logger logger = LoggerFactory.getLogger(OSCommandExecutor.class);
 
     public static String executeCommand(String command) {
     	
@@ -53,6 +58,7 @@ public class OSCommandExecutor {
     		//context.getTab2Controller().updateLogs();
 
         } catch (IOException | InterruptedException e) {
+        	logger.error(e.getMessage());
             e.printStackTrace();
         }
         
