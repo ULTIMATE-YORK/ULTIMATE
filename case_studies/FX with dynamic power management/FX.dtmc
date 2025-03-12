@@ -10,10 +10,10 @@
 dtmc
 
 const double x=0.5;
-const double y1=0.5;
-const double y2=0.5;
-const double z1=0.5;
-const double z2=0.5;
+const double y1=0.75;
+const double y2=0.22;
+const double z1=0.6;
+const double z2=0.35;
 
 const double p11=0.999;
 const double p12=0.999;
