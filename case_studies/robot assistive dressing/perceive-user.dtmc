@@ -6,21 +6,21 @@ dtmc
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pModel1;                      // probability that model 1 is used
-const double pModel2;                      // probability that model 2 is used
+const double pModel1 = 0.39506681;
+const double pModel2 = 0.3107345;
 const double pModel12=1-pModel1-pModel2;   // probabilistiy that model 1 and 2 are used
 
 // External parameters (derived from data collected from observing the system and its environment)
-const double p1_ok_correct;           // probability that ML model 1 perceives the user state correctly when the user is ok
-const double p1_ok_verified;          // probability that ML model 1 yields verified prediction when the user is ok
-const double p1_ok_true_correct;      // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier confirms the classifier output is likely correct 
-const double p1_ok_false_correct;     // probability that ML model 1 perceives the user state correctly when the user is ok and the verifier does not confirm the classifier output is likely correct 
-const double p1_notok_correct;        // probability that ML model 1 perceives the user state correctly when the user is not ok
-const double p1_notok_verified;       // probability that ML model 1 yields verified prediction when the user is not ok
-const double p1_notok_true_correct;   // probability that ML model 1 perceives the user state correctly when the user is not ok and the verifier confirms the classifier output is likely correct 
-const double p1_notok_false_correct;  // probability that ML model 1 perceives the user state correctly when the user is not ok and the verifier does not confirm the classifier output is likely correct 
-const double p2_ok_correct;           // probability that ML model 2 perceives the user state correctly when the user is ok
-const double p2_notok_correct;        // probability that ML model 2 perceives the user state correctly when the user is not ok
+const double p1_ok_correct = 0.7;
+const double p1_ok_verified = 0.8;
+const double p1_ok_true_correct = 0.92;
+const double p1_ok_false_correct = 0.63;
+const double p1_notok_correct = 0.72;
+const double p1_notok_verified = 0.79;
+const double p1_notok_true_correct = 0.93;
+const double p1_notok_false_correct = 0.61;
+const double p2_ok_correct = 0.93;
+const double p2_notok_correct = 0.92;
 
 label "done" = s=3;
 

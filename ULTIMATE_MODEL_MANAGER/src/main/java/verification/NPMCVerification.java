@@ -70,6 +70,7 @@ public class NPMCVerification {
     
     public NPMCVerification(ArrayList<Model> models) {
         //License.iConfirmNonCommercialUse("your name, your university");  // Add this line to confirm license for math library
+
         mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
@@ -529,31 +530,30 @@ public class NPMCVerification {
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
             logger.error("Error running Storm: " + stormException.getMessage());
+            //throw new Exception();
         }
         
-        // Try with PRISM as first fallback
-        logger.info("Trying fallback with PRISM API...");
         try {
             return PrismAPI.run(originalModel, property, true);
         } catch (Exception prismException) {
             // Extract just the error message without stack trace
             logger.error("Error running PRISM API: " + prismException.getMessage());
+			//throw new PrismException("All model checking methods failed for model " + model.getModelId() + ": " + prismException.getMessage());
         }
         
-        /*
+        
         // Try with PrismProcessAPI as second fallback
         logger.info("Trying second fallback with PRISM Process API...");
         try {
-            String prismPath = "/Users/sinem/Documents/prism-4.8.1-mac64-arm/bin/prism";
-            return verification_engine.prism.PrismProcessAPI.run(originalModel, property, prismPath);
+        	// FIXME make this the project.prismpath
+            String prismPath = "/Users/micahbassett/Desktop/prism/prism/bin/prism";
+            return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {
-            System.err.println("Error running PRISM Process API: " + prismProcessException.getMessage());
+            logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
             // Only throw if all attempts fail
             throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
                                       ": " + prismProcessException.getMessage());
         }
-        **/
-        return 0.0;
     }
     
     private Model getOriginalModel(String modelId) {

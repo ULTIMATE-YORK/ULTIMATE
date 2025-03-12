@@ -30,12 +30,8 @@ rewards "medium"
   lightLevel=1 : 1/10000;
 endrewards
 
-// 
-// We calculate the dependency parameters required for the other model as:
-//
-// pLow = R{"low"}=? [C<=10000] / 10000
-// pMed = R{"medium"}=? [C<=10000] / 10000
-//
-// Note: Very interesting plots are generated for these when running PRISM experiments for the two
-//       properties above!
-//
+rewards "power" // power in Watts
+  lightLevel=0 : 5/10000;
+  lightLevel=1 : 10/10000;
+  lightLevel=2 : 20/10000;
+endrewards

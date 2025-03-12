@@ -8,9 +8,9 @@ ctmc
 // Dependency parameters (obtained through the analysis of other models)
 // - no dependency parameter
 // External parameters (derived from data collected from observations)
-const double rPick;        // garnment picking rate
-const double psucc;        // probability of successful picking the garnment when attempting to do it
-const double pRetry;       // probability of retry if the garnment picking is unsuccessful
+const double rPick = 0.05128533880376947;
+const double psucc = 0.7;
+const double pRetry = 0.2;
 
 module pickGarment
  s : [0..2] init 0;              // 0 - initial, 1 - success, 2 - fail

@@ -6,16 +6,16 @@ pomdp
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pPickGarnment;  // from garment picking model
-const double pOkCorrect;     // from user perception model
-const double pNotOkCorrect;  // from user perception model
+const double pPickGarnment = 0.0;
+const double pOkCorrect = 0.4183905221;
+const double pNotOkCorrect = 0.4216554038;
 // External parameters (derived from data collected from observations)
-const double pOk;                // probability that the user is in an 'ok' state
-const double pDressOkSlow;       // probability that dressing succeeds when the user is in 'ok' state
-const double pDressOkFast;       // probability that dressing succeeds when the user is in 'ok' state
-const double pDressNotOkSlow;    // probability that dressing succeeds when the user is in 'not ok' state
-const double pDressNotOkFast;    // probability that dressing succeeds when the user is in 'not ok' state
-const double pPermissionToRetryGranted; // probability that the user allows retry after unsuccessful dressing attempt
+const double pOk = 0.6;
+const double pDressOkSlow = 0.8961538461538462;
+const double pDressOkFast = 0.9529411764705883;
+const double pDressNotOkSlow = 0.9076923076923078;
+const double pDressNotOkFast = 0.9441176470588236;
+const double pPermissionToRetryGranted = 0.8366666666666667;
 
 observables step, userPredictedOk endobservables
 
