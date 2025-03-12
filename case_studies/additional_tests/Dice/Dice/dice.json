@@ -1,0 +1,43 @@
+{"models": {
+    "die1": {
+        "fileName": "/Additional_tests/Dice/die1.prism",
+        "id": "die1",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+            "p1": {
+                "modelId": "die2",
+                "name": "p1",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    },
+    "die2": {
+        "fileName": "/Additional_tests/Dice/die2.prism",
+        "id": "die2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+            "p2": {
+                "modelId": "die3",
+                "name": "p2",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    },
+    "die3": {
+        "fileName": "/Additional_tests/Dice/die3.prism",
+        "id": "die3",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {"p3": {
+                "modelId": "die2",
+                "name": "p3",
+                "property": "P=? [F s=7 & d=1]"
+            }}
+        }
+    }
+}}
