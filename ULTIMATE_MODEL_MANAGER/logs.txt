@@ -1,7 +1,0 @@
-PRISM
-=====
-
-Version: 4.5.dev
-Date: Wed Mar 12 11:32:02 GMT 2025
-Hostname: Micahs-MacBook-Air.local
-Memory limits: cudd=1g, java(heap)=2g

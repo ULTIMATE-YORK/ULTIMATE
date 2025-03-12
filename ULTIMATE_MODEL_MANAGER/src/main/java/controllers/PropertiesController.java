@@ -22,7 +22,6 @@ import utils.DialogOpener;
 import utils.FileUtils;
 import utils.Font;
 import verification.NPMCVerification;
-import verification.PMCVerification;
 
 public class PropertiesController {
 	

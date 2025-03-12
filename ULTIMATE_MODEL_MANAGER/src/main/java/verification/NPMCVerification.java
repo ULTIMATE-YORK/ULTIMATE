@@ -540,20 +540,19 @@ public class NPMCVerification {
 			//throw new PrismException("All model checking methods failed for model " + model.getModelId() + ": " + prismException.getMessage());
         }
         
-        /*
+        
         // Try with PrismProcessAPI as second fallback
         logger.info("Trying second fallback with PRISM Process API...");
         try {
-            String prismPath = "/Users/sinem/Documents/prism-4.8.1-mac64-arm/bin/prism";
-            return verification_engine.prism.PrismProcessAPI.run(originalModel, property, prismPath);
+        	// FIXME make this the project.prismpath
+            String prismPath = "/Users/micahbassett/Desktop/prism/prism/bin/prism";
+            return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {
-            System.err.println("Error running PRISM Process API: " + prismProcessException.getMessage());
+            logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
             // Only throw if all attempts fail
             throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
                                       ": " + prismProcessException.getMessage());
         }
-        **/
-        return 0.0;
     }
     
     private Model getOriginalModel(String modelId) {
