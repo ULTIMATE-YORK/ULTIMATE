@@ -69,7 +69,7 @@ public class NPMCVerification {
     private String modelsBasePath = "";
     
     public NPMCVerification(ArrayList<Model> models) {
-        //License.iConfirmNonCommercialUse("Sinem, University of York");  // Add this line to confirm license
+        //License.iConfirmNonCommercialUse("your name, your university");  // Add this line to confirm license for math library
         mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
