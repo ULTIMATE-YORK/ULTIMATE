@@ -1,0 +1,7 @@
+PRISM
+=====
+
+Version: 4.5.dev
+Date: Tue Mar 11 16:49:39 GMT 2025
+Hostname: nas-10-241-83-85.york.ac.uk
+Memory limits: cudd=1g, java(heap)=2g

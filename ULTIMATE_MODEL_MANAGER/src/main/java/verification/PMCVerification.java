@@ -1,16 +1,10 @@
 package verification;
 
-//import verification_engine.prism.PrismAPI;
 import prism.PrismException;
 import utils.FileUtils;
-
-//import com.irurueta.mathsolver.MathSolver;
-//import com.irurueta.mathsolver.NonLinearEquation;
 import org.mariuszgromada.math.mxparser.*;
-
 import model.Model;
 import parameters.DependencyParameter;
-
 import java.io.FileNotFoundException;
 import java.util.*;
 import org.slf4j.Logger;

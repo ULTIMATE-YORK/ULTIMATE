@@ -15,8 +15,8 @@ dtmc
 formula done = w=3 | w=4;
 
 //--prob. of failing with their activities, from each robot's model.
-const double p_r1;
-const double p_r2;
+const double p_r1 = 0.31640625;
+const double p_r2 = 0.0;
 //--prob. human intervention solved the problem
 const double p_fix1=0.8;
 const double p_fix2=0.9;

@@ -13,6 +13,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import model.Model;
+import prism.PrismException;
 import project.Project;
 import property.Property;
 import sharedContext.SharedContext;
@@ -20,6 +21,7 @@ import utils.Alerter;
 import utils.DialogOpener;
 import utils.FileUtils;
 import utils.Font;
+import verification.NPMCVerification;
 import verification.PMCVerification;
 
 public class PropertiesController {
@@ -87,9 +89,18 @@ public class PropertiesController {
 			for (Model m : models) {
 				FileUtils.updateModelFileResults(m, m.getHashExternalParameters());
 			}
-			PMCVerification verifier = new PMCVerification(models);
+			NPMCVerification verifier = new NPMCVerification(models);
 
-			CompletableFuture.supplyAsync(() -> verifier.verify(vModel.getModelId(), vProp.getProperty()))
+			CompletableFuture.supplyAsync(() -> {
+				try {
+					return verifier.verify(vModel.getModelId(), vProp.getProperty());
+				} catch (PrismException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return null;
+			})
 		    .thenAccept(result -> Platform.runLater(() -> {
 		        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
 		    }))
