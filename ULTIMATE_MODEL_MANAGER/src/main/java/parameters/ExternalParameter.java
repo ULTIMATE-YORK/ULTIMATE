@@ -74,14 +74,14 @@ public class ExternalParameter {
 	             return Double.parseDouble(value);
 	         case "Mean":
 					// FIXME : os-dependant paths
-	             return MeanCalculator.computeMean(project.directory() + "/" + value, "\n");
+	             return MeanCalculator.computeMean(project.directory() + "/data/" + value, ",");
 	         case "Mean-Rate":
 					// FIXME : os-dependant paths
-					return MeanCalculator.computeMeanRate(project.directory() + "/" + value, "\n");
+					return MeanCalculator.computeMeanRate(project.directory() + "/data/" + value, ",");
 			 case "Bayes":
-				 return BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/" + value);
+				 return BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/data/" + value);
 		     case "Bayes-Rate":
-		    	 return BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/" + value, "\n");
+		    	 return BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/data/" + value);
 	     }
 	     return 0.0;
 	 }
@@ -95,7 +95,7 @@ public class ExternalParameter {
 				// if computeMean does not throw an exception, the file is valid for mean calculation
 				try {
 					// FIXME : os-dependant paths
-					MeanCalculator.computeMean(project.directory() + "/" + value, "\n");
+					MeanCalculator.computeMean(project.directory() + "/data/" + value, ",");
 					return true;
 				} catch (NumberFormatException e) {
 					//Platform.runLater(() -> Alerter.showErrorAlert("Invalid file format!", e.getMessage()));
@@ -109,7 +109,7 @@ public class ExternalParameter {
 				// mean-rate calculation
 				try {
 					// FIXME : os-dependant paths
-					MeanCalculator.computeMeanRate(project.directory() + "/" + value, "\n");
+					MeanCalculator.computeMeanRate(project.directory() + "/data/" + value, ",");
 					return true;
 				} catch (NumberFormatException e) {
 					// Platform.runLater(() -> Alerter.showErrorAlert("Invalid file format!",
@@ -125,7 +125,7 @@ public class ExternalParameter {
 				// bayesian average calculation
 				try {
 					// FIXME : os-dependant paths
-					BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/" + value);
+					BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/data/" + value);
 					return true;
 				} catch (NumberFormatException e) {
 					// Platform.runLater(() -> Alerter.showErrorAlert("Invalid file format!",
@@ -146,7 +146,7 @@ public class ExternalParameter {
 				// bayesian average rate calculation
 				try {
 					// FIXME : os-dependant paths
-					BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/" + value, "\n");
+					BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/data/" + value);
 					return true;
 				} catch (NumberFormatException e) {
 					// Platform.runLater(() -> Alerter.showErrorAlert("Invalid file format!",

@@ -529,15 +529,15 @@ public class NPMCVerification {
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
             logger.error("Error running Storm: " + stormException.getMessage());
+            //throw new Exception();
         }
         
-        // Try with PRISM as first fallback
-        logger.info("Trying fallback with PRISM API...");
         try {
             return PrismAPI.run(originalModel, property, true);
         } catch (Exception prismException) {
             // Extract just the error message without stack trace
             logger.error("Error running PRISM API: " + prismException.getMessage());
+			//throw new PrismException("All model checking methods failed for model " + model.getModelId() + ": " + prismException.getMessage());
         }
         
         /*

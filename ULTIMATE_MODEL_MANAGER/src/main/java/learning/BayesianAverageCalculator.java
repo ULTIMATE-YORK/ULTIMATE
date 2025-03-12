@@ -21,28 +21,39 @@ public class BayesianAverageCalculator {
         List<Double> values = new ArrayList<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-            // Read first two lines
-            C = Integer.parseInt(br.readLine().split("=")[1].trim());
-            prior = Double.parseDouble(br.readLine().split("=")[1].trim());
-
-            // Read remaining lines as value_i
-            String line;
-            while ((line = br.readLine()) != null) {
-                values.add(Double.parseDouble(line.trim()));
+            // Read the CSV line
+            String line = br.readLine();
+            if (line == null || line.trim().isEmpty()) {
+                throw new IOException("The file is empty or not properly formatted.");
             }
-        } 
-
+            // Split by comma
+            String[] tokens = line.split(",");
+            if (tokens.length < 2) {
+                throw new IOException("CSV file must contain at least c and prior values.");
+            }
+            
+            // Parse the first two tokens (e.g., "c=10", " prior=3.5")
+            C = Integer.parseInt(tokens[0].split("=")[1].trim());
+            prior = Double.parseDouble(tokens[1].split("=")[1].trim());
+            
+            // Parse the remaining tokens as numeric values
+            for (int i = 2; i < tokens.length; i++) {
+                values.add(Double.parseDouble(tokens[i].trim()));
+            }
+        }
+        
         int N = values.size();
         if (N == 0) return prior; // Avoid division by zero
 
-        // Compute mean of value_i
+        // Compute mean of the values
         double meanValue = values.stream().mapToDouble(Double::doubleValue).sum() / N;
-
+        
         // Compute Bayesian average
         return (C / (double) (C + N)) * prior + (N / (double) (C + N)) * meanValue;
     }
+
     
-    public static double computeBayesianAverageRate(String filename, String character) throws NumberFormatException, IOException {
+    public static double computeBayesianAverageRate(String filename) throws NumberFormatException, IOException {
 		double bayes = computeBayesianAverage(filename);
 		if (bayes == 0.0) {
 			return 0.0;
