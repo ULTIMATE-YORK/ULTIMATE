@@ -17,7 +17,11 @@
         "fileName": "MotionSensor.prism",
         "id": "MotionSensor",
         "parameters": {
-            "environment": {},
+            "environment": {"pLargeObject": {
+                "name": "pLargeObject",
+                "type": "Fixed",
+                "value": "0.02"
+            }},
             "internal": {},
             "dependency": {
                 "pLow": {
@@ -32,6 +36,9 @@
                 }
             }
         },
-        "properties": ["P=?[F step=2 & object=2 & detected]"]
+        "properties": [
+            "P=?[F step=2 & object=2 & detected]",
+            "P=?[F step=2 & object=2]"
+        ]
     }
 }}

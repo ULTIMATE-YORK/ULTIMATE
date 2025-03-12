@@ -27,12 +27,12 @@
 dtmc
 
 // Dependency parameters from the other model
-const double pLow;
-const double pMed8;
+const double pLow = 0.79572113;
+const double pMed = 0.09629817;
 const double pHigh=1-pLow-pMed;
 
 // external parameter
-const double pLargeObject;
+const double pLargeObject = 0.02;
 
 module Sensor
   step : [0..2] init 0;
