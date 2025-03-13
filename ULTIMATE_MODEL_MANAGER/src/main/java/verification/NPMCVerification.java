@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
-    
-	private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();	
+   	
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	
     static class VerificationModel {
@@ -71,7 +69,7 @@ public class NPMCVerification {
     private Map<VerificationModel, List<VerificationModel>> sccMap;
     private ArrayList<Model> originalModels;
     private boolean usePythonSolver = false;
-    private String pythonSolverPath = "ULTIMATE_numerical_solver.py";
+    private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     private String modelsBasePath = "";
     
     public NPMCVerification(ArrayList<Model> models) {
@@ -220,6 +218,8 @@ public class NPMCVerification {
             List<String> inputData = new ArrayList<>();
             VerificationModel startVerificationModel = sccModels.get(0);
             String startModelId = startVerificationModel.getModelId();
+            SharedContext sharedContext = SharedContext.getInstance();
+            Project project = sharedContext.getProject();
             String pmcPath = project.getStormInstall(); // Update as needed
             
             // Get the file path of the start model
@@ -541,7 +541,8 @@ public class NPMCVerification {
         // Try with PrismProcessAPI as second fallback
         logger.info("Trying second fallback with PRISM Process API...");
         try {
-        	// FIXME make this the project.prismpath
+        	SharedContext sharedContext = SharedContext.getInstance();
+            Project project = sharedContext.getProject();
             String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {
