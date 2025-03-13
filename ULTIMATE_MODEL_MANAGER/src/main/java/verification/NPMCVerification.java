@@ -1,6 +1,8 @@
 package verification;
 
 import prism.PrismException;
+import project.Project;
+import sharedContext.SharedContext;
 import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.*;
@@ -17,7 +19,9 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
-	
+    
+	private SharedContext sharedContext = SharedContext.getInstance();
+    private Project project = sharedContext.getProject();	
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	
     static class VerificationModel {
@@ -214,7 +218,7 @@ public class NPMCVerification {
             List<String> inputData = new ArrayList<>();
             VerificationModel startVerificationModel = sccModels.get(0);
             String startModelId = startVerificationModel.getModelId();
-            String pmcPath = "/Users/sinem/Desktop/storm/build/bin/storm"; // Update as needed
+            String pmcPath = project.getStormInstall(); // Update as needed
             
             // Get the file path of the start model
             Model originalStartModel = getOriginalModel(startModelId);
@@ -545,7 +549,7 @@ public class NPMCVerification {
         logger.info("Trying second fallback with PRISM Process API...");
         try {
         	// FIXME make this the project.prismpath
-            String prismPath = "/Users/micahbassett/Desktop/prism/prism/bin/prism";
+            String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {
             logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());

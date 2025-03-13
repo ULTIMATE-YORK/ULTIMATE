@@ -90,6 +90,10 @@ public class MenuBarController {
 
 	        // Display the stage (window) to the user
 	        newMainStage.show(); // Makes the primary stage visible
+	        
+	        if (project.isConfigured()) {
+	            newMainStage.close();
+	        }
 		}
 	}
 	

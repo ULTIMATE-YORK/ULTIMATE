@@ -17,6 +17,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.Stage;
 import model.Model;
 import sharedContext.SharedContext;
 import utils.Alerter;
@@ -40,6 +41,7 @@ public class Project {
 	private ObjectProperty<String> chosenPMC;
 	private String saveLocation; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
+	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
 	
 	public Project(String projectPath) throws IOException {
@@ -195,6 +197,10 @@ public class Project {
     	return this.stormParsInstall;
     }
     
+	public String getPrismInstall() {
+		return this.prismInstall;
+	}
+    
 	private void setupConfigs() throws IOException {
         File configFile = new File("config.json");
         String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
@@ -207,6 +213,7 @@ public class Project {
         else {
         	if (sharedContext.getMainStage() != null) {
             	Alerter.showWarningAlert("No Storm Installation found!", "Please configure the location of the storm install on your system!");
+            	configured = false;
         	}
         }
         
@@ -217,6 +224,7 @@ public class Project {
         else {
         	if (sharedContext.getMainStage() != null) {
             	Alerter.showWarningAlert("No Storm-Pars Installation found!", "Please configure the location of the storm-pars install on your system!");
+            	configured = false;
         	}
         }
         
@@ -227,6 +235,7 @@ public class Project {
         else {
         	if (sharedContext.getMainStage() != null) {
             	Alerter.showWarningAlert("No PRISM Installation found!", "Please configure the location of the PRISM install on your system!");
+            	configured = false;
         	}
         }
 	}
@@ -245,6 +254,10 @@ public class Project {
 	
 	public void setDirectory(String directory) {
 		this.directory = directory;
+	}
+	
+	public boolean isConfigured() {
+		return configured;
 	}
 }
 	
