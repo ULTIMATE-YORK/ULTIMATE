@@ -3,7 +3,7 @@
 ### RAD - Prism invocation
      
     python3 ULTIMATE_numerical_solver.py \
-    --path "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism" \
+    --path "path to prism" \
     --mc "Prism" \
     --model "select_perception_model.dtmc" \
     --input "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect" "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1" "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2"
