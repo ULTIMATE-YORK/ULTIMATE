@@ -254,7 +254,7 @@ class ULTIMATE_Dependency_Formula(ULTIMATE_Dependency):
         self.equation_func = compile(equation, "<string>", "eval")
 
 
-    def eval(self, values):
+    def eval(self, values, param_depedencies=None):
         self.result = eval(self.equation_func, {}, values)
         return self.result
 
@@ -299,14 +299,15 @@ class PMC(Enum):
 
 if __name__ == "__main__":
     #parse command line arguments
-    args = parse_arguments()
-    if args['mc'][0].lower() ==  PMC.Prism.name.lower():
-        pmc = PMC.Prism
-    else:
-        pmc = PMC.Storm
-    path        = args['path'][0]
-    input       = args['input']
-    model_order = (args['model'])
+    # args = parse_arguments()
+    # if args['mc'][0].lower() ==  PMC.Prism.name.lower():
+    #     pmc = PMC.Prism
+    # else:
+    #     pmc = PMC.Storm
+    # path        = args['path'][0]
+    # input       = args['input']
+    # model_order = (args['model'])
+    # solver_type = ULTIMATE_Solver_Enum.Numerical
 
     # init dependencies list
     dependencies_list = []
@@ -314,26 +315,28 @@ if __name__ == "__main__":
     # FOR TESTING
     # path = "/Users/simos/Documents/Software/prism-4.8-mac64-arm/bin/prism"
     # pmc = PMC.Prism
-    # path = "storm"
-    # pmc = PMC.Storm
+    path = "storm"
+    pmc = PMC.Storm
     # 
-    # model_order = ("select_perception_model.dtmc", "")
+    model_order = ("select_perception_model.dtmc", "")
     # 
     # # Normal MC
     # input = [
-        # "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect",
-        # "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect", 
-        # "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1",
-        # "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2" 
+    #     "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (userOk & userPredictedOk))], pOkCorrect",
+    #     "select_perception_model.dtmc, perceive-user2.dtmc, P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))], pNotOkCorrect", 
+    #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1",
+    #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2" 
     # ]
-    # 
+    # solver_type = ULTIMATE_Solver_Enum.Numerical
+    
     #Parametric MC (note: set ULTIMATE_Solver_Enum.Parametric)
-    # input = [
-    #     "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
-    #     "Models/RAD/select_perception_model.dtmc, Models/RAD/perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
-    #     "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
-    #     "Models/RAD/perceive-user2.dtmc, Models/RAD/select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
-    # ]
+    input = [
+        "select_perception_model.dtmc, perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
+        "select_perception_model.dtmc, perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
+        "perceive-user2.dtmc, select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
+        "perceive-user2.dtmc, select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
+    ]
+    solver_type = ULTIMATE_Solver_Enum.Parametric
     #TESTING END
 
     for i in input:
@@ -354,7 +357,7 @@ if __name__ == "__main__":
         dependencies_list.append(dep)    
 
     #create the ULTIMATE solver instance
-    ulSolver = ULTIMATE_Solver(dependencies_list, pmc, path, ULTIMATE_Solver_Enum.Numerical)
+    ulSolver = ULTIMATE_Solver(dependencies_list, pmc, path, solver_type)
     
     #given the SCC list, solve them based on the model order (starting from the model given)
     result, loss = ulSolver.optimise(model_order)
