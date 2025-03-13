@@ -24,7 +24,10 @@
                 }
             }
         },
-        "properties": ["Rmax=?[F done]"]
+        "properties": [
+                "R{failures}=?[F done]",
+                "R{"cost"}=?[F done]"
+            ]
     },
     "robot1": {
         "fileName": "robot1.mdp",
