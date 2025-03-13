@@ -13,7 +13,6 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import model.Model;
-import prism.PrismException;
 import project.Project;
 import property.Property;
 import sharedContext.SharedContext;
@@ -93,8 +92,6 @@ public class PropertiesController {
 			CompletableFuture.supplyAsync(() -> {
 				try {
 					return verifier.verify(vModel.getModelId(), vProp.getProperty());
-				} catch (PrismException e) {
-					e.printStackTrace();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

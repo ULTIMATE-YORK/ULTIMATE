@@ -1,11 +1,11 @@
 package verification;
 
-import prism.PrismException;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 
-import org.mariuszgromada.math.mxparser.*;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ public class NPMCVerification {
     
     public NPMCVerification(ArrayList<Model> models) {
         //License.iConfirmNonCommercialUse("Your name, Your Organisation");  // Add this line to confirm license for math lib
-        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -148,12 +148,12 @@ public class NPMCVerification {
         logger.info("Found SCCs: " + sccs);
     }
 
-    public double verify(String startModelId, String property) throws PrismException, IOException {
+    public double verify(String startModelId, String property) throws IOException {
         VerificationModel startModel = modelMap.get(startModelId);
         return verifyModel(startModel, property);
     }
 
-    private double verifyModel(VerificationModel verificationModel, String property) throws PrismException, IOException {
+    private double verifyModel(VerificationModel verificationModel, String property) throws IOException {
         logger.info("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
         
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
@@ -373,7 +373,7 @@ public class NPMCVerification {
     }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-        mXparser.consolePrintln(false);  // Disable mXparser console output
+        //mXparser.consolePrintln(false);  // Disable mXparser console output
         logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables
@@ -517,7 +517,7 @@ public class NPMCVerification {
         }
     }
 
-    private double performPMC(VerificationModel model, String property) throws FileNotFoundException, PrismException {
+    private double performPMC(VerificationModel model, String property) throws FileNotFoundException {
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
@@ -534,16 +534,7 @@ public class NPMCVerification {
             // Extract just the error message without stack trace
             logger.error("Error running Storm: " + stormException.getMessage());
             //throw new Exception();
-        }
-        
-        try {
-            return PrismAPI.run(originalModel, property, true);
-        } catch (Exception prismException) {
-            // Extract just the error message without stack trace
-            logger.error("Error running PRISM API: " + prismException.getMessage());
-			//throw new PrismException("All model checking methods failed for model " + model.getModelId() + ": " + prismException.getMessage());
-        }
-        
+        }       
         
         // Try with PrismProcessAPI as second fallback
         logger.info("Trying second fallback with PRISM Process API...");
