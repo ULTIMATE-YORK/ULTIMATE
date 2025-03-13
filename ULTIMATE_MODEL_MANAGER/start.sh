@@ -6,7 +6,7 @@ mvn clean install
 # Check if config.json exists; if not, create it with default content
 CONFIG_FILE="$SCRIPT_DIR/config.json"
 if [ ! -f "$CONFIG_FILE" ]; then
-    echo "{\"stormInstall\" : \"\", \"stormParsInstall\" : \"\" }" > "$CONFIG_FILE"
+    echo "{\"stormInstall\" : \"\", \"stormParsInstall\" : \"\", \"prismInstall\" : \"\" }" > "$CONFIG_FILE"
 fi
 java -Djava.library.path="$SCRIPT_DIR/libs/runtime" \
      --module-path "$SCRIPT_DIR/libs/javafx-sdk-23.0.1/lib" \

@@ -2,10 +2,16 @@ package controllers;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuItem;
+import javafx.scene.image.ImageView;
+import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import project.Project;
@@ -19,16 +25,39 @@ public class MenuBarController {
 	@FXML private MenuItem saveButton;
 	@FXML private MenuItem saveAsButton;
 	@FXML private MenuItem quitButton;
-	@FXML private MenuItem configureStorm;
+	@FXML private MenuItem choosePrism;
+	@FXML private MenuItem chooseStorm;
 
 	private boolean saved = false;
 	
     private SharedContext sharedContext = SharedContext.getInstance();
     private Project project = sharedContext.getProject();	
 	
+	private static final Logger logger = LoggerFactory.getLogger(MenuBarController.class);
+
     @FXML
 	private void initialize() {
-		
+        
+    	// Tick icon (using a checkmark image or symbol)
+        ImageView prismtickIcon = new ImageView(new Image("/images/green_tick.png"));  // Example image
+        prismtickIcon.setFitWidth(15);
+        prismtickIcon.setFitHeight(15);
+        
+        
+    	// Tick icon (using a checkmark image or symbol)
+        ImageView stormtickIcon = new ImageView(new Image("/images/green_tick.png"));  // Example image
+        stormtickIcon.setFitWidth(15);
+        stormtickIcon.setFitHeight(15);
+
+        // Dynamically add/remove tick based on the property
+        choosePrism.graphicProperty().bind(Bindings.when(project.chosenPMCProperty().isEqualTo("PRISM"))
+                .then(prismtickIcon)
+                .otherwise((ImageView) null));
+        
+        // Dynamically add/remove tick based on the property
+        chooseStorm.graphicProperty().bind(Bindings.when(project.chosenPMCProperty().isEqualTo("STORM"))
+                .then(stormtickIcon)
+                .otherwise((ImageView) null));
 	}
 	
 	@FXML
@@ -95,8 +124,15 @@ public class MenuBarController {
 	}
 	
 	@FXML
-	private void configureStorm() throws IOException {
-		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/widgets/configure_storm.fxml", "Configure Storm");
+	private void setPrismPMC() {
+		logger.info("Setting PMC to PRISM...");
+		project.setChosenPMC("PRISM");
+	}
+	
+	@FXML
+	private void setStormPMC() {
+		logger.info("Setting PMC to STORM...");
+		project.setChosenPMC("STORM");
 	}
 
 }
