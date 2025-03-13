@@ -7,6 +7,7 @@ import javafx.scene.layout.GridPane; // The layout for the UI root element
 import javafx.stage.Stage; // The main stage/window of the JavaFX application
 import project.Project;
 import sharedContext.SharedContext;
+import utils.Alerter;
 
 /**
  * Main class for the Ultimate Model Manager JavaFX application.
@@ -52,6 +53,10 @@ public class Main extends Application {
 
         // Display the stage (window) to the user
         stage.show(); // Makes the primary stage visible
+        
+        if (!blankProject.isConfigured()) {        	
+            stage.close();
+        }
     }
 	
     /**

@@ -15,19 +15,21 @@
         <MenuItem fx:id="quitButton" onAction="#quit" mnemonicParsing="false" text="Quit" />
       </items>
     </Menu>
-    <!-- Verification Menu -->
+    
+    <!-- Verification Menu 
     <Menu mnemonicParsing="false" text="Verification">
       <items>
       </items>
       </Menu>
+      -->
+      
       <!-- Options menu -->
       <Menu mnemonicParsing="false" text="Options" >
        <items>
          <Menu mnemonicParsing="false" text="Choose PMC Engine" >
-          	<MenuItem mnemonicParsing="false" text="PRISM" />
-            <MenuItem mnemonicParsing="false" text="STORM" />  
+          	<MenuItem fx:id ="choosePrism" onAction="#setPrismPMC" mnemonicParsing="false" text="PRISM" />
+            <MenuItem fx:id="chooseStorm" onAction="#setStormPMC" mnemonicParsing="false" text="STORM" />  
          </Menu>
-         <MenuItem fx:id="configureStorm" onAction="#configureStorm" mnemonicParsing="false" text="Configure STORM" />
        </items>
       </Menu>
   </menus>

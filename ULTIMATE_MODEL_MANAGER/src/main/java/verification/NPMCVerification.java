@@ -1,9 +1,13 @@
 package verification;
 
-import prism.PrismException;
+import project.Project;
+import sharedContext.SharedContext;
 import utils.FileUtils;
 
-import org.mariuszgromada.math.mxparser.*;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.License;
+import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
-	
+   	
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	
     static class VerificationModel {
@@ -65,12 +69,11 @@ public class NPMCVerification {
     private Map<VerificationModel, List<VerificationModel>> sccMap;
     private ArrayList<Model> originalModels;
     private boolean usePythonSolver = false;
-    private String pythonSolverPath = "ULTIMATE_numerical_solver.py";
+    private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     private String modelsBasePath = "";
     
     public NPMCVerification(ArrayList<Model> models) {
-        //License.iConfirmNonCommercialUse("your name, your university");  // Add this line to confirm license for math library
-
+        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
         mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
@@ -145,12 +148,12 @@ public class NPMCVerification {
         logger.info("Found SCCs: " + sccs);
     }
 
-    public double verify(String startModelId, String property) throws PrismException, IOException {
+    public double verify(String startModelId, String property) throws IOException {
         VerificationModel startModel = modelMap.get(startModelId);
         return verifyModel(startModel, property);
     }
 
-    private double verifyModel(VerificationModel verificationModel, String property) throws PrismException, IOException {
+    private double verifyModel(VerificationModel verificationModel, String property) throws IOException {
         logger.info("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
         
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
@@ -215,7 +218,9 @@ public class NPMCVerification {
             List<String> inputData = new ArrayList<>();
             VerificationModel startVerificationModel = sccModels.get(0);
             String startModelId = startVerificationModel.getModelId();
-            String pmcPath = "/Users/sinem/Desktop/storm/build/bin/storm"; // Update as needed
+            SharedContext sharedContext = SharedContext.getInstance();
+            Project project = sharedContext.getProject();
+            String pmcPath = project.getStormInstall(); // Update as needed
             
             // Get the file path of the start model
             Model originalStartModel = getOriginalModel(startModelId);
@@ -514,7 +519,7 @@ public class NPMCVerification {
         }
     }
 
-    private double performPMC(VerificationModel model, String property) throws FileNotFoundException, PrismException {
+    private double performPMC(VerificationModel model, String property) throws FileNotFoundException {
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
@@ -531,22 +536,14 @@ public class NPMCVerification {
             // Extract just the error message without stack trace
             logger.error("Error running Storm: " + stormException.getMessage());
             //throw new Exception();
-        }
-        
-        try {
-            return PrismAPI.run(originalModel, property, true);
-        } catch (Exception prismException) {
-            // Extract just the error message without stack trace
-            logger.error("Error running PRISM API: " + prismException.getMessage());
-			//throw new PrismException("All model checking methods failed for model " + model.getModelId() + ": " + prismException.getMessage());
-        }
-        
+        }       
         
         // Try with PrismProcessAPI as second fallback
         logger.info("Trying second fallback with PRISM Process API...");
         try {
-        	// FIXME make this the project.prismpath
-            String prismPath = "/Users/micahbassett/Desktop/prism/prism/bin/prism";
+        	SharedContext sharedContext = SharedContext.getInstance();
+            Project project = sharedContext.getProject();
+            String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {
             logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
