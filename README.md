@@ -41,15 +41,35 @@ Click on a case study to learn more.
 
 [Java SE 22](https://www.oracle.com/java/technologies/javase/jdk22-archive-downloads.html)
 
-[JavaFX SDK](https://www.oracle.com/java/technologies/javase/jdk22-archive-downloads.html)
+[JavaFX SDK](https://gluonhq.com/products/javafx/)
 
 [Storm model checker](https://www.stormchecker.org/index.html)
 
 [PRISM model checker](https://www.prismmodelchecker.org/)
 
-The tool is currently supported by MacOS and Linux operating systems. 
+The lastest version of the JavaFX SDK should be downloaded as well as Java 22 or later as the SDK requires this. 
+Download and build storm and prism according to their respective installation guides.
 
 ### Installation
+
+Firstly, clone the repo in a convenient location. Navigate to the folder 'ULTIMATE_MODEL_MANAGER' within the cloned repo. The simplest way to run the tool is to use the maven integration in the project. Run the following commands:
+
+```console
+mvn clean install
+mvn exec:java
+```
+
+Alternatively, you can run the jar file directly but you will need to provide the module path for the JavaFX SDK you have downloaded.
+Firstly, from the 'ULTIMATE_MODEL_MANAGER' folder, run:
+
+```console
+mvn clean install
+```
+Once the project has been built, you will need to run the following:
+
+```console
+java --module-path <path_to_javafx_sdk/libs> --add-modules javafx.controls,javafx.fxml -jar target/ultimate_model_manager-1.0.jar
+```
 
 ### Running the tool
 
