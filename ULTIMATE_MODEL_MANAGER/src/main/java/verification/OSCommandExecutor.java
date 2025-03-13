@@ -36,8 +36,7 @@ public class OSCommandExecutor {
             Process process = processBuilder.start();
 
             // Create a file writer to write output to logs.txt
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                 BufferedWriter writer = new BufferedWriter(new FileWriter("logs.txt"))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             	
             	String readLine;
                 while ((readLine = reader.readLine()) != null) {
