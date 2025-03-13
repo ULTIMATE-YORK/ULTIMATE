@@ -6,7 +6,7 @@
 
   <groupId>ULTIMATE_MODEL_MANAGER</groupId>
   <artifactId>ultimate_model_manager</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>1.0</version>
 
   <properties>
     <javafx.module.path>${java.home}/lib</javafx.module.path>
