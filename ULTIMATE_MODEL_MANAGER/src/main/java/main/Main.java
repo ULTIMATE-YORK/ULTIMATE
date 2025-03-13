@@ -54,7 +54,7 @@ public class Main extends Application {
         // Display the stage (window) to the user
         stage.show(); // Makes the primary stage visible
         
-        if (!blankProject.isConfigured()) {
+        if (!blankProject.isConfigured()) {        	
             stage.close();
         }
     }
