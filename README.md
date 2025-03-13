@@ -97,3 +97,7 @@ The current project can be saved by pressing *File -> Save*.
 
 **NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files
         ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
+
+### Video Guide
+
+https://github.com/user-attachments/assets/0ce0242e-65cc-411d-90f4-7d47758a2401
