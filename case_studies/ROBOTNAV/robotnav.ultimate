@@ -1,0 +1,131 @@
+{"models": {
+    "humanIntervention": {
+        "fileName": "supervisor.dtmc",
+        "id": "supervisor",
+        "parameters": {
+            "environment": {
+            	"nAttempts": {
+                    "name": "p_l1",
+                    "type": "Fixed",
+                    "value": "2"
+                }
+            },
+            "internal": {},
+            "dependency": {
+                "pR1": {
+                    "modelId": "robot1",
+                    "name": "pR1",
+                    "property": "Pmax=?[F done]"
+                },
+                "pR2": {
+                    "modelId": "robot2",
+                    "name": "pR2",
+                    "property": "Pmax=?[F done]"
+                }
+            }
+        },
+        "properties": ["Rmax=?[F done]"]
+    },
+    "robot1": {
+        "fileName": "robot1.mdp",
+        "id": "robot1",
+        "parameters": {
+            "environment": {
+                "p_l1": {
+                    "name": "p_l1",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l1.txt"
+                },
+                "p_l2": {
+                    "name": "p_l2",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l2.txt"
+                },
+                "p_l3": {
+                    "name": "p_l3",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l3.txt"
+                },
+                "p_l4": {
+                    "name": "p_l4",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l4.txt"
+                },
+                "p_l9": {
+                    "name": "p_l9",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l9.txt"
+                },
+                "p_l5": {
+                    "name": "p_l5",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l5.txt"
+                },
+                "p_l6": {
+                    "name": "p_l6",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l6.txt"
+                },
+                "p_l8": {
+                    "name": "p_l8",
+                    "type": "Mean",
+                    "value": "data/robot1_p_l8.txt"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["Pmax=?[F done]"]
+    },
+    "robot2": {
+        "fileName": "robot2.mdp",
+        "id": "robot2",
+        "parameters": {
+            "environment": {
+                "p_l1": {
+                    "name": "p_l1",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l1.txt"
+                },
+                "p_l2": {
+                    "name": "p_l2",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l2.txt"
+                },
+                "p_l3": {
+                    "name": "p_l3",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l3.txt"
+                },
+                "p_l4": {
+                    "name": "p_l4",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l4.txt"
+                },
+                "p_l9": {
+                    "name": "p_l9",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l9.txt"
+                },
+                "p_l6": {
+                    "name": "p_l6",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l6.txt"
+                },
+                "p_l7": {
+                    "name": "p_l7",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l7.txt"
+                },
+                "p_l8": {
+                    "name": "p_l8",
+                    "type": "Mean",
+                    "value": "data/robot2_p_l8.txt"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["Pmax=?[F done]"]
+    }
+}}
