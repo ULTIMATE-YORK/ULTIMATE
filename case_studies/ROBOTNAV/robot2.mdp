@@ -1,48 +1,46 @@
 // Robot 2 - model
 
-// Aim:
-// This model is intended to obtain a policy that maximises the probability 
-// of succeeding with its tasks; then obtained the probability of failure
-// of this policy. This is done by model checking:
-// 1 - Pmax=?[F done]
-
 // Model description:
-// The model describes @robot2 moving accross a grid.
-// Each location l1-l9 have a probability of transitioning 
-// through that location (space), for example, the robot can pass
-// through l3 with 0.6 probability.
-// Here there is only one obstable at l5.
-// Robot r2 is at l1 and has to do T1 at l9.
+// The model describes robot R1 moving up/down/left/right through a grid world
+// with 9 locations labelled l1 to l9. The robot starts at location l1, 
+// and needs to navigate to location l9, where it has a task T1 to perform.
+// An obstacle is present at location l5, and the robot's transition 
+// through each other location lx, where x=1,2,..., succeeds with a
+// probability p_lx that depends on the distance between that location
+// and the obstacle, and fails with probability 1-p_lx.
 
-// |-----|-----|-----|  
-// | l1  | l2  | l3  |
-// | 1 r2| 0.8 | 0.6 |
-// |-----|-----|-----| 
-// | l4  |/l5//| l6  |
-// | 0.8 |/////| 0.8 |
-// |-----|-----|-----| 
-// | l7  |  l8 |  l9 |
-// | 0.9 | 0.8 | 1 T1|
-// |-----|-----|-----| 
+// +--------|--------|--------+  
+// | l1  R1 | l2     | l3     |
+// | p_l1   | p_l2   | p_l3   |
+// |--------|--------|--------|  
+// | l4     |/ l5 ///| l6     |
+// | p_l4   |////////| p_l6   |
+// |--------|--------|--------|  
+// | l7     | l8     | l9  T1 |
+// | p_l7   | p_l8   | p_l9   |
+// +--------|--------|--------+  
+
+// Aim:
+// The model is used to obtain a policy (i.e., sequence of robot movements) 
+// which maximises the probability that the robot reaches location l9 to 
+// perform its task. This is done by model checking the property Pmax=?[F done]
+
 
 mdp 
 
+//-- external parameters: prob. of success when travelling through a location lx
+const double p_l1;
+const double p_l2;
+const double p_l3;
+const double p_l4;
+// l5 is blocked
+const double p_l6;
+const double p_l7;
+const double p_l8;
+const double p_l9;
+
 formula done = l=9; // task done at T1
 const int fail = 10; // robot failed to travel through an location area
-
-//--prob. of success when travelling through a location lx
-const double p_l1 = 0.35714285714285715;
-// assume a probability of one of leaving the initial area
-const double p_l2 = 1.3333333333333333;
-const double p_l3 = 2.8;
-const double p_l4 = 0.75;
-// l5 is blocked
-const double p_l6 = 0.75;
-const double p_l7 = 2.8;
-const double p_l8 = 0.75;
-const double p_l9 = 0.35714285714285715;
-// assume a prob. of one of travelling in the goal location's area, l9
-//--
 
 module robot2
  l:[1..10] init 1;
@@ -70,6 +68,6 @@ module robot2
  [l8_left]  l=8 -> p_l7:(l'=7) + (1-p_l7):(l'=fail);
  // from l9 (goal)
  [goalReached]  l=9 -> 1:(l'=9);
- // from l10 (fail)
+ // fail state
  [fail] l=10 -> 1:(l'=10);
 endmodule
