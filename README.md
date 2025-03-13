@@ -1,7 +1,10 @@
-# ULTIMATE
-We introduce the **UniversaL stochasTIc Modelling, verificAtion and synThEsis** (ULTIMATE) tool that supports the representation, verification and synthesis of heterogeneous multi-model stochastic systems (Markov decision processes, discrete time Markov chains, stochastic games, etc.) with complex model interdependencies. Through its unique integration of multiple Parametric Model Checking PMC paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies&mdash;for the first time&mdash;the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context. We provide a comprehensive set of case studies to demonstrate the versatility and effectiveness of our novel verification framework.
+# ULTIMATE Multi-model Stochastic System Modelling, Verification and Synthesis Framework
 
+The ULTIMATE tool supports the formal representation, verification and synthesis of multi-model stochastic systems. These are combinations of heterogenous, interdependent stochastic models (discrete and continuous-time Markov chains, Markov decision processes, stochastic games, etc.) required for verifying the dependability and performance of modern software-intensive systems.
 
+Through its unique integration of multiple probabilistic and parametric model checking paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies&mdash;for the first time&mdash;the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context. 
+
+We provide a comprehensive set of case studies to demonstrate the versatility and effectiveness of our novel verification framework.
 
 
 ## Installation
