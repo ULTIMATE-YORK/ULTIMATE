@@ -3,4 +3,3 @@ bin/
 .DS_Store
 target/
 .settings
-/ULTIMATE_MODEL_MANAGER/config.json

@@ -6,6 +6,8 @@ import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
+import org.mariuszgromada.math.mxparser.License;
+import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +75,8 @@ public class NPMCVerification {
     private String modelsBasePath = "";
     
     public NPMCVerification(ArrayList<Model> models) {
-        //License.iConfirmNonCommercialUse("Your name, Your Organisation");  // Add this line to confirm license for math lib
-        //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
+        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -373,7 +375,7 @@ public class NPMCVerification {
     }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-        //mXparser.consolePrintln(false);  // Disable mXparser console output
+        mXparser.consolePrintln(false);  // Disable mXparser console output
         logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables
