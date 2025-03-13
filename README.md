@@ -63,7 +63,7 @@ This file stores the installation locations of storm and prism. These will need 
 The full path to each executable for storm, storm-pars and prism will need to be set or the tool will report and error and close. For example:
 
 ```json
-{"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"","prismInstall":""}
+{"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism"}
 ```
 
 Still within the folder 'ULTIMATE_MODEL_MANAGER', the simplest way to run the tool is to use the maven integration in the project. Run the following commands:
