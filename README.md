@@ -37,6 +37,21 @@ Click on a case study to learn more.
 
 ## Installation
 
+### Prerequisites
+
+[Java SE 22](https://www.oracle.com/java/technologies/javase/jdk22-archive-downloads.html)
+
+[JavaFX SDK](https://www.oracle.com/java/technologies/javase/jdk22-archive-downloads.html)
+
+[Storm model checker](https://www.stormchecker.org/index.html)
+
+[PRISM model checker](https://www.prismmodelchecker.org/)
+
+The tool is currently supported by MacOS and Linux operating systems. 
+
+### Installation
+
+### Running the tool
 
 ### Loading a project
 The ULTIMATE tool is currently supported in XX OS.
