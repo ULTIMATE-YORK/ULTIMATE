@@ -16,6 +16,8 @@ const double idle2sleep=100/67;
 // rate of service
 const double service=1000/1100;//1000/8; 
 
+const double pIdle2Sleep;
+
 module SP
 
 	sp : [0..2]; // 0 - sleep, 1 - idle,  2 - busy
@@ -68,8 +70,8 @@ module PM
 	// queue is full so go from sleep to idle
 	[sleep2idle] q=QMAX -> (p'=p);
 	// probabilistic choice when queue becomes empty
-	[serve] q=1 -> 0.008963 : (p'=1);
-	[serve] q=1 -> 0.991037 : (p'=0);
+	[serve] q=1 -> pIdle2Sleep : (p'=1);
+	[serve] q=1 -> 0.(1-pIdle2Sleep) : (p'=0);
 	[serve] q>1 -> true; // loops for remaining states
 	[request] true -> (p'=0); // idle to sleep
 	[idle2sleep] p=1 -> (p'=0); // reset p when queue is no longer empty
