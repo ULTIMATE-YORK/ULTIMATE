@@ -38,6 +38,7 @@ public class Project {
 	private String stormInstall = null;
 	private String stormParsInstall = null;
 	private String prismInstall = null;
+	private String prismGamesInstall = null;
 	private ObjectProperty<String> chosenPMC;
 	private String saveLocation = null; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
@@ -214,6 +215,10 @@ public class Project {
 	public String getPrismInstall() {
 		return this.prismInstall;
 	}
+	
+	public String getPrismGamesInstall() {
+		return this.prismGamesInstall;
+	}
     
 	private void setupConfigs() throws IOException {
         File configFile = new File("config.json");
@@ -250,6 +255,17 @@ public class Project {
         	if (sharedContext.getMainStage() != null) {
             	Alerter.showWarningAlert("No PRISM Installation found!", "Please configure the location of the PRISM install on your system!");
             	configured = false;
+        	}
+        }
+        
+        String prismGamesInstall = configJSON.getString("prismGamesInstall");
+        if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
+        	this.prismGamesInstall = prismGamesInstall;
+        }
+        else {
+        	if (sharedContext.getMainStage() != null) {
+            	//Alerter.showWarningAlert("No PRISM games Installation found!", "Please configure the location of the PRISM Games install on your system!");
+            	//configured = false;
         	}
         }
 	}
