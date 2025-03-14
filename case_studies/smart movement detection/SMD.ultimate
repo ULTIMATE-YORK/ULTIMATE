@@ -11,7 +11,7 @@
                 "property": "P=?[F step=2 & detected]"
             }}
         },
-        "properties": []
+        "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
     },
     "MotionSensor": {
         "fileName": "MotionSensor.prism",
