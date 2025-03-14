@@ -8,7 +8,7 @@
             "dependency": {"pDetected": {
                 "modelId": "MotionSensor",
                 "name": "pDetected",
-                "property": "P=?[F step=2 & detected]"
+                "property": "P=?[F (step=2 & detected)]"
             }}
         },
         "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
@@ -37,8 +37,8 @@
             }
         },
         "properties": [
-            "P=?[F step=2 & object=2 & detected]",
-            "P=?[F step=2 & object=2]"
+            "P=?[F (step=2 & object=2 & detected)]",
+            "P=?[F (step=2 & object=2)]"
         ]
     }
 }}
