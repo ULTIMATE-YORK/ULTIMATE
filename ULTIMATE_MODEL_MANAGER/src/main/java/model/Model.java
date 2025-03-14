@@ -296,7 +296,6 @@ public class Model {
 	    Files.copy(originalFile.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
 	    // update the file with the model parameters;
 	    FileUtils.writeParametersToFile(tempFile.getAbsolutePath(), getHashExternalParameters());
-	    System.out.println(tempFile.toString());
 	    // Ensure that the temporary file is deleted when the JVM exits.
 	    tempFile.deleteOnExit();
 	    

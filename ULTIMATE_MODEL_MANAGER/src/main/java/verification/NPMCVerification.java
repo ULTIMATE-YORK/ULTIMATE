@@ -186,7 +186,7 @@ public class NPMCVerification {
                 try {
                     resolveSCC(currentSCC);
                 } catch (Exception e) {
-                    System.err.println("Failed to resolve SCC using parametric model checking: " + e.getMessage());
+                    logger.error("Failed to resolve SCC using parametric model checking: " + e.getMessage());
                     logger.info("Switching to Python numerical solver...");
                     usePythonSolver = true;
                     // Reset any partial parameter values that might have been calculated
@@ -207,6 +207,7 @@ public class NPMCVerification {
         
         double result = performPMC(verificationModel, property);
         logger.info("Final PMC result for " + verificationModel + ": " + result);
+        // TODO : export model files with parameters set
         return result;
     }
     
