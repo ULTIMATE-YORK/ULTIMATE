@@ -20,7 +20,7 @@
             "environment": {"pLargeObject": {
                 "name": "pLargeObject",
                 "type": "Fixed",
-                "value": "0.02"
+                "value": "0.4"
             }},
             "internal": {},
             "dependency": {

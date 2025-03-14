@@ -47,6 +47,7 @@ public class PrismProcessAPI {
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
             logger.error("PRISM execution failed: " + errorMessage);
+            System.out.println("\nModel: " + model.getModelId() + "\nProperty: " + property + "\nprismInstallLocation: " + prismInstallLocation);
             throw new RuntimeException("PRISM execution failed: " + errorMessage);
         }
         
