@@ -229,7 +229,7 @@ public class NPMCVerification {
                 throw new RuntimeException("Could not find original model for ID: " + startModelId);
             }
             
-            String modelFilePath = originalStartModel.getFilePath();
+            String modelFilePath = originalStartModel.getVerificationFilePath();
             if (modelFilePath == null || modelFilePath.isEmpty()) {
             	logger.error("Model path is empty for model: " + startModelId);
                 throw new RuntimeException("Model path is empty for model: " + startModelId);
@@ -242,7 +242,7 @@ public class NPMCVerification {
                     continue;
                 }
                 
-                String currentModelFilePath = originalModel.getFilePath();
+                String currentModelFilePath = originalModel.getVerificationFilePath();
                 if (currentModelFilePath == null || currentModelFilePath.isEmpty()) {
                     logger.warn("Warning: File path is empty for model: " + model.getModelId());
                     continue;
@@ -258,7 +258,7 @@ public class NPMCVerification {
                             continue;
                         }
                         
-                        String targetModelFilePath = originalTargetModel.getFilePath();
+                        String targetModelFilePath = originalTargetModel.getVerificationFilePath();
                         if (targetModelFilePath == null || targetModelFilePath.isEmpty()) {
                             logger.warn("Warning: File path is empty for target model: " + targetModel.getModelId());
                             continue;
@@ -528,13 +528,17 @@ public class NPMCVerification {
         }
         //System.out.println(originalModel.getModelId() + model.getParameters());
 		try {
-			FileUtils.updateModelFileResults(originalModel, originalModel.getHashExternalParameters());
+			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
 		} catch (NumberFormatException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-        FileUtils.updateModelFileResults(originalModel, model.getParameters());
+        try {
+			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
         // First try with Storm
         try {

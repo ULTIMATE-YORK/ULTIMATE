@@ -6,21 +6,21 @@ dtmc
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pModel1 = 0.39506681;
-const double pModel2 = 0.3107345;
+const double pModel1;
+const double pModel2;
 const double pModel12=1-pModel1-pModel2;   // probabilistiy that model 1 and 2 are used
 
 // External parameters (derived from data collected from observing the system and its environment)
-const double p1_ok_correct = 0.7;
-const double p1_ok_verified = 0.8;
-const double p1_ok_true_correct = 0.92;
-const double p1_ok_false_correct = 0.63;
-const double p1_notok_correct = 0.72;
-const double p1_notok_verified = 0.79;
-const double p1_notok_true_correct = 0.93;
-const double p1_notok_false_correct = 0.61;
-const double p2_ok_correct = 0.93;
-const double p2_notok_correct = 0.92;
+const double p1_ok_correct;
+const double p1_ok_verified;
+const double p1_ok_true_correct;
+const double p1_ok_false_correct;
+const double p1_notok_correct;
+const double p1_notok_verified;
+const double p1_notok_true_correct;
+const double p1_notok_false_correct;
+const double p2_ok_correct;
+const double p2_notok_correct;
 
 label "done" = s=3;
 

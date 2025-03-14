@@ -6,16 +6,16 @@ pomdp
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pPickGarnment = 0.734960555;
-const double pOkCorrect = 0.4183905221;
-const double pNotOkCorrect = 0.4216554038;
+const double pPickGarnment;
+const double pOkCorrect;
+const double pNotOkCorrect;
 // External parameters (derived from data collected from observations)
-const double pOk = 0.8;
-const double pDressOkSlow = 0.8961538461538462;
-const double pDressOkFast = 0.9529411764705883;
-const double pDressNotOkSlow = 0.9076923076923078;
-const double pDressNotOkFast = 0.9441176470588236;
-const double pPermissionToRetryGranted = 0.8366666666666667;
+const double pOk;
+const double pDressOkSlow;
+const double pDressOkFast;
+const double pDressNotOkSlow;
+const double pDressNotOkFast;
+const double pPermissionToRetryGranted;
 
 observables step, userPredictedOk endobservables
 

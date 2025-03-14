@@ -38,7 +38,7 @@ public class PrismProcessAPI {
         String propFilePath = createTemporaryPropertyFile(property);
         
         // Run PRISM with property file
-        String command = prismInstallLocation + " \"" + model.getFilePath() + "\"" + " " + propFilePath;
+        String command = prismInstallLocation + " \"" + model.getVerificationFilePath() + "\"" + " " + propFilePath;
         logger.info("Executing PRISM command: " + command);
         
         String output = OSCommandExecutor.executeCommand(command);
@@ -80,7 +80,7 @@ public class PrismProcessAPI {
         StringBuilder commandBuilder = new StringBuilder();
         commandBuilder.append(prismInstallLocation)
                       .append(" ")
-                      .append(model.getFilePath())
+                      .append(model.getVerificationFilePath())
                       .append(" ")
                       .append(propFilePath);
         
@@ -182,7 +182,7 @@ public class PrismProcessAPI {
         StringBuilder commandBuilder = new StringBuilder();
         commandBuilder.append(prismInstallLocation)
                       .append(" ")
-                      .append(model.getFilePath())
+                      .append(model.getVerificationFilePath())
                       .append(" ")
                       .append(propFilePath);
         
@@ -232,7 +232,7 @@ public class PrismProcessAPI {
         HashMap<String, Double> parametersMap = new HashMap<>(parameters);
         
         // Update the model file with the parameter values
-        FileUtils.updateModelFileResults(model, parametersMap);
+        FileUtils.writeParametersToFile(model.getVerificationFilePath(), parametersMap);
         
         // Run verification on the updated model
         double result = run(model, property, prismInstallLocation);

@@ -85,7 +85,7 @@ public class PropertiesController {
 			// update the mode files here
 			// TODO: in future, make seperate model files
 			for (Model m : models) {
-				FileUtils.updateModelFileResults(m, m.getHashExternalParameters());
+				FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
 			}
 			NPMCVerification verifier = new NPMCVerification(models);
 
