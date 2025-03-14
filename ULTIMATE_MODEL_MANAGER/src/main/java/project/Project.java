@@ -258,16 +258,16 @@ public class Project {
         	}
         }
         
-        String prismGamesInstall = configJSON.getString("prismGamesInstall");
-        if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
-        	this.prismGamesInstall = prismGamesInstall;
-        }
-        else {
-        	if (sharedContext.getMainStage() != null) {
+        //String prismGamesInstall = configJSON.getString("prismGamesInstall");
+        //if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
+        	//this.prismGamesInstall = prismGamesInstall;
+        //}
+        //else {
+        	//if (sharedContext.getMainStage() != null) {
             	//Alerter.showWarningAlert("No PRISM games Installation found!", "Please configure the location of the PRISM Games install on your system!");
             	//configured = false;
-        	}
-        }
+        	//}
+        //}
 	}
 	
 	/*
