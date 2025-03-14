@@ -1,6 +1,9 @@
 package model;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,9 +30,10 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-   private List<InternalParameter> internalParameters; // List of internal parameters
+    private List<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
+    private File verificationFile;
     
     /**
      * Constructor to initialise a new Model object.
@@ -278,6 +282,28 @@ public class Model {
 	            break; // Assuming names are unique, break out of the loop.
 	        }
 	    }
+	}
+	
+	/*
+	 * Method to create and return a copy of the model file to be used for verification
+	 */
+	private File tempModelFile() throws IOException {
+	    // Create a temporary file. The prefix and suffix can be adjusted as needed.
+	    File tempFile = File.createTempFile(this.modelId + "_copy", ".prism");
+	    // Copy the original file (located at filePath) to the temporary file.
+	    File originalFile = new File(this.filePath);
+	    Files.copy(originalFile.toPath(), tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+	    // update the file with the model parameters;
+	    FileUtils.writeParametersToFile(tempFile.getAbsolutePath(), getHashExternalParameters());
+	    // Ensure that the temporary file is deleted when the JVM exits.
+	    tempFile.deleteOnExit();
+	    
+	    return tempFile;
+	}
+
+	public String getVerificationFilePath() throws IOException {
+		verificationFile = tempModelFile();
+		return verificationFile.getAbsolutePath();
 	}
 	
 	public String toString() {

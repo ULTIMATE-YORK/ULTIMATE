@@ -6,11 +6,11 @@ pomdp
 
 // Model parameters
 // Dependency parameters (obtained through the analysis of other models)
-const double pPickGarnment = 0.0;
+const double pPickGarnment = 0.734960555;
 const double pOkCorrect = 0.4183905221;
 const double pNotOkCorrect = 0.4216554038;
 // External parameters (derived from data collected from observations)
-const double pOk = 0.6;
+const double pOk = 0.8;
 const double pDressOkSlow = 0.8961538461538462;
 const double pDressOkFast = 0.9529411764705883;
 const double pDressNotOkSlow = 0.9076923076923078;

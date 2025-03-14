@@ -151,5 +151,36 @@ public class FileUtils {
             System.err.println("Error updating model file: " + e.getMessage());
         }
     }
+   
+   public static void writeParametersToFile(String filePath, HashMap<String, Double> constants) {       
+       
+	   try {
+           // Read all lines from the file
+           Path path = Paths.get(filePath);
+           StringBuilder updatedContent = new StringBuilder();
+
+           for (String line : Files.readAllLines(path)) {
+               String updatedLine = line;
+
+               // Check if the line contains the pattern "const double NAME;"
+               for (String key : constants.keySet()) {
+                   String pattern = "const double " + key + ";";
+                   if (line.contains(pattern)) {
+                       double value = constants.get(key);
+                       updatedLine = "const double " + key + " = " + value + ";";
+                       break; // Stop checking once a match is found for this line
+                   }
+               }
+
+               updatedContent.append(updatedLine).append(System.lineSeparator());
+           }
+
+           // Write the updated content back to the file
+           Files.write(path, updatedContent.toString().getBytes());
+
+       } catch (IOException e) {
+           System.err.println("Error updating model file: " + e.getMessage());
+       }
+   }
 	
 }

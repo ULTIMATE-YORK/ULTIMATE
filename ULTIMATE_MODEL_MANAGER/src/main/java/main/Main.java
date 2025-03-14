@@ -31,7 +31,6 @@ public class Main extends Application {
         
         // set up blank project
         Project blankProject = new Project();
-        //Project blankProject = new Project("/Users/micahbassett/Desktop/WorldModel/ULTIMATE_MODEL_MANAGER/src/test/resources/projectTestResources/RAD.ultimate");
         // set the reference
         sharedContext.setProject(blankProject);
 

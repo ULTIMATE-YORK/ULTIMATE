@@ -526,6 +526,14 @@ public class NPMCVerification {
         	logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
+        //System.out.println(originalModel.getModelId() + model.getParameters());
+		try {
+			FileUtils.updateModelFileResults(originalModel, originalModel.getHashExternalParameters());
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         FileUtils.updateModelFileResults(originalModel, model.getParameters());
 
         // First try with Storm
