@@ -41,6 +41,7 @@ public class EditDependencyParameter {
 			DependencyParameter depParam = new DependencyParameter(dp.getName(), model, def);
 			project.getCurrentModel().addDependencyParameter(depParam);
 			project.getCurrentModel().removeDependencyParameter(dp);
+			project.refresh();
 			closeDialog();
 		}
 	}

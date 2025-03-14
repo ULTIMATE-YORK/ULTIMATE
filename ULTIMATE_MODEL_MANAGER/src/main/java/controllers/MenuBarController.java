@@ -27,8 +27,6 @@ public class MenuBarController {
 	@FXML private MenuItem quitButton;
 	@FXML private MenuItem choosePrism;
 	@FXML private MenuItem chooseStorm;
-
-	private boolean saved = false;
 	
     private SharedContext sharedContext = SharedContext.getInstance();
     private Project project = sharedContext.getProject();	
@@ -99,7 +97,7 @@ public class MenuBarController {
 	
 	@FXML
 	private void save() {
-		if (!saved) {
+		if (project.getSaveLocation() == null) {
 			saveAs();
 		}
 		else {
@@ -115,7 +113,6 @@ public class MenuBarController {
 		}
 		project.setSaveLocation(location);
 		project.save(location);
-		saved = true;
 	}
 	
 	@FXML

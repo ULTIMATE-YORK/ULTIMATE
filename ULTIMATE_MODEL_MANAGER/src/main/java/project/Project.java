@@ -39,7 +39,7 @@ public class Project {
 	private String stormParsInstall = null;
 	private String prismInstall = null;
 	private ObjectProperty<String> chosenPMC;
-	private String saveLocation; // set when a project has been saved as, used for subsequent saves
+	private String saveLocation = null; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
 	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
@@ -49,6 +49,7 @@ public class Project {
         sharedContext.setProject(this);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
+		saveLocation = projectPath;
 		models = importer.importProject();
         // Initialise currentModel property (first model in the set or null)
         currentModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
@@ -165,6 +166,19 @@ public class Project {
     
     public void setSaveLocation(String location) {
     	this.saveLocation = location;
+    }
+    
+    public void load() {
+		try {
+			models = importer.importProject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    
+    public void refresh() {
+    	save();
+    	load();
     }
     
     public String getSaveLocation() {

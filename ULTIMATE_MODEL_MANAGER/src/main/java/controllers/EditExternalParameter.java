@@ -17,6 +17,7 @@ import parameters.ExternalParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
+import utils.FileUtils;
 
 public class EditExternalParameter {
 	
@@ -102,9 +103,9 @@ public class EditExternalParameter {
 				ExternalParameter eParam = new ExternalParameter(ep.getName(), type, value);
 				project.getCurrentModel().addExternalParameter(eParam);
 				project.getCurrentModel().removeExternalParameter(ep);
+				project.refresh();
 				closeDialog();
 			} catch (IOException e) {
-				
 			}
 		}
 	}
