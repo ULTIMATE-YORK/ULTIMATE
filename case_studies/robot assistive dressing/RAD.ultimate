@@ -126,7 +126,7 @@
                 }
             }
         },
-        "properties": ["Pmin=?[F step=5]"]
+        "properties": ["Pmin=?[F step=6]"]
     },
     "pick-garment": {
         "fileName": "pick-garment.ctmc",
