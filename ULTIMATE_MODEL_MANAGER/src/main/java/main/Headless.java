@@ -10,6 +10,7 @@ import org.apache.commons.cli.ParseException;
 
 import model.Model;
 import project.Project;
+import property.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 import verification.NPMCVerification;
@@ -21,9 +22,9 @@ import org.apache.commons.cli.DefaultParser;
 public class Headless {
 	
 	private static Options options = new Options();
-	private static String projectFile;
-	private static String modelID;
-	private static String property;
+	private static String projectFile = null;
+	private static String modelID = null;
+	private static String property = null;
 	private static boolean help = false;
     private static SharedContext sharedContext = SharedContext.getInstance();
     
@@ -91,15 +92,31 @@ public class Headless {
 		}
 		
 		sharedContext.setProject(project);
-	    
+	    Model testingModel = null;
 	    ArrayList<Model> models = new ArrayList<>();
 		models.addAll(project.getModels());
 		// update the mode files here
 		for (Model m : models) {
 			FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+			if (m.getModelId().equals(modelID)) {
+				testingModel = m;
+			}
 		}
 		NPMCVerification verifier = new NPMCVerification(models);
-	    double result = verifier.verify(modelID, property);
-	    System.out.println("Result: " + result);
+		ArrayList<Double> results = new ArrayList<>();
+		double result = 0.0;
+		StringBuilder resultsInfo = new StringBuilder();
+		if (property == null) {
+			for (Property p : testingModel.getProperties()) {
+				double temp = verifier.verify(modelID, p.getProperty());
+				results.add(temp);
+				resultsInfo.append("Property: " + p.getProperty() + "\nResult: " + temp + "\n\n");
+			}
+			System.out.println("\n\nFinal Results:\n" + resultsInfo);
+		}
+		else {
+			result = verifier.verify(modelID, property);
+		    System.out.println("\n\nFinal Result:\n" + result);
+		}
 	}
 }
