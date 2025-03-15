@@ -20,7 +20,8 @@
     Optimal parameters: {'pModel1': 0.39958, 'pModel2': 0.30078, 'pOkCorrect': 0.41784, 'pNotOkCorrect': 0.42122}
 Minimum objective value: 0.0031533
 
-
+---
+---
 
 ### SMD - Storm invocation (runs much faster than Prism)
      python3 ULTIMATE_numerical_solver.py \
