@@ -299,15 +299,15 @@ class PMC(Enum):
 
 if __name__ == "__main__":
     #parse command line arguments
-    # args = parse_arguments()
-    # if args['mc'][0].lower() ==  PMC.Prism.name.lower():
-    #     pmc = PMC.Prism
-    # else:
-    #     pmc = PMC.Storm
-    # path        = args['path'][0]
-    # input       = args['input']
-    # model_order = (args['model'])
-    # solver_type = ULTIMATE_Solver_Enum.Numerical
+    args = parse_arguments()
+    if args['mc'][0].lower() ==  PMC.Prism.name.lower():
+        pmc = PMC.Prism
+    else:
+        pmc = PMC.Storm
+    path        = args['path'][0]
+    input       = args['input']
+    model_order = (args['model'])
+    solver_type = ULTIMATE_Solver_Enum.Numerical
 
     # init dependencies list
     dependencies_list = []
@@ -315,10 +315,9 @@ if __name__ == "__main__":
     # FOR TESTING
     # path = "<path_to_prism>"
     # pmc = PMC.Prism
-    path = "storm"
-    pmc = PMC.Storm
+    # path = "storm"
+    # pmc = PMC.Storm
     # 
-    model_order = ("select_perception_model.dtmc", "")
     # 
     # # Normal MC
     # input = [
@@ -327,16 +326,24 @@ if __name__ == "__main__":
     #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=1], pModel1",
     #     "perceive-user2.dtmc, select_perception_model.dtmc, P=?[F s=2], pModel2" 
     # ]
+    # model_order = ("select_perception_model.dtmc", "")
+    #Normal MC SMD
+    # input = [
+    #     "ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/SmartLighting.prism, ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/MotionSensor.prism, P=?[F (step=2 & detected)], pDetected", 
+    #     "ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/MotionSensor.prism, ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/SmartLighting.prism, R{\"low\"}=? [C<=10000], pLow", 
+    #     "ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/MotionSensor.prism, ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/SmartLighting.prism, R{\"medium\"}=? [C<=10000], pMed" 
+    # ]
+    # model_order = ("ULTIMATE_MODEL_MANAGER/ULTIMATE_Numerical_Solver/SmartLighting.prism", "")
     # solver_type = ULTIMATE_Solver_Enum.Numerical
-    
+    # 
     #Parametric MC (note: set ULTIMATE_Solver_Enum.Parametric)
-    input = [
-        "select_perception_model.dtmc, perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
-        "select_perception_model.dtmc, perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
-        "perceive-user2.dtmc, select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
-        "perceive-user2.dtmc, select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
-    ]
-    solver_type = ULTIMATE_Solver_Enum.Parametric
+    # input = [
+        # "select_perception_model.dtmc, perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
+        # "select_perception_model.dtmc, perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
+        # "perceive-user2.dtmc, select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
+        # "perceive-user2.dtmc, select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
+    # ]
+    # solver_type = ULTIMATE_Solver_Enum.Parametric
     #TESTING END
 
     for i in input:

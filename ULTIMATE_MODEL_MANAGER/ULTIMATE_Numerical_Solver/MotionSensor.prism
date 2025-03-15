@@ -1,0 +1,52 @@
+// This DTMC models a motion-detector sensor that triggers an alarm if it detects a moving object 
+// when it is activated. The sensor is used at night time, and is activated every few seconds.
+// However, the DTMC only models what happens during one such activation.
+// 
+// When the sensor is activated, it needs to deal with one of three situations:
+// - no moving object exists in the area monitored by the sensor (probability 0.8)
+// - a small, irrelevant object (e.g., a leaf) is being moved around by the wind (probability 0.15)
+// - a large, relevant object, e.g. cat or dog or intruder is present in the area (probability is an external parameter)
+//
+// The sensor is imperfect, and its object-detection ability is influenced by how well lit the area is.
+// Three levels of lighting are possible: low, medium and high - with probabilities pLow, pMed and pHigh, 
+// such that pLow + pMed + pHigh = 1. These three probabilities are dependency parameters whose values are
+// obtained by analysing another model.
+//
+// The probabilities that the sensor reports the presence of an object for the different combinations 
+// of situations and lighting levels are as follows:
+//
+//  situation       low_light    med_light    high_light 
+//  -------------------------------------------------------
+//  no object          0.1          0.02          0
+//  small object       0.25         0.1           0.05
+//  large object       0.3          0.7           0.98
+//
+//  We want to verify whether the system using this sensor satisfies the requirement that the probability
+//  that a large object is detected when present is at least 0.85.
+
+dtmc
+
+// Dependency parameters from the other model
+const double pLow;
+const double pMed;
+const double pHigh=1-pLow-pMed;
+
+// external parameter
+const double pLargeObject=0.4;
+
+module Sensor
+  step : [0..2] init 0;
+  object : [0..2]; // 0 = no object; 1 = small object; 2 = large object
+  detected : bool;
+  
+  [] step=0 -> (0.85-pLargeObject):(step'=1)&(object'=0) + 0.15:(step'=1)&(object'=1) + pLargeObject:(step'=1)&(object'=2);
+
+  [] step=1 & object=0 -> (pLow*0.1 + pMed*0.02 + pHigh*0):(step'=2)&(detected'=true) +
+                          (1 - (pLow*0.1 + pMed*0.02 + pHigh*0)):(step'=2)&(detected'=false);  
+  [] step=1 & object=1 -> (pLow*0.25 + pMed*0.1 + pHigh*0.05):(step'=2)&(detected'=true) +
+                          (1 - (pLow*0.25 + pMed*0.1 + pHigh*0.05)):(step'=2)&(detected'=false);  
+  [] step=1 & object=2 -> (pLow*0.3 + pMed*0.7 + pHigh*0.98):(step'=2)&(detected'=true) +
+                          (1 - (pLow*0.3 + pMed*0.7 + pHigh*0.98)):(step'=2)&(detected'=false);  
+
+  [] step=2 -> true;
+endmodule
