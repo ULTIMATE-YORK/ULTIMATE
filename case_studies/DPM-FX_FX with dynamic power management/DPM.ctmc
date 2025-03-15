@@ -33,7 +33,7 @@ module SP
 
 	// IDLE TO BUSY (when a request arrives)
 	[request] sp=1  -> (sp'=2);
-	[request] !sp=1 -> true; // need to add loop for other states
+	[request] sp!=1 -> true; // need to add loop for other states
 	
 	// SERVE REQUESTS
 	[serve] sp=2 & q>1 -> service : (sp'=2); 
