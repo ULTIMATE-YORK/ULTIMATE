@@ -21,7 +21,7 @@
 Minimum objective value: 0.0031533
 
 ---
----
+
 
 ### SMD - Storm invocation (runs much faster than Prism)
      python3 ULTIMATE_numerical_solver.py \
