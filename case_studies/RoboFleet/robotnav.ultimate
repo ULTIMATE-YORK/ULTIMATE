@@ -5,7 +5,7 @@
         "parameters": {
             "environment": {
             	"nAttempts": {
-                    "name": "p_l1",
+                    "name": "nAttempts",
                     "type": "Fixed",
                     "value": "2"
                 }
