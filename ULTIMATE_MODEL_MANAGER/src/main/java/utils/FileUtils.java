@@ -5,6 +5,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import model.Model;
 
@@ -153,34 +155,41 @@ public class FileUtils {
     }
    
    public static void writeParametersToFile(String filePath, HashMap<String, Double> constants) {       
-       
-	   try {
+       try {
            // Read all lines from the file
            Path path = Paths.get(filePath);
            StringBuilder updatedContent = new StringBuilder();
 
+           // Process each line from the file
            for (String line : Files.readAllLines(path)) {
                String updatedLine = line;
 
-               // Check if the line contains the pattern "const double NAME;"
+               // For each key in the constants map, use regex to find a match for "const <type> key;"
                for (String key : constants.keySet()) {
-                   String pattern = "const double " + key + ";";
-                   if (line.contains(pattern)) {
+                   // The regex pattern captures the type in group(1)
+                   String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(key) + "\\s*;";
+                   Pattern pattern = Pattern.compile(regex);
+                   Matcher matcher = pattern.matcher(line);
+                   if (matcher.find()) {
+                       String type = matcher.group(1);
                        double value = constants.get(key);
-                       updatedLine = "const double " + key + " = " + value + ";";
-                       break; // Stop checking once a match is found for this line
+                       
+                       // If type is "int", cast the value to int before inserting it.
+                       if ("int".equals(type)) {
+                           updatedLine = "const " + type + " " + key + " = " + ((int) value) + ";";
+                       } else {
+                           updatedLine = "const " + type + " " + key + " = " + value + ";";
+                       }
+                       break; // Stop checking keys for this line once a match is found.
                    }
                }
-
                updatedContent.append(updatedLine).append(System.lineSeparator());
            }
 
            // Write the updated content back to the file
            Files.write(path, updatedContent.toString().getBytes());
-
        } catch (IOException e) {
            System.err.println("Error updating model file: " + e.getMessage());
        }
    }
-	
 }

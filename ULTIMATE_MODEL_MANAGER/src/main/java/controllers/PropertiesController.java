@@ -1,6 +1,8 @@
 package controllers;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
@@ -83,9 +85,9 @@ public class PropertiesController {
 			ArrayList<Model> models = new ArrayList<>();
 			models.addAll(project.getModels());
 			// update the mode files here
-			// TODO: in future, make seperate model files
 			for (Model m : models) {
 				FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+				//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
 			}
 			NPMCVerification verifier = new NPMCVerification(models);
 
