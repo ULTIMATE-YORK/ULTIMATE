@@ -6,8 +6,8 @@ import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
-import org.mariuszgromada.math.mxparser.License;
-import org.mariuszgromada.math.mxparser.mXparser;
+//import org.mariuszgromada.math.mxparser.License;
+//import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,8 +73,8 @@ public class NPMCVerification {
     private String modelsBasePath = "";
     
     public NPMCVerification(ArrayList<Model> models) {
-        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
-        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        //License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
+        //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -285,7 +285,7 @@ public class NPMCVerification {
             String pythonPath = project.getPythonInstall();
             command.add(pythonPath);
             command.add(pythonSolverPath);
-            command.add("--pmc");
+            command.add("--path");
             command.add(pmcPath);
             command.add("--model");
             command.add(modelFilePath);
@@ -293,7 +293,7 @@ public class NPMCVerification {
             command.addAll(inputData);
             //command.add(" -pc");
             
-            logger.info("Executing Python solver with command: " + command);
+            logger.info("Executing Python solver with command: ");
             for (String cmd : command) {
                 logger.info(cmd + " ");
             }
@@ -372,13 +372,13 @@ public class NPMCVerification {
             throw new RuntimeException("Python solver process interrupted: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error during Python solver execution: " + e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new RuntimeException("Python solver failed: " + e.getMessage(), e);
         }
     }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-        mXparser.consolePrintln(false);  // Disable mXparser console output
+        //mXparser.consolePrintln(false);  // Disable mXparser console output
         logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables

@@ -299,15 +299,16 @@ class PMC(Enum):
 
 if __name__ == "__main__":
     #parse command line arguments
-    # args = parse_arguments()
-    # if args['mc'][0].lower() ==  PMC.Prism.name.lower():
-    #     pmc = PMC.Prism
-    # else:
-    #     pmc = PMC.Storm
-    # path        = args['path'][0]
-    # input       = args['input']
-    # model_order = (args['model'])
-    # solver_type = ULTIMATE_Solver_Enum.Numerical
+    args = parse_arguments()
+    try:
+    	if args['mc'][0].lower() ==  PMC.Prism.name.lower():
+         	pmc = PMC.Prism
+    except:
+         pmc = PMC.Storm
+    path = args['path'][0]
+    inputs = args['input']
+    model_order = (args['model'])
+    solver_type = ULTIMATE_Solver_Enum.Numerical
 
     # init dependencies list
     dependencies_list = []
@@ -315,10 +316,10 @@ if __name__ == "__main__":
     # FOR TESTING
     # path = "<path_to_prism>"
     # pmc = PMC.Prism
-    path = "storm"
-    pmc = PMC.Storm
+    #path = "storm"
+    #pmc = PMC.Storm
     # 
-    model_order = ("select_perception_model.dtmc", "")
+    #model_order = ("select_perception_model.dtmc", "")
     # 
     # # Normal MC
     # input = [
@@ -330,16 +331,16 @@ if __name__ == "__main__":
     # solver_type = ULTIMATE_Solver_Enum.Numerical
     
     #Parametric MC (note: set ULTIMATE_Solver_Enum.Parametric)
-    input = [
-        "select_perception_model.dtmc, perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
-        "select_perception_model.dtmc, perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
-        "perceive-user2.dtmc, select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
-        "perceive-user2.dtmc, select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
-    ]
-    solver_type = ULTIMATE_Solver_Enum.Parametric
+    #input = [
+        #"select_perception_model.dtmc, perceive-user2.dtmc, (4*pModel2+(-111)*pModel1+461)/(1000), pOkCorrect",
+        #"select_perception_model.dtmc, perceive-user2.dtmc, (-1 * (79*pModel2+2079*pModel1+(-9279)))/(20000), pNotOkCorrect",
+        #"perceive-user2.dtmc, select_perception_model.dtmc, (-953 * (pNotOkCorrect))/(1000 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel1",
+        #"perceive-user2.dtmc, select_perception_model.dtmc, (2500*pOkCorrect+1669*pNotOkCorrect+(-2500))/(2500 * (pOkCorrect+(-1)*pNotOkCorrect+(-1))), pModel2"
+    #]
+    #solver_type = ULTIMATE_Solver_Enum.Parametric
     #TESTING END
 
-    for i in input:
+    for i in inputs:
         dep = []
         v = i.split(",")
         dep.append(v[0].strip()) #dependent model
