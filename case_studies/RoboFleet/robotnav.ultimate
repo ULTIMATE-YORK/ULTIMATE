@@ -1,34 +1,4 @@
 {"models": {
-    "humanIntervention": {
-        "fileName": "supervisor.dtmc",
-        "id": "supervisor",
-        "parameters": {
-            "environment": {
-            	"nAttempts": {
-                    "name": "nAttempts",
-                    "type": "Fixed",
-                    "value": "2"
-                }
-            },
-            "internal": {},
-            "dependency": {
-                "pR1": {
-                    "modelId": "robot1",
-                    "name": "pR1",
-                    "property": "Pmax=?[F done]"
-                },
-                "pR2": {
-                    "modelId": "robot2",
-                    "name": "pR2",
-                    "property": "Pmax=?[F done]"
-                }
-            }
-        },
-        "properties": [
-                "R{"failures"}=?[F done]",
-                "R{"cost"}=?[F done]"
-            ]
-    },
     "robot1": {
         "fileName": "robot1.mdp",
         "id": "robot1",
@@ -37,42 +7,42 @@
                 "p_l1": {
                     "name": "p_l1",
                     "type": "Mean",
-                    "value": "data/robot1_p_l1.txt"
+                    "value": "robot1_p_l1.dat"
                 },
                 "p_l2": {
                     "name": "p_l2",
                     "type": "Mean",
-                    "value": "data/robot1_p_l2.txt"
+                    "value": "robot1_p_l2.dat"
                 },
                 "p_l3": {
                     "name": "p_l3",
                     "type": "Mean",
-                    "value": "data/robot1_p_l3.txt"
+                    "value": "robot1_p_l3.dat"
                 },
                 "p_l4": {
                     "name": "p_l4",
                     "type": "Mean",
-                    "value": "data/robot1_p_l4.txt"
+                    "value": "robot1_p_l4.dat"
                 },
                 "p_l9": {
                     "name": "p_l9",
                     "type": "Mean",
-                    "value": "data/robot1_p_l9.txt"
+                    "value": "robot1_p_l9.dat"
                 },
                 "p_l5": {
                     "name": "p_l5",
                     "type": "Mean",
-                    "value": "data/robot1_p_l5.txt"
+                    "value": "robot1_p_l5.dat"
                 },
                 "p_l6": {
                     "name": "p_l6",
                     "type": "Mean",
-                    "value": "data/robot1_p_l6.txt"
+                    "value": "robot1_p_l6.dat"
                 },
                 "p_l8": {
                     "name": "p_l8",
                     "type": "Mean",
-                    "value": "data/robot1_p_l8.txt"
+                    "value": "robot1_p_l8.dat"
                 }
             },
             "internal": {},
@@ -88,47 +58,75 @@
                 "p_l1": {
                     "name": "p_l1",
                     "type": "Mean",
-                    "value": "data/robot2_p_l1.txt"
+                    "value": "robot2_p_l1.dat"
                 },
                 "p_l2": {
                     "name": "p_l2",
                     "type": "Mean",
-                    "value": "data/robot2_p_l2.txt"
+                    "value": "robot2_p_l2.dat"
                 },
                 "p_l3": {
                     "name": "p_l3",
                     "type": "Mean",
-                    "value": "data/robot2_p_l3.txt"
+                    "value": "robot2_p_l3.dat"
                 },
                 "p_l4": {
                     "name": "p_l4",
                     "type": "Mean",
-                    "value": "data/robot2_p_l4.txt"
+                    "value": "robot2_p_l4.dat"
                 },
                 "p_l9": {
                     "name": "p_l9",
                     "type": "Mean",
-                    "value": "data/robot2_p_l9.txt"
+                    "value": "robot2_p_l9.dat"
                 },
                 "p_l6": {
                     "name": "p_l6",
                     "type": "Mean",
-                    "value": "data/robot2_p_l6.txt"
+                    "value": "robot2_p_l6.dat"
                 },
                 "p_l7": {
                     "name": "p_l7",
                     "type": "Mean",
-                    "value": "data/robot2_p_l7.txt"
+                    "value": "robot2_p_l7.dat"
                 },
                 "p_l8": {
                     "name": "p_l8",
                     "type": "Mean",
-                    "value": "data/robot2_p_l8.txt"
+                    "value": "robot2_p_l8.dat"
                 }
             },
             "internal": {},
             "dependency": {}
         },
         "properties": ["Pmax=?[F done]"]
+    },
+    "supervisor": {
+        "fileName": "supervisor.dtmc",
+        "id": "supervisor",
+        "parameters": {
+            "environment": {"nAttempts": {
+                "name": "nAttempts",
+                "type": "Fixed",
+                "value": "2"
+            }},
+            "internal": {},
+            "dependency": {
+                "pR2": {
+                    "modelId": "robot2",
+                    "name": "pR2",
+                    "property": "Pmax=?[F done]"
+                },
+                "pR1": {
+                    "modelId": "robot1",
+                    "name": "pR1",
+                    "property": "Pmax=?[F done]"
+                }
+            }
+        },
+        "properties": [
+            "R{\"failures\"}=?[F done]",
+            "R{\"cost\"}=?[F done]"
+        ]
     }
 }}

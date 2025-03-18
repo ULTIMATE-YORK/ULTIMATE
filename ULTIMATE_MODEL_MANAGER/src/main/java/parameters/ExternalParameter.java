@@ -23,7 +23,7 @@ public class ExternalParameter {
         this.type = type;
         this.value = value;
         if (!verifyFile()) {
-        	Platform.runLater(() -> Alerter.showErrorAlert("Could not create External Paramater", "The file format is invalid."));
+        	Platform.runLater(() -> Alerter.showErrorAlert("Could not create External Paramater " +name, "The file at " + value + " is invalid."));
             throw new IllegalArgumentException("Invalid file format!");
         }
         this.learnedValue = evaluate();
