@@ -219,6 +219,10 @@ public class Project {
 	public String getPrismGamesInstall() {
 		return this.prismGamesInstall;
 	}
+	
+	public String getPythonInstall() {
+		return this.prismInstall;
+	}
     
 	private void setupConfigs() throws IOException {
         File configFile = new File("config.json");
@@ -258,16 +262,29 @@ public class Project {
         	}
         }
         
-        //String prismGamesInstall = configJSON.getString("prismGamesInstall");
-        //if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
-        	//this.prismGamesInstall = prismGamesInstall;
-        //}
-        //else {
-        	//if (sharedContext.getMainStage() != null) {
-            	//Alerter.showWarningAlert("No PRISM games Installation found!", "Please configure the location of the PRISM Games install on your system!");
-            	//configured = false;
-        	//}
-        //}
+        String prismGamesInstall = configJSON.getString("prismGamesInstall");
+        if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
+        	this.prismGamesInstall = prismGamesInstall;
+        }
+        else {
+        	if (sharedContext.getMainStage() != null) {
+            	Alerter.showWarningAlert("No PRISM games Installation found!", "Please configure the location of the PRISM Games install on your system!");
+            	configured = false;
+        	}
+        }
+        
+        
+        String pythonInstall = configJSON.getString("pythonInstall");
+        if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
+        	this.prismInstall = pythonInstall;
+        }
+        else {
+        	if (sharedContext.getMainStage() != null) {
+            	Alerter.showWarningAlert("No python Installation found!", "Please configure the location of the python install on your system!");
+            	configured = false;
+        	}
+        }
+        
 	}
 	
 	/*

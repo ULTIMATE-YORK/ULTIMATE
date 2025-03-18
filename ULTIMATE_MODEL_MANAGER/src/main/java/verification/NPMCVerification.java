@@ -282,7 +282,8 @@ public class NPMCVerification {
             
             // Build command for Python solver
             List<String> command = new ArrayList<>();
-            command.add("/Library/Frameworks/Python.framework/Versions/3.11/bin/python3");
+            String pythonPath = project.getPythonInstall();
+            command.add(pythonPath);
             command.add(pythonSolverPath);
             command.add("--pmc");
             command.add(pmcPath);
@@ -290,8 +291,9 @@ public class NPMCVerification {
             command.add(modelFilePath);
             command.add("--input");
             command.addAll(inputData);
+            //command.add(" -pc");
             
-            logger.info("Executing Python solver with command: ");
+            logger.info("Executing Python solver with command: " + command);
             for (String cmd : command) {
                 logger.info(cmd + " ");
             }

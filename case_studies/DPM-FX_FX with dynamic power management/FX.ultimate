@@ -1,0 +1,200 @@
+{
+  "models": {
+    "DPM": {
+      "fileName": "DPM.ctmc",
+      "id": "DPM",
+      "parameters": {
+        "environment": {
+          "sleep2idle": {
+            "name": "sleep2idle",
+            "type": "Fixed",
+            "value": "0.625"
+          },
+          "idle2sleep": {
+            "name": "idle2sleep",
+            "type": "Fixed",
+            "value": "1.493"
+          },
+          "service": {
+            "name": "service",
+            "type": "Fixed",
+            "value": "0.9091"
+          }
+        },
+        "internal": {},
+        "dependency": {
+          "disk_ops": {
+            "modelId": "FX",
+            "name": "disk_ops",
+            "property": "R{\\\"queue_size\\\"}=? [S]"
+          }
+        }
+      },
+      "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
+    },
+    "FX": {
+      "fileName": "FX.dtmc",
+      "id": "FX",
+      "parameters": {
+        "environment": {
+          "x": {
+            "name": "x",
+            "type": "Fixed",
+            "value": "0.5"
+          },
+          "y1": {
+            "name": "y1",
+            "type": "Fixed",
+            "value": "0.77"
+          },
+          "y2": {
+            "name": "y2",
+            "type": "Fixed",
+            "value": "0.2"
+          },
+          "z1": {
+            "name": "z1",
+            "type": "Fixed",
+            "value": "0.7"
+          },
+          "z2": {
+            "name": "z2",
+            "type": "Fixed",
+            "value": "0.29"
+          },
+          "z11": {
+            "name": "z11",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z12": {
+            "name": "z12",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "z21": {
+            "name": "z21",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z22": {
+            "name": "z22",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "z31": {
+            "name": "z31",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z32": {
+            "name": "z32",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "z41": {
+            "name": "z41",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z42": {
+            "name": "z42",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "z51": {
+            "name": "z51",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z52": {
+            "name": "z52",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "z61": {
+            "name": "z61",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "z62": {
+            "name": "z62",
+            "type": "Fixed",
+            "value": "0.05"
+          },
+          "p11": {
+            "name": "p11",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p12": {
+            "name": "p12",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p21": {
+            "name": "p21",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p22": {
+            "name": "p22",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p31": {
+            "name": "p31",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p32": {
+            "name": "p32",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p41": {
+            "name": "p41",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p42": {
+            "name": "p42",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p51": {
+            "name": "p51",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p52": {
+            "name": "p52",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p61": {
+            "name": "p61",
+            "type": "Fixed",
+            "value": "0.95"
+          },
+          "p62": {
+            "name": "p62",
+            "type": "Fixed",
+            "value": "0.95"
+          }
+        },
+        "internal": {},
+        "dependency": {
+          "avr_num_disk_ops_remain_in_queue": {
+            "modelId": "DPM",
+            "name": "avr_num_disk_ops_remain_in_queue",
+            "property": "R{\\\"disk_operations\\\"}=?[F \\\"done\\\"]"
+          }
+        }
+      },
+      "properties": [
+        "R{\\\"time\\\"}=?[F \\\"done\\\"]"
+      ]
+    }
+  }
+}
