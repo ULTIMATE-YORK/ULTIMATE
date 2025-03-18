@@ -31,7 +31,7 @@ public class Project {
 
 	private Set<Model> models; // set of models in the project
     private ObservableList<Model> observableModels;    // The observable list used for UI binding
-    private ObjectProperty<Model> currentModel; // Observable property for current model
+    private ObjectProperty<Model> currentModel; // Observable property of current model
 	private String projectName;
 	private ProjectImporter importer;
 	private ProjectExporter exporter;
