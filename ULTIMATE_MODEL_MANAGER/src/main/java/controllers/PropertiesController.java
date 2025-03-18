@@ -12,6 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import model.Model;
@@ -31,6 +32,7 @@ public class PropertiesController {
 	@FXML private Button scrollDown;
 	@FXML private Button verifyButton;
 	@FXML private TextArea verifyResults;
+	@FXML private ProgressIndicator progressIndicator;
 	@FXML private ListView<Property> propertyListView;
 	
     private SharedContext sharedContext = SharedContext.getInstance();
@@ -90,8 +92,12 @@ public class PropertiesController {
 				//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
 			}
 			NPMCVerification verifier = new NPMCVerification(models);
-
-			CompletableFuture.supplyAsync(() -> {
+		    
+			// Show the loading spinner and update the text area message
+		    progressIndicator.setVisible(true);
+		    verifyResults.setText("Verification in progress...");
+			
+		    CompletableFuture.supplyAsync(() -> {
 				try {
 					return verifier.verify(vModel.getModelId(), vProp.getProperty());
 				} catch (IOException e) {
@@ -100,10 +106,12 @@ public class PropertiesController {
 				return null;
 			})
 		    .thenAccept(result -> Platform.runLater(() -> {
+		        progressIndicator.setVisible(false);
 		        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
 		    }))
 		    .exceptionally(ex -> {
 		        Platform.runLater(() -> {
+		            progressIndicator.setVisible(false);
 		            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
 		        });
 		        return null;
