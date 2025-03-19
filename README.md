@@ -19,6 +19,10 @@ Through its unique integration of multiple probabilistic and parametric model ch
 
 [PRISM model checker](https://www.prismmodelchecker.org/)
 
+[PRISM Games model checker](https://www.prismmodelchecker.org/games/download.php)
+
+[python](https://www.python.org/downloads/)
+
 The lastest version of the JavaFX SDK should be downloaded as well as Java 22 or later as the SDK requires this. 
 Download and build storm and prism according to their respective installation guides.
 
