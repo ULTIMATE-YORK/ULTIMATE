@@ -16,7 +16,7 @@ const double idle2sleep=100/67;
 // rate of service
 const double service=1000/1100;//1000/8; 
 
-const double pIdle2Sleep;
+const double pIdle2Sleep = 0.1;
 
 module SP
 
