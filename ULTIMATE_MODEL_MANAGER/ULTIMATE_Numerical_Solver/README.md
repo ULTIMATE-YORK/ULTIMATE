@@ -34,7 +34,7 @@ Minimum objective value: 0.0031533
     Optimal parameters: {'pLow': 0.52249, 'pMed': 0.20032, 'pDetected': 0.27743}
     Minimum objective value: 2.230344e-05
 
-### FX-DM - Storm invocation (runs much faster than Prism)
+### FX-DPM - Storm invocation (runs much faster than Prism)
 
     python3 ULTIMATE_numerical_solver.py \
      --path "Storm" \
