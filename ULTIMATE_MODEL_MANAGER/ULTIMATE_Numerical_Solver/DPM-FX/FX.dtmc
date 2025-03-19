@@ -1,0 +1,158 @@
+//MonoGenerator Tool Version 1.0
+//August 2017
+//Annotated model for FXWorkflow.
+//MODEL_PARAMETERS
+//prob, cost, time
+//MODEL_PATTERNS
+//1:PROB-2;2:PROB-2;3:PROB-2;4:PROB-2;5:PROB-2;6:PROB-2
+//MONOLITHIC
+//1,2,9;2,7,9;3,6,9;4,8,9;5,6,9;6,10,9
+dtmc
+
+const double x=0.5;
+const double y1=0.75;
+const double y2=0.22;
+const double z1=0.6;
+const double z2=0.35;
+
+const double p11=0.999;
+const double p12=0.999;
+const double z11=0.999;
+const double z12=1-z11;
+
+const double p21=0.999;
+const double p22=0.999;
+const double z21 =0.999;
+const double z22 =1-z21;
+
+const double p31=0.999;
+const double p32=0.999;
+const double z31 =0.999;
+const double z32 =1-z31;
+
+const double p41=0.999;
+const double p42=0.999;
+const double z41 =0.999;
+const double z42 =1-z41;
+
+const double p51=0.999;
+const double p52=0.999;
+const double z51 =0.999;
+const double z52 =1-z51;
+
+const double p61=0.999;
+const double p62=0.999;
+const double z61 =0.999;
+const double z62 =1-z61;
+
+
+const int INITSTATE = 0;
+const int OP1 = 1;
+const int OP2 = 2;
+const int OP3   = 3;
+const int OP4   = 4;
+const int OP5   = 5;
+const int OP6   = 6;
+const int TA_RESULT = 7;
+const int FA_RESULT = 8;
+const int WF_FAIL=9;
+const int WF_SUCC=10;
+
+
+module fx
+op1 : [0..2] init 0;
+op2 : [0..2] init 0;
+op3 : [0..2] init 0;
+op4 : [0..2] init 0;
+op5 : [0..2] init 0;
+op6 : [0..2] init 0;
+state : [0..11] init 0;
+
+
+//**Init -- select expert (Market-OP1=1) or normal model (Fund-OP4=4)
+[choice] state = INITSTATE -> x : (state'=OP1) + (1-x) : (state'=OP4);
+//Technical analysis result // TA_RESULT=7
+[taResult] state=TA_RESULT-> y2:(state'=OP1)+y1:(state'=OP5)+(1-y1-y2):(state'=OP3);
+//Fundamental analysis result // FA_RESULT=8
+[faresult] state=FA_RESULT->z2:(state'=INITSTATE)+z1:(state'=OP5)+(1-z1-z2):(state'=OP4);//succ op4
+//success or failure of workflow. //WF_FAIL=9
+[success] state = WF_SUCC -> 1.0:(state'=INITSTATE);
+				  //WF_SUCC=10
+[failure] state=WF_FAIL->1.0:(state'=WF_FAIL);//failed fx
+
+
+//Op1: Market watch
+//[marketwatch] state = OP1->prob1:(state'=OP2)+(1-prob1):(state'=WF_FAIL);  //invoke op1
+//Op2: Technical Analysis
+//[techanalysis]state = OP2->prob2:(state'=TA_RESULT)+(1-prob2):(state'=WF_FAIL);//invoke op2
+//Op3: Alarm
+//[alarm] state=OP3->prob3:(state'=OP6)+(1-prob3):(state'=WF_FAIL);
+//Op4: Fundamental Analysis
+//[fundanalysis] state=OP4->prob4:(state'=FA_RESULT)+(1-prob4):(state'=WF_FAIL);
+//Op5: Place Order
+//[placeorder]state=OP5->prob5:(state'=OP6)+(1-prob5):(state'=WF_FAIL);
+//Op6: Notify trader
+//[notification]state=OP6->prob6:(state'=WF_SUCC)+(1-prob6):(state'=WF_FAIL);
+
+// -- These depend on Expert mode chossen -- 
+[choice1] (state=1)&(op1=0) -> z11:(op1'=1)+z12:(op1'=2);
+[op11](state=1)&(op1=1) -> p11:(state'=2)&(op1'=0) + (1-p11):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op12](state=1)&(op1=2) -> p12:(state'=2)&(op1'=0) + (1-p12):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+
+[choice2] (state=2)&(op2=0) -> z21:(op2'=1)+z22:(op2'=2);
+[op21](state=2)&(op2=1) -> p21:(state'=7)&(op2'=0) + (1-p21):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op22](state=2)&(op2=2) -> p22:(state'=7)&(op2'=0) + (1-p22):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+
+// -- This is alarm -- 
+[choice3] (state=3)&(op3=0) -> z31:(op3'=1)+z32:(op3'=2);
+[op31](state=3)&(op3=1) -> p31:(state'=6)&(op3'=0) + (1-p31):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op32](state=3)&(op3=2) -> p32:(state'=6)&(op3'=0) + (1-p32):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+
+// -- These depend on Normal mode chossen -- 
+[choice4] (state=4)&(op4=0) -> z41:(op4'=1)+z42:(op4'=2);
+[op41](state=4)&(op4=1) -> p41:(state'=8)&(op4'=0) + (1-p41):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op42](state=4)&(op4=2) -> p42:(state'=8)&(op4'=0) + (1-p42):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+
+// -- This is the order --
+[choice5] (state=5)&(op5=0) -> z51:(op5'=1)+z52:(op5'=2);
+[op51](state=5)&(op5=1) -> p51:(state'=6)&(op5'=0) + (1-p51):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op52](state=5)&(op5=2) -> p52:(state'=6)&(op5'=0) + (1-p52):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+
+// -- This is notification --
+[choice6] (state=6)&(op6=0) -> z61:(op6'=1)+z62:(op6'=2);
+[op61](state=6)&(op6=1) -> p61:(state'=10)&(op6'=0) + (1-p61):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+[op62](state=6)&(op6=2) -> p62:(state'=10)&(op6'=0) + (1-p62):(state'=9)&(op1'=0)&(op2'=0)&(op3'=0)&(op4'=0)&(op5'=0)&(op6'=0);
+endmodule
+
+
+const double avr_num_disk_ops_remain_in_queue; //<---- From DPM model
+
+// ---- Reward for number of expected disk operations---------
+const int num_disk_operations_Technical_analysis = 12; // environmental var.
+const int num_disk_operations_Fundamental_analysis = 20; // environmental var.
+label "done" = state=10 | state=9; //10=completed succ. 9=failed
+rewards "disk_operations"
+        //expert (Technical-OP2=2) or normal model (Fund-OP4=4)
+	state=OP2 : num_disk_operations_Technical_analysis/avr_num_disk_ops_remain_in_queue;
+	state=OP4 : num_disk_operations_Fundamental_analysis/avr_num_disk_ops_remain_in_queue;
+endrewards
+
+
+// ----- Reward for time -----------
+const double c = 1; //<---- time units per disk operation
+
+const double SvcTime = c * avr_num_disk_ops_remain_in_queue;
+const double time1 = 10;
+const double time2 = SvcTime;
+const double time3 = 10;
+const double time4 = SvcTime;
+const double time5 = 10;
+const double time6 = 10;
+rewards "time"
+     state=OP1 : time1;
+     state=OP2 : time2 *num_disk_operations_Technical_analysis; //technical analysis
+     state=OP3 : time3;
+     state=OP4 : time4 *num_disk_operations_Fundamental_analysis;//fund. analysis
+     state=OP5 : time5;
+     state=OP6 : time6;
+endrewards
