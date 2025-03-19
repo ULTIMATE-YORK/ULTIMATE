@@ -6,8 +6,8 @@ import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
-import org.mariuszgromada.math.mxparser.License;
-import org.mariuszgromada.math.mxparser.mXparser;
+//import org.mariuszgromada.math.mxparser.License;
+//import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +71,8 @@ public class NPMCVerification {
     private boolean usePythonSolver = false;
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     public NPMCVerification(ArrayList<Model> models) {
-        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
-        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        //License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
+        //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -247,14 +247,16 @@ public class NPMCVerification {
             
             // Build command for Python solver
             List<String> command = new ArrayList<>();
-            command.add("/Library/Frameworks/Python.framework/Versions/3.11/bin/python3");
+            String pythonPath = project.getPythonInstall();
+            command.add(pythonPath);
             command.add(pythonSolverPath);
-            command.add("--pmc");
+            command.add("--path");
             command.add(pmcPath);
             command.add("--model");
             command.add(modelFilePath);
             command.add("--input");
             command.addAll(inputData);
+            //command.add(" -pc");
             
             logger.info("Executing Python solver with command: ");
             for (String cmd : command) {
@@ -335,13 +337,13 @@ public class NPMCVerification {
             throw new RuntimeException("Python solver process interrupted: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error during Python solver execution: " + e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
             throw new RuntimeException("Python solver failed: " + e.getMessage(), e);
         }
     }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-        mXparser.consolePrintln(false);  // Disable mXparser console output
+        //mXparser.consolePrintln(false);  // Disable mXparser console output
         logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables
@@ -489,23 +491,22 @@ public class NPMCVerification {
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
-            logger.error("Model not found: " + model.getModelId());
+        	logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
         //System.out.println(originalModel.getModelId() + model.getParameters());
+		try {
+			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
+		} catch (NumberFormatException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         // Check if the model is a PRISM-games model
         boolean isPrismGamesModel = false;
         try {
@@ -542,7 +543,7 @@ public class NPMCVerification {
 
         // First try with Storm
         try {
-            StormAPI sAPI = new StormAPI();
+        	StormAPI sAPI = new StormAPI();
             return sAPI.run(originalModel, property);
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
@@ -551,9 +552,9 @@ public class NPMCVerification {
         }       
         
         // Try with PrismProcessAPI as second fallback
-        logger.info("Trying second fallback with PRISM Process API...");
+        logger.info("Trying fallback with PRISM...");
         try {
-            SharedContext sharedContext = SharedContext.getInstance();
+        	SharedContext sharedContext = SharedContext.getInstance();
             Project project = sharedContext.getProject();
             String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
