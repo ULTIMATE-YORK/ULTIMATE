@@ -293,6 +293,8 @@ public class NPMCVerification {
             command.addAll(inputData);
             //command.add(" -pc");
             
+            System.out.println(command);
+            
             logger.info("Executing Python solver with command: ");
             for (String cmd : command) {
                 logger.info(cmd + " ");

@@ -307,6 +307,7 @@ if __name__ == "__main__":
          pmc = PMC.Storm
     path = args['path'][0]
     inputs = args['input']
+    #print(f"FROM PYTHON:\nThe path: {path}\nThe PMC: {pmc}\nThe inputs: {inputs}")
     model_order = (args['model'])
     solver_type = ULTIMATE_Solver_Enum.Numerical
 
