@@ -34,6 +34,19 @@ Minimum objective value: 0.0031533
     Optimal parameters: {'pLow': 0.52249, 'pMed': 0.20032, 'pDetected': 0.27743}
     Minimum objective value: 2.230344e-05
 
+### FX-DPM - Storm invocation (runs much faster than Prism)
+
+    python3 ULTIMATE_numerical_solver.py \
+     --path "Storm" \
+     --mc "storm" \
+     --model "DPM-FX/DPM.ctmc" \
+     --input "DPM-FX/DPM.ctmc, DPM-FX/FX.dtmc, R{\"disk_operations\"}=?[F \"done\"], disk_ops" "DPM-FX/FX.dtmc, DPM-FX/DPM.ctmc, R{\"queue_size\"}=? [S], avr_num_disk_ops_remain_in_queue" 
+ 
+
+## Result
+    Optimal parameters: {'avr_num_disk_ops_remain_in_queue': 18.89777949, 'disk_ops': 2.361313054}
+    Minimum objective value: 2.0729336635570075
+
 
 
 ### Command Line Arguments

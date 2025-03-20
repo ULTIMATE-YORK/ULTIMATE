@@ -1,5 +1,7 @@
 package utils;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -192,4 +194,19 @@ public class FileUtils {
            System.err.println("Error updating model file: " + e.getMessage());
        }
    }
+
+   /**
+    * Reads and returns the first line of a file
+    * 
+    * @param filePath The path to the file
+    * @return The first line of the file, or null if the file couldn't be read
+    * @throws IOException If there's an error reading the file
+    */
+   public static String readFirstLine(String filePath) throws IOException {
+       try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+           return reader.readLine();
+       }
+   }
+	
 }
+

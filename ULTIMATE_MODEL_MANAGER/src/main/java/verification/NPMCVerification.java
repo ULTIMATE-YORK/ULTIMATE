@@ -70,8 +70,6 @@ public class NPMCVerification {
     private ArrayList<Model> originalModels;
     private boolean usePythonSolver = false;
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
-    private String modelsBasePath = "";
-    
     public NPMCVerification(ArrayList<Model> models) {
         //License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
         //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
@@ -85,41 +83,8 @@ public class NPMCVerification {
     }
     
     public void setModelsBasePath(String path) {
-        this.modelsBasePath = path;
     }
     
-    /**
-     * Determines the file extension for a model (.dtmc, .ctmc, etc.)
-     * @param model The model to check
-     * @return The file extension including the dot
-     */
-    private String determineModelExtension(Model model) {
-        if (model == null) {
-            return ".dtmc"; // Default to DTMC if model not found
-        }
-        
-        // Try to infer model type from the file path
-        String filePath = model.getFilePath();
-        if (filePath != null && !filePath.isEmpty()) {
-            // Extract extension from file path if it exists
-            if (filePath.endsWith(".dtmc")) {
-                return ".dtmc";
-            } else if (filePath.endsWith(".ctmc")) {
-                return ".ctmc";
-            } else if (filePath.endsWith(".mdp")) {
-                return ".mdp";
-            } else if (filePath.endsWith(".prism")) {
-                return ".prism";
-            }
-            
-            // If the file path doesn't have a recognizable extension,
-            // we can try to look for keywords in the file content or property files
-            // For now, we'll default to .dtmc
-        }
-        
-        return ".dtmc"; // Default to DTMC for most models
-    }
-
     private void initializeFromModels(ArrayList<Model> models) {
         logger.info("Initializing verification from models...");
         
@@ -544,6 +509,39 @@ public class NPMCVerification {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+        // Check if the model is a PRISM-games model
+        boolean isPrismGamesModel = false;
+        try {
+            String modelFilePath = originalModel.getVerificationFilePath();
+            if (modelFilePath != null && !modelFilePath.isEmpty()) {
+                // Read the first line of the model file
+                String firstLine = FileUtils.readFirstLine(modelFilePath);
+                // Check if it contains game model identifiers
+                if (firstLine != null && 
+                    (firstLine.contains("smg") || 
+                     firstLine.contains("tsg") || 
+                     firstLine.contains("csg") || 
+                     firstLine.contains("tptg"))) {
+                    isPrismGamesModel = true;
+                }
+            }
+        } catch (IOException e) {
+            logger.warn("Could not read model file to check for game model type: " + e.getMessage());
+        }
+
+        // If it's a PRISM-games model, use PrismGamesProcessAPI
+        if (isPrismGamesModel) {
+            logger.info("Detected PRISM-games model type. Using Prism games model checker...");
+            try {
+                SharedContext sharedContext = SharedContext.getInstance();
+                Project project = sharedContext.getProject();
+                String prismGamesPath = project.getPrismGamesInstall();
+                return PrismGamesProcessAPI.run(originalModel, property, prismGamesPath);
+            } catch (IOException prismGamesException) {
+                logger.error("Error running PrismGamesProcessAPI: " + prismGamesException.getMessage());
+                // Fall back to other methods if PrismGames fails
+            }
+        }
 
         // First try with Storm
         try {
