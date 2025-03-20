@@ -39,6 +39,7 @@ public class Project {
 	private String stormParsInstall = null;
 	private String prismInstall = null;
 	private String prismGamesInstall = null;
+	private String pythonInstall = null;
 	private ObjectProperty<String> chosenPMC;
 	private String saveLocation = null; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
@@ -221,7 +222,7 @@ public class Project {
 	}
 	
 	public String getPythonInstall() {
-		return this.prismInstall;
+		return this.pythonInstall;
 	}
     
 	private void setupConfigs() throws IOException {
@@ -276,7 +277,7 @@ public class Project {
         
         String pythonInstall = configJSON.getString("pythonInstall");
         if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
-        	this.prismInstall = pythonInstall;
+        	this.pythonInstall = pythonInstall;
         }
         else {
         	if (sharedContext.getMainStage() != null) {
