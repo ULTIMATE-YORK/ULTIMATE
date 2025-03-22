@@ -584,7 +584,7 @@ public class NPMCVerification {
         }       
         
         // Try with Prism as fallback
-        logger.info("Trying fallback with PRISM...");
+        logger.info("Trying  fallback with PRISM...");
         try {
             SharedContext sharedContext = SharedContext.getInstance();
             Project project = sharedContext.getProject();
