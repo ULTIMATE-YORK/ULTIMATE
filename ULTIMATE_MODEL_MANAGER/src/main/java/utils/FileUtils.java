@@ -208,5 +208,23 @@ public class FileUtils {
        }
    }
 	
+   /**
+    * Reads the entire contents of a file as a string
+    * 
+    * @param filePath The path to the file
+    * @return The contents of the file as a string, or null if the file couldn't be read
+    * @throws IOException If there's an error reading the file
+    */
+   public static String readFileAsString(String filePath) throws IOException {
+       StringBuilder contentBuilder = new StringBuilder();
+       try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+           String line;
+           while ((line = reader.readLine()) != null) {
+               contentBuilder.append(line);
+               contentBuilder.append(System.lineSeparator());
+           }
+       }
+       return contentBuilder.toString();
+   }
 }
 

@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,67 @@ public class PrismGamesProcessAPI {
         // Run PRISM-games with property file
         String command = prismGamesInstallLocation + " \"" + model.getVerificationFilePath() + "\"" + " " + propFilePath;
         logger.info("Executing PRISM-games command: " + command);
+        
+        String output = OSCommandExecutor.executeCommand(command);
+        logger.info("PRISM-games output:\n" + output);
+        
+        if (PrismOutputParser.hasError(output)) {
+            String errorMessage = PrismOutputParser.getErrorMessage(output);
+            logger.error("PRISM-games execution failed: " + errorMessage);
+            throw new RuntimeException("PRISM-games execution failed: " + errorMessage);
+        }
+        
+        Double result = PrismOutputParser.getResult(output);
+        
+        if (result == null) {
+            logger.error("Failed to parse PRISM-games result from output");
+            throw new RuntimeException("Failed to parse PRISM-games result from output");
+        }
+        
+        // Clean up the temporary property file
+        cleanupTemporaryFile(propFilePath);
+        
+        return result;
+    }
+    
+    /**
+     * Run PRISM-games and export the strategy to a file
+     * 
+     * @param model The game model to verify
+     * @param property The property to check
+     * @param prismGamesInstallLocation The path to the PRISM-games executable
+     * @param propertyIndex The index of the property to check (1-based)
+     * @param strategyFilePath The path where the strategy should be exported
+     * @return The result of model checking
+     * @throws IOException If there is an error creating the temporary property file
+     */
+    public static double runWithStrategyExport(Model model, String property, String prismGamesInstallLocation, 
+                                             int propertyIndex, String strategyFilePath) throws IOException {
+        // Create a temporary property file
+        String propFilePath = createTemporaryPropertyFile(property);
+        
+        // Build the command with strategy export
+        StringBuilder commandBuilder = new StringBuilder();
+        commandBuilder.append(prismGamesInstallLocation)
+                      .append(" \"")
+                      .append(model.getVerificationFilePath())
+                      .append("\" ")
+                      .append(propFilePath);
+        
+        // Add property index if specified
+        if (propertyIndex > 0) {
+            commandBuilder.append(" -prop ")
+                          .append(propertyIndex);
+        }
+        
+        // Add strategy export command
+        if (strategyFilePath != null && !strategyFilePath.isEmpty()) {
+            commandBuilder.append(" -exportstrat ")
+                          .append(strategyFilePath);
+        }
+        
+        String command = commandBuilder.toString();
+        logger.info("Executing PRISM-games command with strategy export: " + command);
         
         String output = OSCommandExecutor.executeCommand(command);
         logger.info("PRISM-games output:\n" + output);
