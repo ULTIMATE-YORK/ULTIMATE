@@ -1,0 +1,64 @@
+dtmc
+
+// This model describes the operation of a camera-based perception system for the detection of 
+// obstacles in front of a robot.  This is used for obstacle avoidance, as it allows the robot 
+// to adapt its navigation plan slightly when needed to go round these obstacles.
+
+// The obstacle detection is not 100% accurate, and the level of lighting (between 1 and 3)
+// influences the probabilities of true positives and true negatives as follows. 
+
+const double pTP1 = 0.92;
+const double pTN1 = 0.97;
+const double pTP2 = 0.97;
+const double pTN2 = 0.985;
+const double pTP3 = 1.00;
+const double pTN3 = 0.999;
+
+// Obstacle detection is performed prior to each move, and comprises several steps: 
+// - In step 1, the robot tries to save energy by using its lowest level of lighting 
+//   (level 1). If an obstacle is detected, then the perception component reports 
+//   the presence of an obstacle in front (even though it might be a false positive),
+//   and stops.
+// - In step 2, which is executed if step 1 did not detect an obstacle, the next level
+//   of lighting (level 2) is used. If an obstacle is detected, then the perception 
+//   component reports the presence of an obstacle in front (even though it might be 
+//   a false positive), and stops. Otherwise, this step is performed again with probability
+//   pRetry, or (with probability 1-pRetry), the component moves to step 3.
+
+const double pRetry = 0.3;
+
+// - In step 3, the top lighting level (level 3) is used, and the result of the 
+//   obstacle detection is reported by the perception component.
+
+// We note that the perception component operates conservatively: false negatives are
+// not possible since pTP3 = 1. 
+
+// We will consider the actual probability of an obstacle
+
+const double pObstacle;
+
+// and we will analyse the DTMC below to derive the probability that the perception component 
+// reports the presence of an obstacle in front of the robot.
+
+module ObstacleDetection
+  lightLevel : [1..3] init 1;
+  obstacle : bool;
+  obstacleDetected : bool init false;
+  step : [0..2] init 0;
+
+  [] step=0 -> pObstacle:(obstacle'=true)&(step'=1) + (1-pObstacle):(obstacle'=false)&(step'=1);
+
+  [] step=1 & obstacle  & lightLevel=1 -> pTP1:(obstacleDetected'=true)&(step'=2) + (1-pTP1):(lightLevel'=2);
+  [] step=1 & !obstacle & lightLevel=1 -> pTN1:(lightLevel'=2) + (1-pTN1):(obstacleDetected'=true)&(step'=2);
+
+  [] step=1 & obstacle  & lightLevel=2 -> pTP2:(obstacleDetected'=true)&(step'=2) + (1-pTP2)*pRetry:true + (1-pTP2)*(1-pRetry):(lightLevel'=3);
+  [] step=1 & !obstacle & lightLevel=2 -> pTN2*pRetry:true + pTN2*(1-pRetry):(lightLevel'=3) + (1-pTN2):(obstacleDetected'=true)&(step'=2);
+
+  [] step=1 & obstacle  & lightLevel=3 -> pTP3:(obstacleDetected'=true)&(step'=2) + (1-pTP3):(step'=2);
+  [] step=1 & !obstacle & lightLevel=3 -> pTN3:(step'=2) + (1-pTN3):(obstacleDetected'=true)&(step'=2);
+
+  [] step=2 -> true;
+endmodule
+
+label "obstacleAhead" = (step=2 & obstacleDetected);
+label "falsePositive" = (step=2 & !obstacle & obstacleDetected);
