@@ -7,11 +7,18 @@ This case study examines a **foreign exchange (FX) service-based system**[1] tha
 
 The **FX system** performs automated trading and market analysis, relying on a database for processing large amounts of financial data. 
 
-<img src="https://github.com/user-attachments/assets/5d14ea78-ad25-4380-975b-0afd1edb8528" style="width: 35%;">
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/5d14ea78-ad25-4380-975b-0afd1edb8528" width="45%">
+</p>
+
 
 The **DPM component** manages the power consumption of the hard disk storing this database by switching it to a low-power **sleep mode** when idle.
 
-<img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" style="width: 40%;">
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/1471c26f-2b76-4593-8f6c-64f2a6c5afff" width="45%">
+</p>
+
 
 Key system behaviours:
 - The **DPM component** transitions the hard disk to sleep mode based on a configurable probability (**pIdle2Sleep**).
@@ -34,8 +41,10 @@ Using ULTIMATE, we analyze the following properties by varying **pIdle2Sleep**.
 1. **FX Workflow Execution Time**: The expected number of transaction processing time in miliseconds.
 2. **Power Consumption Trade-offs**: The effect of DPM decisions on performance and energy savings.
 
-<img src="https://github.com/user-attachments/assets/8a60b4a4-3715-466c-a05d-8b18249a6e8e" style="width: 60%;">
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8a60b4a4-3715-466c-a05d-8b18249a6e8e" width="30%">
+</p>
 
 
 ## References
