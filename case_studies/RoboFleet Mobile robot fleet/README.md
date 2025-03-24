@@ -34,7 +34,7 @@ The **human supervisor** is modeled as a **Discrete-Time Markov Chain (DTMC)**:
 ## Objectives
 
 Using ULTIMATE, we analyze the following properties based on the number of task attemps.
-1. **Mission Success Probability**: The likelihood of each robot completing its task.
+1. **Mean Failure Probability**: The likelihood of each robot failing with its task.
 2. **Supervisor Intervention Cost**: The total cost incurred in unsticking robots.
 
 
