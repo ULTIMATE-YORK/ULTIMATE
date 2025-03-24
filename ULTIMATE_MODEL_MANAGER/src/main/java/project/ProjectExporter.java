@@ -80,7 +80,7 @@ public class ProjectExporter {
             // the properties
             JSONArray propertiesArray = new JSONArray();
             for (Property p : model.getProperties()) {
-            	propertiesArray.put(p.getProperty());
+            	propertiesArray.put(formatDefinition(p.getProperty()));
             }
 
             modelObject.put("parameters", parametersObject);
