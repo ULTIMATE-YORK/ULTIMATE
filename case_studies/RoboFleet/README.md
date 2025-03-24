@@ -37,4 +37,9 @@ Using ULTIMATE, we analyze the following properties based on the number of task 
 1. **Mission Success Probability**: The likelihood of each robot completing its task.
 2. **Supervisor Intervention Cost**: The total cost incurred in unsticking robots.
 
-<img src="https://github.com/user-attachments/assets/58655cac-d322-45b6-afc4-b9b4a78d36ee" style="width: 60%;">
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/58655cac-d322-45b6-afc4-b9b4a78d36ee" width="30%">
+</p>
+
