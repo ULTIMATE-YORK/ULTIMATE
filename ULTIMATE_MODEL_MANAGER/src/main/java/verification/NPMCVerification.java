@@ -565,8 +565,8 @@ public class NPMCVerification {
                 // Use property index 1 if not specified in the property string
                 int propertyIndex = getPropertyIndex(property);
                 
-                return PrismGamesProcessAPI.runWithStrategyExport(originalModel, property, 
-                                                               prismGamesPath, propertyIndex, strategyFilePath);
+               return PrismGamesProcessAPI.run(originalModel, property, 
+                                                               prismGamesPath);
             } catch (IOException prismGamesException) {
                 logger.error("Error running PrismGamesProcessAPI: " + prismGamesException.getMessage());
                 // Fall back to other methods if PrismGames fails
