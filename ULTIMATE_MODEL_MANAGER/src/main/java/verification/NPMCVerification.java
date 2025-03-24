@@ -15,6 +15,7 @@ import model.Model;
 import parameters.DependencyParameter;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -493,36 +494,40 @@ public class NPMCVerification {
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
-        	logger.error("Model not found: " + model.getModelId());
+            logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
         //System.out.println(originalModel.getModelId() + model.getParameters());
-		try {
-			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
         try {
-			FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         // Check if the model is a PRISM-games model
         boolean isPrismGamesModel = false;
         try {
             String modelFilePath = originalModel.getVerificationFilePath();
             if (modelFilePath != null && !modelFilePath.isEmpty()) {
-                // Read the first line of the model file
-                String firstLine = FileUtils.readFirstLine(modelFilePath);
-                // Check if it contains game model identifiers
-                if (firstLine != null && 
-                    (firstLine.contains("smg") || 
-                     firstLine.contains("tsg") || 
-                     firstLine.contains("csg") || 
-                     firstLine.contains("tptg"))) {
+                // Read the content of the model file to check for game model keywords
+                String modelContent = FileUtils.readFileAsString(modelFilePath);
+                
+                // Check if model content contains game model identifiers anywhere in the file
+                // We don't limit to just the first line as the model type might be after comments
+                if (modelContent != null && 
+                    (modelContent.contains("smg") || 
+                     modelContent.contains("tsg") || 
+                     modelContent.contains("csg") || 
+                     modelContent.contains("tptg"))) {
                     isPrismGamesModel = true;
+                    logger.info("Detected PRISM-games model type: file contains game model identifier");
                 }
             }
         } catch (IOException e) {
@@ -531,12 +536,37 @@ public class NPMCVerification {
 
         // If it's a PRISM-games model, use PrismGamesProcessAPI
         if (isPrismGamesModel) {
-            logger.info("Detected PRISM-games model type. Using Prism games model checker...");
+            logger.info("Detected PRISM-games model type. Using PrismGamesProcessAPI...");
             try {
                 SharedContext sharedContext = SharedContext.getInstance();
                 Project project = sharedContext.getProject();
                 String prismGamesPath = project.getPrismGamesInstall();
-                return PrismGamesProcessAPI.run(originalModel, property, prismGamesPath);
+                
+                // Check if prismGamesPath is valid
+                if (prismGamesPath == null || prismGamesPath.isEmpty()) {
+                    logger.warn("PRISM-games installation path is not configured. Using default location.");
+                    // Try to use a default location if not configured
+                    prismGamesPath = project.getPrismInstall().replace("prism", "prism-games");
+                }
+                
+                logger.info("Using PRISM-games executable path: " + prismGamesPath);
+                
+                // Always export strategy for PRISM-games models
+                String modelName = getModelName(originalModel.getVerificationFilePath());
+                String propertyName = getPropertyName(property);
+                
+                // Create a directory for strategies if it doesn't exist
+                String strategyDir = "strategies";
+                new File(strategyDir).mkdirs();
+                
+                String strategyFilePath = strategyDir + "/" + modelName + "_" + propertyName + ".dot";
+                logger.info("Exporting strategy to: " + strategyFilePath);
+                
+                // Use property index 1 if not specified in the property string
+                int propertyIndex = getPropertyIndex(property);
+                
+                return PrismGamesProcessAPI.runWithStrategyExport(originalModel, property, 
+                                                               prismGamesPath, propertyIndex, strategyFilePath);
             } catch (IOException prismGamesException) {
                 logger.error("Error running PrismGamesProcessAPI: " + prismGamesException.getMessage());
                 // Fall back to other methods if PrismGames fails
@@ -545,7 +575,7 @@ public class NPMCVerification {
 
         // First try with Storm
         try {
-        	StormAPI sAPI = new StormAPI();
+            StormAPI sAPI = new StormAPI();
             return sAPI.run(originalModel, property);
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
@@ -553,10 +583,10 @@ public class NPMCVerification {
             //throw new Exception();
         }       
         
-        // Try with PrismProcessAPI as second fallback
-        logger.info("Trying fallback with PRISM...");
+        // Try with Prism as fallback
+        logger.info("Trying  fallback with PRISM...");
         try {
-        	SharedContext sharedContext = SharedContext.getInstance();
+            SharedContext sharedContext = SharedContext.getInstance();
             Project project = sharedContext.getProject();
             String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
@@ -567,7 +597,6 @@ public class NPMCVerification {
                                       ": " + prismProcessException.getMessage());
         }
     }
-    
     private Model getOriginalModel(String modelId) {
         for (Model model : originalModels) {
             if (model.getModelId().equals(modelId)) {
@@ -575,5 +604,77 @@ public class NPMCVerification {
             }
         }
         return null;
+    }
+    /**
+     * Extracts a model name from its file path for use in strategy export filename
+     * 
+     * @param modelFilePath The full path to the model file
+     * @return A simplified model name (filename without extension)
+     */
+    private String getModelName(String modelFilePath) {
+        if (modelFilePath == null || modelFilePath.isEmpty()) {
+            return "model";
+        }
+        
+        // Extract just the filename
+        String fileName = new File(modelFilePath).getName();
+        
+        // Remove file extension
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex > 0) {
+            return fileName.substring(0, lastDotIndex);
+        }
+        
+        return fileName;
+    }
+
+    /**
+     * Creates a simplified property name from a property string for use in strategy export filename
+     * 
+     * @param property The property string
+     * @return A simplified property name
+     */
+    private String getPropertyName(String property) {
+        if (property == null || property.isEmpty()) {
+            return "prop";
+        }
+        
+        // Create a safe filename by replacing special characters
+        String safeProperty = property.replaceAll("[^a-zA-Z0-9]", "_");
+        
+        // Limit length for filenames
+        if (safeProperty.length() > 20) {
+            safeProperty = safeProperty.substring(0, 20);
+        }
+        
+        return safeProperty;
+    }
+
+    /**
+     * Attempts to extract a property index from the property string
+     * 
+     * @param property The property string
+     * @return The extracted property index, or 1 if not found
+     */
+    private int getPropertyIndex(String property) {
+        // Default property index
+        int propertyIndex = 1;
+        
+        // Check if property contains a specific index pattern like "P4:" or similar
+        if (property != null && !property.isEmpty()) {
+            // Look for patterns like "P1:", "P2:", etc.
+            java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("P(\\d+):");
+            java.util.regex.Matcher matcher = pattern.matcher(property);
+            
+            if (matcher.find()) {
+                try {
+                    propertyIndex = Integer.parseInt(matcher.group(1));
+                } catch (NumberFormatException e) {
+                    // Ignore parsing errors and use default
+                }
+            }
+        }
+        
+        return propertyIndex;
     }
 }

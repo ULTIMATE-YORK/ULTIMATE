@@ -34,6 +34,8 @@ These models are combined in the **ULTIMATE multi-model stochastic system**.
 
 ## Objectives and Results
 
-Using ULTIMATE, we analyze:
+Using ULTIMATE, we analyze the following properties based on different values of the probability of a large moving object in the monitored area pLargeObject.
 1. **Detection Probability**: The likelihood of detecting a large object.
 2. **Power Consumption**: Energy usage of the smart lighting component.
+
+<img src="https://github.com/user-attachments/assets/09db5f5d-da84-4ea6-a97e-64dd391a9a74" style="width: 60%;">

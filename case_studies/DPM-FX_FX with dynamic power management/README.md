@@ -30,9 +30,12 @@ These models interact dynamically:
 
 ## Objectives
 
-Using ULTIMATE, we analyze:
-1. **FX Workflow Execution Time**: How transaction processing time varies with **pIdle2Sleep**.
+Using ULTIMATE, we analyze the following properties by varying **pIdle2Sleep**.
+1. **FX Workflow Execution Time**: The expected number of transaction processing time in miliseconds.
 2. **Power Consumption Trade-offs**: The effect of DPM decisions on performance and energy savings.
+
+<img src="https://github.com/user-attachments/assets/8a60b4a4-3715-466c-a05d-8b18249a6e8e" style="width: 60%;">
+
 
 
 ## References
