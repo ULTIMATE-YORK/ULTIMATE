@@ -1,4 +1,4 @@
-const int k; // step bound
+
 
 // maximum probability robot 1 can guarantee to reach its goal without crashing
 <<robot1>>Pmax=? [ !"crash" U "goal1" ]

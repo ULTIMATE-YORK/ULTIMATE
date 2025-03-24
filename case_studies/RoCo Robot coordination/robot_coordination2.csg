@@ -5,6 +5,8 @@
 // concurrent game model
 csg
 
+const int k; // step bound
+
 // the players
 player robot1 robot1 endplayer
 player robot2 robot2 endplayer
