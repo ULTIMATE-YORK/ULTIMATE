@@ -29,3 +29,4 @@ The RAD system is modelled using four **interdependent stochastic models** of di
 
 Using **Probabilistic Model Checking (PMC)**, we aim to synthesize an **optimal policy** that minimizes the probability of dressing failure.
 
+![image](https://github.com/user-attachments/assets/84d9da4f-7059-4077-8af9-7208614c9b9a)
