@@ -128,7 +128,7 @@ public class ParameterController {
                 @Override
                 public void onEdit(ExternalParameter ep) {
                 	try {
-                        DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_external_param.fxml", "Edit Dependency Parameter", ep);
+                        DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_external_param.fxml", "Edit External Parameter", ep);
                 	} catch (IOException e) {
                 		e.printStackTrace();
                 	}
