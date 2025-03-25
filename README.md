@@ -23,10 +23,10 @@ Through its unique integration of multiple probabilistic and parametric model ch
 
 [python](https://www.python.org/downloads/)
 
+[Maven](https://maven.apache.org/download.cgi)
+
 The lastest version of the JavaFX SDK should be downloaded as well as Java 22 or later as the SDK requires this. 
 Download and build storm and prism according to their respective installation guides.
-
-### Installation
 
 Firstly, clone the repo in a convenient location. Navigate to the folder 'ULTIMATE_MODEL_MANAGER' within the cloned repo. Here you will find a file called *config.json*.
 This file stores the installation locations of storm and prism. These will need to be set for the tool to access them during verification. The file looks like this:
@@ -40,14 +40,17 @@ The full path to each executable for storm, storm-pars and prism will need to be
 {"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
 ```
 
+### Option 1:
+
 Still within the folder 'ULTIMATE_MODEL_MANAGER', the simplest way to run the tool is to use the maven integration in the project. Run the following commands:
 
 ```console
 mvn clean install
 mvn exec:java
 ```
+### Option 2:
 
-Alternatively, you can run the jar file directly but you will need to provide the module path for the JavaFX SDK you have downloaded.
+Alternatively, if the 'exec:java' command does not work, you can run the jar file directly. However, you will need to provide the module path for the JavaFX SDK you have downloaded.
 Firstly, from the 'ULTIMATE_MODEL_MANAGER' folder, run:
 
 ```console
@@ -56,7 +59,7 @@ mvn clean install
 Once the project has been built, you will need to run the following:
 
 ```console
-java --module-path <path_to_javafx_sdk/libs> --add-modules javafx.controls,javafx.fxml -jar target/ultimate_model_manager-1.0.jar
+java --module-path <path_to_javafx_sdk/libs> --add-modules javafx.controls,javafx.fxml -jar <path_to_jar>
 ```
 
 ### Running the tool
@@ -73,8 +76,7 @@ To verify a property, select it (it must be highlighted) and click the *Verify* 
 
 The current project can be saved by pressing *File -> Save*.
 
-**NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files
-        ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
+**NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files. ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
 
 ### Video Guide
 
@@ -88,5 +90,3 @@ The current project can be saved by pressing *File -> Save*.
   </tr>
   <tr>
 </table>
-
-
