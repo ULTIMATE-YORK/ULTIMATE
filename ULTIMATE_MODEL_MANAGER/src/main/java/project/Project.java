@@ -69,6 +69,7 @@ public class Project {
 			e.printStackTrace();
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
+        exporter = new ProjectExporter(this);
     }
 	
 	public Project() {
@@ -88,6 +89,7 @@ public class Project {
 			e.printStackTrace();
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
+        exporter = new ProjectExporter(this);
    }
 	
 	public ArrayList<String> getModelIDs() {
@@ -157,12 +159,10 @@ public class Project {
 	}
     
     public void save(String saveLocation) {
-    	exporter = new ProjectExporter(this);
     	exporter.saveExport(saveLocation);
     }
     
     public void save() {
-    	exporter = new ProjectExporter(this);
     	exporter.saveExport(saveLocation);
     }
     
@@ -179,8 +179,23 @@ public class Project {
     }
     
     public void refresh() {
-    	save();
-    	load();
+        // Save the current model's ID (if any)
+        Model oldModel = getCurrentModel();
+        String oldModelId = oldModel != null ? oldModel.getModelId() : null;
+        
+        save();
+        load();
+        
+        // Update the currentModel property by finding the model in the reloaded list
+        if (oldModelId != null) {
+            // Search for a model with the same id in the new models set
+            for (Model m : models) {
+                if (m.getModelId().equals(oldModelId)) {
+                    setCurrentModel(m);
+                    return; // Found and set, so we can exit the method
+                }
+            }
+        }
     }
     
     public String getSaveLocation() {
