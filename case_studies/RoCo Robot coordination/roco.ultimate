@@ -1,0 +1,36 @@
+{"models": {
+    "objectDetection": {
+        "fileName": "objectDetection.dtmc",
+        "id": "objectDetection",
+        "parameters": {
+            "environment": {"pObstacle": {
+                "name": "pObstacle",
+                "type": "Fixed",
+                "value": "0.4"
+            }},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "robot_coordination2": {
+        "fileName": "robot_coordination2.prism",
+        "id": "robot_coordination2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {"q": {
+                "modelId": "objectDetection",
+                "name": "q",
+                "property": "P=?[F \\\"obstacleAhead\\\"]"
+            }}
+        },
+        "properties": [
+            " <<robot1:robot2>>max=? (P[ !\"crash\" U<=6 \"goal1\"] + P[ !\"crash\" U<=6 \"goal2\"])",
+            " <<robot1:robot2>>max=? (P[ !\"crash\" U<=7 \"goal1\"] + P[ !\"crash\" U<=7 \"goal2\"])",
+            " <<robot1:robot2>>max=? (P[ !\"crash\" U<=8 \"goal1\"] + P[ !\"crash\" U<=8\"goal2\"])",
+            " <<robot1:robot2>>max=? (P[ !\"crash\" U<=9 \"goal1\"] + P[ !\"crash\" U<=9 \"goal2\"])",
+            " <<robot1:robot2>>max=? (P[ !\"crash\" U<=10 \"goal1\"] + P[ !\"crash\" U<=10\"goal2\"])"
+        ]
+    }
+}}
