@@ -30,7 +30,7 @@
           }
         }
       },
-      "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
+      "properties": ["R{\"power\"}=? [C<=10000]"]
     },
     "FX": {
       "fileName": "FX.dtmc",
