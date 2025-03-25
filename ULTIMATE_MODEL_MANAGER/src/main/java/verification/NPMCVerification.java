@@ -6,8 +6,8 @@ import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
-//import org.mariuszgromada.math.mxparser.License;
-//import org.mariuszgromada.math.mxparser.mXparser;
+import org.mariuszgromada.math.mxparser.License;
+import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,8 +72,8 @@ public class NPMCVerification {
     private boolean usePythonSolver = false;
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     public NPMCVerification(ArrayList<Model> models) {
-        //License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
-        //mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
+        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);

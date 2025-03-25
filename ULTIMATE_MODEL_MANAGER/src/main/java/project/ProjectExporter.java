@@ -22,13 +22,14 @@ public class ProjectExporter {
 	
 	private Set<Model> models;
 	private JSONObject exportObject;
+	Project project;
 	
 	public ProjectExporter(Project project) {
-		this.models = project.getModels();
-		export();
+		this.project = project;
 	}
 	
 	private JSONObject export() {
+		models = project.getModels();
 		JSONObject root = new JSONObject();
         JSONObject modelsObject = new JSONObject();
 
@@ -64,6 +65,7 @@ public class ProjectExporter {
                 envObj.put("name", env.getName());
                 envObj.put("type", env.getType());
                 envObj.put("value", env.getValue());
+                //System.out.println("External Parameter: " + env.getName() + "\nType: " + env.getType() + "\nValue: " + env.getValue());
                 environmentObject.put(env.getName(), envObj);
             }
             parametersObject.put("environment", environmentObject);
@@ -94,6 +96,7 @@ public class ProjectExporter {
 	}
 	
 	public void saveExport(String location) {
+		export();
 		try {
 			String content = this.exportObject.toString(4);
 			Files.write(Paths.get(location), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
