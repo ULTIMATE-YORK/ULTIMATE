@@ -89,7 +89,7 @@ public class PropertiesController {
 			// update the mode files here
 			for (Model m : models) {
 				FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
-				//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
+				System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
 			}
 			NPMCVerification verifier = new NPMCVerification(models);
 		    
@@ -112,6 +112,7 @@ public class PropertiesController {
 		    .exceptionally(ex -> {
 		        Platform.runLater(() -> {
 		            progressIndicator.setVisible(false);
+			        verifyResults.setText("");
 		            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
 		        });
 		        return null;
