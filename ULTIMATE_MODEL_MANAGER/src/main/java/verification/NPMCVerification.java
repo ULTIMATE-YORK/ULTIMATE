@@ -246,20 +246,22 @@ public class NPMCVerification {
                 return;
             }
             
-            // Build command for Python solver
+                    // Build command for Python solver
             List<String> command = new ArrayList<>();
             String pythonPath = project.getPythonInstall();
             command.add(pythonPath);
             command.add(pythonSolverPath);
             command.add("--path");
             command.add(pmcPath);
+            command.add("--mc");
+            command.add("storm");
             command.add("--model");
             command.add(modelFilePath);
             command.add("--input");
             command.addAll(inputData);
-            //command.add(" -pc");
-            
-            System.out.println(command);
+//          command.add(" -pc");
+
+            logCommandWithLineBreaks(logger, command);
             
             logger.info("Executing Python solver with command: ");
             for (String cmd : command) {
@@ -676,5 +678,13 @@ public class NPMCVerification {
         }
         
         return propertyIndex;
+    }
+    private void logCommandWithLineBreaks(Logger logger, List<String> command) {
+        StringBuilder fullCommand = new StringBuilder();
+        for (int i = 0; i < command.size(); i++) {
+            logger.info(command.get(i) + (i < command.size() - 1 ? " \\" : ""));
+            fullCommand.append(command.get(i)).append(" ");
+        }
+        logger.info("Full command: " + fullCommand.toString().trim());
     }
 }
