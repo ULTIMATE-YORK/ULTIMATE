@@ -5,7 +5,8 @@ We used the **ULTIMATE** framework and tool in four case studies covering softwa
 
 ## Case Studies Overview
 
-<img src="https://github.com/user-attachments/assets/97b89499-6d38-4742-b462-934508f77cc2" style="width: 80%;">
+
+<img src="https://github.com/user-attachments/assets/e68c1bb5-bef0-4d97-a3e6-1c4dac736860" style="width:  75%;">
 
 <!-- 
 <table>
