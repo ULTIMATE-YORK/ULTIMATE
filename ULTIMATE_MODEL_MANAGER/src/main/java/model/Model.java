@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,10 +11,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
-import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
 import property.Property;
-import utils.Alerter;
 import utils.FileUtils;
 import utils.PrismFileParser;
 
@@ -30,7 +27,6 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-    private List<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     private File verificationFile;
@@ -46,34 +42,35 @@ public class Model {
         this.filePath = filePath;
         this.dependencyParameters = FXCollections.observableArrayList();
         this.externalParameters = FXCollections.observableArrayList();
-        this.internalParameters = new ArrayList<>();
         this.uncategorisedParameters = FXCollections.observableArrayList();
-        //addUncategorisedParametersFromFile();
-        
-       this.properties = FXCollections.observableArrayList();
-       this.verificationFile = tempModelFile();
+        this.properties = FXCollections.observableArrayList();
+        this.verificationFile = tempModelFile();
     }
     
-    public void addProperty(String newProp) {
-    	// check the property is novel
+    /*
+     * Adds a property to the model
+     * 
+     * @param newProp the property to add
+     * @return true if the property was added, false otherwise
+     */
+    public boolean addProperty(String newProp) {
     	for (Property p : properties) {
-    		if (p.getProperty().equals(newProp)) {
-    			Alerter.showWarningAlert("Property Already Exists", "The property could not be added to the model");
-    			return;
+    		if (p.getProperty().equals(newProp)) {	// check the property is novel
+    			return false;
     		}
     	}
-		//Alerter.showInfoAlert("SUCCESS", "The property was added");
 		properties.add(new Property(newProp));
+		return true;
     }
     
-    public void removeProperty(Property remove) {
-    	boolean removed = properties.remove(remove);
-    	if (removed) {
-    		Alerter.showInfoAlert("SUCCESS", "The property was removed");
-    	}
-    	else {
-    		Alerter.showWarningAlert("FAILED", "The property could not be removed!");
-    	}
+    /*
+     * Removes a property from the model
+     * 
+     * @param remove the property to remove
+     * @return true if the property was removed, false otherwise
+     */
+    public boolean removeProperty(Property remove) {
+    	return properties.remove(remove);
     }
     
     public ObservableList<Property> getProperties() {
@@ -84,13 +81,38 @@ public class Model {
      * Adds a dependency parameter to the model.
      * 
      * @param parameter the dependency parameter to add
+     * @return true if the parameter was added, false otherwise
      */   
-	public void addDependencyParameter(DependencyParameter parameter) {
-		dependencyParameters.add(parameter);
+    public boolean addDependencyParameter(DependencyParameter parameter) {
+    	for (DependencyParameter dp : dependencyParameters) {
+    		if (dp.getName().equals(parameter.getName())) {
+    			return false; // Parameter with the same name already exists
+    		}
+    	}
+    	dependencyParameters.add(parameter);
+    	return true; // Parameter added successfully
+    }
+
+	/*
+	 * Removes a DependencyParameter from the list of dependency parameters
+	 * 
+	 * @param dp the dependency parameter to remove
+	 * @return true if the parameter was removed, false otherwise
+	 */
+	public boolean removeDependencyParameter(DependencyParameter dp) {
+	    Iterator<DependencyParameter> iter = this.dependencyParameters.iterator();
+	    while (iter.hasNext()) {
+	        DependencyParameter current = iter.next();
+	        if (current.getName().equals(dp.getName())) {
+	            iter.remove(); // Safely remove from dependencyParameters
+	            return true; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	    return false; // If not found, return false
 	}
 	
-	/*
-	 * Adds a list of dependency parameters to the model.
+	/**
+	 * Sets the list of dependency parameters for the model.
 	 * 
 	 * @param parameters the list of dependency parameters to add
 	 */
@@ -99,16 +121,51 @@ public class Model {
 	}
 	
     /**
+     * Gets the list of dependency parameters associated with the model.
+     * 
+     * @return the list of dependency parameters
+     */
+    public ObservableList<DependencyParameter> getDependencyParameters() {
+        return dependencyParameters;
+    }
+	
+
+    /**
      * Adds an environment parameter to the model.
      * 
-     * @param parameter the dependency parameter to add
+     * @param parameter the external parameter to add
+     * @return true if the parameter was added, false otherwise
      */
-	public void addExternalParameter(ExternalParameter parameter) {
-		externalParameters.add(parameter);
+    public boolean addExternalParameter(ExternalParameter parameter) {
+    	for (ExternalParameter ep : externalParameters) {
+    		if (ep.getName().equals(parameter.getName())) {
+    			return false; // Parameter with the same name already exists
+    		}
+    	}
+    	externalParameters.add(parameter);
+    	return true; // Parameter added successfully
+    }
+
+	/*
+	 * Removes an ExternalParameter from the list of environment parameters
+	 * 
+	 * @param ep the environment parameter to remove
+	 * @return true if the parameter was removed, false otherwise
+	 */
+	public boolean removeExternalParameter(ExternalParameter ep) {
+	    Iterator<ExternalParameter> iter = this.externalParameters.iterator();
+	    while (iter.hasNext()) {
+	        ExternalParameter current = iter.next();
+	        if (current.getName().equals(ep.getName())) {
+	            iter.remove(); // Safely remove from dependencyParameters
+	            return true; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	    return false; // If not found, return false
 	}
 	
 	/*
-	 * Adds a list of environment parameters to the model.
+	 * Sets the list of environment parameters for the model.
 	 * 
 	 * @param parameters the list of environment parameters to add
 	 */
@@ -117,40 +174,66 @@ public class Model {
 	}
 	
     /**
-     * Adds an internal parameter to the model.
+     * Gets the list of environment parameters associated with the model.
      * 
-     * @param parameter the dependency parameter to add
+     * @return the list of environment parameters
      */
-	public void addInternalParameter(InternalParameter parameter) {
-		internalParameters.add(parameter);
-	}
+    public ObservableList<ExternalParameter> getExternalParameters() {
+        return externalParameters;
+    }
 	
-	/*
-	 * Adds a list of internal parameters to the model.
-	 * 
-	 * @param parameters the list of internal parameters to add
-	 */
-	public void setInternalParameters(List<InternalParameter> parameters) {
-		internalParameters = parameters;
-	}
-	
+
     /**
      * Adds an uncategorised parameter to the model.
      * 
      * @param parameter the uncategorised parameter to add
+     * @return true if the parameter was added, false otherwise
      */
-	public void addUncategorisedParameter(UncategorisedParameter parameter) {
-		uncategorisedParameters.add(parameter);
+    public boolean addUncategorisedParameter(UncategorisedParameter parameter) {
+    	for (UncategorisedParameter up : uncategorisedParameters) {
+    		if (up.getName().equals(parameter.getName())) {
+    			return false; // Parameter with the same name already exists
+    		}
+    	}
+    	uncategorisedParameters.add(parameter);
+    	return true; // Parameter added successfully
+    }
+	
+	/*
+	 * Removes an UncategorisedParameter from the list of uncategorised parameters
+	 * 
+	 * @param uc the uncategorised parameter to remove
+	 * @return true if the parameter was removed, false otherwise
+	 */
+	public boolean removeUncategorisedParameter(UncategorisedParameter uc) {
+	    Iterator<UncategorisedParameter> iter = this.uncategorisedParameters.iterator();
+	    while (iter.hasNext()) {
+	        UncategorisedParameter current = iter.next();
+	        if (current.getName().equals(uc.getName())) {
+	            iter.remove(); // Safely remove from uncategorisedParameters
+	            return true; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	    return false; // If not found, return false
 	}
 	
 	/*
-	 * Adds a list of uncategorised parameters to the model.
+	 * Sets the list of uncategorised parameters for the model.
 	 * 
 	 * @param parameters the list of uncategorised parameters to add
 	 */
 	public void setUncategorisedParameters(ObservableList<UncategorisedParameter> parameters) {
 		uncategorisedParameters = parameters;
 	}
+	
+    /**
+     * Gets the list of uncategorised parameters associated with the model.
+     * 
+     * @return the list of uncategorised parameters
+     */
+    public ObservableList<UncategorisedParameter> getUncategorisedParameters() {
+        return uncategorisedParameters;
+    }
 
     /**
      * Gets the model's unique identifier.
@@ -162,7 +245,7 @@ public class Model {
     }
 
     /**
-     * Gets the model's file path.
+     * Gets the model's file path to the original prism model file.
      * 
      * @return the file path
      */
@@ -171,10 +254,10 @@ public class Model {
     }
 
     /**
-     * Sets the model's file path.
+     * Sets a new prism file path for the model.
      * 
      * @param filePath2 the new file path
-     * @throws IOException 
+     * @throws IOException if the file is not a valid PRISM model
      */
     public void setFilePath(String filePath) throws IOException {
     	if (FileUtils.isPrismFile(filePath)) {
@@ -182,24 +265,11 @@ public class Model {
     	}
     }
     
-    /**
-     * Gets the list of dependency parameters associated with the model.
+    /*
+     * Method to get the list of external parameters in a HashMap where name is key and value is the evaluated value of the parameter
      * 
-     * @return the list of dependency parameters
+     * @return a HashMap of external parameters
      */
-    public ObservableList<DependencyParameter> getDependencyParameters() {
-        return dependencyParameters;
-    }
-    
-    /**
-     * Gets the list of environment parameters associated with the model.
-     * 
-     * @return the list of environment parameters
-     */
-    public ObservableList<ExternalParameter> getExternalParameters() {
-        return externalParameters;
-    }
-    
     public HashMap<String, Double> getHashExternalParameters() throws NumberFormatException, IOException {
 		HashMap<String, Double> hash = new HashMap<>();
 		for (ExternalParameter ep : externalParameters) {
@@ -207,27 +277,9 @@ public class Model {
 		}
 		return hash;
     }
-    
-    /**
-     * Gets the list of internal parameters associated with the model.
-     * 
-     * @return the list of internal parameters
-     */
-    public List<InternalParameter> getInternalParameters() {
-        return internalParameters;
-    }
-    
-    /**
-     * Gets the list of uncategorised parameters associated with the model.
-     * 
-     * @return the list of uncategorised parameters
-     */
-    public ObservableList<UncategorisedParameter> getUncategorisedParameters() {
-        return uncategorisedParameters;
-    }
-    
+        
 	/*
-	 * Adds the uncategorised parameters to the model
+	 * Adds the uncategorised parameters to the model by parsing the prism file given by the file path
 	 */
     public void addUncategorisedParametersFromFile() {
         PrismFileParser parser = new PrismFileParser();
@@ -247,45 +299,6 @@ public class Model {
     }
 	
 	/*
-	 * Removes a DependencyParameter
-	 */
-	public void removeDependencyParameter(DependencyParameter dp) {
-	    Iterator<DependencyParameter> iter = this.dependencyParameters.iterator();
-	    while (iter.hasNext()) {
-	        DependencyParameter current = iter.next();
-	        if (current.getName().equals(dp.getName())) {
-	            iter.remove(); // Safely remove from dependencyParameters
-	            break; // Assuming names are unique, break out of the loop.
-	        }
-	    }
-	}
-	
-	public void removeExternalParameter(ExternalParameter ep) {
-	    Iterator<ExternalParameter> iter = this.externalParameters.iterator();
-	    while (iter.hasNext()) {
-	        ExternalParameter current = iter.next();
-	        if (current.getName().equals(ep.getName())) {
-	            iter.remove(); // Safely remove from dependencyParameters
-	            break; // Assuming names are unique, break out of the loop.
-	        }
-	    }
-	}
-	
-	/*
-	 * Removes an UncategorisedParameter
-	 */
-	public void removeUncategorisedParameter(UncategorisedParameter uc) {
-	    Iterator<UncategorisedParameter> iter = this.uncategorisedParameters.iterator();
-	    while (iter.hasNext()) {
-	        UncategorisedParameter current = iter.next();
-	        if (current.getName().equals(uc.getName())) {
-	            iter.remove(); // Safely remove from uncategorisedParameters
-	            break; // Assuming names are unique, break out of the loop.
-	        }
-	    }
-	}
-	
-	/*
 	 * Method to create and return a copy of the model file to be used for verification
 	 */
 	private File tempModelFile() throws IOException {
@@ -302,11 +315,22 @@ public class Model {
 	    return tempFile;
 	}
 
+	/*
+	 * Method to get the path to the temporary model file
+	 * 
+	 * @return the path to the temporary model file
+	 */
 	public String getVerificationFilePath() throws IOException {
 		//verificationFile = tempModelFile();
 		return verificationFile.getAbsolutePath();
 	}
 	
+	/*
+	 * Override the toString method to return the model ID
+	 * 
+	 * @return the model ID
+	 */
+	@Override
 	public String toString() {
 		return this.modelId;
 	}
