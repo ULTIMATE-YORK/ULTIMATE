@@ -127,8 +127,7 @@ public class Model {
      */
     public ObservableList<DependencyParameter> getDependencyParameters() {
         return dependencyParameters;
-    }
-	
+    }	
 
     /**
      * Adds an environment parameter to the model.
@@ -181,7 +180,6 @@ public class Model {
     public ObservableList<ExternalParameter> getExternalParameters() {
         return externalParameters;
     }
-	
 
     /**
      * Adds an uncategorised parameter to the model.
