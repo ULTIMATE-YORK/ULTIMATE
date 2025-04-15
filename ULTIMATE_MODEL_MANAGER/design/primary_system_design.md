@@ -49,6 +49,22 @@ The *External Parameter* will then be returned to the GUI which will then add th
 
 ### 3. Adding a Property
 
+Here, the user clicks the '+' in the appropriate section of the GUI. When this occurs, the GUI provides the user with a pop-up requesting that the user define a *Property* which is returned as **prop**. As before, the GUI then requests the current model (**m1**) from the *Context* component. Next, the GUI will instantiate a *Property* component using **prop**. A *Property* instance is returned (**prp**). Finally, the GUI send a message to the current model (**m1**) to add the *Property* (**prp**) to an interal array stored by the *Model* component. 
+
+### 4. Running Verification
+
+In this case, the user presses a 'verify' button in the GUI. As before, the GUI will send a message to the *Context* component requesting the references to both the current *Model* (**m1**) and the current *Property* (**prp**). Next, the *Verification* component is called with the current model and property (**m1, prp**). Before verification can take place, the *Verification* must first determine what PMC the user has selected in the tool (PRISM or Storm). This is accomplished in two steps. First, a message is sent to the *Context* component requesting the name of the selected PMC. In this case, PRISM is selected so **prism** is returned. Secondly, the *Verification* component must then retrieve the path to the PRISM binary. A message is sent to the *Configuration* component requesting this. 
+
+After this, the *Verification* component invokes the *Process Manager* component with the arguments; **prismPath, m1, prp**. This starts a process that runs the PRISM binary. The result of this is returned and passed to a parser (omitted here) and the result is extracted before it is passed back the GUI to be displayed.
+
+### 5. Saving Project
+
+When saving a project, the user will click the button *'Save'* which will open a dialog and request from the user a location to save the project. This will return a string **saveloc**. A message will be passed to the *Project* component with the chosen save location. Next, a message is sent to the *Project Exporter* component with the argument **p** which is the project component itself.
+
+The *Project Exporter* will check the parent directory of the chosen save location and ensure it is correctly organised. For the directory to be correct, it must contain all the PRISM model files for the *Model* components described by the project. Additionally, it will ensure there is a data folder if any *External Parameters* exist for any of the *Model* components. 
+
+If all is correct, the exporter will iterate through the array of *Model* components stored in the project **p** and write the contents to a json file (the ULTIMATE file) xxx.ultimate.  
+
 ## The Configuration Component
 
 ### Purpose
