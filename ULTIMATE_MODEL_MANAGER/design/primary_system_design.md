@@ -79,70 +79,30 @@ First, the existence of *config.json* is confirmed before its contents are verif
 {"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
 ```
 
-If each of these binaries can be found and run then the component considers the contents valid. At this point the strings are assigned values. These can then be used where they are needed. In the case that the binaries cannot be found/run then the *Configuration* will set a flag (*Configuration.CONFIGURED*) that is used in *main()* to determine whether or not the program can continue. If the flag is *'false'* then the program will be aborted as these confiuration settings are essential for the operation of the tool.
+If each of these binaries can be found and run then the component considers the contents valid. At this point the strings are assigned values. These can then be used where they are needed. In the case that the binaries cannot be found/run then the *Configuration* component will not be created, throw an error and terminate the program. 
 
 The UML diagram below depicts two possible sequences for the *Configuration* component. On the left, we see that if *'config.json'* exists and the paths in the file point to binaries that can be run then the paths are set and the flag *'CONFIGURED'* is set to true. The right depicts an example where the file is not found and the flag is set to false. In the latter, the program will terminate as *'CONFIGURED'* must be true for execution to continue. 
 
 <p align="center">
 	<img src="uml/conf.png">
 
+This component is very simple to use. As mentioned, the first code to be run should be the call to *'Configuration.init()'*. When the user need a certain string, such as the path to the PRISM binary, simply call *'Configuration.PRISM_PATH'*.
+
 ### Implementation
 
-The code below is the implementation of the *'Configuration'* component. Below this is an example of how this component is used within *'main()'*. If the call to *Configuration.init()* fails (due to missing file, bad formatting etc), it will throw an error and main will halt. Otherwise, we will see the paths of the binaries printed and the tool will launch.
+First, lets look at the constructor:
 
 ```java
-public class Configuration {
-	
-	private static Configuration instance = null;
-	public static String PRISM_PATH;
-	public static String PRISM_GAMES_PATH;
-	public static String STORM_PATH;
-	public static String STORM_PARS_PATH;
-	public static String PYTHON_PATH;
-	public static boolean CONFIGURED = false;
-	
 	private Configuration() throws IOException, DataFormatException {
 		if (isConfigFile() && areValidPaths()) {
             setPaths();
-            CONFIGURED = true;
         }
 	}
-	
-	public static void init() throws FileNotFoundException, IOException, DataFormatException {
-		if (instance == null) {
-			instance = new Configuration();
-		}	
-	}
-	
-	/*
-	 * This method returns the 5 paths to the binaries
-	 * 
-	 * @return a map of the name of the binary and the path to it
-	 * @throws DataFormatException if the file is not in the correct format
-	 */
-	private HashMap<String, String> getPaths() throws IOException, DataFormatException {
-        File configFile = new File("config.json");
-        String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
-        JSONObject configJSON = new JSONObject(content);
-        HashMap<String, String> binaries = new HashMap<String, String>();
-        try {
-        	binaries.put("PRISM_PATH", configJSON.getString("prismInstall"));
-        	binaries.put("PRISM_GAMES_PATH", configJSON.getString("prismGamesInstall"));
-        	binaries.put("STORM_PATH", configJSON.getString("stormInstall"));
-        	binaries.put("STORM_PARS_PATH", configJSON.getString("stormParsInstall"));
-        	binaries.put("PYTHON_PATH", configJSON.getString("pythonInstall"));
-		} catch (Exception e) {
-			throw new DataFormatException("Configuration file is not in the correct format");
-		}
-        return binaries;
-	}
-	
-	/*
-	 * This method verifies that config.json exists where it is expected to be
-	 * 
-	 * @return true if config.json exists, false otherwise
-	 * @throws FileNotFoundException if config.json does not exist
-	 */
+```
+
+In the code above, we can see that the component is only created in the case where both *'isConfigFile()'* and *'areValidPaths()'* return true. By examining the code below, it can be seen that *'isConfigFile()'* simply checks if the config file exists in the current directory (where the code is being run). *'areValidPaths()'* creates a map that maps the name of the static class strings (*eg: PRISM_PATH*) to the strings stored in the config file. Once these have been extracted, each path is checked to confirm it is an executable. 
+
+```java
 	private boolean isConfigFile() throws FileNotFoundException {
 		boolean exists;
 		exists = Files.exists(Paths.get("config.json"));
@@ -152,13 +112,7 @@ public class Configuration {
 			throw new FileNotFoundException("Configuration file not found! This file is expected in directory where the code is being run");
 		}
 	}
-	
-	/*
-	 * This method verifies that the paths in config.json are valid binaries on the system
-	 * 
-	 * @return true if the paths are valid, false otherwise
-	 * @throws FileNotFoundException if the paths are not valid binaries
-	 */
+
 	private boolean areValidPaths() throws IOException, DataFormatException {
 		// get the paths from the config.json file
 		HashMap<String, String> binaries = getPaths();
@@ -170,7 +124,27 @@ public class Configuration {
 		}
 		return true;
 	}
-	
+	private HashMap<String, String> getPaths() throws IOException, DataFormatException {
+       File configFile = new File("config.json");
+       String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
+       JSONObject configJSON = new JSONObject(content);
+       HashMap<String, String> binaries = new HashMap<String, String>();
+       try {
+        binaries.put("PRISM_PATH", configJSON.getString("prismInstall"));
+        binaries.put("PRISM_GAMES_PATH", configJSON.getString("prismGamesInstall"));
+        binaries.put("STORM_PATH", configJSON.getString("stormInstall"));
+        binaries.put("STORM_PARS_PATH", configJSON.getString("stormParsInstall"));
+        binaries.put("PYTHON_PATH", configJSON.getString("pythonInstall"));
+		} catch (Exception e) {
+			throw new DataFormatException("Configuration file is not in the correct format");
+		}
+        return binaries;
+	}
+```
+
+Lastly, the paths are set:
+
+```java
 	private void setPaths() {
 		HashMap<String, String> binaries = null;
         try {
@@ -184,8 +158,6 @@ public class Configuration {
         STORM_PARS_PATH = binaries.get("STORM_PARS_PATH");
         PYTHON_PATH = binaries.get("PYTHON_PATH");
     }
-
-}
 ```
 
 Using the component in main:
