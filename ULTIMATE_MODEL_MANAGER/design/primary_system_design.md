@@ -84,7 +84,7 @@ If each of these binaries can be found and run then the component considers the 
 The UML diagram below depicts two possible sequences for the *Configuration* component. On the left, we see that if *'config.json'* exists and the paths in the file point to binaries that can be run then the paths are set and the flag *'CONFIGURED'* is set to true. The right depicts an example where the file is not found and the flag is set to false. In the latter, the program will terminate as *'CONFIGURED'* must be true for execution to continue. 
 
 <p align="center">
-	<img src="uml/configuration.png">
+	<img src="uml/conf.png">
 
 ### Implementation
 
