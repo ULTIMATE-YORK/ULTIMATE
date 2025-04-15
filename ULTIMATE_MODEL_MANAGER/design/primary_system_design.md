@@ -6,19 +6,21 @@ The *ULTIMATE* tool is made up of a number of *Primary System Components (PSCs)*
 
 Before examing individual components, it is worth outlining the general structure of the system. This will not consider every component (such as specialised utlity classes) but rather focus on the *PSCs*.
 
-First, these components will be listed and then presented in a diagram intended to give the reader an idea of how each component interacts. This diagram will model some sequence of events that corresponds to a particular use case of the system. The following are considered to be the *PSCs* of the system:
+First, these components will be listed and then presented in a sequence diagram intended to give the reader an idea of how each component interacts. This diagram will model some sequence of events that corresponds to a particular use case of the system. The following are considered to be the *PSCs* of the system:
 
 1. The [Configuration](#the-configuration-component) component
+2. The [Uncategorised Parameter]() component
 2. The [Dependency Parameter](#the-dependency-parameter-component) component
 3. The [External Parameter](#the-external-parameter-component) component
+4. The **Synthesis** component
+5. The **Property** component
 2. The [Model](#the-model-component) component
 2. The **Project** component
-3. The **Synthesis** component
-4. The **Property** component
 6. The **Project Importer** component
 7. The **Project Exporter** component
+8. The **Context** component
+9. The **Process Manager** component
 10. The **Verification** component
-12. The **Context** component
 
 Below is a simple UML sequence diagram that represents one possible use case of the system. Here, the user is loading a **Project** file, adding a **Model** to the project, defining an **External Parameter**, adding a **Property** and then carrying out a **Verification**. As previously mentioned, not every detail of the system will be covered here. Rather, this is intended to give the reader (and perhaps new maintainer) an intuition of how the system works.
 
@@ -27,7 +29,25 @@ Below is a simple UML sequence diagram that represents one possible use case of 
 <p align="center">
 	<img src="uml/psc_usecase.png">
 	
+### 1. Loading a Project
 
+Before the GUI loads, the program first creates a *Configuration* component and this is used to verify the contents of the config file. This is neccesarry as the config file contains the location of a number of binaries (separately installed) that are essential for the tool to work. The *Configuration* component ensures that the binaries exist in the locations described by the file. If the binaries cannot be found at the given locations, the *Configuration* component will send a message to prevent the continued execution of the program. 
+
+Otherwise, the GUI will load and allow the user to pass input to it. In this case, the user presses the *'Load'* button in the tool to import an ULTIMATE project file (something like 'xxx.ultimate'). When the user presses *'Load'*, the GUI will open a file dialog that will allow the user to select any .ultimate file on their system. The file dialog will return the path of the chosen file (**fp**) to the GUI which will in turn instantiate a *Project* component with the argument **'fp'**. 
+
+The *Project* component will perform some validation before being succesfully created. Crucially, it will validate that the chosen file is correctly formatted. If everything is correct, the component will be created and then carry out importing the project by creating a *Project Importer* component. The *Project* component instantiates a *Project Importer* by passing it the **'fp'** or the file path of the ULTIMATE project file. The *Project Importer* will determine the parent directory (**dir**) of the ULTIMATE file and look there for the PRISM files describing the models. If any of the PRISM model files are not in this parent directory, an error will be generated and the GUI will inform the user of the issue and fail to import the project. Otherwise, the *Project Importer* will parse the ULTIMATE project file at **fp** and will create a *Model* component for each model described by it. For each *Model*, any *External Parameters* or *Dependency Parameter* will be created (omitted here). Any constants left undefined are found in the PRISM model file, they will be added to the *Model* as an *Uncategorised Parameter*. Once all the *Model* components are created, the *Project Importer* will return an array of these to the *Project* component where they will be stored. 
+
+**NOTE:** The *Project* component stores the *Model* components so other components of the program can send messages to *Project* and request these when they need to be mutated. 
+
+### 2. Defining an External Parameter
+
+In this sequence, the user presses a '+' button in the GUI that allows them to define some *Uncategorised Parameter* belonging to a *Model* as an *External Parameter* (it would be a similar sequence for a *Dependency Parameter*, which has not been included for reduce diagram complexity). After the user presses the '+' button, the GUI will present them with a pop-up in which they will select an *Uncategorised Parameter* from the currently selected *Model* to define. If the current *Model* has no *Uncategorised Parameters* then the '+' button will not be visbile and the user will not be able to define any additional parameters. Additionally, the user will provide the GUI pop-up with the information relevant to the kind of parameter they are defining. In the case of an *External Parameter*, the user will be asked to provide name (which is simply taken as the name of the chosen *Uncategorised Parameter*), a type (from a drop-down of options) and either a fixed value (if type is fixed) or a data file in the case of the either type options. This will return to the GUI the *Uncategorised Parameter* (**up**) as well as the data used to define the new *External Parameter* **(n,t,v)**. 
+
+The GUI will then request from the *Context* component the reference for the currently selected *Model*, which will be returned to it (**m1** in this case). Then an *External Parameter* will be instantiated with **(n,t,v)**. When an *External Parameter* is instantiated, if the type is not fixed, it will look in the project directory for a data folder and expect to find the data file (**v**) here. If it is not here, an error will be generated and sent to the user. Otherwise, the *External Parameter* will invoke the *Synthesis* component. The *Synthesis* component will carry out the 'learning' if the type is, for example, Bayes and return it to the *External Parameter*. 
+
+The *External Parameter* will then be returned to the GUI which will then add the *External Parameter* to the current *Model* (**m1**). It will also instruct the *Model* to remove the *Uncategorised Parameter* (**up**).
+
+### 3. Adding a Property
 
 ## The Configuration Component
 
