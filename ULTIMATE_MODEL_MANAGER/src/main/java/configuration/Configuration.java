@@ -18,12 +18,10 @@ public class Configuration {
 	public static String STORM_PATH;
 	public static String STORM_PARS_PATH;
 	public static String PYTHON_PATH;
-	public static boolean CONFIGURED = false;
 	
 	private Configuration() throws IOException, DataFormatException {
 		if (isConfigFile() && areValidPaths()) {
             setPaths();
-            CONFIGURED = true;
         }
 	}
 	
