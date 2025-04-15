@@ -9,7 +9,7 @@ Before examing individual components, it is worth outlining the general structur
 First, these components will be listed and then presented in a sequence diagram intended to give the reader an idea of how each component interacts. This diagram will model some sequence of events that corresponds to a particular use case of the system. The following are considered to be the *PSCs* of the system:
 
 1. The [Configuration](#the-configuration-component) component
-2. The [Uncategorised Parameter]() component
+2. The [Uncategorised Parameter](#the-uncategorised-parameter-component) component
 2. The [Dependency Parameter](#the-dependency-parameter-component) component
 3. The [External Parameter](#the-external-parameter-component) component
 4. The **Synthesis** component
@@ -174,6 +174,16 @@ Using the component in main:
         launch(args); // Launch the JavaFX application
     }
 ```
+
+## The Uncategorised Parameter Component
+
+### Purpose
+
+When a *Model* is instantiated by the *Project Importer*, all defined parameters (external and dependency) are added to the model. When the PRISM file assocaited with a model contains undefined constants that are not defined in the project file, they are added as *Uncategorised Parameters* to the model. In the GUI, the user sees a list of these *Uncategorised Parameters*. They may select one of these to define as either of the other two kinds of parameters. Essentially, the *Uncategorised Parameter* can be thought of as a place holder.
+
+### Operation
+
+### Implementation
 
 ## The Dependency Parameter Component
 
