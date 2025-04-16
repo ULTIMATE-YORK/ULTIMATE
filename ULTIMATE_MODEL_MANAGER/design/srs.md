@@ -24,13 +24,13 @@
 - [1. Introduction](#1-introduction)
 	- [1.1 Purpose](#11-purpose)
 	- [1.2 Scope](#12-scope)
-	- [1.3 Terms & Definitions](#13-terms-&-definitions)
+	- [1.3 Terms and Definitions](#13-terms-and-definitions)
 
 - [2. Overall Description](#2-overall-description)
 	- [2.1 Product Perspective](#21-product-perspective)
 	- [2.2 User Classes](#22-user-classes)
 	- [2.3 Operating Environment](#23-operating-environment)
-	- [2.4 Assumptions & Dependencies](#24-assumptions-&-dependencies)
+	- [2.4 Assumptions and Dependencies](#24-assumptions-and-dependencies)
 	
 - [3. Functional Requirements](#3-functional-requirements)
 
@@ -52,7 +52,7 @@ Below is a short description of ULTIMATE from the GitHub page:
 
 In essence, ULTIMATE enables users to model, verify, and synthesize complex systems comprised of multiple interdependent stochastic models. It integrates established probabilistic model checkers such as PRISM and Storm with novel algorithms developed specifically for this tool. By doing so, it provides a unified framework for addressing diverse uncertainty types and inference methods across various temporal and decision-making models.
 
-### 1.3 Terms & Definitions
+### 1.3 Terms and Definitions
 
 | Term | Definition |
 |:----:|:----------:|
@@ -176,7 +176,7 @@ The ULTIMATE tool is designed to run on Unix-based operating systems, specifical
 
 * Maven
 
-### 2.4 Assumptions & Dependencies
+### 2.4 Assumptions and Dependencies
 
 ULTIMATE relies on several external and internal software components to perform its core functions. The following dependencies must be satisfied for the tool to operate correctly:
 
