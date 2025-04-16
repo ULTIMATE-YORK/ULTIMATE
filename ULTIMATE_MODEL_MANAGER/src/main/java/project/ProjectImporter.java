@@ -128,6 +128,7 @@ public class ProjectImporter {
                 });
             }
 			break;
+		/*
 		case "internal":
             // Deserialize internal parameters
             JSONObject internalObject = parametersObject.optJSONObject("internal");
@@ -138,6 +139,7 @@ public class ProjectImporter {
                 });
             }
 			break;
+			*/
 		}
     }
 	
