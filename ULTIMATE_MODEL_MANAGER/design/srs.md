@@ -33,6 +33,14 @@
 	- [2.4 Assumptions and Dependencies](#24-assumptions-and-dependencies)
 	
 - [3. Functional Requirements](#3-functional-requirements)
+	- [3.1 Project Management](#31-project-management)
+	- [3.2 Model Management](#32-model-management)
+	- [3.3 Parameter Management](#33-parameter-management)
+	- [3.4 Property Management](#34-property-management)
+	- [3.5 Learning](#35-learning)
+	- [3.6 Verification](#36-verification)
+	- [3.7 Logging](#37-logging)
+	- [3.8 CLI](#38-cli)
 
 - [4. Non-Functional Requirements](#4-non-functional-requirements)
 
@@ -50,15 +58,20 @@ Below is a short description of ULTIMATE from the GitHub page:
 
 > Through its unique integration of multiple probabilistic and parametric model checking paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context.
 
-In essence, ULTIMATE enables users to model, verify, and synthesize complex systems comprised of multiple interdependent stochastic models. It integrates established probabilistic model checkers such as PRISM and Storm with novel algorithms developed specifically for this tool. By doing so, it provides a unified framework for addressing diverse uncertainty types and inference methods across various temporal and decision-making models.
+In essence, ULTIMATE enables users to model, verify, and synthesize complex systems comprised of multiple interdependent stochastic models. It integrates established probabilistic model checkers such as PRISM and Storm with novel algorithms developed specifically for this tool.
 
 ### 1.3 Terms and Definitions
 
 | Term | Definition |
-|:----:|:----------:|
+|:----|:----------|
 |PMC|Probabilistic Model Checker|
 |PRISM| PRISM is a PMC tool|
 |Storm| Storm is a PMC tool|
+|PRISM model file| This is a text file written in the PRISM language - it describes a stochastic model |
+|UP| Uncategorsied Parameter|
+|EP| External Parameter|
+|DP| Dependency Parameter|
+|IP| Internal Parameter|
 
 ## 2. Overall Description
 
@@ -66,9 +79,9 @@ In essence, ULTIMATE enables users to model, verify, and synthesize complex syst
 
 **Positioning**
 
-The ULTIMATE Stochastic World Model Manager (USWMM) is a specialized tool designed for managing and verifying multi-model stochastic systems, built as an extension of existing probabilistic model checkers (PMCs) like PRISM and Storm. Unlike these traditional PMCs, which focus primarily on individual models, ULTIMATE allows users to work with systems of models, enabling complex interdependencies and verification tasks across multiple models.
+The ULTIMATE tool is a specialized tool designed for managing and verifying multi-model stochastic systems, built as an extension to existing probabilistic model checkers (PMCs) like PRISM and Storm. Unlike these traditional PMCs, which focus primarily on individual models, ULTIMATE allows users to work with systems of models, enabling complex interdependencies and verification tasks across multiple models.
 
-This tool bridges the gap between simple model checking and sophisticated multi-model system synthesis by introducing Dependency Parameters, External Parameters, and Internal Parameters—which are unique to ULTIMATE and are not part of the base PRISM/Storm functionality. By managing these parameters and integrating different models, USWMM offers a unified framework for modeling, defining, and verifying stochastic systems with interrelated components.
+This tool bridges the gap between simple model checking and sophisticated multi-model system synthesis by introducing Dependency Parameters, External Parameters, and Internal Parameters—which are unique to ULTIMATE and are not part of the base PRISM/Storm functionality. By managing these parameters and integrating different models, the tool offers a unified framework for modeling, defining, and verifying stochastic systems with interrelated components.
 
 **System Boundaries**
 
@@ -208,6 +221,71 @@ Each model used in a project must be written in the PRISM language and must cont
 Model files are not modified by the tool; however, users may define parameters (environment, dependency, internal) based on constants found in these files.
 
 ## 3. Functional Requirements
+
+Below is a list of functional requirements for the ULTIMATE tool. These requirements outline the expected capabilities of the tool, both from a user-facing and system perspective.
+
+### 3.1 Project Management
+
+- **FR1**: The user shall be able to create a new blank project.
+- **FR2**: The user shall be able to load an existing project into the tool from an ultimate file.
+- **FR3**: The user shall be able to save the current project as an ultimate file.
+- **FR4**: The user shall be able to use "Save As" to save the project under a new name or location.
+- **FR5**: The tool should generate ultimate files (json file) that fully describe all the models and thier defined parameters/properties.
+
+### 3.2 Model Management
+
+- **FR6**: The user shall be able to add a model to the project by selecting a PRISM model file.
+- **FR7**: The user shall be able to view the PRISM file of a selected model within the tool.
+- **FR8**: The user shall be able to delete a model from the project.
+
+### 3.3 Parameter Management
+
+- **FR9**: The tool shall detect undefined constants in a PRISM model file and present them as uncategorized parameters (UPs).
+- **FR10**: The tool should detect defined parameters in the ultimate file and add them to the correct model. 
+- **FR11**: The user shall be able to define each UP as:
+  - External Parameters (EPs)
+  - Dependency Parameters (DPs)
+  - Internal Parameters (IPs)
+- **FR12**: The user shall be able to:
+  - Edit an existing parameter’s definition.
+  - Remove a parameter and return it to the list of UPs.
+
+### 3.4 Property Management
+
+- **FR13**: The user shall be able to define a property for a given model.
+- **FR14**: The user should be able to delete properties for a given model.
+- **FR15**: The user should be able to edit a propery definition.
+- **FR16**: The user shall be able to import multiple properties via a property file.
+
+### 3.5 Learning
+
+- **FR17**: The tool should be able to learn values for EPs from the data file provided when they were defined. 
+
+### 3.6 Verification
+
+- **FR18**: The user shall be able to initiate verification of a model and selected property.
+- **FR19**: The user shall be able to choose between available PMCs (PRISM or Storm) for verification.
+- **FR20**: The system shall ensure all dependencies are defined before running verification on dependent models.
+- **FR21**: The system shall display a progress indicator during verification.
+- **FR22**: The system shall present results including:
+  - Status of verification
+  - Result values
+
+### 3.7 Logging
+
+- **FR20**: The system shall maintain a log of user actions and system processes.
+- **FR21**: The user shall be able to:
+  - View logs after verification
+  - Save logs to a file
+
+### 3.8 CLI
+
+- **FR22**: The user shall be able to execute verification from the command line using an existing project file.
+- **FR23**: The CLI shall accept arguments for:
+  - Model selection
+  - Property selection
+  - PMC choice
+  - Output format and destination
 
 ## 4. Non-Functional Requirements
 
