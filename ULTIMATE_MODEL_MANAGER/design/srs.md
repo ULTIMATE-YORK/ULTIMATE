@@ -43,6 +43,11 @@
 	- [3.8 CLI](#38-cli)
 
 - [4. Non-Functional Requirements](#4-non-functional-requirements)
+	- [4.1 Usability](#41-usability)
+	- [4.2 Performace](#42-performance)
+	- [4.3 Compatibility](#43-compatibillity)
+	- [4.4 Reliability](#44-reliability)
+	- [4.5 Maintainability and Extensibility](#45-maintainability-and-extensibility)
 
 ## 1. Introduction
 
@@ -289,4 +294,28 @@ Below is a list of functional requirements for the ULTIMATE tool. These requirem
 
 ## 4. Non-Functional Requirements
 
- 
+### 4.1 Usability
+
+- **NFR1**: The graphical user interface shall be intuitive and easy to navigate for users.
+- **NFR2**: The tool shall support keyboard shortcuts for common actions to improve workflow efficiency.
+- **NFR3**: The tool shall provide clear visual cues and labels for all interactive components, such as models, parameters, and properties.
+- **NFR4**: Error messages and system prompts shall be clear and informative, aiding in user troubleshooting.
+- **NFR5**: The command-line interface shall provide concise help messages and usage instructions via a --help flag.
+
+### 4.2 Performance
+
+- **NFR6**: If verification is going to take longer than 2 minutes, the user should be informed.
+
+### 4.3 Compatibility
+
+- **NFR7**: The tool should be compatible with MacOS and Linux operating systems.
+- **NFR8**: The tool should be compatible with JRE 22 and Python3.8.
+
+### 4.4 Reliability
+
+- **NFR9**: The tool should never crash without displaying an error message to the user.
+
+### 4.5 Maintainability and Extensibility
+
+- **NFR10**: Code should be clearly documented and well structured.
+- **NFR11**: Logs should be saved to a crash report in the event the tool crashes.  
