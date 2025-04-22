@@ -119,3 +119,18 @@ Below is an example sequence of the user conducting a 'Load Project' action:
   <img src="uml/project_load.png">
   
 The GUI retrieves the filepath of the project file and creates a project object. The project calls the importer on this file which will parse the file and create the Model objects described by the file. These are then returned to the project object and stored in an array which is used globally by the rest of the program. 
+
+**Parameter & Property Management Component:**
+
+The purpose of this component is to add parameters and properties to models in the project. The user selects a model to edit in the GUI and enters the information in a dialog. This is passed to the component to validate, create the parameter/property and finally add it to the selected model. 
+
+**Verification Engine Component:**
+
+This component carries out verification by retriving the current project, the paths to the external tools and handing this information over to the appropriate binary to run. Due to the nature of ULTIMATE projects, this may involve mutiple calls to a PMC (PRISM/Storm) which is handled by the component. 
+
+**External Tool Component:**
+
+An API to PRISM and Storm. This calls these as threaded processes and collects the results from std out. These are then parsed and returned to be logged/displayed. 
+
+**Logging & Results Component:**
+
