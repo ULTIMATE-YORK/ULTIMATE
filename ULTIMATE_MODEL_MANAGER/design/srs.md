@@ -1,8 +1,6 @@
 # Software Requirements Specification
 
 ### ULTIMATE Multi-model Stochastic System Modelling, Verification and Synthesis Framework  
-**Version 0.1**  
-**16/04/2025**
 
 ---
 <p align="center">
@@ -13,10 +11,10 @@
 ---
 **Revision History**
 
-| Date         | Version      | Description  | Author      |
-|:------------:|:------------:|:------------:|:------------:
+| Date         | Version      | Description  | Author       |
+|:------------:|:------------:|:------------:|:------------:|
 |16/04/2025    | 0.1          | Initial draft| Micah Bassett|
-
+|24/04/2025    | 0.1          | Minor changes| Micah Bassett|
 ---
 
 ## Table of Contents
@@ -57,13 +55,15 @@ This software requirements specification outlines both the functional and non-fu
 
 ### 1.2 Scope
 
+Existing probabilistic model checkers (PMCs), such as PRISM and Storm, restrict users to verifying properties (various probabilistic temporal logics) on a single probabilistic model at a time. For complex systems, which may require many such models, perhaps with dependencies between them, these tools are not sufficient. ULTIMATE aims to address this by providing users of the tool with the ability to create *World Models* which are systems in which many probabilistic models may exists. 
+
+Furthermore, ULTIMATE extends simple probabilistic model representation with the addition of special parameter types. Users can customise models by adding *External Parameters (EPs)*, *Dependency Parameters (DPs)* and *Internal Parameters (IPs)* to the model. These allow for the creation of complex systems of models. Each parameter type fulfils a unique role. EPs allow for the model to be interfaced to data or machine learning components. DPs, crucially, provide a way for the user to define dependencies between models which is a common feature of real-world systems. Finally, IPs allow for internal values which can be optimised through GAs.
+
 Below is a short description of ULTIMATE from the GitHub page: 
 
 > ULTIMATE supports the formal representation, verification and synthesis of multi-model stochastic systems. These are combinations of heterogenous, interdependent stochastic models (discrete and continuous-time Markov chains, Markov decision processes, partially observable Markov decision processes, stochastic games, etc.) required to verify the dependability and performance of modern software-intensive systems.
 
 > Through its unique integration of multiple probabilistic and parametric model checking paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context.
-
-In essence, ULTIMATE enables users to model, verify, and synthesize complex systems comprised of multiple interdependent stochastic models. It integrates established probabilistic model checkers such as PRISM and Storm with novel algorithms developed specifically for this tool.
 
 ### 1.3 Terms and Definitions
 
@@ -72,6 +72,8 @@ In essence, ULTIMATE enables users to model, verify, and synthesize complex syst
 |PMC|Probabilistic Model Checker|
 |PRISM| PRISM is a PMC tool|
 |Storm| Storm is a PMC tool|
+|World Model| An ULTIMATE representation of multi-model systems|
+|GAs| Genetic Algorithms|
 |PRISM model file| This is a text file written in the PRISM language - it describes a stochastic model |
 |UP| Uncategorsied Parameter|
 |EP| External Parameter|
