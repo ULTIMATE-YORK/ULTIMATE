@@ -4,3 +4,10 @@ bin/
 target/
 .settings
 /ULTIMATE_MODEL_MANAGER/config.json
+ULTIMATE_MODEL_MANAGER/config.json
+/ULTIMATE_MODEL_MANAGER/prism
+/ULTIMATE_MODEL_MANAGER/prism-games
+/ULTIMATE_MODEL_MANAGER/.RProject
+/ULTIMATE_MODEL_MANAGER/.Rhistory
+.project
+.venv
