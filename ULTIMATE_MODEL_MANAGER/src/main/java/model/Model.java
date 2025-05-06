@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +29,7 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-    private List<InternalParameter> internalParameters; // List of internal parameters
+    private ObservableList<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     private File verificationFile;
@@ -46,7 +45,7 @@ public class Model {
         this.filePath = filePath;
         this.dependencyParameters = FXCollections.observableArrayList();
         this.externalParameters = FXCollections.observableArrayList();
-        this.internalParameters = new ArrayList<>();
+        this.internalParameters = FXCollections.observableArrayList();
         this.uncategorisedParameters = FXCollections.observableArrayList();
         //addUncategorisedParametersFromFile();
         
@@ -130,7 +129,7 @@ public class Model {
 	 * 
 	 * @param parameters the list of internal parameters to add
 	 */
-	public void setInternalParameters(List<InternalParameter> parameters) {
+	public void setInternalParameters(ObservableList<InternalParameter> parameters) {
 		internalParameters = parameters;
 	}
 	
