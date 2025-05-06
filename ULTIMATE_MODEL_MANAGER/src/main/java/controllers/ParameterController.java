@@ -176,7 +176,7 @@ public class ParameterController {
 
 	}
 	
-	// TODO handle the IOE better here with an alerter and same for the edit button above
+	// TODO handle the IOE better here with an alerter and same for the edit button above /
 	@FXML
 	private void addDepParam() throws IOException {
 		DialogOpener.openDialogWindow(sharedContext.getMainStage(),"/dialogs/add_Dependency_param.fxml", "Add Dependency Parameter");
