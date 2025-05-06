@@ -30,7 +30,7 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-    private List<InternalParameter> internalParameters; // List of internal parameters
+    private ObservableList<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     private File verificationFile;
@@ -46,7 +46,7 @@ public class Model {
         this.filePath = filePath;
         this.dependencyParameters = FXCollections.observableArrayList();
         this.externalParameters = FXCollections.observableArrayList();
-        this.internalParameters = new ArrayList<>();
+        this.internalParameters = FXCollections.observableArrayList();
         this.uncategorisedParameters = FXCollections.observableArrayList();
         //addUncategorisedParametersFromFile();
         
@@ -130,7 +130,7 @@ public class Model {
 	 * 
 	 * @param parameters the list of internal parameters to add
 	 */
-	public void setInternalParameters(List<InternalParameter> parameters) {
+	public void setInternalParameters(ObservableList<InternalParameter> parameters) {
 		internalParameters = parameters;
 	}
 	
@@ -213,7 +213,7 @@ public class Model {
      * 
      * @return the list of internal parameters
      */
-    public List<InternalParameter> getInternalParameters() {
+    public ObservableList<InternalParameter> getInternalParameters() {
         return internalParameters;
     }
     
@@ -265,7 +265,18 @@ public class Model {
 	    while (iter.hasNext()) {
 	        ExternalParameter current = iter.next();
 	        if (current.getName().equals(ep.getName())) {
-	            iter.remove(); // Safely remove from dependencyParameters
+	            iter.remove(); // Safely remove from externalParameters
+	            break; // Assuming names are unique, break out of the loop.
+	        }
+	    }
+	}
+	
+	public void removeInternalParameter(InternalParameter iParam) {
+	    Iterator<InternalParameter> iter = this.internalParameters.iterator();
+	    while (iter.hasNext()) {
+	    	InternalParameter current = iter.next();
+	        if (current.getName().equals(iParam.getName())) {
+	            iter.remove(); // Safely remove from internalParameters
 	            break; // Assuming names are unique, break out of the loop.
 	        }
 	    }

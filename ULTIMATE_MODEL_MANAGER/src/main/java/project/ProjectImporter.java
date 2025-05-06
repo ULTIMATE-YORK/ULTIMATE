@@ -133,7 +133,7 @@ public class ProjectImporter {
             JSONObject internalObject = parametersObject.optJSONObject("internal");
             if (internalObject != null) {
                 internalObject.keySet().forEach(internalName -> {
-                	InternalParameter internalParam = new InternalParameter(internalName);
+                	InternalParameter internalParam = new InternalParameter(internalName,"0","0");
                     model.addInternalParameter(internalParam);
                 });
             }
