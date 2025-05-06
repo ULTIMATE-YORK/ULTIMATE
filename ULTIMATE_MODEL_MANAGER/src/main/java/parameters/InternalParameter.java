@@ -15,6 +15,10 @@ public class InternalParameter {
 		this.interval = interval;
 	}
 	
+	public InternalParameter(String name) {
+		this.name = name;
+	}
+	
     // GETTER METHODS
 
     public String getName() {
@@ -60,6 +64,6 @@ public class InternalParameter {
 	}
     
     public String toString() {
-    	return getName();
+    	return "Internal Parameter: " + getName() + "\nType: " + getType() + "\nMin: " + getMin() + "\nMax: " + getMax() + "\nInterval: " + getInterval() + "\n";
     }
 }

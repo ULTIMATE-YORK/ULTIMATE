@@ -212,7 +212,7 @@ public class Model {
      * 
      * @return the list of internal parameters
      */
-    public List<InternalParameter> getInternalParameters() {
+    public ObservableList<InternalParameter> getInternalParameters() {
         return internalParameters;
     }
     
@@ -282,6 +282,17 @@ public class Model {
 	            break; // Assuming names are unique, break out of the loop.
 	        }
 	    }
+	}
+	
+	public void removeInternalParameter(InternalParameter ip) {
+		Iterator<InternalParameter> iter = this.internalParameters.iterator();
+		while (iter.hasNext()) {
+			InternalParameter current = iter.next();
+			if (current.getName().equals(ip.getName())) {
+				iter.remove(); // Safely remove from internalParameters
+				break; // Assuming names are unique, break out of the loop.
+			}
+		}
 	}
 	
 	/*
