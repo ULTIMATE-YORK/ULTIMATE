@@ -19,6 +19,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import model.Model;
+import parameters.ExternalParameter;
 import sharedContext.SharedContext;
 import utils.Alerter;
 //import utils.Alerter;
@@ -301,6 +302,17 @@ public class Project {
         	}
         }
         
+	}
+	
+	public boolean containsRanged() {
+		for (Model model : models) {
+			for (ExternalParameter parameter : model.getExternalParameters()) {
+				if (parameter.getType().equals("Ranged")) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	
 	/*

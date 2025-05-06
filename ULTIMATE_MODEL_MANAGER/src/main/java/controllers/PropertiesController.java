@@ -84,6 +84,12 @@ public class PropertiesController {
 			return;
 		}
 		else {
+			
+			if (project.containsRanged()) {
+				Alerter.showErrorAlert("Ranged Parameters Detected", "Please remove all ranged parameters before verification");
+				return;
+			}
+			
 			ArrayList<Model> models = new ArrayList<>();
 			models.addAll(project.getModels());
 			// update the mode files here

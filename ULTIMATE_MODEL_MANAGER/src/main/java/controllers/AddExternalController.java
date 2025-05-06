@@ -2,6 +2,7 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,8 @@ public class AddExternalController {
 	@FXML private Label valueLabel;
 	@FXML private ChoiceBox<UncategorisedParameter> uncategorisedParameters;
 	@FXML private ChoiceBox<String> chooseType;
+	@FXML private Label rangeLabel;
+	@FXML private TextField rangeText;
 	@FXML private TextField chooseText;
 	@FXML private Button chooseButton;
 	@FXML private Button saveButton;
@@ -36,10 +39,13 @@ public class AddExternalController {
     private Project project = sharedContext.getProject();
 	private static final Logger logger = LoggerFactory.getLogger(AddExternalController.class);
 	
+	private boolean ranged = false;
+	ArrayList<Double> rangeValues = new ArrayList<Double>();
+	
 	@FXML
 	private void initialize() {
 		uncategorisedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
-		chooseType.getItems().addAll("Fixed","Mean","Mean-Rate", "Bayes", "Bayes-Rate");
+		chooseType.getItems().addAll("Fixed","Mean","Mean-Rate", "Bayes", "Bayes-Rate", "Ranged");
         
 		valueLabel.setManaged(false);
 		valueLabel.setVisible(false);
@@ -68,6 +74,21 @@ public class AddExternalController {
         		valueLabel.setManaged(true);
         		valueLabel.setVisible(true);
         	}
+        	
+			if (newVal.equals("Ranged")) {
+				ranged = true;
+				rangeLabel.setVisible(true);
+				rangeLabel.setManaged(true);
+				rangeText.setVisible(true);
+				rangeText.setManaged(true);
+				chooseButton.setVisible(false);
+				chooseButton.setManaged(false);
+				valueLabel.setVisible(false);
+				valueLabel.setManaged(false);
+				chooseText.setVisible(false);
+				chooseText.setManaged(false);
+			}
+        
         });
 	}
 	
@@ -81,7 +102,7 @@ public class AddExternalController {
 		UncategorisedParameter name = uncategorisedParameters.getValue();
 		String type = chooseType.getValue();
 		String value = "";
-		if (dataFile == null) {
+		if (dataFile == null && !ranged) {
 			value = chooseText.getText();
 			// check its a number
 			try {
@@ -94,22 +115,54 @@ public class AddExternalController {
 		else {
 			value = dataFile;
 		}
+		
+
+if (ranged) {
+    value = rangeText.getText();
+    try {
+        String[] parts = value.split(","); // Split the input by commas
+        for (String part : parts) {
+            rangeValues.add(Double.parseDouble(part.trim())); // Parse and add to the list
+        }
+    } catch (NumberFormatException e) {
+        Alerter.showErrorAlert("Invalid Range", "Please enter a valid range of numbers separated by commas.");
+        return;
+    }
+    // Use rangeValues as needed
+}
+
+		
 		// FIXME: add check that definition is valid
 		if (name == null || type == null|| value == null) {
 			Alerter.showErrorAlert("Invalid Parameter", "Please define all parameters!");
 			return;
 		}
 		else {
-			try {
-				ExternalParameter eParam = new ExternalParameter(name.toString(), type, value);
-				project.getCurrentModel().addExternalParameter(eParam);
-				project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
-				closeDialog();
-			} catch (IOException e) {
-				closeDialog();
-			} catch (NumberFormatException e) {
-				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
-				closeDialog();            }
+			if (!ranged) {
+				try {
+					ExternalParameter eParam = new ExternalParameter(name.toString(), type, value);
+					project.getCurrentModel().addExternalParameter(eParam);
+					project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+					closeDialog();
+				} catch (IOException e) {
+					closeDialog();
+				} catch (NumberFormatException e) {
+					Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
+					closeDialog();            }
+			}
+			else {
+				try {
+					ExternalParameter eParam = new ExternalParameter(name.toString(), type, rangeValues);
+					project.getCurrentModel().addExternalParameter(eParam);
+					project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+					closeDialog();
+				} catch (IOException e) {
+					closeDialog();
+				} catch (NumberFormatException e) {
+					Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
+					closeDialog();            }
+			}
+
 		}
 	}
 	

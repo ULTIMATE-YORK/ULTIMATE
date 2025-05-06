@@ -12,6 +12,9 @@
 	
 	<Label text="Type" />
  	<ChoiceBox fx:id="chooseType" />
+ 	
+ 	<Label fx:id="rangeLabel" text="Enter range of values seperated by commas" visible="false" />
+ 	<TextField fx:id="rangeText" visible="false" />
 	
 	<Label fx:id="valueLabel" text="Value" />
 	<TextField fx:id="chooseText" />
