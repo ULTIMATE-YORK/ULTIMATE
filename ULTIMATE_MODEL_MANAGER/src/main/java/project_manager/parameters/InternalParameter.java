@@ -1,4 +1,4 @@
-package parameters;
+package project_manager.parameters;
 
 public class InternalParameter {
 	private String name;

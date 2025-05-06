@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
 
-import model.Model;
+import project_manager.model.Model;
 
 public class ProjectTest {
 	

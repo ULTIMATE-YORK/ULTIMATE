@@ -5,7 +5,6 @@
 ---
 <p align="center">
   <img src="resources/uoy.png" alt="University of York Logo">
-</p>
 ---
 
 ---
@@ -15,6 +14,8 @@
 |:------------:|:------------:|:------------:|:------------:|
 |16/04/2025    | 0.1          | Initial draft| Micah Bassett|
 |24/04/2025    | 0.1          | Minor changes| Micah Bassett|
+|28/04/2025    | 0.2          | New design requirements complete| Micah Bassett|
+
 ---
 
 ## Table of Contents
@@ -32,13 +33,10 @@
 	
 - [3. Functional Requirements](#3-functional-requirements)
 	- [3.1 Project Management](#31-project-management)
-	- [3.2 Model Management](#32-model-management)
-	- [3.3 Parameter Management](#33-parameter-management)
-	- [3.4 Property Management](#34-property-management)
-	- [3.5 Learning](#35-learning)
-	- [3.6 Verification](#36-verification)
-	- [3.7 Logging](#37-logging)
-	- [3.8 CLI](#38-cli)
+	- [3.2 Verification](#32-verification)
+	- [3.3 CLI](#33-cli)
+	- [3.4 GUI](#34-gui)
+	- [3.5 Logging](#35-logging)
 
 - [4. Non-Functional Requirements](#4-non-functional-requirements)
 	- [4.1 Usability](#41-usability)
@@ -233,59 +231,38 @@ Below is a list of functional requirements for the ULTIMATE tool. These requirem
 
 ### 3.1 Project Management
 
-- **FR1**: The user shall be able to create a new blank project.
-- **FR2**: The user shall be able to load an existing project into the tool from an ultimate file.
-- **FR3**: The user shall be able to save the current project as an ultimate file.
-- **FR4**: The user shall be able to use "Save As" to save the project under a new name or location.
-- **FR5**: The tool should generate ultimate files (json file) that fully describe all the models and thier defined parameters/properties.
-
-### 3.2 Model Management
-
-- **FR6**: The user shall be able to add a model to the project by selecting a PRISM model file.
-- **FR7**: The user shall be able to view the PRISM file of a selected model within the tool.
-- **FR8**: The user shall be able to delete a model from the project.
-
-### 3.3 Parameter Management
-
+- **FR1**: Create a new blank project.
+- **FR2**: Load an existing project into the tool from an ultimate file.
+- **FR3**: Save the current project as an ultimate file.
+- **FR4**: "Save As" to save the project under a new name or location.
+- **FR5**: Add a model to the project by selecting a PRISM model file.
+- **FR6**: Delete models from the project.
+- **FR7**: 
 - **FR9**: The tool shall detect undefined constants in a PRISM model file and present them as uncategorized parameters (UPs).
 - **FR10**: The tool should detect defined parameters in the ultimate file and add them to the correct model. 
-- **FR11**: The user shall be able to define each UP as:
+- **FR11**: The user shall be able to define each UP as one of:
   - External Parameters (EPs)
   - Dependency Parameters (DPs)
   - Internal Parameters (IPs)
 - **FR12**: The user shall be able to:
   - Edit an existing parameter’s definition.
   - Remove a parameter and return it to the list of UPs.
-
-### 3.4 Property Management
-
 - **FR13**: The user shall be able to define a property for a given model.
 - **FR14**: The user should be able to delete properties for a given model.
 - **FR15**: The user should be able to edit a propery definition.
-- **FR16**: The user shall be able to import multiple properties via a property file.
+- **FR16**: The tool shall detect properties defined in the ultimate file and add them to the correct model.
 
-### 3.5 Learning
+### 3.2 Verification
 
-- **FR17**: The tool should be able to learn values for EPs from the data file provided when they were defined. 
-
-### 3.6 Verification
-
-- **FR18**: The user shall be able to initiate verification of a model and selected property.
-- **FR19**: The user shall be able to choose between available PMCs (PRISM or Storm) for verification.
-- **FR20**: The system shall ensure all dependencies are defined before running verification on dependent models.
-- **FR21**: The system shall display a progress indicator during verification.
-- **FR22**: The system shall present results including:
+- **FR17**: The user shall be able to initiate verification of a model and selected property.
+- **FR18**: The user shall be able to choose between available PMCs (PRISM or Storm) for verification.
+- **FR19**: The system shall ensure all dependencies are defined before running verification on dependent models.
+- **FR20**: The system shall present results including:
   - Status of verification
   - Result values
+- **FR21**: The user will be able to run multiple rounds of verification when external paramaters take on ranges.
 
-### 3.7 Logging
-
-- **FR20**: The system shall maintain a log of user actions and system processes.
-- **FR21**: The user shall be able to:
-  - View logs after verification
-  - Save logs to a file
-
-### 3.8 CLI
+### 3.3 CLI
 
 - **FR22**: The user shall be able to execute verification from the command line using an existing project file.
 - **FR23**: The CLI shall accept arguments for:
@@ -293,6 +270,21 @@ Below is a list of functional requirements for the ULTIMATE tool. These requirem
   - Property selection
   - PMC choice
   - Output format and destination
+  
+### 3.4 GUI
+
+- **FR24**: Displays a list of all Models in the project, with an add button to quickly add a new model
+- **FR25**: Allow user to select a model from the list
+- **FR26**: Displays the PRISM file for selected model.
+- **FR27**: For selected model, display a list for each type of parameter, with edit and remove buttons next to each defined parameter
+- **FR28**: For each list of parameter types (except UPs), have a button above the list that allows the user to define a UP as one of the parameter types. 
+
+### 3.5 Logging
+
+- **FR20**: The system shall maintain a log of user actions and system processes.
+- **FR21**: The user shall be able to:
+  - View logs after verification
+  - Save logs to a file
 
 ## 4. Non-Functional Requirements
 
@@ -303,6 +295,9 @@ Below is a list of functional requirements for the ULTIMATE tool. These requirem
 - **NFR3**: The tool shall provide clear visual cues and labels for all interactive components, such as models, parameters, and properties.
 - **NFR4**: Error messages and system prompts shall be clear and informative, aiding in user troubleshooting.
 - **NFR5**: The command-line interface shall provide concise help messages and usage instructions via a --help flag.
+- **NFRx**: Prevent duplicate models from being added to project.
+- **NFRx**: Remove add buttons for parameter types if the selected model has no UPs.
+- **NFR21**: The system shall display a progress indicator during verification.
 
 ### 4.2 Performance
 
@@ -316,6 +311,7 @@ Below is a list of functional requirements for the ULTIMATE tool. These requirem
 ### 4.4 Reliability
 
 - **NFR9**: The tool should never crash without displaying an error message to the user.
+- **NFR10:** If the user tries to create a new blank project, they should be asked if they wish to save the current project if it is not blank. 
 
 ### 4.5 Maintainability and Extensibility
 

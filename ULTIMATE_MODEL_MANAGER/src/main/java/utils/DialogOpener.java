@@ -12,8 +12,8 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import parameters.DependencyParameter;
-import parameters.ExternalParameter;
+import project_manager.parameters.DependencyParameter;
+import project_manager.parameters.ExternalParameter;
 
 public class DialogOpener {
 	

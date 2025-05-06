@@ -13,8 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import parameters.ExternalParameter;
 import project.Project;
+import project_manager.parameters.ExternalParameter;
 import sharedContext.SharedContext;
 import utils.Alerter;
 

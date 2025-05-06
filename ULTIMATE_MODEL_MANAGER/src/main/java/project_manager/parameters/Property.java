@@ -1,4 +1,4 @@
-package property;
+package project_manager.parameters;
 
 // TODO: add verification to strings
 public class Property {

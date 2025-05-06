@@ -1,4 +1,4 @@
-package model;
+package project_manager.model;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,10 +9,10 @@ import java.util.Iterator;
 import java.util.List;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import parameters.DependencyParameter;
-import parameters.ExternalParameter;
 import parameters.UncategorisedParameter;
-import property.Property;
+import project_manager.parameters.DependencyParameter;
+import project_manager.parameters.ExternalParameter;
+import project_manager.parameters.Property;
 import utils.FileUtils;
 import utils.PrismFileParser;
 

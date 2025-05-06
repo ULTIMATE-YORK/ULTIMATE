@@ -5,10 +5,10 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import model.Model;
-import parameters.DependencyParameter;
 import parameters.UncategorisedParameter;
 import project.Project;
+import project_manager.model.Model;
+import project_manager.parameters.DependencyParameter;
 import sharedContext.SharedContext;
 import utils.Alerter;
 

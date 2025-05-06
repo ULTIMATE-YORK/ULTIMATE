@@ -1,4 +1,4 @@
-package project;
+package project_manager.import_export;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,11 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import model.Model;
-import parameters.DependencyParameter;
-import parameters.ExternalParameter;
-import parameters.InternalParameter;
-import property.Property;
+import project.Project;
+import project_manager.model.Model;
+import project_manager.parameters.DependencyParameter;
+import project_manager.parameters.ExternalParameter;
+import project_manager.parameters.InternalParameter;
+import project_manager.parameters.Property;
 import utils.Alerter;
 import utils.FileUtils;
 

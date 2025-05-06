@@ -1,4 +1,4 @@
-package project;
+package project_manager.import_export;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,10 +12,11 @@ import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import model.Model;
-import parameters.DependencyParameter;
-import parameters.ExternalParameter;
-import parameters.InternalParameter;
+
+import project_manager.model.Model;
+import project_manager.parameters.DependencyParameter;
+import project_manager.parameters.ExternalParameter;
+import project_manager.parameters.InternalParameter;
 import utils.Alerter;
 
 public class ProjectImporter {

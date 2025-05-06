@@ -1,6 +1,8 @@
 package verification;
 
 import project.Project;
+import project_manager.model.Model;
+import project_manager.parameters.DependencyParameter;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 
@@ -10,9 +12,6 @@ import org.mariuszgromada.math.mxparser.License;
 import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import model.Model;
-import parameters.DependencyParameter;
 
 import java.io.BufferedReader;
 import java.io.File;

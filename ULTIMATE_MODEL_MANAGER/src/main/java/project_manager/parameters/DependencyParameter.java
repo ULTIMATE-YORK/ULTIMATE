@@ -1,6 +1,6 @@
-package parameters;
+package project_manager.parameters;
 
-import model.Model;
+import project_manager.model.Model;
 
 public class DependencyParameter {
     private String name;

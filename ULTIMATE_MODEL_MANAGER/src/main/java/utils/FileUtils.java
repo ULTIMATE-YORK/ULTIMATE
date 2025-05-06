@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import model.Model;
+import project_manager.model.Model;
 
 public class FileUtils {
 	

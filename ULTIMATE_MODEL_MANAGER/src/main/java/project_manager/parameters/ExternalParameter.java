@@ -1,4 +1,4 @@
-package parameters;
+package project_manager.parameters;
 
 import java.io.IOException;
 

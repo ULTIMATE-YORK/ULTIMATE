@@ -8,8 +8,8 @@ import org.jgrapht.alg.cycle.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-import model.Model;
-import parameters.DependencyParameter;
+import project_manager.model.Model;
+import project_manager.parameters.DependencyParameter;
 
 /**
  * Represents a graph structure used to detect cycles in dependency parameters across models.

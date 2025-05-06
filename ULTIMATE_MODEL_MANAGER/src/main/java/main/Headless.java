@@ -8,9 +8,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import model.Model;
 import project.Project;
-import property.Property;
+import project_manager.model.Model;
+import project_manager.parameters.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 import verification.NPMCVerification;

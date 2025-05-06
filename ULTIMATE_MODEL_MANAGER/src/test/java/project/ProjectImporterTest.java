@@ -9,7 +9,8 @@ import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
-import model.Model;
+import project_manager.import_export.ProjectImporter;
+import project_manager.model.Model;
 
 public class ProjectImporterTest {
 

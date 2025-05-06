@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import org.junit.jupiter.api.Test;
 
 import parameters.UncategorisedParameter;
+import project_manager.model.Model;
 
 public class ModelTest {
 	

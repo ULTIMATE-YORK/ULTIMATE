@@ -1,4 +1,4 @@
-package parameters;
+package project_manager.parameters;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -8,36 +8,29 @@ import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-/**
- * A custom ListCell that takes a DependencyParameter as its item and
- * creates a formatted HBox that displays the dependency details on the left
- * and two buttons ("Edit" and "Remove") on the right.
- *
- * The cell fires callbacks via the DependencyUnitListener interface.
- */
-public class DependencyParameterCell extends ListCell<DependencyParameter> {
-
-    // Listener to notify when buttons are pressed.
-    private DependencyUnitListener dependencyUnitListener;
+public class ExternalParameterCell extends ListCell<ExternalParameter> { 
+    
+	// Listener to notify when buttons are pressed.
+    private ExternalUnitListener externalUnitListener;
 
     /**
      * Set the listener that will handle edit/remove events.
      */
-    public void setDependencyUnitListener(DependencyUnitListener listener) {
-        this.dependencyUnitListener = listener;
+    public void setExternalUnitListener(ExternalUnitListener listener) {
+        this.externalUnitListener = listener;
     }
 
     @Override
-    protected void updateItem(DependencyParameter dp, boolean empty) {
-        super.updateItem(dp, empty);
+    protected void updateItem(ExternalParameter ep, boolean empty) {
+        super.updateItem(ep, empty);
 
-        if (empty || dp == null) {
+        if (empty || ep == null) {
             setText(null);
             setGraphic(null);
         } else {
             setPadding(Insets.EMPTY);
             // Build the left column: A Label showing the dependency details.
-            Label details = new Label(dp.toString());
+            Label details = new Label(ep.toString());
             details.setWrapText(true);
 
             // Wrap the details in a VBox (so we can later bind its width)
@@ -49,13 +42,13 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
 
             // Set button event handlers to call the listener, if set.
             editButton.setOnAction(e -> {
-                if (dependencyUnitListener != null) {
-                    dependencyUnitListener.onEdit(dp);
+                if (externalUnitListener != null) {
+                	externalUnitListener.onEdit(ep);
                 }
             });
             removeButton.setOnAction(e -> {
-                if (dependencyUnitListener != null) {
-                    dependencyUnitListener.onRemove(dp);
+                if (externalUnitListener != null) {
+                	externalUnitListener.onRemove(ep);
                 }
             });
 
@@ -93,8 +86,8 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
      * A listener interface for dependency parameter actions.
      * Implement this in your controller to receive button events.
      */
-    public interface DependencyUnitListener {
-        void onEdit(DependencyParameter dp);
-        void onRemove(DependencyParameter dp);
+    public interface ExternalUnitListener {
+        void onEdit(ExternalParameter ep);
+        void onRemove(ExternalParameter ep);
     }
 }
