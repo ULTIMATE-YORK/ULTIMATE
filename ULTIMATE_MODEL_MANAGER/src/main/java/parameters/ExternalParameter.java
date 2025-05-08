@@ -14,6 +14,7 @@ public class ExternalParameter {
     private String name;
     private String type;
     private String value;
+    private Double rangedValue;
     private double learnedValue;
     private ArrayList<Double> rangedValues = new ArrayList<Double>();
     
@@ -35,7 +36,7 @@ public class ExternalParameter {
         this.name = name;
         this.type = type;
         this.rangedValues = rangedValues;
-        //this.value = null;
+        this.rangedValue = null;
     }
     
     // GETTER METHODS
@@ -74,6 +75,10 @@ public class ExternalParameter {
     	this.value = newValue;
     }
     
+    public void setValue(Double newValue) {
+    	this.rangedValue = newValue;
+    }
+    
     public void setRangedValues(ArrayList<Double> rangedValues) {
 		this.rangedValues = rangedValues;
     }
@@ -99,6 +104,8 @@ public class ExternalParameter {
 				 return BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/data/" + value);
 		     case "Bayes-Rate":
 		    	 return BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/data/" + value);
+		       case "Ranged":
+		    	   return rangedValue;
 	     }
 	     return 0.0;
 	 }

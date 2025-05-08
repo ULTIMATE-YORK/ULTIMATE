@@ -4,7 +4,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -86,43 +91,55 @@ public class PropertiesController {
 		else {
 			
 			if (project.containsRanged()) {
-				Alerter.showErrorAlert("Ranged Parameters Detected", "Please remove all ranged parameters before verification");
-				return;
+			    ArrayList<Model> models = new ArrayList<>(project.getModels());
+			    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
+
+			    // Make the progress indicator visible and clear previous results
+			    progressIndicator.setVisible(true);
+			    verifyResults.setText("Verification in progress...\n");
+
+			    // Start verification using an executor
+			    ExecutorService executor = Executors.newSingleThreadExecutor();
+			    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor);
 			}
+
 			
-			ArrayList<Model> models = new ArrayList<>();
-			models.addAll(project.getModels());
-			// update the mode files here
-			for (Model m : models) {
-				FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
-				//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
-			}
-			NPMCVerification verifier = new NPMCVerification(models);
-		    
-			// Show the loading spinner and update the text area message
-		    progressIndicator.setVisible(true);
-		    verifyResults.setText("Verification in progress...");
-			
-		    CompletableFuture.supplyAsync(() -> {
-				try {
-					return verifier.verify(vModel.getModelId(), vProp.getProperty());
-				} catch (IOException e) {
-					e.printStackTrace();
+			else {
+				ArrayList<Model> models = new ArrayList<>();
+				models.addAll(project.getModels());
+				// update the mode files here
+				for (Model m : models) {
+					FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+					//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
 				}
-				return null;
-			})
-		    .thenAccept(result -> Platform.runLater(() -> {
-		        progressIndicator.setVisible(false);
-		        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
-		    }))
-		    .exceptionally(ex -> {
-		        Platform.runLater(() -> {
-		            progressIndicator.setVisible(false);
-			        verifyResults.setText("");
-		            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
-		        });
-		        return null;
-		    });
+				NPMCVerification verifier = new NPMCVerification(models);
+			    
+				// Show the loading spinner and update the text area message
+			    progressIndicator.setVisible(true);
+			    verifyResults.setText("Verification in progress...");
+				
+			    CompletableFuture.supplyAsync(() -> {
+					try {
+						return verifier.verify(vModel.getModelId(), vProp.getProperty());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+					return null;
+				})
+			    .thenAccept(result -> Platform.runLater(() -> {
+			        progressIndicator.setVisible(false);
+			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
+			    }))
+			    .exceptionally(ex -> {
+			        Platform.runLater(() -> {
+			            progressIndicator.setVisible(false);
+				        verifyResults.setText(""); 
+			            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
+			        });
+			        return null;
+			    });	
+			}
+			
 
 		}
 	}
@@ -166,4 +183,68 @@ public class PropertiesController {
             }
         });
 	}
+	
+	private void runVerificationsSequentially(
+	        List<HashMap<Model, HashMap<String, Double>>> rounds,
+	        int index,
+	        ArrayList<Model> models,
+	        String verifyModelId,
+	        String property,
+	        ExecutorService executor) throws IOException {
+
+	    if (index >= rounds.size()) {
+	        Platform.runLater(() -> progressIndicator.setVisible(false));
+	        executor.shutdown();
+	        return;
+	    }
+
+	    HashMap<Model, HashMap<String, Double>> round = rounds.get(index);
+
+	    // Apply parameter values and write to files
+	    for (Model m : round.keySet()) {
+	        HashMap<String, Double> parameters = round.get(m);
+	        for (Map.Entry<String, Double> entry : parameters.entrySet()) {
+	            if (entry.getValue() != null) {
+	                m.getExternalParameter(entry.getKey()).setValue(entry.getValue());
+	            }
+	        }
+	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+	    }
+
+	    NPMCVerification verifier = new NPMCVerification(models);
+
+	    // Run verification asynchronously
+	    CompletableFuture
+	        .supplyAsync(() -> {
+	            try {
+	                return verifier.verify(verifyModelId, property);
+	            } catch (IOException e) {
+	                e.printStackTrace();
+	                return null;
+	            }
+	        }, executor)
+	        .thenAccept(result -> {
+	            Platform.runLater(() -> {
+	                if (result != null) {
+	                    verifyResults.appendText(
+	                        "Result for model: {" + verifyModelId + "} with property: {" + property + "}\nResult: " + result + "\n"
+	                    );
+	                } else {
+	                    verifyResults.appendText(
+	                        "Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n"
+	                    );
+	                    Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
+	                }
+	            });
+
+	            // Proceed to next round
+	            try {
+					runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+	        });
+	}
+
 }

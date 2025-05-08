@@ -157,7 +157,12 @@ public class FileUtils {
     }
    
    public static void writeParametersToFile(String filePath, HashMap<String, Double> constants) {       
-       try {
+       
+	   if (constants.keySet().size() == 0) {
+		   return;
+	   }
+	   
+	   try {
            // Read all lines from the file
            Path path = Paths.get(filePath);
            StringBuilder updatedContent = new StringBuilder();
@@ -167,24 +172,26 @@ public class FileUtils {
                String updatedLine = line;
 
                // For each key in the constants map, use regex to find a match for "const <type> key;"
-               for (String key : constants.keySet()) {
-                   // The regex pattern captures the type in group(1)
-                   String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(key) + "\\s*;";
-                   Pattern pattern = Pattern.compile(regex);
-                   Matcher matcher = pattern.matcher(line);
-                   if (matcher.find()) {
-                       String type = matcher.group(1);
-                       double value = constants.get(key);
-                       
-                       // If type is "int", cast the value to int before inserting it.
-                       if ("int".equals(type)) {
-                           updatedLine = "const " + type + " " + key + " = " + ((int) value) + ";";
-                       } else {
-                           updatedLine = "const " + type + " " + key + " = " + value + ";";
-                       }
-                       break; // Stop checking keys for this line once a match is found.
-                   }
-               }
+
+			for (String key : constants.keySet()) {
+			    // Updated regex to match "const <type> key = <value>;" or "const <type> key;"
+			    String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(key) + "\\s*(=\\s*[^;]+)?;";
+			    Pattern pattern = Pattern.compile(regex);
+			    Matcher matcher = pattern.matcher(line);
+			    if (matcher.find()) {
+			        String type = matcher.group(1);
+			        double value = constants.get(key);
+			
+			        // If type is "int", cast the value to int before inserting it.
+			        if ("int".equals(type)) {
+			            updatedLine = "const " + type + " " + key + " = " + ((int) value) + ";";
+			        } else {
+			            updatedLine = "const " + type + " " + key + " = " + value + ";";
+			        }
+			        break; // Stop checking keys for this line once a match is found.
+			    }
+			}
+
                updatedContent.append(updatedLine).append(System.lineSeparator());
            }
 

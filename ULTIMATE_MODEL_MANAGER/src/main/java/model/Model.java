@@ -4,9 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
@@ -113,6 +116,15 @@ public class Model {
 	 */
 	public void setExternalParameters(ObservableList<ExternalParameter> parameters) {
 		externalParameters = parameters;
+	}
+	
+	public ExternalParameter getExternalParameter(String name) {
+		for (ExternalParameter ep : externalParameters) {
+			if (ep.getName().equals(name)) {
+				return ep;
+			}
+		}
+		return null;
 	}
 	
     /**
@@ -294,6 +306,48 @@ public class Model {
 			}
 		}
 	}
+	
+	public ArrayList<HashMap<String, Double>> getCartesianExternal() {
+		ArrayList<ExternalParameter> rangedEPs = new ArrayList<>();
+		for (ExternalParameter ep : externalParameters) {
+			if (ep.getType().equals("Ranged")) {
+				rangedEPs.add(ep);
+			}
+		}
+        ArrayList<HashMap<String, Double>> results = new ArrayList<>();
+        backtrack(rangedEPs, 0, new HashMap<>(), results);
+		return results;
+	}
+	
+    private void backtrack(ArrayList<ExternalParameter> params, int index, HashMap<String, Double> current, ArrayList<HashMap<String, Double>> results) {
+        if (index == params.size()) {
+            results.add(new HashMap<>(current));
+            return;
+        }
+
+        ExternalParameter param = params.get(index);
+        String name = param.getName();
+        ArrayList<Double> values = param.getRangedValues();
+
+        for (double val : values) {
+            current.put(name, val);
+            backtrack(params, index + 1, current, results);
+        }
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Model model = (Model) o;
+        return Objects.equals(modelId, model.modelId); // assuming modelId is a unique identifier
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(modelId);
+    }
+
 	
 	/*
 	 * Method to create and return a copy of the model file to be used for verification

@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -315,6 +316,30 @@ public class Project {
 		return false;
 	}
 	
+	public ArrayList<HashMap<Model, HashMap<String, Double>>> generate(ArrayList<Model> models) {
+	    ArrayList<HashMap<Model, HashMap<String, Double>>> results = new ArrayList<>();
+	    backtrack(models, 0, new HashMap<>(), results);
+	    return results;
+	}
+
+	private void backtrack(ArrayList<Model> models, int index,
+	                       HashMap<Model, HashMap<String, Double>> current,
+	                       ArrayList<HashMap<Model, HashMap<String, Double>>> results) {
+	    if (index == models.size()) {
+	        results.add(new HashMap<>(current));
+	        return;
+	    }
+
+	    Model model = models.get(index);
+	    ArrayList<HashMap<String, Double>> configs = model.getCartesianExternal();
+
+	    for (HashMap<String, Double> config : configs) {
+	        current.put(model, config);
+	        backtrack(models, index + 1, current, results);
+	        // Optional: current.remove(model); // Not needed due to overwrite
+	    }
+	}
+
 	/*
 	 * Gets the directory of the project
 	 */
