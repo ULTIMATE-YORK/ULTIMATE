@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -100,12 +101,26 @@ public class ProjectImporter {
                 environmentObject.keySet().forEach(envName -> {
                     JSONObject envObj = environmentObject.getJSONObject(envName);
                     String type = envObj.getString("type");
-                    String value = envObj.getString("value");
-                    try {
-                        ExternalParameter envParam = new ExternalParameter(envName, type, value);
-                        model.addExternalParameter(envParam);
-                    } catch (IOException e) {
-                    	
+                    if (type.equals("Ranged")) {
+                    	JSONArray rangedValues = envObj.getJSONArray("rangedValues");
+                    	ArrayList<Double> rangedValuesList = new ArrayList<>();
+
+                    	for (int i = 0; i < rangedValues.length(); i++) {
+                    	    rangedValuesList.add(rangedValues.getDouble(i));
+                    	}
+                        try {
+                            ExternalParameter envParam = new ExternalParameter(envName, type, rangedValuesList);
+                            model.addExternalParameter(envParam);
+                        } catch (IOException e) {
+                        }
+                    }
+                    else {
+                        String value = envObj.getString("value");
+                        try {
+                            ExternalParameter envParam = new ExternalParameter(envName, type, value);
+                            model.addExternalParameter(envParam);
+                        } catch (IOException e) {
+                        }
                     }
                 });
             }

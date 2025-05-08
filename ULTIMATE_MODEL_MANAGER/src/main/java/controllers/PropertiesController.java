@@ -91,16 +91,19 @@ public class PropertiesController {
 		else {
 			
 			if (project.containsRanged()) {
-			    ArrayList<Model> models = new ArrayList<>(project.getModels());
-			    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
+				boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
+				if (continueVerification) {
+				    ArrayList<Model> models = new ArrayList<>(project.getModels());
+				    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
 
-			    // Make the progress indicator visible and clear previous results
-			    progressIndicator.setVisible(true);
-			    verifyResults.setText("Verification in progress...\n");
+				    // Make the progress indicator visible and clear previous results
+				    progressIndicator.setVisible(true);
+				    verifyResults.setText("Verification in progress...\n");
 
-			    // Start verification using an executor
-			    ExecutorService executor = Executors.newSingleThreadExecutor();
-			    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor);
+				    // Start verification using an executor
+				    ExecutorService executor = Executors.newSingleThreadExecutor();
+				    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor);
+				}
 			}
 
 			

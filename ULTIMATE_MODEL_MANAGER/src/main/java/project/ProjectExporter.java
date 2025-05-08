@@ -64,7 +64,12 @@ public class ProjectExporter {
                 JSONObject envObj = new JSONObject();
                 envObj.put("name", env.getName());
                 envObj.put("type", env.getType());
-                envObj.put("value", env.getValue());
+                if (env.getType().equals("Ranged")) {
+                	envObj.put("rangedValues", new JSONArray(env.getRangedValues()));
+                }
+                else {
+                    envObj.put("value", env.getValue());
+                }
                 //System.out.println("External Parameter: " + env.getName() + "\nType: " + env.getType() + "\nValue: " + env.getValue());
                 environmentObject.put(env.getName(), envObj);
             }
