@@ -18,14 +18,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.stage.Stage;
 import model.Model;
 import parameters.ExternalParameter;
 import sharedContext.SharedContext;
 import utils.Alerter;
 //import utils.Alerter;
 import utils.FileUtils;
-import verification.NPMCVerification;
 
 public class Project {
 	
@@ -47,6 +45,7 @@ public class Project {
 	private String directory = null;
 	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
+    private HashMap<String, Double> cachedResults = new HashMap<String, Double>();
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
@@ -338,6 +337,14 @@ public class Project {
 	        backtrack(models, index + 1, current, results);
 	        // Optional: current.remove(model); // Not needed due to overwrite
 	    }
+	}
+	
+	public Double getCacheResult(String config) {
+		return cachedResults.get(config);
+	}
+	
+	public void addCacheResult(String config, Double result) {
+		cachedResults.put(config, result);
 	}
 
 	/*

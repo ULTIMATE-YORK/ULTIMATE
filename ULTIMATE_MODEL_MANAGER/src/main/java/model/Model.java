@@ -372,6 +372,6 @@ public class Model {
 	}
 	
 	public String toString() {
-		return this.modelId;
+		return this.modelId + internalParameters.toString() + externalParameters.toString() + dependencyParameters.toString() + uncategorisedParameters.toString();
 	}
 }

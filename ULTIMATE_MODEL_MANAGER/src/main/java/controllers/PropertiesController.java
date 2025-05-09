@@ -1,8 +1,6 @@
 package controllers;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -91,9 +89,22 @@ public class PropertiesController {
 		else {
 			
 			if (project.containsRanged()) {
+				// check the cache
+			    ArrayList<Model> models = new ArrayList<>(project.getModels());
+			    models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+			    StringBuilder configBuilder = new StringBuilder();
+			    for (Model m : models) {
+			        configBuilder.append(m.toString());
+			    }
+			    configBuilder.append(vProp.getProperty());
+			    String config = configBuilder.toString();
+				if (project.getCacheResult(config) != null) {
+					// show the result from the cache
+					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(config));
+					return;
+				}
 				boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
 				if (continueVerification) {
-				    ArrayList<Model> models = new ArrayList<>(project.getModels());
 				    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
 
 				    // Make the progress indicator visible and clear previous results
@@ -110,6 +121,18 @@ public class PropertiesController {
 			else {
 				ArrayList<Model> models = new ArrayList<>();
 				models.addAll(project.getModels());
+				models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+				StringBuilder configBuilder = new StringBuilder();
+				for (Model m : models) {
+				    configBuilder.append(m.toString());
+				}
+				configBuilder.append(vProp.getProperty());
+				String config = configBuilder.toString();
+				if (project.getCacheResult(config) != null) {
+					// show the result from the cache
+					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(config));
+					return;
+				}
 				// update the mode files here
 				for (Model m : models) {
 					FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
@@ -132,6 +155,8 @@ public class PropertiesController {
 			    .thenAccept(result -> Platform.runLater(() -> {
 			        progressIndicator.setVisible(false);
 			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
+			        // Cache the result
+			        project.addCacheResult(config, result);
 			    }))
 			    .exceptionally(ex -> {
 			        Platform.runLater(() -> {
