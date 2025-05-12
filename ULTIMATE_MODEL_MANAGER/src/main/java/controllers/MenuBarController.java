@@ -117,11 +117,17 @@ public class MenuBarController {
 	
 	@FXML
 	private boolean quit() {
-		boolean q = Alerter.showConfirmationAlert("Project Not Saved!", "Are you sure you want to quit without saving?");
-		if (q) {
-			sharedContext.getMainStage().close();
+		if (!project.isBlank()) {
+			boolean q = Alerter.showConfirmationAlert("Project Not Saved!", "Are you sure you want to quit without saving?");
+			if (q) {
+				sharedContext.getMainStage().close();
+				return true;
+			}
+			else {
+				return false;
+			}
 		}
-		return q;
+		return true;
 	}
 	
 	@FXML

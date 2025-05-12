@@ -46,6 +46,7 @@ public class Project {
 	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
     private HashMap<String, Double> cachedResults = new HashMap<String, Double>();
+    private boolean isBlank;
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
@@ -71,6 +72,7 @@ public class Project {
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
         exporter = new ProjectExporter(this);
+        this.isBlank = false;
     }
 	
 	public Project() {
@@ -91,6 +93,7 @@ public class Project {
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
         exporter = new ProjectExporter(this);
+        this.isBlank = true;
    }
 	
 	public ArrayList<String> getModelIDs() {
@@ -117,6 +120,9 @@ public class Project {
         models.add(addModel);
         // Update the observable list
         observableModels.add(addModel);
+        if (this.isBlank) {
+        	this.isBlank = false;
+        }
     }
     
     public void removeModel(Model removeModel) {
@@ -178,6 +184,10 @@ public class Project {
 			e.printStackTrace();
 		}
     }
+    
+	public boolean isBlank() {
+		return this.isBlank;
+	}
     
     public void refresh() {
         // Save the current model's ID (if any)
@@ -302,6 +312,11 @@ public class Project {
         	}
         }
         
+	}
+	
+	// TODO Generate a temporary directory of evolable model files for evochecker
+	public void generateEvoModels() {
+		
 	}
 	
 	public boolean containsRanged() {
