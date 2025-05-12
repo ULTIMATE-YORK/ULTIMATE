@@ -127,6 +127,7 @@ public class MenuBarController {
 				return false;
 			}
 		}
+		sharedContext.getMainStage().close();
 		return true;
 	}
 	
