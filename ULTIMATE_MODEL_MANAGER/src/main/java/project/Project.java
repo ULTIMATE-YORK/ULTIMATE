@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -45,8 +47,9 @@ public class Project {
 	private String directory = null;
 	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
-    private HashMap<String, Double> cachedResults = new HashMap<String, Double>();
     private boolean isBlank;
+    // key will be model id + property and second hashmap will be mapping of configuration to result
+    private HashMap<String, HashMap<String, Double>> cache = new HashMap<String, HashMap<String, Double>>(); // cache for storing results of generated models
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
@@ -354,13 +357,68 @@ public class Project {
 	    }
 	}
 	
-	public Double getCacheResult(String config) {
-		return cachedResults.get(config);
+	public Double getCacheResult(String verification, String config) {
+		try {
+			String normalizedConfig = normalizeConfigString(config);
+			return cache.get(verification).get(normalizedConfig);
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
-	public void addCacheResult(String config, Double result) {
-		cachedResults.put(config, result);
+	public void addCacheResult(String verification, String config, Double result) {
+	    String normalizedConfig = normalizeConfigString(config);
+		try {
+			cache.get(verification).put(normalizedConfig, result);
+		} catch (Exception e) {
+			HashMap<String, Double> newConfig = new HashMap<>();
+			newConfig.put(normalizedConfig, result);
+			cache.put(verification, newConfig);
+		}
 	}
+
+	// Helper method to normalize the config string
+	private String normalizeConfigString(String config) {
+	    // Remove all whitespace
+	    String cleaned = config.replaceAll("\\s+", "");
+
+	    // Separate letters and numbers
+	    StringBuilder letters = new StringBuilder();
+	    ArrayList<Integer> numbers = new ArrayList<>();
+
+	    StringBuilder numberBuffer = new StringBuilder();
+	    for (char c : cleaned.toCharArray()) {
+	        if (Character.isDigit(c)) {
+	            numberBuffer.append(c);
+	        } else {
+	            // Flush any buffered number
+	            if (numberBuffer.length() > 0) {
+	                numbers.add(Integer.parseInt(numberBuffer.toString()));
+	                numberBuffer.setLength(0);
+	            }
+	            letters.append(c);
+	        }
+	    }
+	    // Flush any trailing number
+	    if (numberBuffer.length() > 0) {
+	        numbers.add(Integer.parseInt(numberBuffer.toString()));
+	    }
+
+	    // Sort letters and numbers
+	    char[] letterArray = letters.toString().toCharArray();
+	    Arrays.sort(letterArray);
+	    Collections.sort(numbers);
+
+	    // Build normalized string
+	    StringBuilder normalized = new StringBuilder();
+	    normalized.append(letterArray);
+	    for (int num : numbers) {
+	        normalized.append(num);
+	    }
+
+	    return normalized.toString();
+	}
+
 
 	/*
 	 * Gets the directory of the project

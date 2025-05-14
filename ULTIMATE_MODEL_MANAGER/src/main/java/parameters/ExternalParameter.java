@@ -195,7 +195,7 @@ public class ExternalParameter {
             	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\n";
     		}
     		else if (type.equals("Ranged")) {
-				return "External Parameter: " + name + "\nType: " + type + "\nValues: " + rangedValues.toString();
+				return "External Parameter: " + name + "\nType: " + type + "\nValues: " + rangedValues.toString() + "\n";
     		}
     		else {
             	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\nSource: " + value + "\n";

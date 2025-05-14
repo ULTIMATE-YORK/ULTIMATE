@@ -347,6 +347,15 @@ public class Model {
     public int hashCode() {
         return Objects.hash(modelId);
     }
+    
+    public boolean isRangedModel() {
+    	for (ExternalParameter ep: this.externalParameters) {
+    		if (ep.getType().equals("Ranged")) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
 
 	
 	/*
@@ -369,6 +378,18 @@ public class Model {
 	public String getVerificationFilePath() throws IOException {
 		//verificationFile = tempModelFile();
 		return verificationFile.getAbsolutePath();
+	}
+	
+	public ArrayList<String> rangedToString() {
+		ArrayList<String> ret = new ArrayList<String>();
+		for (HashMap<String, Double> configs : this.getCartesianExternal()) {
+			String basic = this.toString();
+			for (String key: configs.keySet()) {
+				basic += "\n" + key + " : " + configs.get(key) + "\n";
+			}
+			ret.add(basic);
+		}
+		return ret;
 	}
 	
 	public String toString() {

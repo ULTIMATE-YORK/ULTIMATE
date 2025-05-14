@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -89,18 +90,23 @@ public class PropertiesController {
 		else {
 			
 			if (project.containsRanged()) {
+				boolean cont = true;
 				// check the cache
+				verifyResults.clear();
 			    ArrayList<Model> models = new ArrayList<>(project.getModels());
 			    models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
-			    StringBuilder configBuilder = new StringBuilder();
-			    for (Model m : models) {
-			        configBuilder.append(m.toString());
+			    ArrayList<String> configurations = generateConfigurations(models);
+			    
+			    for (String config : configurations) {
+			    	//System.out.println("Configuration: " + config + "\n");
+					String verification = vModel.getModelId() + " + " + vProp.getProperty();
+				    if (project.getCacheResult(verification, config) != null) {
+						// show the result from the cache
+				    	cont = false;
+						verifyResults.appendText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(verification, config) + "\n");
+					}
 			    }
-			    configBuilder.append(vProp.getProperty());
-			    String config = configBuilder.toString();
-				if (project.getCacheResult(config) != null) {
-					// show the result from the cache
-					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(config));
+				if (!cont) {
 					return;
 				}
 				boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
@@ -128,9 +134,11 @@ public class PropertiesController {
 				}
 				configBuilder.append(vProp.getProperty());
 				String config = configBuilder.toString();
-				if (project.getCacheResult(config) != null) {
+				String verification = vModel.getModelId() + " + " + vProp.getProperty();
+				if (project.getCacheResult(verification, config) != null) {
 					// show the result from the cache
-					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(config));
+					// TODO make this display all results
+					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(verification, config));
 					return;
 				}
 				// update the mode files here
@@ -156,7 +164,7 @@ public class PropertiesController {
 			        progressIndicator.setVisible(false);
 			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
 			        // Cache the result
-			        project.addCacheResult(config, result);
+			        project.addCacheResult(verification, config, result);
 			    }))
 			    .exceptionally(ex -> {
 			        Platform.runLater(() -> {
@@ -171,6 +179,17 @@ public class PropertiesController {
 
 		}
 	}
+	
+	private String buildConfigString(List<Model> models) {
+	    StringBuilder configBuilder = new StringBuilder();
+
+	    for (Model model : models) {
+	        configBuilder.append(model.toString());
+	    }
+
+	    return configBuilder.toString();
+	}
+
 	
 	private void setListeners() {
         project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
@@ -219,6 +238,8 @@ public class PropertiesController {
 	        String verifyModelId,
 	        String property,
 	        ExecutorService executor) throws IOException {
+		
+		AtomicReference<String> ep = new AtomicReference<>("");
 
 	    if (index >= rounds.size()) {
 	        Platform.runLater(() -> progressIndicator.setVisible(false));
@@ -234,6 +255,7 @@ public class PropertiesController {
 	        for (Map.Entry<String, Double> entry : parameters.entrySet()) {
 	            if (entry.getValue() != null) {
 	                m.getExternalParameter(entry.getKey()).setValue(entry.getValue());
+	                ep.set("\n" + entry.getKey() + " : " + entry.getValue() + "\n");
 	            }
 	        }
 	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
@@ -257,6 +279,11 @@ public class PropertiesController {
 	                    verifyResults.appendText(
 	                        "Result for model: {" + verifyModelId + "} with property: {" + property + "}\nResult: " + result + "\n"
 	                    );
+	                    String verification = verifyModelId + " + " + property;
+	                    String config = buildConfigString(models);
+	                    config += ep;
+	                    //System.out.println("Cacheing: "  + config + "\n");
+	                    project.addCacheResult(verification, config, result);
 	                } else {
 	                    verifyResults.appendText(
 	                        "Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n"
@@ -269,10 +296,43 @@ public class PropertiesController {
 	            try {
 					runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 	        });
 	}
+	
+	private ArrayList<String> generateConfigurations(List<Model> models) {
+	    ArrayList<String> configs = new ArrayList<>();
+	    ArrayList<ArrayList<String>> allModelStrings = new ArrayList<>();
 
+	    // Prepare nested list
+	    for (Model m : models) {
+	        if (m.isRangedModel()) {
+	            allModelStrings.add(m.rangedToString());
+	        } else {
+	            ArrayList<String> single = new ArrayList<>();
+	            single.add(m.toString());
+	            allModelStrings.add(single);
+	        }
+	    }
+
+	    // Start recursive combination
+	    generatePermutations(allModelStrings, 0, new StringBuilder(), configs);
+	    return configs;
+	}
+	
+	private void generatePermutations(List<ArrayList<String>> allModelStrings, int depth, StringBuilder current, List<String> result) {
+	    if (depth == allModelStrings.size()) {
+	        result.add(current.toString());
+	        return;
+	    }
+
+	    ArrayList<String> currentList = allModelStrings.get(depth);
+	    for (String s : currentList) {
+	        int originalLength = current.length();
+	        current.append(s);
+	        generatePermutations(allModelStrings, depth + 1, current, result);
+	        current.setLength(originalLength); // backtrack
+	    }
+	}
 }
