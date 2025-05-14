@@ -419,7 +419,6 @@ public class Project {
 	    return normalized.toString();
 	}
 
-
 	/*
 	 * Gets the directory of the project
 	 */

@@ -248,6 +248,7 @@ public class PropertiesController {
 	    }
 
 	    HashMap<Model, HashMap<String, Double>> round = rounds.get(index);
+	    String epConfig = "";
 
 	    // Apply parameter values and write to files
 	    for (Model m : round.keySet()) {
@@ -255,11 +256,14 @@ public class PropertiesController {
 	        for (Map.Entry<String, Double> entry : parameters.entrySet()) {
 	            if (entry.getValue() != null) {
 	                m.getExternalParameter(entry.getKey()).setValue(entry.getValue());
-	                ep.set("\n" + entry.getKey() + " : " + entry.getValue() + "\n");
+	                epConfig += entry.getKey() + " : " + entry.getValue() + "\n";
+	                //ep.set("\n" + entry.getKey() + " : " + entry.getValue() + "\n");
 	            }
 	        }
 	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
 	    }
+	    
+	    ep.set(epConfig);
 
 	    NPMCVerification verifier = new NPMCVerification(models);
 
