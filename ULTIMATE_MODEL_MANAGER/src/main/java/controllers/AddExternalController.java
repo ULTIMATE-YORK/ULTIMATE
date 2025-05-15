@@ -2,6 +2,8 @@ package controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -27,7 +29,9 @@ public class AddExternalController {
 	@FXML private ChoiceBox<UncategorisedParameter> uncategorisedParameters;
 	@FXML private ChoiceBox<String> chooseType;
 	@FXML private Label rangeLabel;
-	@FXML private TextField rangeText;
+	@FXML private TextField rangeMin;
+	@FXML private TextField rangeMax;
+	@FXML private TextField rangeStep;
 	@FXML private TextField chooseText;
 	@FXML private Button chooseButton;
 	@FXML private Button saveButton;
@@ -40,7 +44,7 @@ public class AddExternalController {
 	private static final Logger logger = LoggerFactory.getLogger(AddExternalController.class);
 	
 	private boolean ranged = false;
-	ArrayList<Double> rangeValues = new ArrayList<Double>();
+	private ArrayList<Double> rangedValues = new ArrayList<Double>();
 	
 	@FXML
 	private void initialize() {
@@ -64,7 +68,34 @@ public class AddExternalController {
         		chooseButton.setManaged(false);
         		valueLabel.setManaged(true);
         		valueLabel.setVisible(true);
+        		// remove ranged if there
+        		ranged = false;
+				rangeLabel.setVisible(false);
+				rangeLabel.setManaged(false);
+				rangeMin.setVisible(false);
+				rangeMin.setManaged(false);
+				rangeMax.setVisible(false);
+				rangeMax.setManaged(false);
+				rangeStep.setVisible(false);
+				rangeStep.setManaged(false);
         	}
+        	else if (newVal.equals("Ranged")) {
+				ranged = true;
+				rangeLabel.setVisible(true);
+				rangeLabel.setManaged(true);
+				rangeMin.setVisible(true);
+				rangeMin.setManaged(true);
+				rangeMax.setVisible(true);
+				rangeMax.setManaged(true);
+				rangeStep.setVisible(true);
+				rangeStep.setManaged(true);
+				chooseButton.setVisible(false);
+				chooseButton.setManaged(false);
+				valueLabel.setVisible(false);
+				valueLabel.setManaged(false);
+				chooseText.setVisible(false);
+				chooseText.setManaged(false);
+			}
         	else {
         		// show button
         		chooseText.setVisible(false);
@@ -73,21 +104,16 @@ public class AddExternalController {
         		chooseButton.setManaged(true);
         		valueLabel.setManaged(true);
         		valueLabel.setVisible(true);
+        		ranged = false;
+				rangeLabel.setVisible(false);
+				rangeLabel.setManaged(false);
+				rangeMin.setVisible(false);
+				rangeMin.setManaged(false);
+				rangeMax.setVisible(false);
+				rangeMax.setManaged(false);
+				rangeStep.setVisible(false);
+				rangeStep.setManaged(false);
         	}
-        	
-			if (newVal.equals("Ranged")) {
-				ranged = true;
-				rangeLabel.setVisible(true);
-				rangeLabel.setManaged(true);
-				rangeText.setVisible(true);
-				rangeText.setManaged(true);
-				chooseButton.setVisible(false);
-				chooseButton.setManaged(false);
-				valueLabel.setVisible(false);
-				valueLabel.setManaged(false);
-				chooseText.setVisible(false);
-				chooseText.setManaged(false);
-			}
         
         });
 	}
@@ -102,6 +128,7 @@ public class AddExternalController {
 		UncategorisedParameter name = uncategorisedParameters.getValue();
 		String type = chooseType.getValue();
 		String value = "";
+		
 		if (dataFile == null && !ranged) {
 			value = chooseText.getText();
 			// check its a number
@@ -116,29 +143,46 @@ public class AddExternalController {
 			value = dataFile;
 		}
 		
+		if (ranged) {
+			//value = "";
+			try {
+			    Double min = Double.parseDouble(rangeMin.getText());
+			    Double max = Double.parseDouble(rangeMax.getText());
+			    Double step = Double.parseDouble(rangeStep.getText());
+				if (max < min) {
+					Alerter.showErrorAlert("Invalid Input!", "The minimum value must be less than the maximum value.");
+					return;
+				}
+				if (step <= 0) {
+					Alerter.showErrorAlert("Invalid Range!", "The step value must be greater than 0.");
+					return;
+				}
 
-if (ranged) {
-    value = rangeText.getText();
-    try {
-        String[] parts = value.split(","); // Split the input by commas
-        for (String part : parts) {
-            rangeValues.add(Double.parseDouble(part.trim())); // Parse and add to the list
-        }
-    } catch (NumberFormatException e) {
-        Alerter.showErrorAlert("Invalid Range", "Please enter a valid range of numbers separated by commas.");
-        return;
-    }
-    // Use rangeValues as needed
-}
+				for (BigDecimal currentvalue = BigDecimal.valueOf(min); 
+				     currentvalue.compareTo(BigDecimal.valueOf(max)) <= 0; 
+				     currentvalue = currentvalue.add(BigDecimal.valueOf(step))) {
+				    rangedValues.add(currentvalue.setScale(3, RoundingMode.HALF_UP).doubleValue());
+				}
 
+			} catch (NumberFormatException e) {
+		        Alerter.showErrorAlert("Invalid Range", "The range values must be numbers.");
+		        return;
+		    }
+			
+			try {
+				ExternalParameter eParam = new ExternalParameter(name.toString(), type, rangedValues);
+				project.getCurrentModel().addExternalParameter(eParam);
+				project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				closeDialog();
+			} catch (IOException e) {
+				closeDialog();
+			} catch (NumberFormatException e) {
+				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
+				closeDialog();            }
 		
-		// FIXME: add check that definition is valid
-		if (name == null || type == null|| value == null) {
-			Alerter.showErrorAlert("Invalid Parameter", "Please define all parameters!");
-			return;
 		}
+
 		else {
-			if (!ranged) {
 				try {
 					ExternalParameter eParam = new ExternalParameter(name.toString(), type, value);
 					project.getCurrentModel().addExternalParameter(eParam);
@@ -149,19 +193,6 @@ if (ranged) {
 				} catch (NumberFormatException e) {
 					Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
 					closeDialog();            }
-			}
-			else {
-				try {
-					ExternalParameter eParam = new ExternalParameter(name.toString(), type, rangeValues);
-					project.getCurrentModel().addExternalParameter(eParam);
-					project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
-					closeDialog();
-				} catch (IOException e) {
-					closeDialog();
-				} catch (NumberFormatException e) {
-					Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
-					closeDialog();            }
-			}
 
 		}
 	}
