@@ -9,7 +9,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
-
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -79,6 +78,7 @@ public class PropertiesController {
 	}
 	
 	@FXML
+	// TODO split this out into a new verification controller class and fxml file
 	private void verify() throws IOException {
 		//DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/verify_dialog.fxml", "Verification");
 		Model vModel = project.getCurrentModel();
@@ -137,7 +137,6 @@ public class PropertiesController {
 				String verification = vModel.getModelId() + " + " + vProp.getProperty();
 				if (project.getCacheResult(verification, config) != null) {
 					// show the result from the cache
-					// TODO make this display all results
 					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(verification, config));
 					return;
 				}
@@ -165,6 +164,10 @@ public class PropertiesController {
 			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
 			        // Cache the result
 			        project.addCacheResult(verification, config, result);
+			        // default result
+			        HashMap<String, Double> modelResults = new HashMap<>();
+			        modelResults.put("DEFAULT", result);
+			        vModel.addResult(vProp.getProperty(), modelResults);
 			    }))
 			    .exceptionally(ex -> {
 			        Platform.runLater(() -> {
@@ -219,7 +222,6 @@ public class PropertiesController {
             }
         });
 		
-		//TODO: make this OS independent
         // Add a key event handler to allow deletion of models using the Backspace key
 		propertyListView.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.BACK_SPACE) {
@@ -248,6 +250,7 @@ public class PropertiesController {
 	    }
 
 	    HashMap<Model, HashMap<String, Double>> round = rounds.get(index);
+	    String ep_config = generateKeyValueString(round);
 	    String epConfig = "";
 
 	    // Apply parameter values and write to files
@@ -288,6 +291,11 @@ public class PropertiesController {
 	                    config += ep;
 	                    //System.out.println("Cacheing: "  + config + "\n");
 	                    project.addCacheResult(verification, config, result);
+	                    // add result to model
+	                    Model model = models.stream().filter(m -> m.getModelId().equals(verifyModelId)).findFirst().orElse(null);
+	                    HashMap<String, Double> modelResults = new HashMap<>();
+	                    modelResults.put(ep_config, result);
+	                    model.addResult(property, modelResults);
 	                } else {
 	                    verifyResults.appendText(
 	                        "Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n"
@@ -339,4 +347,22 @@ public class PropertiesController {
 	        current.setLength(originalLength); // backtrack
 	    }
 	}
+	
+
+	private String generateKeyValueString(HashMap<Model, HashMap<String, Double>> round) {
+	    StringBuilder result = new StringBuilder();
+	
+	    for (Map.Entry<Model, HashMap<String, Double>> modelEntry : round.entrySet()) {
+	        HashMap<String, Double> parameters = modelEntry.getValue();
+	        for (Map.Entry<String, Double> paramEntry : parameters.entrySet()) {
+	            result.append(paramEntry.getKey())
+	                  .append(" : ")
+	                  .append(paramEntry.getValue())
+	                  .append("\n");
+	        }
+	    }
+	
+	    return result.toString().trim(); // Remove the trailing newline
+	}
+
 }

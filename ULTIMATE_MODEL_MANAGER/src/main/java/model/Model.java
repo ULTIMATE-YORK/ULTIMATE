@@ -36,6 +36,7 @@ public class Model {
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     private File verificationFile;
+    private HashMap<String, HashMap<String, Double>> results = new HashMap<String, HashMap<String, Double>>(); // Results of the model verification
     
     /**
      * Constructor to initialise a new Model object.
@@ -394,5 +395,21 @@ public class Model {
 	
 	public String toString() {
 		return this.modelId + internalParameters.toString() + externalParameters.toString() + dependencyParameters.toString() + uncategorisedParameters.toString();
+	}
+	
+	public void addResult(String prop, HashMap<String, Double> configResult) {
+		if (results.containsKey(prop)) {
+			results.get(prop).putAll(configResult);
+		} else {
+			results.put(prop, configResult);
+		}
+	}
+	
+	public Double getResult(String prop, String config) {
+		if (results.containsKey(prop)) {
+            return results.get(prop).get(config);
+        } else {
+            return null;
+        }
 	}
 }
