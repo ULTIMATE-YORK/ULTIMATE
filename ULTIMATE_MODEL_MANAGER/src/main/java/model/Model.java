@@ -412,4 +412,8 @@ public class Model {
             return null;
         }
 	}
+	
+	public HashMap<String, Double> getResultMap(String prop) {
+		return results.get(prop);
+	}
 }

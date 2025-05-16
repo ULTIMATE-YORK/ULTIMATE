@@ -11,13 +11,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import model.Model;
 import project.Project;
 import property.Property;
@@ -34,8 +36,8 @@ public class PropertiesController {
 	@FXML private Button scrollUp;
 	@FXML private Button scrollDown;
 	@FXML private Button verifyButton;
-	@FXML private TextArea verifyResults;
-	@FXML private ProgressIndicator progressIndicator;
+	@FXML private ListView<String> verifyResults;
+	//@FXML private ProgressIndicator progressIndicator;
 	@FXML private ListView<Property> propertyListView;
 	
     private SharedContext sharedContext = SharedContext.getInstance();
@@ -78,110 +80,90 @@ public class PropertiesController {
 	}
 	
 	@FXML
-	// TODO split this out into a new verification controller class and fxml file
-	private void verify() throws IOException {
-		//DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/verify_dialog.fxml", "Verification");
-		Model vModel = project.getCurrentModel();
-		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
-		if (vModel == null || vProp == null) {
-			Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
-			return;
-		}
-		else {
-			
-			if (project.containsRanged()) {
-				boolean cont = true;
-				// check the cache
-				verifyResults.clear();
-			    ArrayList<Model> models = new ArrayList<>(project.getModels());
-			    models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
-			    ArrayList<String> configurations = generateConfigurations(models);
-			    
-			    for (String config : configurations) {
-			    	//System.out.println("Configuration: " + config + "\n");
-					String verification = vModel.getModelId() + " + " + vProp.getProperty();
-				    if (project.getCacheResult(verification, config) != null) {
-						// show the result from the cache
-				    	cont = false;
-						verifyResults.appendText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(verification, config) + "\n");
-					}
-			    }
-				if (!cont) {
-					return;
-				}
-				boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
-				if (continueVerification) {
-				    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
 
-				    // Make the progress indicator visible and clear previous results
-				    progressIndicator.setVisible(true);
-				    verifyResults.setText("Verification in progress...\n");
+private void verify() throws IOException {
+    Model vModel = project.getCurrentModel();
+    Property vProp = propertyListView.getSelectionModel().getSelectedItem();
+    if (vModel == null || vProp == null) {
+        Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
+        return;
+    }
 
-				    // Start verification using an executor
-				    ExecutorService executor = Executors.newSingleThreadExecutor();
-				    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor);
-				}
-			}
+    // Create a modal window
+    Stage modalStage = new Stage();
+    modalStage.initModality(Modality.APPLICATION_MODAL);
+    modalStage.setTitle("Verification in Progress");
 
-			
-			else {
-				ArrayList<Model> models = new ArrayList<>();
-				models.addAll(project.getModels());
-				models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
-				StringBuilder configBuilder = new StringBuilder();
-				for (Model m : models) {
-				    configBuilder.append(m.toString());
-				}
-				configBuilder.append(vProp.getProperty());
-				String config = configBuilder.toString();
-				String verification = vModel.getModelId() + " + " + vProp.getProperty();
-				if (project.getCacheResult(verification, config) != null) {
-					// show the result from the cache
-					verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + project.getCacheResult(verification, config));
-					return;
-				}
-				// update the mode files here
-				for (Model m : models) {
-					FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
-					//System.out.println("File: " + m.getVerificationFilePath() + "\nPrams: " + m.getHashExternalParameters() + "\n" + Files.readString(Paths.get(m.getVerificationFilePath())));
-				}
-				NPMCVerification verifier = new NPMCVerification(models);
-			    
-				// Show the loading spinner and update the text area message
-			    progressIndicator.setVisible(true);
-			    verifyResults.setText("Verification in progress...");
-				
-			    CompletableFuture.supplyAsync(() -> {
-					try {
-						return verifier.verify(vModel.getModelId(), vProp.getProperty());
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-					return null;
-				})
-			    .thenAccept(result -> Platform.runLater(() -> {
-			        progressIndicator.setVisible(false);
-			        verifyResults.setText("Result for model: {" + vModel.getModelId() + "} with property: {" + vProp.getProperty() + "}\nResult: " + result);
-			        // Cache the result
-			        project.addCacheResult(verification, config, result);
-			        // default result
-			        HashMap<String, Double> modelResults = new HashMap<>();
-			        modelResults.put("DEFAULT", result);
-			        vModel.addResult(vProp.getProperty(), modelResults);
-			    }))
-			    .exceptionally(ex -> {
-			        Platform.runLater(() -> {
-			            progressIndicator.setVisible(false);
-				        verifyResults.setText(""); 
-			            Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure" );
-			        });
-			        return null;
-			    });	
-			}
-			
+    // Add a progress indicator to the modal
+    ProgressIndicator modalProgress = new ProgressIndicator();
+    modalProgress.setPrefSize(100, 100);
+    Scene modalScene = new Scene(modalProgress, 300, 200);
+    modalStage.setScene(modalScene);
 
-		}
-	}
+    // Show the modal window
+    modalStage.show();
+
+    // Run the verification process in a background thread
+    CompletableFuture.runAsync(() -> {
+        try {
+            if (project.containsRanged()) {
+                boolean cont = true;
+                ArrayList<Model> models = new ArrayList<>(project.getModels());
+                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+                ArrayList<String> configurations = generateConfigurations(models);
+
+                for (String config : configurations) {
+                    String verification = vModel.getModelId() + " + " + vProp.getProperty();
+                    if (project.getCacheResult(verification, config) != null) {
+                        cont = false;
+                    }
+                }
+                if (!cont) {
+                    return;
+                }
+                
+                //boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
+                if (true) {
+                    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
+                    ExecutorService executor = Executors.newSingleThreadExecutor();
+                    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor, modalStage);
+                }
+            } else {
+                ArrayList<Model> models = new ArrayList<>(project.getModels());
+                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+                StringBuilder configBuilder = new StringBuilder();
+                for (Model m : models) {
+                    configBuilder.append(m.toString());
+                }
+                configBuilder.append(vProp.getProperty());
+                String config = configBuilder.toString();
+                String verification = vModel.getModelId() + " + " + vProp.getProperty();
+                if (project.getCacheResult(verification, config) != null) {
+                    return;
+                }
+                for (Model m : models) {
+                    FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+                }
+                NPMCVerification verifier = new NPMCVerification(models);
+                Double result = verifier.verify(vModel.getModelId(), vProp.getProperty());
+                Platform.runLater(() -> {
+                    project.addCacheResult(verification, config, result);
+                    HashMap<String, Double> modelResults = new HashMap<>();
+                    modelResults.put("DEFAULT", result);
+                    vModel.addResult(vProp.getProperty(), modelResults);
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Platform.runLater(() -> Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure"));
+        } finally {
+            // Close the modal window on completion
+            //Platform.runLater(modalStage::close);
+            Platform.runLater(this::updateVerifyResults);
+        }
+    });
+}
+
 	
 	private String buildConfigString(List<Model> models) {
 	    StringBuilder configBuilder = new StringBuilder();
@@ -200,6 +182,15 @@ public class PropertiesController {
                 // Retrieve the list of Uncategorised Parameters from the new model.
                 Platform.runLater(() -> {
                     propertyListView.setItems(newModel.getProperties());
+                    updateVerifyResults();
+                });
+            }
+        });
+        // Add listener for propertyListView selection changes
+        propertyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldProperty, newProperty) -> {
+            if (newProperty != null) {
+                Platform.runLater(() -> {
+                    updateVerifyResults();
                 });
             }
         });
@@ -231,6 +222,8 @@ public class PropertiesController {
                 }
             }
         });
+		
+		//verifyResults.setCellFactory(null);
 	}
 	
 	private void runVerificationsSequentially(
@@ -239,13 +232,17 @@ public class PropertiesController {
 	        ArrayList<Model> models,
 	        String verifyModelId,
 	        String property,
-	        ExecutorService executor) throws IOException {
+	        ExecutorService executor, Stage modalStage) throws IOException {
 		
 		AtomicReference<String> ep = new AtomicReference<>("");
 
 	    if (index >= rounds.size()) {
-	        Platform.runLater(() -> progressIndicator.setVisible(false));
+	        //Platform.runLater(() -> progressIndicator.setVisible(false));
 	        executor.shutdown();
+	        Platform.runLater(() -> {
+	            modalStage.close(); // Close the modal window
+	            updateVerifyResults(); // Update the results
+	        });
 	        return;
 	    }
 
@@ -283,9 +280,7 @@ public class PropertiesController {
 	        .thenAccept(result -> {
 	            Platform.runLater(() -> {
 	                if (result != null) {
-	                    verifyResults.appendText(
-	                        "Result for model: {" + verifyModelId + "} with property: {" + property + "}\nResult: " + result + "\n"
-	                    );
+	                    //verifyResults.appendText("Result for model: {" + verifyModelId + "} with property: {" + property + "}\nResult: " + result + "\n");
 	                    String verification = verifyModelId + " + " + property;
 	                    String config = buildConfigString(models);
 	                    config += ep;
@@ -297,16 +292,15 @@ public class PropertiesController {
 	                    modelResults.put(ep_config, result);
 	                    model.addResult(property, modelResults);
 	                } else {
-	                    verifyResults.appendText(
-	                        "Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n"
-	                    );
+	                    //verifyResults.appendText("Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n");
+	                	// TODO set results
 	                    Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
 	                }
 	            });
 
 	            // Proceed to next round
 	            try {
-					runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor);
+					runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor, modalStage);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -363,6 +357,31 @@ public class PropertiesController {
 	    }
 	
 	    return result.toString().trim(); // Remove the trailing newline
+	}
+	
+	private void updateVerifyResults() {
+	    verifyResults.getItems().clear(); // Clear existing items
+		Model m = project.getCurrentModel();
+		String property = "";
+		try {
+			property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
+		} catch (Exception e) {
+			return;
+		}
+		HashMap<String, Double> results = m.getResultMap(property);
+		if (results == null) {
+			return;
+		}
+		int i = 1;
+		int total = results.size();
+		for (String key : results.keySet()) {
+			if (key.equals("DEFAULT")) {
+	            verifyResults.getItems().add("Result of verification on model: " + m.getModelId() + " with property: " + property + "\nResult: " + results.get(key));
+			}
+			else {
+	            verifyResults.getItems().add("Verification " + i + " of " + total + "\n" + key + "\nResult: " + results.get(key));
+			}
+		}
 	}
 
 }
