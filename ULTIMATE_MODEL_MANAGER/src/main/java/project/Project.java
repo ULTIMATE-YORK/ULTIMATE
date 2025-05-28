@@ -2,6 +2,7 @@ package project;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -377,15 +378,15 @@ public class Project {
 		}
 	}
 
-	// Helper method to normalize the config string
+
 	private String normalizeConfigString(String config) {
 	    // Remove all whitespace
 	    String cleaned = config.replaceAll("\\s+", "");
-
+	
 	    // Separate letters and numbers
 	    StringBuilder letters = new StringBuilder();
-	    ArrayList<Integer> numbers = new ArrayList<>();
-
+	    ArrayList<BigInteger> numbers = new ArrayList<>();
+	
 	    StringBuilder numberBuffer = new StringBuilder();
 	    for (char c : cleaned.toCharArray()) {
 	        if (Character.isDigit(c)) {
@@ -393,7 +394,7 @@ public class Project {
 	        } else {
 	            // Flush any buffered number
 	            if (numberBuffer.length() > 0) {
-	                numbers.add(Integer.parseInt(numberBuffer.toString()));
+	                numbers.add(new BigInteger(numberBuffer.toString()));
 	                numberBuffer.setLength(0);
 	            }
 	            letters.append(c);
@@ -401,23 +402,24 @@ public class Project {
 	    }
 	    // Flush any trailing number
 	    if (numberBuffer.length() > 0) {
-	        numbers.add(Integer.parseInt(numberBuffer.toString()));
+	        numbers.add(new BigInteger(numberBuffer.toString()));
 	    }
-
+	
 	    // Sort letters and numbers
 	    char[] letterArray = letters.toString().toCharArray();
 	    Arrays.sort(letterArray);
-	    Collections.sort(numbers);
-
+	    numbers.sort(null); // Natural order for BigInteger
+	
 	    // Build normalized string
 	    StringBuilder normalized = new StringBuilder();
 	    normalized.append(letterArray);
-	    for (int num : numbers) {
+	    for (BigInteger num : numbers) {
 	        normalized.append(num);
 	    }
-
+	
 	    return normalized.toString();
 	}
+
 
 	/*
 	 * Gets the directory of the project

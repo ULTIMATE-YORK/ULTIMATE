@@ -50,7 +50,7 @@
 		
 	<StackPane VBox.vgrow="ALWAYS">
 	    <!-- The main text area for displaying verification results -->
-	    <TextArea fx:id="verifyResults" editable="false" VBox.vgrow="ALWAYS"/>
+	    <ListView fx:id="verifyResults" VBox.vgrow="ALWAYS"/>
 	
 	    <!-- The loading spinner, initially hidden -->
 	    <ProgressIndicator fx:id="progressIndicator" visible="false" maxWidth="50" maxHeight="50" />

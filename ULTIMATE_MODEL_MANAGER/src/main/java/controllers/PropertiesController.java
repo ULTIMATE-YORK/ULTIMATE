@@ -42,6 +42,10 @@ public class PropertiesController {
 	
     private SharedContext sharedContext = SharedContext.getInstance();
     private Project project = sharedContext.getProject();
+    
+    private String verificationResult = "";
+    private int verificationCount = 1;
+    private int totalVerifications = 0; // updated later 
 	
 	@FXML
 	private void initialize() {
@@ -82,6 +86,8 @@ public class PropertiesController {
 	@FXML
 
 private void verify() throws IOException {
+	verificationResult = ""; // reset the string
+	verificationCount = 1; // reset the count
     Model vModel = project.getCurrentModel();
     Property vProp = propertyListView.getSelectionModel().getSelectedItem();
     if (vModel == null || vProp == null) {
@@ -115,6 +121,9 @@ private void verify() throws IOException {
                 for (String config : configurations) {
                     String verification = vModel.getModelId() + " + " + vProp.getProperty();
                     if (project.getCacheResult(verification, config) != null) {
+                        Platform.runLater(() ->  {
+                        	modalStage.close(); // Ensure modal is closed on error
+                        });
                         cont = false;
                     }
                 }
@@ -126,6 +135,7 @@ private void verify() throws IOException {
                 if (true) {
                     ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
                     ExecutorService executor = Executors.newSingleThreadExecutor();
+                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\n";
                     runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor, modalStage);
                 }
             } else {
@@ -139,6 +149,9 @@ private void verify() throws IOException {
                 String config = configBuilder.toString();
                 String verification = vModel.getModelId() + " + " + vProp.getProperty();
                 if (project.getCacheResult(verification, config) != null) {
+                    Platform.runLater(() ->  {
+                    	modalStage.close(); // Ensure modal is closed on error
+                    });
                     return;
                 }
                 for (Model m : models) {
@@ -151,15 +164,22 @@ private void verify() throws IOException {
                     HashMap<String, Double> modelResults = new HashMap<>();
                     modelResults.put("DEFAULT", result);
                     vModel.addResult(vProp.getProperty(), modelResults);
+                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\nResult: " + result + "\n";
                 });
-            }
+                //updateVerifyResults();
+                Platform.runLater( () -> {
+                	modalStage.close(); // Close the modal window after verification
+                	addVerificationResult(verificationResult);
+                });            }
         } catch (Exception e) {
             e.printStackTrace();
-            Platform.runLater(() -> Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure"));
+            Platform.runLater(() ->  {
+            	Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
+            	modalStage.close(); // Ensure modal is closed on error
+            });
         } finally {
             // Close the modal window on completion
-            //Platform.runLater(modalStage::close);
-            Platform.runLater(this::updateVerifyResults);
+            //updateVerifyResults();
         }
     });
 }
@@ -182,7 +202,7 @@ private void verify() throws IOException {
                 // Retrieve the list of Uncategorised Parameters from the new model.
                 Platform.runLater(() -> {
                     propertyListView.setItems(newModel.getProperties());
-                    updateVerifyResults();
+                    //updateVerifyResultsClear();
                 });
             }
         });
@@ -190,7 +210,7 @@ private void verify() throws IOException {
         propertyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldProperty, newProperty) -> {
             if (newProperty != null) {
                 Platform.runLater(() -> {
-                    updateVerifyResults();
+                    //updateVerifyResultsClear();
                 });
             }
         });
@@ -226,30 +246,34 @@ private void verify() throws IOException {
 		//verifyResults.setCellFactory(null);
 	}
 	
+
+
 	private void runVerificationsSequentially(
 	        List<HashMap<Model, HashMap<String, Double>>> rounds,
 	        int index,
 	        ArrayList<Model> models,
 	        String verifyModelId,
 	        String property,
-	        ExecutorService executor, Stage modalStage) throws IOException {
-		
-		AtomicReference<String> ep = new AtomicReference<>("");
-
+	        ExecutorService executor,
+	        Stage modalStage) {
+	
+	    AtomicReference<String> ep = new AtomicReference<>("");
+	    totalVerifications = rounds.size();
+	
 	    if (index >= rounds.size()) {
-	        //Platform.runLater(() -> progressIndicator.setVisible(false));
 	        executor.shutdown();
 	        Platform.runLater(() -> {
-	            modalStage.close(); // Close the modal window
-	            updateVerifyResults(); // Update the results
+	            modalStage.close(); // Close the modal window here
+	            addVerificationResult(verificationResult);
+	            //updateVerifyResults(); // Update the results
 	        });
 	        return;
 	    }
-
+	
 	    HashMap<Model, HashMap<String, Double>> round = rounds.get(index);
 	    String ep_config = generateKeyValueString(round);
 	    String epConfig = "";
-
+	
 	    // Apply parameter values and write to files
 	    for (Model m : round.keySet()) {
 	        HashMap<String, Double> parameters = round.get(m);
@@ -257,16 +281,20 @@ private void verify() throws IOException {
 	            if (entry.getValue() != null) {
 	                m.getExternalParameter(entry.getKey()).setValue(entry.getValue());
 	                epConfig += entry.getKey() + " : " + entry.getValue() + "\n";
-	                //ep.set("\n" + entry.getKey() + " : " + entry.getValue() + "\n");
 	            }
 	        }
-	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+	        try {
+				FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	    }
-	    
+	
 	    ep.set(epConfig);
-
+	
 	    NPMCVerification verifier = new NPMCVerification(models);
-
+	
 	    // Run verification asynchronously
 	    CompletableFuture
 	        .supplyAsync(() -> {
@@ -280,32 +308,37 @@ private void verify() throws IOException {
 	        .thenAccept(result -> {
 	            Platform.runLater(() -> {
 	                if (result != null) {
-	                    //verifyResults.appendText("Result for model: {" + verifyModelId + "} with property: {" + property + "}\nResult: " + result + "\n");
 	                    String verification = verifyModelId + " + " + property;
 	                    String config = buildConfigString(models);
 	                    config += ep;
-	                    //System.out.println("Cacheing: "  + config + "\n");
 	                    project.addCacheResult(verification, config, result);
-	                    // add result to model
-	                    Model model = models.stream().filter(m -> m.getModelId().equals(verifyModelId)).findFirst().orElse(null);
+	
+	                    Model model = models.stream()
+	                        .filter(m -> m.getModelId().equals(verifyModelId))
+	                        .findFirst()
+	                        .orElse(null);
 	                    HashMap<String, Double> modelResults = new HashMap<>();
 	                    modelResults.put(ep_config, result);
+	                    verificationResult += "\nVerification " + verificationCount + " of " + totalVerifications + "\nConfiguration:\n" + ep_config + "\nResult: " + result + "\n";
+	                    verificationCount++;
 	                    model.addResult(property, modelResults);
 	                } else {
-	                    //verifyResults.appendText("Verification failed for model: {" + verifyModelId + "} with property: {" + property + "}\n");
-	                	// TODO set results
 	                    Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
 	                }
 	            });
-
-	            // Proceed to next round
-	            try {
-					runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor, modalStage);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+	
+	            runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor, modalStage);
+	        })
+	        .exceptionally(ex -> {
+	            ex.printStackTrace();
+	            Platform.runLater(() -> {
+	                Alerter.showErrorAlert("Verification Error", "An error occurred during verification. Check logs for details.");
+	                modalStage.close(); // Ensure modal is closed on error
+	            });
+	            return null;
 	        });
 	}
+
 	
 	private ArrayList<String> generateConfigurations(List<Model> models) {
 	    ArrayList<String> configs = new ArrayList<>();
@@ -359,29 +392,98 @@ private void verify() throws IOException {
 	    return result.toString().trim(); // Remove the trailing newline
 	}
 	
+
+
 	private void updateVerifyResults() {
-	    verifyResults.getItems().clear(); // Clear existing items
-		Model m = project.getCurrentModel();
-		String property = "";
-		try {
-			property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
-		} catch (Exception e) {
-			return;
-		}
-		HashMap<String, Double> results = m.getResultMap(property);
-		if (results == null) {
-			return;
-		}
-		int i = 1;
-		int total = results.size();
-		for (String key : results.keySet()) {
-			if (key.equals("DEFAULT")) {
-	            verifyResults.getItems().add("Result of verification on model: " + m.getModelId() + " with property: " + property + "\nResult: " + results.get(key));
-			}
-			else {
-	            verifyResults.getItems().add("Verification " + i + " of " + total + "\n" + key + "\nResult: " + results.get(key));
-			}
-		}
+	    Platform.runLater(() -> {
+	        //verifyResults.getItems().clear(); // Clear existing items
+	        Model m = project.getCurrentModel();
+	        String property = "";
+	        try {
+	            property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
+	        } catch (Exception e) {
+	            return;
+	        }
+	        HashMap<String, Double> results = m.getResultMap(property);
+	        if (results == null) {
+	            return;
+	        }
+	        StringBuilder resultBuilder = new StringBuilder();
+	        int i = 1;
+	        int total = results.size();
+	        for (String key : results.keySet()) {
+	            if (key.equals("DEFAULT")) {
+	                resultBuilder.append("Result of verification on model: ")
+	                             .append(m.getModelId())
+	                             .append(" with property: ")
+	                             .append(property)
+	                             .append("\nResult: ")
+	                             .append(results.get(key))
+	                             .append("\n");
+	            } else {
+	                resultBuilder.append("\nVerification ")
+	                             .append(i)
+	                             .append(" of ")
+	                             .append(total)
+	                             .append("\n")
+	                             .append(key)
+	                             .append("\nResult: ")
+	                             .append(results.get(key))
+	                             .append("\n");
+	            }
+	            i++;
+	        }
+	        verifyResults.getItems().add(resultBuilder.toString());
+	    });
+	}
+	
+	private void updateVerifyResultsClear() {
+	    Platform.runLater(() -> {
+	        verifyResults.getItems().clear(); // Clear existing items
+	        Model m = project.getCurrentModel();
+	        String property = "";
+	        try {
+	            property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
+	        } catch (Exception e) {
+	            return;
+	        }
+	        HashMap<String, Double> results = m.getResultMap(property);
+	        if (results == null) {
+	            return;
+	        }
+	        StringBuilder resultBuilder = new StringBuilder();
+	        int i = 1;
+	        int total = results.size();
+	        for (String key : results.keySet()) {
+	            if (key.equals("DEFAULT")) {
+	                resultBuilder.append("Result of verification on model: ")
+	                             .append(m.getModelId())
+	                             .append(" with property: ")
+	                             .append(property)
+	                             .append("\nResult: ")
+	                             .append(results.get(key))
+	                             .append("\n");
+	            } else {
+	                resultBuilder.append("\nVerification ")
+	                             .append(i)
+	                             .append(" of ")
+	                             .append(total)
+	                             .append("\n")
+	                             .append(key)
+	                             .append("\nResult: ")
+	                             .append(results.get(key))
+	                             .append("\n");
+	            }
+	            i++;
+	        }
+	        verifyResults.getItems().add(resultBuilder.toString());
+	    });
+	}
+	
+	private void addVerificationResult(String result) {
+		Platform.runLater(() -> {
+			verifyResults.getItems().add(result);
+		});
 	}
 
 }
