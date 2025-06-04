@@ -14,14 +14,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Pane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Model;
@@ -44,6 +50,10 @@ public class PropertiesController {
 	//@FXML private ProgressIndicator progressIndicator;
 	@FXML private ListView<Property> propertyListView;
 	@FXML private CheckBox showAllResults;
+	@FXML private Button plotButton;
+	@FXML private ChoiceBox<String> xaxisparam;
+	@FXML private Button confirmPlotButton;
+	@FXML private Button cancelPlotButton;
 	
 	private String currentModelId = null;
 	private String currentProperty = null;
@@ -58,6 +68,8 @@ public class PropertiesController {
     private String verificationResult = "";
     private int verificationCount = 1;
     private int totalVerifications = 0; // updated later 
+    
+    private String xaxis = "";
 	
 	@FXML
 	private void initialize() {
@@ -101,105 +113,308 @@ public class PropertiesController {
 	}
 	
 	@FXML
+	private void confirmPlot() {
+	    String selectedXaxis = xaxisparam.getSelectionModel().getSelectedItem();
+	    if (selectedXaxis == null || selectedXaxis.isEmpty()) {
+	        Alerter.showErrorAlert("Invalid Selection", "Please choose a parameter for the X-axis.");
+	        return;
+	    }
 
-private void verify() throws IOException {
-	verificationResult = ""; // reset the string
-	verificationCount = 1; // reset the count
-    Model vModel = project.getCurrentModel();
-    Property vProp = propertyListView.getSelectionModel().getSelectedItem();
-    if (vModel == null || vProp == null) {
-        Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
-        return;
-    }
+	    xaxis = selectedXaxis;
 
-    // Create a modal window
-    Stage modalStage = new Stage();
-    modalStage.initModality(Modality.APPLICATION_MODAL);
-    modalStage.setTitle("Verification in Progress");
+	    // Close the dialog window
+	    Stage stage = (Stage) confirmPlotButton.getScene().getWindow();
+	    stage.close();
+	}
+	
+	@FXML 
+	private void cancelPlot() {
+		xaxis = "";
+        Stage stage = (Stage) cancelPlotButton.getScene().getWindow();
+        stage.close();
+	}
+	
+	@FXML
+	private void verify() throws IOException {
+		verificationResult = ""; // reset the string
+		verificationCount = 1; // reset the count
+	    Model vModel = project.getCurrentModel();
+	    Property vProp = propertyListView.getSelectionModel().getSelectedItem();
+	    if (vModel == null || vProp == null) {
+	        Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
+	        return;
+	    }
+	
+	    // Create a modal window
+	    Stage modalStage = new Stage();
+	    modalStage.initModality(Modality.APPLICATION_MODAL);
+	    modalStage.setTitle("Verification in Progress");
+	
+	    // Add a progress indicator to the modal
+	    ProgressIndicator modalProgress = new ProgressIndicator();
+	    modalProgress.setPrefSize(100, 100);
+	    Scene modalScene = new Scene(modalProgress, 300, 200);
+	    modalStage.setScene(modalScene);
+	
+	    // Show the modal window
+	    modalStage.show();
+	
+	    // Run the verification process in a background thread
+	    CompletableFuture.runAsync(() -> {
+	        try {
+	            if (project.containsRanged()) {
+	                boolean cont = true;
+	                ArrayList<Model> models = new ArrayList<>(project.getModels());
+	                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+	                ArrayList<String> configurations = generateConfigurations(models);
+	
+	                for (String config : configurations) {
+	                    String verification = vModel.getModelId() + " + " + vProp.getProperty();
+	                    if (project.getCacheResult(verification, config) != null) {
+	                        Platform.runLater(() ->  {
+	                        	modalStage.close(); // Ensure modal is closed on error
+	                        });
+	                        cont = false;
+	                    }
+	                }
+	                if (!cont) {
+	                    return;
+	                }
+	                
+	                //boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
+	                if (true) {
+	                    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
+	                    ExecutorService executor = Executors.newSingleThreadExecutor();
+	                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\n";
+	                    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor, modalStage);
+	                }
+	            } else {
+	                ArrayList<Model> models = new ArrayList<>(project.getModels());
+	                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
+	                StringBuilder configBuilder = new StringBuilder();
+	                for (Model m : models) {
+	                    configBuilder.append(m.toString());
+	                }
+	                configBuilder.append(vProp.getProperty());
+	                String config = configBuilder.toString();
+	                String verification = vModel.getModelId() + " + " + vProp.getProperty();
+	                if (project.getCacheResult(verification, config) != null) {
+	                    Platform.runLater(() ->  {
+	                    	modalStage.close(); // Ensure modal is closed on error
+	                    });
+	                    return;
+	                }
+	                for (Model m : models) {
+	                    FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+	                }
+	                NPMCVerification verifier = new NPMCVerification(models);
+	                Double result = verifier.verify(vModel.getModelId(), vProp.getProperty());
+	                Platform.runLater(() -> {
+	                    project.addCacheResult(verification, config, result);
+	                    HashMap<String, Double> modelResults = new HashMap<>();
+	                    modelResults.put("DEFAULT", result);
+	                    vModel.addResult(vProp.getProperty(), modelResults);
+	                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\nResult: " + result + "\n";
+	                });
+	                //updateVerifyResults();
+	                Platform.runLater( () -> {
+	                	modalStage.close(); // Close the modal window after verification
+	                	addVerificationResult(verificationResult);
+	                });            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            Platform.runLater(() ->  {
+	            	Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
+	            	modalStage.close(); // Ensure modal is closed on error
+	            });
+	        } finally {
+	            // Close the modal window on completion
+	            //updateVerifyResults();
+	        }
+	    });
+	}
 
-    // Add a progress indicator to the modal
-    ProgressIndicator modalProgress = new ProgressIndicator();
-    modalProgress.setPrefSize(100, 100);
-    Scene modalScene = new Scene(modalProgress, 300, 200);
-    modalStage.setScene(modalScene);
+	@FXML
+	private void plotResults() {
+	    String selectedResult = verifyResults.getSelectionModel().getSelectedItem();
+	    if (selectedResult == null || selectedResult.isEmpty()) return;
 
-    // Show the modal window
-    modalStage.show();
+	    List<HashMap<String, Double>> configMaps = new ArrayList<>();
+	    List<Double> resultValues = new ArrayList<>();
 
-    // Run the verification process in a background thread
-    CompletableFuture.runAsync(() -> {
-        try {
-            if (project.containsRanged()) {
-                boolean cont = true;
-                ArrayList<Model> models = new ArrayList<>(project.getModels());
-                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
-                ArrayList<String> configurations = generateConfigurations(models);
+	    // Split by lines and parse
+	    String[] lines = selectedResult.split("\\r?\\n");
+	    HashMap<String, Double> currentConfig = null;
+	    boolean inConfigSection = false;
 
-                for (String config : configurations) {
-                    String verification = vModel.getModelId() + " + " + vProp.getProperty();
-                    if (project.getCacheResult(verification, config) != null) {
-                        Platform.runLater(() ->  {
-                        	modalStage.close(); // Ensure modal is closed on error
-                        });
-                        cont = false;
-                    }
-                }
-                if (!cont) {
-                    return;
-                }
-                
-                //boolean continueVerification = Alerter.showConfirmationAlert("Ranged Parameters Detected", "This model contains ranged parameters. Do you want to continue verification?");
-                if (true) {
-                    ArrayList<HashMap<Model, HashMap<String, Double>>> rounds = project.generate(models);
-                    ExecutorService executor = Executors.newSingleThreadExecutor();
-                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\n";
-                    runVerificationsSequentially(rounds, 0, models, vModel.getModelId(), vProp.getProperty(), executor, modalStage);
-                }
-            } else {
-                ArrayList<Model> models = new ArrayList<>(project.getModels());
-                models.sort((m1, m2) -> m1.getModelId().compareToIgnoreCase(m2.getModelId()));
-                StringBuilder configBuilder = new StringBuilder();
-                for (Model m : models) {
-                    configBuilder.append(m.toString());
-                }
-                configBuilder.append(vProp.getProperty());
-                String config = configBuilder.toString();
-                String verification = vModel.getModelId() + " + " + vProp.getProperty();
-                if (project.getCacheResult(verification, config) != null) {
-                    Platform.runLater(() ->  {
-                    	modalStage.close(); // Ensure modal is closed on error
-                    });
-                    return;
-                }
-                for (Model m : models) {
-                    FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
-                }
-                NPMCVerification verifier = new NPMCVerification(models);
-                Double result = verifier.verify(vModel.getModelId(), vProp.getProperty());
-                Platform.runLater(() -> {
-                    project.addCacheResult(verification, config, result);
-                    HashMap<String, Double> modelResults = new HashMap<>();
-                    modelResults.put("DEFAULT", result);
-                    vModel.addResult(vProp.getProperty(), modelResults);
-                    verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty() + "\nResult: " + result + "\n";
-                });
-                //updateVerifyResults();
-                Platform.runLater( () -> {
-                	modalStage.close(); // Close the modal window after verification
-                	addVerificationResult(verificationResult);
-                });            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Platform.runLater(() ->  {
-            	Alerter.showErrorAlert("Verification Failed", "Check the logs for the reason of failure");
-            	modalStage.close(); // Ensure modal is closed on error
-            });
-        } finally {
-            // Close the modal window on completion
-            //updateVerifyResults();
-        }
-    });
-}
+	    for (String line : lines) {
+	        line = line.trim();
+
+	        // Start of a new verification block
+	        if (line.startsWith("Verification") && line.contains("of") && !line.contains("property")) {
+	            currentConfig = new HashMap<>();
+	            inConfigSection = false;
+	        } else if (line.startsWith("Configuration:")) {
+	            inConfigSection = true;
+	        } else if (line.startsWith("Result:")) {
+	            if (currentConfig != null) {
+	                try {
+	                    double result = Double.parseDouble(line.substring("Result:".length()).trim());
+	                    resultValues.add(result);
+	                    configMaps.add(currentConfig);
+	                } catch (NumberFormatException e) {
+	                    e.printStackTrace(); // or alert if needed
+	                }
+	            }
+	            inConfigSection = false;
+	        } else if (inConfigSection && currentConfig != null && line.contains(":")) {
+	            String[] parts = line.split(":", 2);
+	            if (parts.length == 2) {
+	                try {
+	                    String key = parts[0].trim();
+	                    double value = Double.parseDouble(parts[1].trim());
+	                    currentConfig.put(key, value);
+	                } catch (NumberFormatException e) {
+	                    e.printStackTrace(); // or skip invalid lines
+	                }
+	            }
+	        }
+	    }
+
+	    // For testing/logging output
+	    //System.out.println("Configurations: " + configMaps);
+	    //System.out.println("Results: " + resultValues);
+
+	    // Check if each config only contains one parameter
+	    if (!configMaps.isEmpty() && configMaps.get(0).size() == 1) {
+	        // Get the single config parameter key (assumes all maps have the same key)
+	        String configKey = configMaps.get(0).keySet().iterator().next();
+
+	        // Define axes
+	        NumberAxis xAxis = new NumberAxis();
+	        NumberAxis yAxis = new NumberAxis();
+	        xAxis.setLabel(configKey);
+	        yAxis.setLabel("Result");
+
+	        // Create line chart
+	        LineChart<Number, Number> lineChart = new LineChart<>(xAxis, yAxis);
+	        lineChart.setTitle(currentModelId + " - " + currentProperty);
+
+	        // Prepare series
+	        XYChart.Series<Number, Number> series = new XYChart.Series<>();
+	        series.setName(configKey + " vs Result");
+
+	        for (int i = 0; i < configMaps.size(); i++) {
+	            double xValue = configMaps.get(i).get(configKey);
+	            double yValue = resultValues.get(i);
+	            series.getData().add(new XYChart.Data<>(xValue, yValue));
+	        }
+
+	        lineChart.getData().add(series);
+	    	Pane chartPane = new Pane();
+	        // Replace previous chart (optional: clear old chart if needed)
+	        chartPane.getChildren().clear();
+	        chartPane.getChildren().add(lineChart);
+	        Scene scene = new Scene(chartPane, 500, 400);
+	        Stage stage = new Stage();
+	        stage.setScene(scene);
+	        stage.show();
+	    }
+	    // when there is multiple external params
+	    else {
+	    	// opens a dialog that allows the user to choose which external parameter to use as x-axis
+	    	try {
+	    	    // Load the FXML manually
+	    	    FXMLLoader loader = new FXMLLoader(getClass().getResource("/dialogs/chooseXAxisPlot.fxml"));
+
+	    	    // Use the current controller
+	    	    loader.setController(this);
+
+	    	    // Load the parent node
+	    	    Pane root = loader.load();
+
+	    	    // Use first HashMap to populate xaxisparam
+	    	    if (!configMaps.isEmpty()) {
+	    	        HashMap<String, Double> firstMap = configMaps.get(0);
+	    	        ObservableList<String> keys = FXCollections.observableArrayList(firstMap.keySet());
+	    	        xaxisparam.setItems(keys); // 'xaxisparam' is your @FXML ChoiceBox<String>
+	    	    }
+
+	    	    // Show the dialog
+	    	    Stage dialogStage = new Stage();
+	    	    dialogStage.initModality(Modality.APPLICATION_MODAL);
+	    	    dialogStage.setTitle("Plot Results");
+	    	    dialogStage.setScene(new Scene(root));
+	    	    dialogStage.showAndWait();
+	    	    
+	    	    if (xaxis != null && !xaxis.isEmpty()) {
+	    	        Map<String, XYChart.Series<Number, Number>> lineMap = new HashMap<>();
+
+	    	        // Build the map of label -> series with all points first
+	    	        for (int i = 0; i < configMaps.size(); i++) {
+	    	            HashMap<String, Double> config = configMaps.get(i);
+	    	            Double result = resultValues.get(i);
+	    	            if (result == null || !config.containsKey(xaxis)) continue;
+
+	    	            Double xValue = config.get(xaxis);
+
+	    	            // Build label using all params EXCEPT the selected xaxis
+	    	            StringBuilder labelBuilder = new StringBuilder();
+	    	            for (Map.Entry<String, Double> entry : config.entrySet()) {
+	    	                if (!entry.getKey().equals(xaxis)) {
+	    	                    if (labelBuilder.length() > 0) labelBuilder.append(", ");
+	    	                    labelBuilder.append(entry.getKey()).append("=").append(entry.getValue());
+	    	                }
+	    	            }
+	    	            String label = labelBuilder.toString();
+	    	            if (label.isEmpty()) label = "default";
+
+	    	            XYChart.Series<Number, Number> series = lineMap.computeIfAbsent(label, k -> {
+	    	                XYChart.Series<Number, Number> s = new XYChart.Series<>();
+	    	                s.setName(k);
+	    	                return s;
+	    	            });
+
+	    	            series.getData().add(new XYChart.Data<>(xValue, result));
+	    	        }
+
+	    	        // Now split series into chunks of 3 and create separate charts/windows
+	    	        List<XYChart.Series<Number, Number>> allSeries = new ArrayList<>(lineMap.values());
+
+	    	        int chunkSize = 3;
+	    	        for (int i = 0; i < allSeries.size(); i += chunkSize) {
+	    	            NumberAxis xAxisObj = new NumberAxis();
+	    	            NumberAxis yAxisObj = new NumberAxis();
+	    	            xAxisObj.setLabel(xaxis);
+	    	            yAxisObj.setLabel("Result");
+
+	    	            LineChart<Number, Number> lineChart = new LineChart<>(xAxisObj, yAxisObj);
+	    	            lineChart.setTitle(currentModelId + " - " + currentProperty);
+
+	    	            int end = Math.min(i + chunkSize, allSeries.size());
+	    	            for (int j = i; j < end; j++) {
+	    	                lineChart.getData().add(allSeries.get(j));
+	    	            }
+
+	    	            Pane chartPane = new Pane();
+	    	            chartPane.getChildren().add(lineChart);
+	    	            Scene scene = new Scene(chartPane, 500, 400);
+	    	            Stage stage = new Stage();
+	    	            stage.setScene(scene);
+	    	            stage.setTitle("Plot of Results (Lines " + (i + 1) + " to " + end + ")");
+	    	            stage.show();
+	    	        }
+	    	    }
+
+
+	    	} catch (IOException e) {
+	    	    e.printStackTrace();
+	    	}
+
+
+	    }
+
+	}
 
 	
 	private String buildConfigString(List<Model> models) {
@@ -238,6 +453,11 @@ private void verify() throws IOException {
 	            updateVerifyFilter(); // <- apply updated filtering
 	        });
 	    });
+	    
+	    plotButton.visibleProperty().bind(
+	    	    verifyResults.getSelectionModel().selectedItemProperty().isNotNull()
+	    	);
+
 	}
 	
 	private void setCells() {

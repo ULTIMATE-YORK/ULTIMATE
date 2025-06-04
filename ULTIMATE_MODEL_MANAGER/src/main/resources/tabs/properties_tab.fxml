@@ -47,6 +47,7 @@
 		<HBox alignment="CENTER" spacing="10.0">
 			<Button fx:id="verifyButton" onAction="#verify" text="Verify"/>
 			<CheckBox fx:id="showAllResults" text="Show All Results" selected="true"/>
+			<Button fx:id="plotButton" onAction="#plotResults" mnemonicParsing="false" text="Plot results" visible="false"/>
 		</HBox>
 		
 	<StackPane VBox.vgrow="ALWAYS">
