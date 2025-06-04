@@ -10,9 +10,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -39,6 +43,14 @@ public class PropertiesController {
 	@FXML private ListView<String> verifyResults;
 	//@FXML private ProgressIndicator progressIndicator;
 	@FXML private ListView<Property> propertyListView;
+	@FXML private CheckBox showAllResults;
+	
+	private String currentModelId = null;
+	private String currentProperty = null;
+	
+	private ObservableList<String> allVerificationResults = FXCollections.observableArrayList();
+	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationResults, s -> true);
+
 	
     private SharedContext sharedContext = SharedContext.getInstance();
     private Project project = sharedContext.getProject();
@@ -52,8 +64,13 @@ public class PropertiesController {
 		if (project.getCurrentModel() != null) {
 				propertyListView.setItems(project.getCurrentModel().getProperties());
 		}
+		verifyResults.setItems(filteredVerificationResults); // <--- set filtered list
 		setCells();
 		setListeners();
+		// Add checkbox listener
+		showAllResults.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
+			updateVerifyFilter();
+		});
 	}
 	
 	@FXML
@@ -197,23 +214,30 @@ private void verify() throws IOException {
 
 	
 	private void setListeners() {
-        project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
-            if (newModel != null) {
-                // Retrieve the list of Uncategorised Parameters from the new model.
-                Platform.runLater(() -> {
-                    propertyListView.setItems(newModel.getProperties());
-                    //updateVerifyResultsClear();
-                });
-            }
-        });
-        // Add listener for propertyListView selection changes
-        propertyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldProperty, newProperty) -> {
-            if (newProperty != null) {
-                Platform.runLater(() -> {
-                    //updateVerifyResultsClear();
-                });
-            }
-        });
+	    // Model change listener
+	    project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
+	        Platform.runLater(() -> {
+	            if (newModel != null) {
+	                propertyListView.setItems(newModel.getProperties());
+	                currentModelId = newModel.getModelId();
+	            } else {
+	                currentModelId = null;
+	            }
+	            updateVerifyFilter(); // <- apply updated filtering
+	        });
+	    });
+
+	    // Property selection change listener
+	    propertyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldProperty, newProperty) -> {
+	        Platform.runLater(() -> {
+	            if (newProperty != null) {
+	                currentProperty = newProperty.getProperty();
+	            } else {
+	                currentProperty = null;
+	            }
+	            updateVerifyFilter(); // <- apply updated filtering
+	        });
+	    });
 	}
 	
 	private void setCells() {
@@ -392,98 +416,26 @@ private void verify() throws IOException {
 	    return result.toString().trim(); // Remove the trailing newline
 	}
 	
-
-
-	private void updateVerifyResults() {
-	    Platform.runLater(() -> {
-	        //verifyResults.getItems().clear(); // Clear existing items
-	        Model m = project.getCurrentModel();
-	        String property = "";
-	        try {
-	            property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
-	        } catch (Exception e) {
-	            return;
-	        }
-	        HashMap<String, Double> results = m.getResultMap(property);
-	        if (results == null) {
-	            return;
-	        }
-	        StringBuilder resultBuilder = new StringBuilder();
-	        int i = 1;
-	        int total = results.size();
-	        for (String key : results.keySet()) {
-	            if (key.equals("DEFAULT")) {
-	                resultBuilder.append("Result of verification on model: ")
-	                             .append(m.getModelId())
-	                             .append(" with property: ")
-	                             .append(property)
-	                             .append("\nResult: ")
-	                             .append(results.get(key))
-	                             .append("\n");
-	            } else {
-	                resultBuilder.append("\nVerification ")
-	                             .append(i)
-	                             .append(" of ")
-	                             .append(total)
-	                             .append("\n")
-	                             .append(key)
-	                             .append("\nResult: ")
-	                             .append(results.get(key))
-	                             .append("\n");
-	            }
-	            i++;
-	        }
-	        verifyResults.getItems().add(resultBuilder.toString());
-	    });
-	}
-	
-	private void updateVerifyResultsClear() {
-	    Platform.runLater(() -> {
-	        verifyResults.getItems().clear(); // Clear existing items
-	        Model m = project.getCurrentModel();
-	        String property = "";
-	        try {
-	            property = propertyListView.getSelectionModel().getSelectedItem().getProperty();
-	        } catch (Exception e) {
-	            return;
-	        }
-	        HashMap<String, Double> results = m.getResultMap(property);
-	        if (results == null) {
-	            return;
-	        }
-	        StringBuilder resultBuilder = new StringBuilder();
-	        int i = 1;
-	        int total = results.size();
-	        for (String key : results.keySet()) {
-	            if (key.equals("DEFAULT")) {
-	                resultBuilder.append("Result of verification on model: ")
-	                             .append(m.getModelId())
-	                             .append(" with property: ")
-	                             .append(property)
-	                             .append("\nResult: ")
-	                             .append(results.get(key))
-	                             .append("\n");
-	            } else {
-	                resultBuilder.append("\nVerification ")
-	                             .append(i)
-	                             .append(" of ")
-	                             .append(total)
-	                             .append("\n")
-	                             .append(key)
-	                             .append("\nResult: ")
-	                             .append(results.get(key))
-	                             .append("\n");
-	            }
-	            i++;
-	        }
-	        verifyResults.getItems().add(resultBuilder.toString());
-	    });
-	}
-	
 	private void addVerificationResult(String result) {
 		Platform.runLater(() -> {
-			verifyResults.getItems().add(result);
+	        allVerificationResults.add(result); // <-- add to backing list
 		});
 	}
+	
+	private void updateVerifyFilter() {
+	    if (showAllResults != null && showAllResults.isSelected()) {
+	        // Show all results
+	        filteredVerificationResults.setPredicate(s -> true);
+	    } else {
+	        // Filter by current model and property
+	        filteredVerificationResults.setPredicate(result -> {
+	            boolean matchesModel = (currentModelId == null || result.contains(currentModelId));
+	            boolean matchesProperty = (currentProperty == null || result.contains(currentProperty));
+	            return matchesModel && matchesProperty;
+	        });
+	    }
+	}
+
+
 
 }

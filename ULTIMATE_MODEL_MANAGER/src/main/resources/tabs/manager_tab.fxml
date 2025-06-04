@@ -37,7 +37,7 @@
     		<fx:include source="/tabs/parameter_tab.fxml"/>
     		<fx:include source="/tabs/properties_tab.fxml"/>
     		<fx:include source="/tabs/model_file_tab.fxml"/>
-    		<fx:include source="/tabs/plots_tab.fxml"/>
+    		<!-- <fx:include source="/tabs/plots_tab.fxml"/> -->
     		<!-- <fx:include source="/tabs/results_tab.fxml"/> -->
     		</tabs>
 		</TabPane>
