@@ -3,4 +3,9 @@ bin/
 .DS_Store
 target/
 .settings
-/ULTIMATE_MODEL_MANAGER/config.json
+.venv
+.project
+ULTIMATE_MODEL_MANAGER/.Rhistory
+ULTIMATE_MODEL_MANAGER/prism    
+ULTIMATE_MODEL_MANAGER/prism-games
+ULTIMATE_MODEL_MANAGER/config.json
