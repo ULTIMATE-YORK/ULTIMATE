@@ -8,4 +8,5 @@ target/
 ULTIMATE_MODEL_MANAGER/.Rhistory
 ULTIMATE_MODEL_MANAGER/prism    
 ULTIMATE_MODEL_MANAGER/prism-games
-ULTIMATE_MODEL_MANAGER/config.json
+ULTIMATE_MODEL_MANAGER/ultimate_config.json
+outputs/

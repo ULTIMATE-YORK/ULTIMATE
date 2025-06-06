@@ -256,7 +256,7 @@ public class Project {
 	}
     
 	private void setupConfigs() throws IOException {
-        File configFile = new File("config.json");
+        File configFile = new File("ultimate_config.json");
         String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
         JSONObject configJSON = new JSONObject(content);
         

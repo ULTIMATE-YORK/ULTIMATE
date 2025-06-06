@@ -23,8 +23,10 @@ import java.util.*;
 
 public class NPMCVerification {
    	
+
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	
+    
     static class VerificationModel {
         private String modelId;
         private HashMap<String, Double> parameters;
@@ -73,7 +75,6 @@ public class NPMCVerification {
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     public NPMCVerification(ArrayList<Model> models) {
         License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
-        mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -348,7 +349,6 @@ public class NPMCVerification {
     }
     
     private void resolveSCC(List<VerificationModel> sccModels) {
-        //mXparser.consolePrintln(false);  // Disable mXparser console output
         logger.info("Starting SCC resolution for models: " + sccModels);
         
         // Store equations and their variables

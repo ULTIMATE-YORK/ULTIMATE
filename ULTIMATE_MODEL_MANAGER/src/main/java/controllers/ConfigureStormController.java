@@ -45,7 +45,7 @@ public class ConfigureStormController {
 		root.put("stormInstall", si);
 		root.put("stormParsInstall", spi);
 		String content = root.toString();
-		Files.write(Paths.get("config.json"), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+		Files.write(Paths.get("ultimate_config.json"), content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
 		cancel();
 	}
 	
