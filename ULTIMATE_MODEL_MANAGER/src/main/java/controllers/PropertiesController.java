@@ -113,28 +113,6 @@ public class PropertiesController {
 	}
 	
 	@FXML
-	private void confirmPlot() {
-	    String selectedXaxis = xaxisparam.getSelectionModel().getSelectedItem();
-	    if (selectedXaxis == null || selectedXaxis.isEmpty()) {
-	        Alerter.showErrorAlert("Invalid Selection", "Please choose a parameter for the X-axis.");
-	        return;
-	    }
-
-	    xaxis = selectedXaxis;
-
-	    // Close the dialog window
-	    Stage stage = (Stage) confirmPlotButton.getScene().getWindow();
-	    stage.close();
-	}
-	
-	@FXML 
-	private void cancelPlot() {
-		xaxis = "";
-        Stage stage = (Stage) cancelPlotButton.getScene().getWindow();
-        stage.close();
-	}
-	
-	@FXML
 	private void verify() throws IOException {
 	    verificationResult = "";
 	    verificationCount = 1;
@@ -177,6 +155,28 @@ public class PropertiesController {
 	    } else {
 	        plotMultiParameter(parsedData);
 	    }
+	}
+	
+	@FXML
+	private void confirmPlot() {
+	    String selectedXaxis = xaxisparam.getSelectionModel().getSelectedItem();
+	    if (selectedXaxis == null || selectedXaxis.isEmpty()) {
+	        Alerter.showErrorAlert("Invalid Selection", "Please choose a parameter for the X-axis.");
+	        return;
+	    }
+
+	    xaxis = selectedXaxis;
+
+	    // Close the dialog window
+	    Stage stage = (Stage) confirmPlotButton.getScene().getWindow();
+	    stage.close();
+	}
+	
+	@FXML 
+	private void cancelPlot() {
+		xaxis = "";
+        Stage stage = (Stage) cancelPlotButton.getScene().getWindow();
+        stage.close();
 	}
 
 	private boolean validateSelection(Model vModel, Property vProp) {
