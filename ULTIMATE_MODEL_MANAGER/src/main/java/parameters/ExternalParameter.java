@@ -1,6 +1,7 @@
 package parameters;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javafx.application.Platform;
 import learning.BayesianAverageCalculator;
@@ -13,7 +14,9 @@ public class ExternalParameter {
     private String name;
     private String type;
     private String value;
+    private Double rangedValue;
     private double learnedValue;
+    private ArrayList<Double> rangedValues = new ArrayList<Double>();
     
     private SharedContext sharedContext = SharedContext.getInstance();
     private Project project = sharedContext.getProject();
@@ -27,6 +30,13 @@ public class ExternalParameter {
             throw new IllegalArgumentException("Invalid file format!");
         }
         this.learnedValue = evaluate();
+    }
+    
+    public ExternalParameter(String name, String type, ArrayList<Double> rangedValues) throws NumberFormatException, IOException {
+        this.name = name;
+        this.type = type;
+        this.rangedValues = rangedValues;
+        this.rangedValue = null;
     }
     
     // GETTER METHODS
@@ -46,6 +56,10 @@ public class ExternalParameter {
 	public double getLearnedValue() {
 		return this.learnedValue;
 	}
+	
+	public ArrayList<Double> getRangedValues() {
+		return this.rangedValues;
+	}
     
     // SETTER METHODS
     
@@ -59,6 +73,14 @@ public class ExternalParameter {
     
     public void setValue(String newValue) {
     	this.value = newValue;
+    }
+    
+    public void setValue(Double newValue) {
+    	this.rangedValue = newValue;
+    }
+    
+    public void setRangedValues(ArrayList<Double> rangedValues) {
+		this.rangedValues = rangedValues;
     }
     
     /*
@@ -82,6 +104,8 @@ public class ExternalParameter {
 				 return BayesianAverageCalculator.computeBayesianAverage(project.directory() + "/data/" + value);
 		     case "Bayes-Rate":
 		    	 return BayesianAverageCalculator.computeBayesianAverageRate(project.directory() + "/data/" + value);
+		       case "Ranged":
+		    	   return rangedValue;
 	     }
 	     return 0.0;
 	 }
@@ -169,6 +193,9 @@ public class ExternalParameter {
     	try {
     		if (type.equals("Fixed")) {
             	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\n";
+    		}
+    		else if (type.equals("Ranged")) {
+				return "External Parameter: " + name + "\nType: " + type + "\nValues: " + rangedValues.toString() + "\n";
     		}
     		else {
             	return "External Parameter: " + name + "\nType: " + type + "\nValue: " + Double.toString(learnedValue) + "\nSource: " + value + "\n";

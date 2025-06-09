@@ -12,6 +12,11 @@
 	
 	<Label text="Type" />
  	<ChoiceBox fx:id="chooseType" />
+ 	
+ 	<Label fx:id="rangeLabel" text="Enter the min, max and step" visible="false" />
+ 	<TextField fx:id="rangeMin" visible="false" />
+ 	<TextField fx:id="rangeMax" visible="false" />
+ 	<TextField fx:id="rangeStep" visible="false" />
 	
 	<Label fx:id="valueLabel" text="Value" />
 	<TextField fx:id="chooseText" />

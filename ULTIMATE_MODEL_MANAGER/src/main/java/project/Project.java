@@ -2,10 +2,14 @@ package project;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,13 +21,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.stage.Stage;
 import model.Model;
+import parameters.ExternalParameter;
 import sharedContext.SharedContext;
 import utils.Alerter;
 //import utils.Alerter;
 import utils.FileUtils;
-import verification.NPMCVerification;
 
 public class Project {
 	
@@ -45,6 +48,9 @@ public class Project {
 	private String directory = null;
 	private boolean configured = true;
     private SharedContext sharedContext = SharedContext.getInstance();
+    private boolean isBlank;
+    // key will be model id + property and second hashmap will be mapping of configuration to result
+    private HashMap<String, HashMap<String, Double>> cache = new HashMap<String, HashMap<String, Double>>(); // cache for storing results of generated models
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
@@ -70,6 +76,7 @@ public class Project {
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
         exporter = new ProjectExporter(this);
+        this.isBlank = false;
     }
 	
 	public Project() {
@@ -90,6 +97,7 @@ public class Project {
 		}
         chosenPMC = new SimpleObjectProperty<>(prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
         exporter = new ProjectExporter(this);
+        this.isBlank = true;
    }
 	
 	public ArrayList<String> getModelIDs() {
@@ -116,6 +124,9 @@ public class Project {
         models.add(addModel);
         // Update the observable list
         observableModels.add(addModel);
+        if (this.isBlank) {
+        	this.isBlank = false;
+        }
     }
     
     public void removeModel(Model removeModel) {
@@ -177,6 +188,10 @@ public class Project {
 			e.printStackTrace();
 		}
     }
+    
+	public boolean isBlank() {
+		return this.isBlank;
+	}
     
     public void refresh() {
         // Save the current model's ID (if any)
@@ -303,6 +318,109 @@ public class Project {
         
 	}
 	
+	// TODO Generate a temporary directory of evolable model files for evochecker
+	public void generateEvoModels() {
+		
+	}
+	
+	public boolean containsRanged() {
+		for (Model model : models) {
+			for (ExternalParameter parameter : model.getExternalParameters()) {
+				if (parameter.getType().equals("Ranged")) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public ArrayList<HashMap<Model, HashMap<String, Double>>> generate(ArrayList<Model> models) {
+	    ArrayList<HashMap<Model, HashMap<String, Double>>> results = new ArrayList<>();
+	    backtrack(models, 0, new HashMap<>(), results);
+	    return results;
+	}
+
+	private void backtrack(ArrayList<Model> models, int index,
+	                       HashMap<Model, HashMap<String, Double>> current,
+	                       ArrayList<HashMap<Model, HashMap<String, Double>>> results) {
+	    if (index == models.size()) {
+	        results.add(new HashMap<>(current));
+	        return;
+	    }
+
+	    Model model = models.get(index);
+	    ArrayList<HashMap<String, Double>> configs = model.getCartesianExternal();
+
+	    for (HashMap<String, Double> config : configs) {
+	        current.put(model, config);
+	        backtrack(models, index + 1, current, results);
+	        // Optional: current.remove(model); // Not needed due to overwrite
+	    }
+	}
+	
+	public Double getCacheResult(String verification, String config) {
+		try {
+			String normalizedConfig = normalizeConfigString(config);
+			return cache.get(verification).get(normalizedConfig);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
+	public void addCacheResult(String verification, String config, Double result) {
+	    String normalizedConfig = normalizeConfigString(config);
+		try {
+			cache.get(verification).put(normalizedConfig, result);
+		} catch (Exception e) {
+			HashMap<String, Double> newConfig = new HashMap<>();
+			newConfig.put(normalizedConfig, result);
+			cache.put(verification, newConfig);
+		}
+	}
+
+
+	private String normalizeConfigString(String config) {
+	    // Remove all whitespace
+	    String cleaned = config.replaceAll("\\s+", "");
+	
+	    // Separate letters and numbers
+	    StringBuilder letters = new StringBuilder();
+	    ArrayList<BigInteger> numbers = new ArrayList<>();
+	
+	    StringBuilder numberBuffer = new StringBuilder();
+	    for (char c : cleaned.toCharArray()) {
+	        if (Character.isDigit(c)) {
+	            numberBuffer.append(c);
+	        } else {
+	            // Flush any buffered number
+	            if (numberBuffer.length() > 0) {
+	                numbers.add(new BigInteger(numberBuffer.toString()));
+	                numberBuffer.setLength(0);
+	            }
+	            letters.append(c);
+	        }
+	    }
+	    // Flush any trailing number
+	    if (numberBuffer.length() > 0) {
+	        numbers.add(new BigInteger(numberBuffer.toString()));
+	    }
+	
+	    // Sort letters and numbers
+	    char[] letterArray = letters.toString().toCharArray();
+	    Arrays.sort(letterArray);
+	    numbers.sort(null); // Natural order for BigInteger
+	
+	    // Build normalized string
+	    StringBuilder normalized = new StringBuilder();
+	    normalized.append(letterArray);
+	    for (BigInteger num : numbers) {
+	        normalized.append(num);
+	    }
+	
+	    return normalized.toString();
+	}
+
+
 	/*
 	 * Gets the directory of the project
 	 */

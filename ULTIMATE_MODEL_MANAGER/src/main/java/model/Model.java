@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
@@ -30,10 +32,11 @@ public class Model {
     //private String propertiesFile; // file of properties list
     private ObservableList<DependencyParameter> dependencyParameters; // List of dependency parameters
     private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
-    private List<InternalParameter> internalParameters; // List of internal parameters
+    private ObservableList<InternalParameter> internalParameters; // List of internal parameters
     private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
     private ObservableList<Property> properties;
     private File verificationFile;
+    private HashMap<String, HashMap<String, Double>> results = new HashMap<String, HashMap<String, Double>>(); // Results of the model verification
     
     /**
      * Constructor to initialise a new Model object.
@@ -46,7 +49,7 @@ public class Model {
         this.filePath = filePath;
         this.dependencyParameters = FXCollections.observableArrayList();
         this.externalParameters = FXCollections.observableArrayList();
-        this.internalParameters = new ArrayList<>();
+        this.internalParameters = FXCollections.observableArrayList();
         this.uncategorisedParameters = FXCollections.observableArrayList();
         //addUncategorisedParametersFromFile();
         
@@ -116,6 +119,15 @@ public class Model {
 		externalParameters = parameters;
 	}
 	
+	public ExternalParameter getExternalParameter(String name) {
+		for (ExternalParameter ep : externalParameters) {
+			if (ep.getName().equals(name)) {
+				return ep;
+			}
+		}
+		return null;
+	}
+	
     /**
      * Adds an internal parameter to the model.
      * 
@@ -130,7 +142,7 @@ public class Model {
 	 * 
 	 * @param parameters the list of internal parameters to add
 	 */
-	public void setInternalParameters(List<InternalParameter> parameters) {
+	public void setInternalParameters(ObservableList<InternalParameter> parameters) {
 		internalParameters = parameters;
 	}
 	
@@ -213,7 +225,7 @@ public class Model {
      * 
      * @return the list of internal parameters
      */
-    public List<InternalParameter> getInternalParameters() {
+    public ObservableList<InternalParameter> getInternalParameters() {
         return internalParameters;
     }
     
@@ -285,6 +297,68 @@ public class Model {
 	    }
 	}
 	
+	public void removeInternalParameter(InternalParameter ip) {
+		Iterator<InternalParameter> iter = this.internalParameters.iterator();
+		while (iter.hasNext()) {
+			InternalParameter current = iter.next();
+			if (current.getName().equals(ip.getName())) {
+				iter.remove(); // Safely remove from internalParameters
+				break; // Assuming names are unique, break out of the loop.
+			}
+		}
+	}
+	
+	public ArrayList<HashMap<String, Double>> getCartesianExternal() {
+		ArrayList<ExternalParameter> rangedEPs = new ArrayList<>();
+		for (ExternalParameter ep : externalParameters) {
+			if (ep.getType().equals("Ranged")) {
+				rangedEPs.add(ep);
+			}
+		}
+        ArrayList<HashMap<String, Double>> results = new ArrayList<>();
+        backtrack(rangedEPs, 0, new HashMap<>(), results);
+		return results;
+	}
+	
+    private void backtrack(ArrayList<ExternalParameter> params, int index, HashMap<String, Double> current, ArrayList<HashMap<String, Double>> results) {
+        if (index == params.size()) {
+            results.add(new HashMap<>(current));
+            return;
+        }
+
+        ExternalParameter param = params.get(index);
+        String name = param.getName();
+        ArrayList<Double> values = param.getRangedValues();
+
+        for (double val : values) {
+            current.put(name, val);
+            backtrack(params, index + 1, current, results);
+        }
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Model model = (Model) o;
+        return Objects.equals(modelId, model.modelId); // assuming modelId is a unique identifier
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(modelId);
+    }
+    
+    public boolean isRangedModel() {
+    	for (ExternalParameter ep: this.externalParameters) {
+    		if (ep.getType().equals("Ranged")) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+
+	
 	/*
 	 * Method to create and return a copy of the model file to be used for verification
 	 */
@@ -307,7 +381,39 @@ public class Model {
 		return verificationFile.getAbsolutePath();
 	}
 	
+	public ArrayList<String> rangedToString() {
+		ArrayList<String> ret = new ArrayList<String>();
+		for (HashMap<String, Double> configs : this.getCartesianExternal()) {
+			String basic = this.toString();
+			for (String key: configs.keySet()) {
+				basic += "\n" + key + " : " + configs.get(key) + "\n";
+			}
+			ret.add(basic);
+		}
+		return ret;
+	}
+	
 	public String toString() {
-		return this.modelId;
+		return this.modelId + internalParameters.toString() + externalParameters.toString() + dependencyParameters.toString() + uncategorisedParameters.toString();
+	}
+	
+	public void addResult(String prop, HashMap<String, Double> configResult) {
+		if (results.containsKey(prop)) {
+			results.get(prop).putAll(configResult);
+		} else {
+			results.put(prop, configResult);
+		}
+	}
+	
+	public Double getResult(String prop, String config) {
+		if (results.containsKey(prop)) {
+            return results.get(prop).get(config);
+        } else {
+            return null;
+        }
+	}
+	
+	public HashMap<String, Double> getResultMap(String prop) {
+		return results.get(prop);
 	}
 }

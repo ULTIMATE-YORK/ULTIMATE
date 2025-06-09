@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="400" prefHeight="300" fx:controller="controllers.EditInternalParameter">
+	
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10"/>
+	</padding>
+	
+	<Label text="Choose Type" />
+	<ChoiceBox fx:id="type" />
+	
+	<Label text="Minimum value" />
+	<TextField fx:id="min" />
+	
+	<Label text="Maximum value" />
+	<TextField fx:id="max" />
+	
+	<Label text="Interval" />
+	<TextField fx:id="interval" />
+	
+	<HBox alignment="CENTER" spacing="10.0" >
+		<Button fx:id="saveButton" text="save" onAction="#saveIParam" />
+		<Button fx:id="cancelButton" text="cancel" onAction="#closeDialog" />
+	</HBox>
+	
+</VBox>

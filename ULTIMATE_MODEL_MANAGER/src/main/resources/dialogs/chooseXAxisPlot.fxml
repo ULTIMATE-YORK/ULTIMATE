@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0">
+
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10"/>
+	</padding>
+		
+	<Label text="Choose a parameter for the x-axis:" />
+	<ChoiceBox fx:id="xaxisparam" />
+	
+	<HBox spacing="10.0" alignment="CENTER" >
+		<Button fx:id="confirmPlotButton" text="confirm" onAction="#confirmPlot" />
+		<Button fx:id="cancelPlotButton" text="cancel" onAction="#cancelPlot" />
+	</HBox>
+
+</VBox>
