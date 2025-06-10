@@ -80,13 +80,4 @@ The current project can be saved by pressing *File -> Save*.
 
 ### Video Guide
 
-<table>
-  <tr>
-    <td>
-      <a href="https://github.com/user-attachments/assets/fcd053ae-10bd-4fdf-9df8-da782176301b">
-        <img src="https://github.com/user-attachments/assets/57bcb869-bc42-42ea-a5b1-a89abf7a9994" alt="Image 1" width="700">
-      </a>
-    </td>
-  </tr>
-  <tr>
-</table>
+https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
