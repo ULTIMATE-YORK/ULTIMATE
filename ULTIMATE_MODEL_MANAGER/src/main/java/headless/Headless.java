@@ -17,6 +17,7 @@ public class Headless {
 
 	private static Options options = new Options();
 	private static String projectFile = null;
+	private static String outputDir = null;
 	private static String modelID = null;
 	private static String property = null;
 	private static boolean help = false;
@@ -27,7 +28,7 @@ public class Headless {
 		Option projectFile = Option.builder("pf")
 				.argName("file")
 				.hasArg()
-				.desc("The file path to the world model ultimate file")
+				.desc("The file path to the ULTIAMTE project (world model) file")
 				.build();
 
 		Option modelID = Option.builder("m")
@@ -42,9 +43,16 @@ public class Headless {
 				.desc("The definition of a property OR a path to a .pctl file")
 				.build();
 
+		Option outputDir = Option.builder("o")
+				.argName("directory")
+				.hasArg()
+				.desc("The output directory for the results file. If left unspecified, no file will be created.")
+				.build();
+
 		options.addOption(projectFile);
 		options.addOption(modelID);
 		options.addOption(property);
+		options.addOption(outputDir);
 		options.addOption(help);
 	}
 
@@ -55,6 +63,7 @@ public class Headless {
 			projectFile = line.getOptionValue("pf");
 			modelID = line.getOptionValue("m");
 			property = line.getOptionValue("p");
+			outputDir = line.getOptionValue("o");
 
 			if (line.hasOption("help")) {
 				help = true;
@@ -65,7 +74,7 @@ public class Headless {
 	}
 
 	public static void main(String[] args) throws NumberFormatException, IOException {
-		
+
 		// create the parser
 		setUpCLI();
 		getArgs(args);
@@ -86,23 +95,29 @@ public class Headless {
 		String resultsInfo = ultimate.getResultsInfo();
 
 		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile + "\nModel ID: " + modelID
-				+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n" + "Property Values:\n"+ resultsInfo);
+				+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
+				+ "Property Values:\n" + resultsInfo);
 
 		// Write the results HashMap to a file
-		String fileName = "ultimate_results_" +
-				(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown") +
-				"_" +
-				(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
-				"_" +
-				java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
-				".ultimate_output";
+		if (outputDir != null) {
+			String fileName = outputDir + "/ultimate_results_" +
+			(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown")
+			+
+			"_" +
+			(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
+			"_" +
+			java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
+			".ultimate_output";
+			
+			System.out.println("Writing results to " + fileName);
 
-		try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
-				java.nio.file.Paths.get(fileName),
-				java.nio.charset.StandardCharsets.UTF_8)) {
-			for (java.util.Map.Entry<String, Double> entry : results.entrySet()) {
-				writer.write(entry.getKey() + ": " + entry.getValue());
-				writer.newLine();
+			try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
+					java.nio.file.Paths.get(fileName),
+					java.nio.charset.StandardCharsets.UTF_8)) {
+				for (java.util.Map.Entry<String, Double> entry : results.entrySet()) {
+					writer.write(entry.getKey() + ": " + entry.getValue());
+					writer.newLine();
+				}
 			}
 		}
 
