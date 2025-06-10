@@ -11,7 +11,6 @@ import utils.FileUtils;
 import verification.NPMCVerification;
 import org.mariuszgromada.math.mxparser.mXparser;
 
-
 public class Ultimate {
 
     private final SharedContext sharedContext = SharedContext.getInstance();
@@ -72,11 +71,21 @@ public class Ultimate {
                 results.put(p.toString(), result_value);
             }
         } else {
-            // this might result in a directory in the results dict.
+            // this might result in a directory entry in the results dict.
             // Not a big deal but a bit messy. Although the user shouldn't use it like that
             // anyway
-            double result_value = verifier.verify(testingModelID, property);
-            results.put(property, result_value);
+
+            if (new java.io.File(property).isFile()) {
+                for (String line : java.nio.file.Files.readAllLines(java.nio.file.Paths.get(property))) {
+                    if (!line.trim().isEmpty()) {
+                        double result_value = verifier.verify(testingModelID, line.trim());
+                        results.put(line.trim(), result_value);
+                    }
+                }
+            } else {
+                double result_value = verifier.verify(testingModelID, property);
+                results.put(property, result_value);
+            }
         }
     }
 

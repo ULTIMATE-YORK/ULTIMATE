@@ -95,7 +95,7 @@ public class Headless {
 				(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
 				"_" +
 				java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
-				".txt";
+				".ultimate_output";
 
 		try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
 				java.nio.file.Paths.get(fileName),
