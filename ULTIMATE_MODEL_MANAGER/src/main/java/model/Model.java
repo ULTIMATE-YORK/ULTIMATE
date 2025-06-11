@@ -397,6 +397,10 @@ public class Model {
 		return this.modelId + internalParameters.toString() + externalParameters.toString() + dependencyParameters.toString() + uncategorisedParameters.toString();
 	}
 	
+	public String toName() {
+		return this.modelId;
+	}
+	
 	public void addResult(String prop, HashMap<String, Double> configResult) {
 		if (results.containsKey(prop)) {
 			results.get(prop).putAll(configResult);

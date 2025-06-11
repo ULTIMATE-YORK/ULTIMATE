@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -398,24 +397,36 @@ public class PropertiesController {
 	        series.getData().add(new XYChart.Data<>(xVal, result));
 	    }
 
-	    List<XYChart.Series<Number, Number>> allSeries = new ArrayList<>(seriesMap.values());
-	    int chunkSize = 3;
+	    // ➤ Combine all series into a single chart
+	    // Compute min and max x values
+	    double minX = Double.MAX_VALUE;
+	    double maxX = Double.MIN_VALUE;
 
-	    for (int i = 0; i < allSeries.size(); i += chunkSize) {
-	        NumberAxis xAxisObj = new NumberAxis();
-	        NumberAxis yAxisObj = new NumberAxis();
-	        xAxisObj.setLabel(xaxis);
-	        yAxisObj.setLabel("Result");
-
-	        LineChart<Number, Number> lineChart = new LineChart<>(xAxisObj, yAxisObj);
-	        lineChart.setTitle(currentModelId + " - " + currentProperty);
-
-	        for (int j = i; j < Math.min(i + chunkSize, allSeries.size()); j++) {
-	            lineChart.getData().add(allSeries.get(j));
+	    for (HashMap<String, Double> config : data.configMaps) {
+	        if (config.containsKey(xaxis)) {
+	            double x = config.get(xaxis);
+	            if (x < minX) minX = x;
+	            if (x > maxX) maxX = x;
 	        }
-
-	        showChart(lineChart, "Plot of Results (" + (i + 1) + " to " + (Math.min(i + chunkSize, allSeries.size())) + ")");
 	    }
+
+	    // Create axis with custom bounds
+	    NumberAxis xAxisObj = new NumberAxis(minX, maxX, (maxX - minX) / 10.0);
+	    xAxisObj.setLabel(xaxis);
+	    NumberAxis yAxisObj = new NumberAxis();
+	    yAxisObj.setLabel("Result");
+
+
+	    LineChart<Number, Number> lineChart = new LineChart<>(xAxisObj, yAxisObj);
+	    lineChart.setTitle(currentModelId + " - " + currentProperty);
+
+	    // ➤ Add all series to the chart
+	    for (XYChart.Series<Number, Number> s : seriesMap.values()) {
+	        lineChart.getData().add(s);
+	    }
+
+	    // ➤ Show single chart with all series
+	    showChart(lineChart, "Plot of Results");
 	}
 
 	private void showChart(LineChart<Number, Number> chart, String title) {
