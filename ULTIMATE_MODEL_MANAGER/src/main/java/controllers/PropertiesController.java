@@ -22,6 +22,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -35,6 +36,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Model;
@@ -63,6 +65,7 @@ public class PropertiesController {
 	@FXML private Button cancelPlotButton;
 	@FXML private Button exportButton;
 	
+	private Label verificationLabel;
 	private String currentModelId = null;
 	private String currentProperty = null;
 	
@@ -284,7 +287,13 @@ public class PropertiesController {
 
 	    ProgressIndicator modalProgress = new ProgressIndicator();
 	    modalProgress.setPrefSize(100, 100);
-	    Scene modalScene = new Scene(modalProgress, 300, 200);
+
+	    verificationLabel = new Label("Starting verification...");
+
+	    VBox box = new VBox(20, modalProgress, verificationLabel);
+	    box.setAlignment(Pos.CENTER);
+
+	    Scene modalScene = new Scene(box, 300, 200);
 	    modalStage.setScene(modalScene);
 
 	    return modalStage;
@@ -670,6 +679,12 @@ public class PropertiesController {
 	    }
 	
 	    ep.set(epConfig);
+	    
+	 // Update the progress label in the modal
+	    int currentVerification = verificationCount;
+	    Platform.runLater(() -> {
+	        verificationLabel.setText("Running verification " + currentVerification + " of " + totalVerifications + "...");
+	    });
 	
 	    NPMCVerification verifier = new NPMCVerification(models);
 	
