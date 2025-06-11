@@ -1,6 +1,10 @@
 package controllers;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -57,6 +61,7 @@ public class PropertiesController {
 	@FXML private ChoiceBox<String> xaxisparam;
 	@FXML private Button confirmPlotButton;
 	@FXML private Button cancelPlotButton;
+	@FXML private Button exportButton;
 	
 	private String currentModelId = null;
 	private String currentProperty = null;
@@ -110,6 +115,92 @@ public class PropertiesController {
         	propertyListView.getSelectionModel().select(selectedIndex + 1);
         }
 	}
+	
+	@FXML
+	private void exportResults() {
+	    String projectDirectory = project.directory();
+	    String verificationText = verifyResults.getSelectionModel().getSelectedItem();
+	    String fileName = "";
+	    try {
+	        BufferedReader reader = new BufferedReader(new StringReader(verificationText));
+
+	        // Extract model and property
+	        String headerLine = reader.readLine();
+	        if (headerLine == null || !headerLine.startsWith("Verification of")) {
+	            return;
+	        }
+
+	        String[] headerParts = headerLine.substring("Verification of ".length()).split(" with property: ");
+	        if (headerParts.length != 2) {
+	            return;
+	        }
+
+	        String modelName = headerParts[0].trim().replaceAll("\\s+", "-");
+	        String property = headerParts[1].trim().replaceAll("[^a-zA-Z0-9=\\[\\]_-]", "");
+	        fileName = modelName + "_" + property + "_results.csv";
+
+	        // Create results directory if it doesn't exist
+	        File resultsDir = new File(projectDirectory, "results");
+	        if (!resultsDir.exists()) {
+	            resultsDir.mkdirs();
+	        }
+
+	        File outputFile = new File(resultsDir, fileName);
+	        FileWriter writer = new FileWriter(outputFile);
+
+	        // Parse all configurations
+	        List<String> parameterNames = new ArrayList<>();
+	        List<List<String>> rows = new ArrayList<>();
+
+	        String line;
+	        List<String> currentRow = new ArrayList<>();
+	        while ((line = reader.readLine()) != null) {
+	            line = line.trim();
+
+	            if (line.startsWith("Configuration:")) {
+	                currentRow = new ArrayList<>();
+	            } else if (line.startsWith("Result:")) {
+	                String result = line.substring("Result:".length()).trim();
+	                currentRow.add(result);
+	                rows.add(currentRow);
+	            } else if (line.contains(":")) {
+	                String[] parts = line.split(":", 2);
+	                if (parts.length == 2) {
+	                    String param = parts[0].trim();
+	                    String value = parts[1].trim();
+	                    currentRow.add(value);
+	                    if (!parameterNames.contains(param)) {
+	                        parameterNames.add(param);
+	                    }
+	                }
+	            }
+	        }
+
+	        // Write header
+	        for (String param : parameterNames) {
+	            writer.append(param).append(",");
+	        }
+	        writer.append("result\n");
+
+	        // Write rows
+	        for (List<String> row : rows) {
+	            for (int i = 0; i < row.size(); i++) {
+	                writer.append(row.get(i));
+	                if (i < row.size() - 1) writer.append(",");
+	            }
+	            writer.append("\n");
+	        }
+
+	        writer.flush();
+	        writer.close();
+
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    Alerter.showInfoAlert("Export Successful", "Results have been exported to: " + projectDirectory + "/results/" + fileName);
+	}
+
 	
 	@FXML
 	private void verify() throws IOException {
@@ -318,7 +409,21 @@ public class PropertiesController {
 	private void plotSingleParameter(ParsedVerificationData data) {
 	    String configKey = data.configMaps.get(0).keySet().iterator().next();
 
-	    NumberAxis xAxis = new NumberAxis();
+	    // Compute min and max x-values
+	    double minX = Double.MAX_VALUE;
+	    double maxX = -Double.MAX_VALUE;
+
+	    for (HashMap<String, Double> config : data.configMaps) {
+	        double x = config.get(configKey);
+	        minX = Math.min(minX, x);
+	        maxX = Math.max(maxX, x);
+	    }
+
+	    // Add a small padding for nicer appearance
+	    double padding = (maxX - minX) * 0.05;
+	    if (padding == 0) padding = 1; // Prevent zero padding if all values are the same
+
+	    NumberAxis xAxis = new NumberAxis(minX - padding, maxX + padding, (maxX - minX) / 10);
 	    NumberAxis yAxis = new NumberAxis();
 	    xAxis.setLabel(configKey);
 	    yAxis.setLabel("Result");
@@ -338,6 +443,7 @@ public class PropertiesController {
 	    lineChart.getData().add(series);
 	    showChart(lineChart, "Plot of Results");
 	}
+
 	
 	private void plotMultiParameter(ParsedVerificationData data) {
 	    try {
@@ -483,8 +589,9 @@ public class PropertiesController {
 		showAllResults.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
 			updateVerifyFilter();
 		});
+	    
 	    verifyResults.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-	        plotButton.setVisible(hasMultipleResults(newVal));
+	        exportButton.setVisible(hasMultipleResults(newVal));
 	    });
 
 	}
