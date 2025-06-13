@@ -83,6 +83,10 @@ public class Headless {
 		    formatter.printHelp("headless", options);
 		    return;
 	    }
+		if (projectFile == null || modelID == null || property == null) {
+			System.err.println("Please provide all required arguments: -pf <project file> -m <model ID> -p <property definition/file>");
+			return;
+		}
 	    Project project = null;
 		try {
 			project = new Project(projectFile);
@@ -96,6 +100,10 @@ public class Headless {
 	    ArrayList<Model> models = new ArrayList<>();
 		models.addAll(project.getModels());
 		// update the mode files here
+		if (project.containsRanged()) {
+			System.out.println("Headless mode does not support experiments. \nPlease fix all ranged external parameters and try again.");
+			return;
+		}
 		for (Model m : models) {
 			FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
 			if (m.getModelId().equals(modelID)) {

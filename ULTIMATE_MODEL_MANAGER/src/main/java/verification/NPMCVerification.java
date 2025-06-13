@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
+	
+	static {
+	    mXparser.consolePrintln(false);
+	}
    	
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	
@@ -72,8 +76,8 @@ public class NPMCVerification {
     private boolean usePythonSolver = false;
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
     public NPMCVerification(ArrayList<Model> models) {
-        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
         mXparser.consolePrintln(false);  // Disable mXparser console output of math lib
+        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
