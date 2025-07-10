@@ -10,8 +10,13 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import evochecker.EvoChecker;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import parameters.InternalParameter;
 
 import ultimate.Ultimate;
+import java.util.HashMap;
 
 public class Headless {
 
@@ -86,11 +91,24 @@ public class Headless {
 		}
 
 		Ultimate ultimate = new Ultimate();
+		ultimate.loadProject(projectFile);
 
-		ultimate.loadProjectFromFile(projectFile);
-		ultimate.setModelID(modelID);
+		// define the values of the internal parameters here for testing
+		// will need to implement some input validation for this and clean up
+		// eventually can call .setInternalParameters() from EvoChecker
+		HashMap<String, String> internalParameterValues = new java.util.HashMap<>();
+		ObservableList<InternalParameter> internalParameters = ultimate.getInternalParameters();
+		for (InternalParameter ip : internalParameters) {
+			System.out.println("Setting internal parameter '" + ip.getName() + "' to default (0)");
+			internalParameterValues.put(ip.getName(), "0");
+		}
+
+		ultimate.setInternalParameters(internalParameterValues);
+		ultimate.generateModelInstances();
+		ultimate.setTargetModelID(modelID);
 		ultimate.setProperty(property);
 		ultimate.execute();
+
 		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getResultsInfo();
 
@@ -101,14 +119,14 @@ public class Headless {
 		// Write the results HashMap to a file
 		if (outputDir != null) {
 			String fileName = outputDir + "/ultimate_results_" +
-			(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown")
-			+
-			"_" +
-			(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
-			"_" +
-			java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
-			".ultimate_output";
-			
+					(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown")
+					+
+					"_" +
+					(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
+					"_" +
+					java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
+					".ultimate_output";
+
 			System.out.println("Writing results to " + fileName);
 
 			try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(

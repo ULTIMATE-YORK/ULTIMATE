@@ -493,22 +493,22 @@ public class NPMCVerification {
     }
 
     private double performPMC(VerificationModel model, String property) throws FileNotFoundException {
+        System.out.println("Performing PMC for " + model + " with property " + property);
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
             logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
-        //System.out.println(originalModel.getModelId() + model.getParameters());
         try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters());
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters(), originalModel.getHashInternalParameters());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters());
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters(), originalModel.getHashInternalParameters());
         } catch (IOException e) {
             e.printStackTrace();
         }

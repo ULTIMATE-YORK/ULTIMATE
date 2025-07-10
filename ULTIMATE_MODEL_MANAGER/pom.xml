@@ -127,6 +127,15 @@
       <artifactId>logback-classic</artifactId>
       <version>1.4.14</version>
     </dependency>
+
+    <!-- EvoChecker-->
+    <dependency>
+      <groupId>edu.evochecker_project</groupId>
+      <artifactId>evochecker</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+
   </dependencies>
 
   <profiles>
@@ -271,7 +280,7 @@
               <createDependencyReducedPom>false</createDependencyReducedPom>
             </configuration>
           </execution>
-            <execution>
+          <execution>
             <id>shade-api</id>
             <phase>package</phase>
             <goals>

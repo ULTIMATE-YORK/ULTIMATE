@@ -2,6 +2,7 @@ package ultimate;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import model.Model;
 import project.Project;
@@ -10,6 +11,11 @@ import sharedContext.SharedContext;
 import utils.FileUtils;
 import verification.NPMCVerification;
 import org.mariuszgromada.math.mxparser.mXparser;
+
+import javafx.collections.FXCollections;
+import parameters.InternalParameter;
+import javafx.collections.ObservableList;
+import parameters.InternalParameter;
 
 public class Ultimate {
 
@@ -25,19 +31,24 @@ public class Ultimate {
     private ArrayList<Model> models = new ArrayList<>();
 
     private String property;
+    private HashMap<String, String> internalParameterValues = new HashMap<>();
 
     java.util.HashMap<String, Double> results = new java.util.HashMap<>();
 
-    public void loadProjectFromFile(String projectFile) {
+    public void loadProject(String projectFile) throws IOException {
         this.projectFile = projectFile;
+        project = new Project(projectFile);
+        sharedContext.setProject(project);
+        models.addAll(project.getModels());
+        verifier = new NPMCVerification(models);
+    }
+
+    public void generateModelInstances() {
         try {
-            project = new Project(projectFile);
-            sharedContext.setProject(project);
-            models.addAll(project.getModels());
-            verifier = new NPMCVerification(models);
-            // update the mode files here
             for (Model m : models) {
-                FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+                m.setInternalParametersFromHashMap(internalParameterValues);
+                FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
+                        m.getInternalParameters());
             }
 
         } catch (IOException e) {
@@ -46,7 +57,35 @@ public class Ultimate {
         }
     }
 
-    public void setModelID(String modelID) {
+    public ObservableList<InternalParameter> getInternalParameters() {
+        if (project == null) {
+            throw new IllegalStateException("Project has not been instantiated yet.");
+        }
+
+        ArrayList<Model> models = new ArrayList<>(project.getModels());
+        ObservableList<InternalParameter> internalParameters = FXCollections.observableArrayList();
+        if (models.isEmpty()) {
+            throw new IllegalStateException("No models found in the project.");
+        }
+
+        for (Model model : models) {
+            internalParameters.addAll(model.getInternalParameters());
+        }
+
+        return internalParameters;
+    }
+
+    public void setInternalParameters(HashMap<String, String> internalParameterValues) {
+
+        // this sets the internal parameter values, but these are only actually
+        // "instantiated" into
+        // the model when instantiateProject is called (via
+        // setInternalParametersFromHashMap)
+
+        this.internalParameterValues = internalParameterValues;
+    }
+
+    public void setTargetModelID(String modelID) {
         this.testingModelID = modelID;
         for (Model m : models) {
             if (m.getModelId().equals(modelID)) {
@@ -60,33 +99,47 @@ public class Ultimate {
         }
     }
 
-    public void setProperty(String property) {
-        this.property = property;
-    }
+    // public void CreateEvolvableModelFiles() {
+    //     try {
+    //         for (Model m : models) {
+    //             m.setInternalParametersFromHashMap(internalParameterValues);
+    //             FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
+    //                     m.getHashInternalParameters());
+    //         }
+
+    //     } catch (IOException e) {
+    //         e.printStackTrace();
+    //         return;
+    //     }
+    // }
 
     public void execute() throws NumberFormatException, IOException {
         if (property == null) {
             for (Property p : testingModel.getProperties()) {
+                System.out.println("Verifying property: " + p.getProperty());
                 double result_value = verifier.verify(testingModelID, p.getProperty());
                 results.put(p.toString(), result_value);
             }
         } else {
-            // this might result in a directory entry in the results dict.
-            // Not a big deal but a bit messy. Although the user shouldn't use it like that
-            // anyway
-
-            if (new java.io.File(property).isFile()) {
+            // this checks if the property provided is a file or a property entered as a
+            // string (e.g. from the CLI)
+            if (new java.io.File(property).isFile()) { // file -> read all lines and verify
                 for (String line : java.nio.file.Files.readAllLines(java.nio.file.Paths.get(property))) {
+                    System.out.println("Verifying property: " + line.trim());
                     if (!line.trim().isEmpty()) {
                         double result_value = verifier.verify(testingModelID, line.trim());
                         results.put(line.trim(), result_value);
                     }
                 }
-            } else {
+            } else { // string -> verify single property
                 double result_value = verifier.verify(testingModelID, property);
                 results.put(property, result_value);
             }
         }
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
     }
 
     public java.util.HashMap<String, Double> getResults() {

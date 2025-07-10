@@ -205,7 +205,7 @@ public class PropertiesController {
 	                    return;
 	                }
 	                for (Model m : models) {
-	                    FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+	                    FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters(), m.getHashInternalParameters());
 	                }
 	                NPMCVerification verifier = new NPMCVerification(models);
 	                Double result = verifier.verify(vModel.getModelId(), vProp.getProperty());
@@ -491,9 +491,9 @@ public class PropertiesController {
 	}
 	
 
-
+	// run verifications for a specific model and set of parameters
 	private void runVerificationsSequentially(
-	        List<HashMap<Model, HashMap<String, Double>>> rounds,
+	        List<HashMap<Model, HashMap<String, Double>>> rounds, 
 	        int index,
 	        ArrayList<Model> models,
 	        String verifyModelId,
@@ -528,7 +528,8 @@ public class PropertiesController {
 	            }
 	        }
 	        try {
-				FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+				// FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+				throw new IOException("Sequential verification not supported in this branch"); // Placeholder for actual file writing logic
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
