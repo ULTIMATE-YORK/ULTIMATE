@@ -18,6 +18,10 @@ import parameters.InternalParameter;
 import ultimate.Ultimate;
 import java.util.HashMap;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+
 public class Headless {
 
 	private static Options options = new Options();
@@ -92,22 +96,25 @@ public class Headless {
 
 		Ultimate ultimate = new Ultimate();
 		ultimate.loadProject(projectFile);
-
+		ultimate.setTargetModelID(modelID);
+		
 		// define the values of the internal parameters here for testing
 		// will need to implement some input validation for this and clean up
 		// eventually can call .setInternalParameters() from EvoChecker
-		HashMap<String, String> internalParameterValues = new java.util.HashMap<>();
 		ObservableList<InternalParameter> internalParameters = ultimate.getInternalParameters();
-		for (InternalParameter ip : internalParameters) {
-			System.out.println("Setting internal parameter '" + ip.getName() + "' to default (0)");
-			internalParameterValues.put(ip.getName(), "0");
+		if (internalParameters.size() > 0) {
+			ultimate.generateEvolvableModelFiles();
+			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
+			ultimate.instantiateEvoCheckerInstance(ultimate);
+			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
+			ultimate.executeEvoChecker();
+			// get results
+		} else {
+			// here we do the normal ULTIMATE pipeline
+			ultimate.setVerificationProperty(property);
+			ultimate.generateModelInstances();
+			ultimate.execute();
 		}
-
-		ultimate.setInternalParameters(internalParameterValues);
-		ultimate.generateModelInstances();
-		ultimate.setTargetModelID(modelID);
-		ultimate.setProperty(property);
-		ultimate.execute();
 
 		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getResultsInfo();

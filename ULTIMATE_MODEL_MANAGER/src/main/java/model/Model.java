@@ -438,9 +438,9 @@ public class Model {
 
 	public void setInternalParametersFromHashMap(HashMap<String, String> hashInternalParameters) {
 
-		for (String key : hashInternalParameters.keySet()) {
-			for (InternalParameter ip : internalParameters) {
-				System.out.println(key + "  " + hashInternalParameters.get(key));
+		for (InternalParameter ip : internalParameters) {
+			for (String key : hashInternalParameters.keySet()) {
+				// System.out.println(key + "  " + hashInternalParameters.get(key));
 				if (ip.getName().equals(key)) {
 					ip.setValue(hashInternalParameters.get(key));
 					break;

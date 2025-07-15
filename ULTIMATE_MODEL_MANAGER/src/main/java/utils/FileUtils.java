@@ -173,8 +173,8 @@ public class FileUtils {
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
-				String type = matcher.group(1);
-				updatedLine = "const " + type + " " + ep.getName() + " = " + ep.getValue() + ";";
+				String valueType = matcher.group(1);
+				updatedLine = "const " + valueType + " " + ep.getName() + " = " + ep.getValue() + ";";
 				break;
 			}
 		}
@@ -190,45 +190,61 @@ public class FileUtils {
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
-				String type = matcher.group(1);
-				updatedLine = "const " + type + " " + ip.getName() + " = " + ip.getValue() + ";";
+				String valueType = matcher.group(1);
+				updatedLine = "const " + valueType + " " + ip.getName() + " = " + ip.getValue() + ";";
 				break;
 			}
 		}
 		return updatedLine;
 	}
 
+	public static String writeParametersToModelString(String filePath, List<ExternalParameter> externalParameters,
+			List<InternalParameter> internalParameters) {
+
+		Path path = Paths.get(filePath);
+		StringBuilder updatedContent = new StringBuilder();
+
+		try {
+			for (String line : Files.readAllLines(path)) {
+
+				if (externalParameters != null) {
+					String epUpdate = findAndFillExternalParameter(line, externalParameters);
+					if (epUpdate != null) {
+						updatedContent.append(epUpdate).append(System.lineSeparator());
+						continue;
+					}
+				}
+
+				if (internalParameters != null) {
+					String ipUpdate = findAndFillInternalParameter(line, internalParameters);
+					if (ipUpdate != null) {
+						updatedContent.append(ipUpdate).append(System.lineSeparator());
+						continue;
+					}
+				}
+				updatedContent.append(line).append(System.lineSeparator());
+			}
+		} catch (Exception e) {
+			System.err.println("Error reading file: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		return updatedContent.toString();
+	}
+
 	public static void writeParametersToFile(String filePath, List<ExternalParameter> externalParameters,
 			List<InternalParameter> internalParameters) {
 
+		Path path = Paths.get(filePath);
+		String fileString = writeParametersToModelString(filePath, externalParameters, internalParameters);
+
 		try {
-			// Read all lines from the file
-			Path path = Paths.get(filePath);
-			StringBuilder updatedContent = new StringBuilder();
-
-			// Process each line from the file
-			for (String line : Files.readAllLines(path)) {
-
-				String epUpdate = findAndFillExternalParameter(line, externalParameters);
-				if (epUpdate != null) {
-					updatedContent.append(epUpdate).append(System.lineSeparator());
-					continue;
-				}
-
-				String ipUpdate = findAndFillInternalParameter(line, internalParameters);
-				if (ipUpdate != null) {
-					updatedContent.append(ipUpdate).append(System.lineSeparator());
-					continue;
-				}
-
-				updatedContent.append(line).append(System.lineSeparator());
-			}
-
-			// System.out.println(path + "\n" + updatedContent.toString());
-			// Write the updated content back to the file
-			Files.write(path, updatedContent.toString().getBytes());
-		} catch (IOException e) {
-			System.err.println("Error updating model file: " + e.getMessage());
+			Files.write(path, fileString.getBytes());
+		} catch (Exception e) {
+			System.err.println("Error writing parameters to model file: " + e.getMessage());
+			e.printStackTrace();
+			System.exit(1);
 		}
 	}
 
@@ -276,7 +292,6 @@ public class FileUtils {
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
 							String type = matcher.group(1);
-							System.out.println("key: " + key + "type: " + type);
 							InternalParameter ip = hashInternalParameters.get(key);
 							updatedLine = "const " + type + " " + key + " = " + ip.getValue() + ";";
 							break; // Stop checking keys for this line once a match is found.
@@ -285,6 +300,91 @@ public class FileUtils {
 				}
 
 				updatedContent.append(updatedLine).append(System.lineSeparator());
+			}
+
+			// System.out.println(path + "\n" + updatedContent.toString());
+			// Write the updated content back to the file
+			Files.write(path, updatedContent.toString().getBytes());
+		} catch (IOException e) {
+			System.err.println("Error updating model file: " + e.getMessage());
+		}
+	}
+
+	private static String findAndFillEvolvableParameter(String line, List<InternalParameter> internalParameters) {
+		String updatedLine = null;
+		for (InternalParameter ip : internalParameters) {
+			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
+			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getName()) + "\\s*(=\\s*[^;]+)?;";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(line);
+			if (matcher.find()) {
+				String valueType = matcher.group(1);
+				updatedLine = "evolve " + valueType + " " + ip.getName() + " [" + ip.getMin() + ".." + ip.getMax()
+						+ "];";
+				break;
+			}
+		}
+		return updatedLine;
+	}
+
+	private static String findAndFillDummyParameter(String line) {
+		String updatedLine = line;
+		// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
+		String regex = "^const\\s+(\\w+)\\s+(\\w+)\\s*;\\s*(?:\\/\\/.*)?$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(line);
+		if (matcher.find()) {
+			String valueType = matcher.group(1);
+			String parameterName = matcher.group(2);
+			updatedLine = "const " + valueType + " " + parameterName + "=0;";
+		}
+
+		return updatedLine;
+	}
+
+	public static void writeEvolvablesToFile(String filePath,
+			List<InternalParameter> internalParameters) {
+
+		try {
+			// Read all lines from the file
+			Path path = Paths.get(filePath);
+			StringBuilder updatedContent = new StringBuilder();
+
+			// Process each line from the file
+			for (String line : Files.readAllLines(path)) {
+
+				String ipUpdate = findAndFillEvolvableParameter(line, internalParameters);
+				if (ipUpdate != null) {
+					updatedContent.append(ipUpdate).append(System.lineSeparator());
+					continue;
+				}
+
+				updatedContent.append(line).append(System.lineSeparator());
+			}
+
+			// System.out.println(path + "\n" + updatedContent.toString());
+			// Write the updated content back to the file
+			Files.write(path, updatedContent.toString().getBytes());
+		} catch (IOException e) {
+			System.err.println("Error updating model file: " + e.getMessage());
+		}
+	}
+
+	// we need this because EvoChecker requires the dependencies to have a value,
+	// even though it doesn't actually do anything with them
+	public static void writeDummyDependenciesToFile(String filePath) {
+
+		try {
+			// Read all lines from the file
+			Path path = Paths.get(filePath);
+			StringBuilder updatedContent = new StringBuilder();
+
+			// Process each line from the file
+			for (String line : Files.readAllLines(path)) {
+
+				String updatedLine = findAndFillDummyParameter(line);
+				updatedContent.append(updatedLine).append(System.lineSeparator());
+
 			}
 
 			// System.out.println(path + "\n" + updatedContent.toString());

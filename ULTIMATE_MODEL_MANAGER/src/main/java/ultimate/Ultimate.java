@@ -12,10 +12,22 @@ import utils.FileUtils;
 import verification.NPMCVerification;
 import org.mariuszgromada.math.mxparser.mXparser;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javafx.collections.FXCollections;
 import parameters.InternalParameter;
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
+import jmetal.core.SolutionSet;
+import java.util.List;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
+import evochecker.EvoChecker;
 
 public class Ultimate {
 
@@ -31,7 +43,12 @@ public class Ultimate {
     private ArrayList<Model> models = new ArrayList<>();
 
     private String property;
+    private String objectivesConstraints;
+
     private HashMap<String, String> internalParameterValues = new HashMap<>();
+    private EvoChecker evoChecker;
+    private SolutionSet synthesisedParameters;
+    private Path evolvableProjectFilePath;
 
     java.util.HashMap<String, Double> results = new java.util.HashMap<>();
 
@@ -99,21 +116,39 @@ public class Ultimate {
         }
     }
 
-    // public void CreateEvolvableModelFiles() {
-    //     try {
-    //         for (Model m : models) {
-    //             m.setInternalParametersFromHashMap(internalParameterValues);
-    //             FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
-    //                     m.getHashInternalParameters());
-    //         }
+    public void generateEvolvableModelFiles() {
 
-    //     } catch (IOException e) {
-    //         e.printStackTrace();
-    //         return;
-    //     }
-    // }
+        try {
+
+            Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
+            Path sourceProjectPath = Paths.get(projectFile);
+            Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
+            evolvableProjectFilePath = targetProjectPath;
+            Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
+
+            for (Model m : models) {
+
+                Path sourceModelPath = sourceProjectPath.resolve(m.getFilePath());
+                Path targetModelPath = tempDir.resolve(sourceModelPath.getFileName());
+                Files.copy(sourceModelPath, targetModelPath, StandardCopyOption.REPLACE_EXISTING);
+
+                FileUtils.writeEvolvablesToFile(targetModelPath.toString(), m.getInternalParameters());
+                FileUtils.writeParametersToFile(targetModelPath.toString(), m.getExternalParameters(),
+                        null);
+                FileUtils.writeDummyDependenciesToFile(targetModelPath.toString());
+            }
+
+        } catch (Exception e) {
+            System.err.println("Error generating evolvable model files: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }
+
+    }
 
     public void execute() throws NumberFormatException, IOException {
+        System.out.print("Executing ULTIMATE for property " + property);
+        resetResults();
         if (property == null) {
             for (Property p : testingModel.getProperties()) {
                 System.out.println("Verifying property: " + p.getProperty());
@@ -133,17 +168,61 @@ public class Ultimate {
                 }
             } else { // string -> verify single property
                 double result_value = verifier.verify(testingModelID, property);
+                System.out.println(property + ": " + result_value);
                 results.put(property, result_value);
             }
         }
     }
 
-    public void setProperty(String property) {
-        this.property = property;
+    // public void synthesiseInternalParameters() {
+    // /*
+    // * - Instantiate EC
+    // * - Initialise EC
+    // * - Write evolvable world model (EWM) files
+    // * - Give EC the OCs, the EWMs, and the ULTIMATE instance itself
+    // * - Set results
+    // */
+
+    // }
+
+    public void instantiateEvoCheckerInstance(Ultimate ultimateInstance) {
+        evoChecker = new EvoChecker();
+        evoChecker.setUltimateInstance(ultimateInstance);
+    }
+
+    public void initialiseEvoCheckerInstance(String projectFile) {
+        if (evoChecker == null) {
+            System.err.println(
+                    "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
+            System.exit(1);
+        }
+        evoChecker.setConfigurationFile("evochecker_config.properties", projectFile, null);
+    }
+
+    public void executeEvoChecker() {
+        evoChecker.start();
+        synthesisedParameters = evoChecker.getSolutions();
+        evoChecker.printStatistics();
+    }
+
+    public SolutionSet getSynthesisResults() {
+        return synthesisedParameters;
+    }
+
+    public void setObjectivesConstraints(String propertyFileOrString) {
+        this.objectivesConstraints = propertyFileOrString;
+    }
+
+    public void setVerificationProperty(String propertyFileOrString) {
+        this.property = propertyFileOrString;
     }
 
     public java.util.HashMap<String, Double> getResults() {
         return results;
+    }
+
+    public void resetResults(){
+        results = new java.util.HashMap<>();
     }
 
     public String getResultsInfo() {
@@ -168,12 +247,20 @@ public class Ultimate {
         return property;
     }
 
+    public String getObjectivesConstraints() {
+        return objectivesConstraints;
+    }
+
     public Project getProject() {
         return project;
     }
 
     public Model getTestingModel() {
         return testingModel;
+    }
+
+    public Path getEvolvableProjectFilePath() {
+        return evolvableProjectFilePath;
     }
 
 }

@@ -46,7 +46,7 @@ public class PrismProcessAPI {
 
         String output = OSCommandExecutor.executeCommand(command);
         logger.info("PRISM output:\n" + output);
-        System.out.println("PRISM output:\n" + output);
+        // System.out.println("PRISM output:\n" + output);
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
@@ -62,10 +62,12 @@ public class PrismProcessAPI {
         }
 
         // Clean up the temporary property file
-        cleanupTemporaryFile(propFilePath);
+        //cleanupTemporaryFile(propFilePath);
 
         return result;
     }
+
+    //TODO: make into actual temporary files
 
     /**
      * Run PRISM as an external process with additional parameters
@@ -114,7 +116,7 @@ public class PrismProcessAPI {
         }
 
         // Clean up the temporary property file
-        cleanupTemporaryFile(propFilePath);
+        //cleanupTemporaryFile(propFilePath);
 
         return result;
     }
