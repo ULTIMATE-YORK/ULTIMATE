@@ -1,0 +1,10 @@
+{"models": {"FX_med": {
+    "fileName": "FX_med.dtmc",
+    "id": "FX_med",
+    "parameters": {
+        "environment": {},
+        "internal": {},
+        "dependency": {}
+    },
+    "properties": ["P=?[F state=19]"]
+}}}

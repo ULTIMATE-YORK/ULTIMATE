@@ -1,0 +1,43 @@
+{"models": {
+    "FX_med": {
+        "fileName": "FX_med.dtmc",
+        "id": "FX_med",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc2": {
+                    "modelId": "FX_med_1b",
+                    "name": "pSucc2",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc1": {
+                    "modelId": "FX_med_1a",
+                    "name": "pSucc1",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": ["P=?[F state=19]"]
+    },
+    "FX_med_1a": {
+        "fileName": "FX_med_1a.dtmc",
+        "id": "FX_med_1a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_med_1b": {
+        "fileName": "FX_med_1b.dtmc",
+        "id": "FX_med_1b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    }
+}}

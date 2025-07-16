@@ -1,0 +1,1133 @@
+{"models": {
+    "FX_large_3_15": {
+        "fileName": "FX_large_3_15.dtmc",
+        "id": "FX_large_3_15",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large": {
+        "fileName": "FX_large.dtmc",
+        "id": "FX_large",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc2": {
+                    "modelId": "FX_large_1b",
+                    "name": "pSucc2",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc1": {
+                    "modelId": "FX_large_1a",
+                    "name": "pSucc1",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": ["P=?[F state=19]"]
+    },
+    "FX_large_3_59": {
+        "fileName": "FX_large_3_59.dtmc",
+        "id": "FX_large_3_59",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_14": {
+        "fileName": "FX_large_3_14.dtmc",
+        "id": "FX_large_3_14",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_58": {
+        "fileName": "FX_large_3_58.dtmc",
+        "id": "FX_large_3_58",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_17": {
+        "fileName": "FX_large_3_17.dtmc",
+        "id": "FX_large_3_17",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_16": {
+        "fileName": "FX_large_3_16.dtmc",
+        "id": "FX_large_3_16",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_11": {
+        "fileName": "FX_large_3_11.dtmc",
+        "id": "FX_large_3_11",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_55": {
+        "fileName": "FX_large_3_55.dtmc",
+        "id": "FX_large_3_55",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_10": {
+        "fileName": "FX_large_3_10.dtmc",
+        "id": "FX_large_3_10",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_54": {
+        "fileName": "FX_large_3_54.dtmc",
+        "id": "FX_large_3_54",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_57": {
+        "fileName": "FX_large_3_57.dtmc",
+        "id": "FX_large_3_57",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_13": {
+        "fileName": "FX_large_3_13.dtmc",
+        "id": "FX_large_3_13",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_56": {
+        "fileName": "FX_large_3_56.dtmc",
+        "id": "FX_large_3_56",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_12": {
+        "fileName": "FX_large_3_12.dtmc",
+        "id": "FX_large_3_12",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_19": {
+        "fileName": "FX_large_3_19.dtmc",
+        "id": "FX_large_3_19",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_18": {
+        "fileName": "FX_large_3_18.dtmc",
+        "id": "FX_large_3_18",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_51": {
+        "fileName": "FX_large_3_51.dtmc",
+        "id": "FX_large_3_51",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_50": {
+        "fileName": "FX_large_3_50.dtmc",
+        "id": "FX_large_3_50",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_53": {
+        "fileName": "FX_large_3_53.dtmc",
+        "id": "FX_large_3_53",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_52": {
+        "fileName": "FX_large_3_52.dtmc",
+        "id": "FX_large_3_52",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_48": {
+        "fileName": "FX_large_3_48.dtmc",
+        "id": "FX_large_3_48",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_47": {
+        "fileName": "FX_large_3_47.dtmc",
+        "id": "FX_large_3_47",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_49": {
+        "fileName": "FX_large_3_49.dtmc",
+        "id": "FX_large_3_49",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_44": {
+        "fileName": "FX_large_3_44.dtmc",
+        "id": "FX_large_3_44",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_43": {
+        "fileName": "FX_large_3_43.dtmc",
+        "id": "FX_large_3_43",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_46": {
+        "fileName": "FX_large_3_46.dtmc",
+        "id": "FX_large_3_46",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_45": {
+        "fileName": "FX_large_3_45.dtmc",
+        "id": "FX_large_3_45",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_40": {
+        "fileName": "FX_large_3_40.dtmc",
+        "id": "FX_large_3_40",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_42": {
+        "fileName": "FX_large_3_42.dtmc",
+        "id": "FX_large_3_42",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_41": {
+        "fileName": "FX_large_3_41.dtmc",
+        "id": "FX_large_3_41",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_37": {
+        "fileName": "FX_large_3_37.dtmc",
+        "id": "FX_large_3_37",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_36": {
+        "fileName": "FX_large_3_36.dtmc",
+        "id": "FX_large_3_36",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_39": {
+        "fileName": "FX_large_3_39.dtmc",
+        "id": "FX_large_3_39",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_38": {
+        "fileName": "FX_large_3_38.dtmc",
+        "id": "FX_large_3_38",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_33": {
+        "fileName": "FX_large_3_33.dtmc",
+        "id": "FX_large_3_33",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_32": {
+        "fileName": "FX_large_3_32.dtmc",
+        "id": "FX_large_3_32",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_35": {
+        "fileName": "FX_large_3_35.dtmc",
+        "id": "FX_large_3_35",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_34": {
+        "fileName": "FX_large_3_34.dtmc",
+        "id": "FX_large_3_34",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_1a": {
+        "fileName": "FX_large_1a.dtmc",
+        "id": "FX_large_1a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc6": {
+                    "modelId": "FX_large_2d",
+                    "name": "pSucc6",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc5": {
+                    "modelId": "FX_large_2c",
+                    "name": "pSucc5",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc4": {
+                    "modelId": "FX_large_2b",
+                    "name": "pSucc4",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc3": {
+                    "modelId": "FX_large_2a",
+                    "name": "pSucc3",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_1b": {
+        "fileName": "FX_large_1b.dtmc",
+        "id": "FX_large_1b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc9": {
+                    "modelId": "FX_large_2g",
+                    "name": "pSucc9",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc8": {
+                    "modelId": "FX_large_2f",
+                    "name": "pSucc8",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc7": {
+                    "modelId": "FX_large_2e",
+                    "name": "pSucc7",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc10": {
+                    "modelId": "FX_large_2h",
+                    "name": "pSucc10",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_31": {
+        "fileName": "FX_large_3_31.dtmc",
+        "id": "FX_large_3_31",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_30": {
+        "fileName": "FX_large_3_30.dtmc",
+        "id": "FX_large_3_30",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_26": {
+        "fileName": "FX_large_3_26.dtmc",
+        "id": "FX_large_3_26",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_25": {
+        "fileName": "FX_large_3_25.dtmc",
+        "id": "FX_large_3_25",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_28": {
+        "fileName": "FX_large_3_28.dtmc",
+        "id": "FX_large_3_28",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_27": {
+        "fileName": "FX_large_3_27.dtmc",
+        "id": "FX_large_3_27",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_22": {
+        "fileName": "FX_large_3_22.dtmc",
+        "id": "FX_large_3_22",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_21": {
+        "fileName": "FX_large_3_21.dtmc",
+        "id": "FX_large_3_21",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_24": {
+        "fileName": "FX_large_3_24.dtmc",
+        "id": "FX_large_3_24",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_23": {
+        "fileName": "FX_large_3_23.dtmc",
+        "id": "FX_large_3_23",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_29": {
+        "fileName": "FX_large_3_29.dtmc",
+        "id": "FX_large_3_29",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2b": {
+        "fileName": "FX_large_2b.dtmc",
+        "id": "FX_large_2b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc19": {
+                    "modelId": "FX_large_3_9",
+                    "name": "pSucc19",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc20": {
+                    "modelId": "FX_large_3_10",
+                    "name": "pSucc20",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc21": {
+                    "modelId": "FX_large_3_11",
+                    "name": "pSucc21",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc22": {
+                    "modelId": "FX_large_3_12",
+                    "name": "pSucc22",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc23": {
+                    "modelId": "FX_large_3_13",
+                    "name": "pSucc23",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc24": {
+                    "modelId": "FX_large_3_14",
+                    "name": "pSucc24",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc25": {
+                    "modelId": "FX_large_3_15",
+                    "name": "pSucc25",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc26": {
+                    "modelId": "FX_large_3_16",
+                    "name": "pSucc26",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_6": {
+        "fileName": "FX_large_3_6.dtmc",
+        "id": "FX_large_3_6",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2a": {
+        "fileName": "FX_large_2a.dtmc",
+        "id": "FX_large_2a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc18": {
+                    "modelId": "FX_large_3_1",
+                    "name": "pSucc18",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc17": {
+                    "modelId": "FX_large_3_2",
+                    "name": "pSucc17",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc12": {
+                    "modelId": "FX_large_3_3",
+                    "name": "pSucc12",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc11": {
+                    "modelId": "FX_large_3_4",
+                    "name": "pSucc11",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc16": {
+                    "modelId": "FX_large_3_5",
+                    "name": "pSucc16",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc15": {
+                    "modelId": "FX_large_3_6",
+                    "name": "pSucc15",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc14": {
+                    "modelId": "FX_large_3_7",
+                    "name": "pSucc14",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc13": {
+                    "modelId": "FX_large_3_8",
+                    "name": "pSucc13",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_5": {
+        "fileName": "FX_large_3_5.dtmc",
+        "id": "FX_large_3_5",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2d": {
+        "fileName": "FX_large_2d.dtmc",
+        "id": "FX_large_2d",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc35": {
+                    "modelId": "FX_large_3_25",
+                    "name": "pSucc35",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc36": {
+                    "modelId": "FX_large_3_26",
+                    "name": "pSucc36",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc37": {
+                    "modelId": "FX_large_3_27",
+                    "name": "pSucc37",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc38": {
+                    "modelId": "FX_large_3_28",
+                    "name": "pSucc38",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc39": {
+                    "modelId": "FX_large_3_29",
+                    "name": "pSucc39",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc40": {
+                    "modelId": "FX_large_3_30",
+                    "name": "pSucc40",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc41": {
+                    "modelId": "FX_large_3_31",
+                    "name": "pSucc41",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc42": {
+                    "modelId": "FX_large_3_32",
+                    "name": "pSucc42",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_8": {
+        "fileName": "FX_large_3_8.dtmc",
+        "id": "FX_large_3_8",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_7": {
+        "fileName": "FX_large_3_7.dtmc",
+        "id": "FX_large_3_7",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2c": {
+        "fileName": "FX_large_2c.dtmc",
+        "id": "FX_large_2c",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc27": {
+                    "modelId": "FX_large_3_17",
+                    "name": "pSucc27",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc28": {
+                    "modelId": "FX_large_3_18",
+                    "name": "pSucc28",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc29": {
+                    "modelId": "FX_large_3_19",
+                    "name": "pSucc29",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc30": {
+                    "modelId": "FX_large_3_20",
+                    "name": "pSucc30",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc31": {
+                    "modelId": "FX_large_3_21",
+                    "name": "pSucc31",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc32": {
+                    "modelId": "FX_large_3_22",
+                    "name": "pSucc32",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc33": {
+                    "modelId": "FX_large_3_23",
+                    "name": "pSucc33",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc34": {
+                    "modelId": "FX_large_3_24",
+                    "name": "pSucc34",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_2": {
+        "fileName": "FX_large_3_2.dtmc",
+        "id": "FX_large_3_2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_1": {
+        "fileName": "FX_large_3_1.dtmc",
+        "id": "FX_large_3_1",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_4": {
+        "fileName": "FX_large_3_4.dtmc",
+        "id": "FX_large_3_4",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_3": {
+        "fileName": "FX_large_3_3.dtmc",
+        "id": "FX_large_3_3",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_62": {
+        "fileName": "FX_large_3_62.dtmc",
+        "id": "FX_large_3_62",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_61": {
+        "fileName": "FX_large_3_61.dtmc",
+        "id": "FX_large_3_61",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_20": {
+        "fileName": "FX_large_3_20.dtmc",
+        "id": "FX_large_3_20",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_64": {
+        "fileName": "FX_large_3_64.dtmc",
+        "id": "FX_large_3_64",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_3_63": {
+        "fileName": "FX_large_3_63.dtmc",
+        "id": "FX_large_3_63",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2f": {
+        "fileName": "FX_large_2f.dtmc",
+        "id": "FX_large_2f",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc51": {
+                    "modelId": "FX_large_3_41",
+                    "name": "pSucc51",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc52": {
+                    "modelId": "FX_large_3_42",
+                    "name": "pSucc52",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc53": {
+                    "modelId": "FX_large_3_43",
+                    "name": "pSucc53",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc54": {
+                    "modelId": "FX_large_3_44",
+                    "name": "pSucc54",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc55": {
+                    "modelId": "FX_large_3_45",
+                    "name": "pSucc55",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc56": {
+                    "modelId": "FX_large_3_46",
+                    "name": "pSucc56",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc57": {
+                    "modelId": "FX_large_3_47",
+                    "name": "pSucc57",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc58": {
+                    "modelId": "FX_large_3_48",
+                    "name": "pSucc58",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_2e": {
+        "fileName": "FX_large_2e.dtmc",
+        "id": "FX_large_2e",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc43": {
+                    "modelId": "FX_large_3_33",
+                    "name": "pSucc35",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc44": {
+                    "modelId": "FX_large_3_34",
+                    "name": "pSucc44",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc45": {
+                    "modelId": "FX_large_3_35",
+                    "name": "pSucc45",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc46": {
+                    "modelId": "FX_large_3_36",
+                    "name": "pSucc46",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc47": {
+                    "modelId": "FX_large_3_37",
+                    "name": "pSucc47",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc48": {
+                    "modelId": "FX_large_3_38",
+                    "name": "pSucc48",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc49": {
+                    "modelId": "FX_large_3_39",
+                    "name": "pSucc49",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc50": {
+                    "modelId": "FX_large_3_40",
+                    "name": "pSucc50",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_9": {
+        "fileName": "FX_large_3_9.dtmc",
+        "id": "FX_large_3_9",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2h": {
+        "fileName": "FX_large_2h.dtmc",
+        "id": "FX_large_2h",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc67": {
+                    "modelId": "FX_large_3_57",
+                    "name": "pSucc67",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc68": {
+                    "modelId": "FX_large_3_58",
+                    "name": "pSucc68",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc69": {
+                    "modelId": "FX_large_3_59",
+                    "name": "pSucc69",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc70": {
+                    "modelId": "FX_large_3_60",
+                    "name": "pSucc70",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc71": {
+                    "modelId": "FX_large_3_61",
+                    "name": "pSucc71",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc72": {
+                    "modelId": "FX_large_3_62",
+                    "name": "pSucc72",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc73": {
+                    "modelId": "FX_large_3_63",
+                    "name": "pSucc73",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc74": {
+                    "modelId": "FX_large_3_64",
+                    "name": "pSucc74",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_3_60": {
+        "fileName": "FX_large_3_60.dtmc",
+        "id": "FX_large_3_60",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2g": {
+        "fileName": "FX_large_2g.dtmc",
+        "id": "FX_large_2g",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc59": {
+                    "modelId": "FX_large_3_49",
+                    "name": "pSucc59",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc60": {
+                    "modelId": "FX_large_3_50",
+                    "name": "pSucc60",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc61": {
+                    "modelId": "FX_large_3_51",
+                    "name": "pSucc61",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc62": {
+                    "modelId": "FX_large_3_52",
+                    "name": "pSucc62",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc63": {
+                    "modelId": "FX_large_3_53",
+                    "name": "pSucc63",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc64": {
+                    "modelId": "FX_large_3_54",
+                    "name": "pSucc64",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc65": {
+                    "modelId": "FX_large_3_55",
+                    "name": "pSucc65",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc66": {
+                    "modelId": "FX_large_3_56",
+                    "name": "pSucc66",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": []
+    }
+}}

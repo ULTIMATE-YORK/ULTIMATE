@@ -1,0 +1,165 @@
+{"models": {
+    "FX_large_2b": {
+        "fileName": "FX_large_2b.dtmc",
+        "id": "FX_large_2b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_1a": {
+        "fileName": "FX_large_1a.dtmc",
+        "id": "FX_large_1a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc6": {
+                    "modelId": "FX_large_2d",
+                    "name": "pSucc6",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc5": {
+                    "modelId": "FX_large_2c",
+                    "name": "pSucc5",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc4": {
+                    "modelId": "FX_large_2b",
+                    "name": "pSucc4",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc3": {
+                    "modelId": "FX_large_2a",
+                    "name": "pSucc3",
+                    "property": "P=? [F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large": {
+        "fileName": "FX_large.dtmc",
+        "id": "FX_large",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc2": {
+                    "modelId": "FX_large_1b",
+                    "name": "pSucc2",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc1": {
+                    "modelId": "FX_large_1a",
+                    "name": "pSucc1",
+                    "property": "P=? [F state=19]"
+                }
+            }
+        },
+        "properties": ["P=? [F state=19]"]
+    },
+    "FX_large_2a": {
+        "fileName": "FX_large_2a.dtmc",
+        "id": "FX_large_2a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2d": {
+        "fileName": "FX_large_2d.dtmc",
+        "id": "FX_large_2d",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2c": {
+        "fileName": "FX_large_2c.dtmc",
+        "id": "FX_large_2c",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_1b": {
+        "fileName": "FX_large_1b.dtmc",
+        "id": "FX_large_1b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc9": {
+                    "modelId": "FX_large_2f",
+                    "name": "pSucc9",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc8": {
+                    "modelId": "FX_large_2g",
+                    "name": "pSucc8",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc7": {
+                    "modelId": "FX_large_2e",
+                    "name": "pSucc7",
+                    "property": "P=? [F state=19]"
+                },
+                "pSucc10": {
+                    "modelId": "FX_large_2h",
+                    "name": "pSucc10",
+                    "property": "P=? [F state=19]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "FX_large_2f": {
+        "fileName": "FX_large_2f.dtmc",
+        "id": "FX_large_2f",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2e": {
+        "fileName": "FX_large_2e.dtmc",
+        "id": "FX_large_2e",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2h": {
+        "fileName": "FX_large_2h.dtmc",
+        "id": "FX_large_2h",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_large_2g": {
+        "fileName": "FX_large_2g.dtmc",
+        "id": "FX_large_2g",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    }
+}}

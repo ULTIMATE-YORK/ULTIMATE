@@ -1,0 +1,10 @@
+{"models": {"FX_large": {
+    "fileName": "FX_large.dtmc",
+    "id": "FX_large",
+    "parameters": {
+        "environment": {},
+        "internal": {},
+        "dependency": {}
+    },
+    "properties": ["P=?[F state=19]"]
+}}}

@@ -1,0 +1,43 @@
+{"models": {
+    "FX_small": {
+        "fileName": "FX_small.dtmc",
+        "id": "FX_small",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pSucc2": {
+                    "modelId": "FX_small_1b",
+                    "name": "pSucc2",
+                    "property": "P=?[F state=19]"
+                },
+                "pSucc1": {
+                    "modelId": "FX_small_1a",
+                    "name": "pSucc1",
+                    "property": "P=?[F state=19]"
+                }
+            }
+        },
+        "properties": ["P=?[F state=19]"]
+    },
+    "FX_small_1a": {
+        "fileName": "FX_small_1a.dtmc",
+        "id": "FX_small_1a",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "FX_small_1b": {
+        "fileName": "FX_small_1b.dtmc",
+        "id": "FX_small_1b",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    }
+}}
