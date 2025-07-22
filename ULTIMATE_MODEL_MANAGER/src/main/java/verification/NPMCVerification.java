@@ -493,7 +493,7 @@ public class NPMCVerification {
     }
 
     private double performPMC(VerificationModel model, String property) throws FileNotFoundException {
-        System.out.println("Performing PMC for " + model + " with property " + property);
+        // System.out.println("Performing PMC for " + model + " with property " + property);
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {

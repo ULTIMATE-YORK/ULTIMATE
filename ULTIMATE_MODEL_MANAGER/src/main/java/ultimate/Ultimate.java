@@ -20,6 +20,7 @@ import parameters.InternalParameter;
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
 import jmetal.core.SolutionSet;
+import jmetal.core.Solution;
 import java.util.List;
 
 import java.nio.file.Path;
@@ -50,7 +51,17 @@ public class Ultimate {
     private SolutionSet synthesisedParameters;
     private Path evolvableProjectFilePath;
 
+    private boolean verbose;
+
     java.util.HashMap<String, Double> results = new java.util.HashMap<>();
+
+    public Ultimate() {
+
+    }
+
+    public void setVerbose(boolean verbose) {
+        this.verbose = verbose;
+    }
 
     public void loadProject(String projectFile) throws IOException {
         this.projectFile = projectFile;
@@ -147,11 +158,13 @@ public class Ultimate {
     }
 
     public void execute() throws NumberFormatException, IOException {
-        System.out.print("Executing ULTIMATE for property " + property);
+        if (verbose)
+            System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
         if (property == null) {
             for (Property p : testingModel.getProperties()) {
-                System.out.println("Verifying property: " + p.getProperty());
+                if (verbose)
+                    System.out.println("Verifying property: " + p.getProperty());
                 double result_value = verifier.verify(testingModelID, p.getProperty());
                 results.put(p.toString(), result_value);
             }
@@ -160,7 +173,8 @@ public class Ultimate {
             // string (e.g. from the CLI)
             if (new java.io.File(property).isFile()) { // file -> read all lines and verify
                 for (String line : java.nio.file.Files.readAllLines(java.nio.file.Paths.get(property))) {
-                    System.out.println("Verifying property: " + line.trim());
+                    if (verbose)
+                        System.out.println("Verifying property: " + line.trim());
                     if (!line.trim().isEmpty()) {
                         double result_value = verifier.verify(testingModelID, line.trim());
                         results.put(line.trim(), result_value);
@@ -168,7 +182,8 @@ public class Ultimate {
                 }
             } else { // string -> verify single property
                 double result_value = verifier.verify(testingModelID, property);
-                System.out.println(property + ": " + result_value);
+                if (verbose)
+                    System.out.println(property + ": " + result_value);
                 results.put(property, result_value);
             }
         }
@@ -201,12 +216,7 @@ public class Ultimate {
 
     public void executeEvoChecker() {
         evoChecker.start();
-        synthesisedParameters = evoChecker.getSolutions();
         evoChecker.printStatistics();
-    }
-
-    public SolutionSet getSynthesisResults() {
-        return synthesisedParameters;
     }
 
     public void setObjectivesConstraints(String propertyFileOrString) {
@@ -217,15 +227,56 @@ public class Ultimate {
         this.property = propertyFileOrString;
     }
 
+    // TODO: safely rename to getVerificationResults
     public java.util.HashMap<String, Double> getResults() {
         return results;
     }
 
-    public void resetResults(){
+    // public double[][] getSynthesisResults() {
+    // SolutionSet results = evoChecker.getSolutions();
+    // double[][] resultsMatrix = results.writeObjectivesToMatrix();
+
+    // return resultsMatrix;
+    // }
+
+    public void writeSynthesisResultsToFile() {
+
+        try {
+            evoChecker.ExportToFile();
+        } catch (Exception e) {
+            System.err.println("Couldn't write the synthesis results to file.");
+            e.printStackTrace();
+        }
+
+        // double[][] resultsMatrix = getSynthesisResults();
+        // System.out.println("\nResults(" + resultsMatrix.length + "," +
+        // resultsMatrix[0].length + "):\n");
+
+        // try {
+        // java.io.FileWriter writer = new java.io.FileWriter("synthesis_results.txt");
+        // for (double[] row : resultsMatrix) {
+        // for (int i = 0; i < row.length; i++) {
+        // System.out.println(row[i]);
+        // writer.write(Double.toString(row[i]));
+        // if (i < row.length - 1) {
+        // writer.write(", ");
+        // }
+        // }
+        // writer.write(System.lineSeparator());
+        // }
+        // writer.close();
+        // } catch (IOException e) {
+        // System.err.println("Error writing synthesis results to file: " +
+        // e.getMessage());
+        // }
+
+    }
+
+    public void resetResults() {
         results = new java.util.HashMap<>();
     }
 
-    public String getResultsInfo() {
+    public String getVerificationResultsInfo() {
 
         StringBuilder resultsInfo = new StringBuilder();
         for (String key : results.keySet()) {

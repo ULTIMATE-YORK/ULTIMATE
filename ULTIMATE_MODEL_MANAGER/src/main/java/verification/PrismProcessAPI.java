@@ -42,11 +42,9 @@ public class PrismProcessAPI {
         // Run PRISM with property file
         String command = prismInstallLocation + " \"" + model.getVerificationFilePath() + "\"" + " " + propFilePath;
         logger.info("Executing PRISM command: " + command);
-        System.out.println("Executing PRISM command: " + command);
 
         String output = OSCommandExecutor.executeCommand(command);
         logger.info("PRISM output:\n" + output);
-        // System.out.println("PRISM output:\n" + output);
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);

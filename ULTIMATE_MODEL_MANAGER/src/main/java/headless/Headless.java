@@ -97,7 +97,7 @@ public class Headless {
 		Ultimate ultimate = new Ultimate();
 		ultimate.loadProject(projectFile);
 		ultimate.setTargetModelID(modelID);
-		
+
 		// define the values of the internal parameters here for testing
 		// will need to implement some input validation for this and clean up
 		// eventually can call .setInternalParameters() from EvoChecker
@@ -108,7 +108,8 @@ public class Headless {
 			ultimate.instantiateEvoCheckerInstance(ultimate);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
 			ultimate.executeEvoChecker();
-			// get results
+			ultimate.writeSynthesisResultsToFile();
+
 		} else {
 			// here we do the normal ULTIMATE pipeline
 			ultimate.setVerificationProperty(property);
@@ -117,7 +118,7 @@ public class Headless {
 		}
 
 		java.util.HashMap<String, Double> results = ultimate.getResults();
-		String resultsInfo = ultimate.getResultsInfo();
+		String resultsInfo = ultimate.getVerificationResultsInfo();
 
 		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile + "\nModel ID: " + modelID
 				+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
