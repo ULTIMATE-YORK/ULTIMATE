@@ -17,7 +17,7 @@ import parameters.InternalParameter;
 
 import ultimate.Ultimate;
 import java.util.HashMap;
-
+import java.util.stream.Collectors;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -120,10 +120,24 @@ public class Headless {
 		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
 
-		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile + "\nModel ID: " + modelID
-				+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
-				+ "Property Values:\n" + resultsInfo);
+		if (internalParameters.size() > 0) {
 
+			String parameterNames = internalParameters.stream()
+					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
+					.collect(Collectors.joining("\n\t"));
+
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+					+ "\nProblem type: Synthesis"
+					+ "\nModel ID: " + modelID
+					+ "\nInternal Parameters:\n\t" + parameterNames + "\n"
+					+ "Results were saved to /data/ULTIMATE");
+		} else {
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+					+ "\nProblem type: Verification"
+					+ "\nModel ID: " + modelID
+					+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
+					+ "Property Values:\n" + resultsInfo);
+		}
 		// Write the results HashMap to a file
 		if (outputDir != null) {
 			String fileName = outputDir + "/ultimate_results_" +
