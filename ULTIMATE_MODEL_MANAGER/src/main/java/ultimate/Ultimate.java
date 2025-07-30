@@ -10,7 +10,6 @@ import property.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 import verification.NPMCVerification;
-import org.mariuszgromada.math.mxparser.mXparser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -211,7 +210,7 @@ public class Ultimate {
                     "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
             System.exit(1);
         }
-        evoChecker.setConfigurationFile("evochecker_config.properties", projectFile, null);
+        evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile, null);
     }
 
     public void executeEvoChecker() {

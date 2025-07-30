@@ -7,7 +7,6 @@ import utils.FileUtils;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.License;
-import org.mariuszgromada.math.mxparser.mXparser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,11 +21,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
-	
-	static {
-	    mXparser.consolePrintln(false);
-	}
-   	
+
 
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 	

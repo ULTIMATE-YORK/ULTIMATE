@@ -19,6 +19,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 
+/* TODO: delete old headless
+ * This is an old version of the headless class. The new version is under java/headless.
+ * I should have used git mv!
+ * I will manually integrate the changes into the new headless soon - BDH
+ */
+
 public class Headless {
 	
 	private static Options options = new Options();
@@ -100,12 +106,12 @@ public class Headless {
 	    ArrayList<Model> models = new ArrayList<>();
 		models.addAll(project.getModels());
 		// update the mode files here
-		if (project.containsRanged()) {
+		if (project.containsRangedParameters()) {
 			System.out.println("Headless mode does not support experiments. \nPlease fix all ranged external parameters and try again.");
 			return;
 		}
 		for (Model m : models) {
-			FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+			FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters(), m.getHashInternalParameters());
 			if (m.getModelId().equals(modelID)) {
 				testingModel = m;
 			}

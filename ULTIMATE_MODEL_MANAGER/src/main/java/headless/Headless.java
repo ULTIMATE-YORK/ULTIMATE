@@ -14,6 +14,7 @@ import evochecker.EvoChecker;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
+import org.mariuszgromada.math.mxparser.mXparser;
 
 import ultimate.Ultimate;
 import java.util.HashMap;
@@ -94,24 +95,35 @@ public class Headless {
 			return;
 		}
 
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: " + Paths.get(projectFile).getFileName().toString()+"\n");
 		Ultimate ultimate = new Ultimate();
 		ultimate.loadProject(projectFile);
 		ultimate.setTargetModelID(modelID);
 
-		// define the values of the internal parameters here for testing
-		// will need to implement some input validation for this and clean up
-		// eventually can call .setInternalParameters() from EvoChecker
+
+		if (ultimate.getProject().containsRangedParameters()) {
+			System.err.println(
+					"Ranged external parameters were found in the project."
+							+ "\nHeadless mode does not yet support experiments (projects with ranged external parameters)."
+							+ "\nPlease use the GUI version of ULTIMATE if you require this functionality.");
+			System.exit(1);
+		}
+
 		ObservableList<InternalParameter> internalParameters = ultimate.getInternalParameters();
 		if (internalParameters.size() > 0) {
+			System.out.println(
+					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
+							+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
 			ultimate.generateEvolvableModelFiles();
 			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
 			ultimate.instantiateEvoCheckerInstance(ultimate);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
+			System.out.println("Running EvoChecker to synthesise parameters...\n");
 			ultimate.executeEvoChecker();
 			ultimate.writeSynthesisResultsToFile();
 
 		} else {
-			// here we do the normal ULTIMATE pipeline
+			System.out.println("Beginning a verification problem.\n");
 			ultimate.setVerificationProperty(property);
 			ultimate.generateModelInstances();
 			ultimate.execute();
@@ -119,9 +131,9 @@ public class Headless {
 
 		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
-
+		// TODO: systemise the output by creating something like a OutputGenerator class
+		// TODO: maybe also write some utility to stylise the output, e.g. OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
-
 			String parameterNames = internalParameters.stream()
 					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
 					.collect(Collectors.joining("\n\t"));

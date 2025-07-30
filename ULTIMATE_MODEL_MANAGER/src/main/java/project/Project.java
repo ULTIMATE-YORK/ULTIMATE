@@ -323,7 +323,7 @@ public class Project {
 		
 	}
 	
-	public boolean containsRanged() {
+	public boolean containsRangedParameters() {
 		for (Model model : models) {
 			for (ExternalParameter parameter : model.getExternalParameters()) {
 				if (parameter.getType().equals("Ranged")) {

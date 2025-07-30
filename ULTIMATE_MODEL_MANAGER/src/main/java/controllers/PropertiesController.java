@@ -221,7 +221,7 @@ public class PropertiesController {
 
 	    CompletableFuture.runAsync(() -> {
 	        try {
-	            if (project.containsRanged()) {
+	            if (project.containsRangedParameters()) {
 	                handleRangedVerification(vModel, vProp, modalStage);
 	            } else {
 	                handleSimpleVerification(vModel, vProp, modalStage);
