@@ -27,6 +27,20 @@ public class AddDependencyController {
 	public void initialize() {
 		undefinedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
 		chooseModel.setItems(project.getObservableModels());
+		
+	    // Set a custom StringConverter to display models using the toName() method
+	    chooseModel.setConverter(new javafx.util.StringConverter<Model>() {
+	        @Override
+	        public String toString(Model model) {
+	            return model != null ? model.toName() : "";
+	        }
+
+	        @Override
+	        public Model fromString(String string) {
+	            // This method is not used for ChoiceBox, so it can return null
+	            return null;
+	        }
+	    });
 	}
 	
 	@FXML

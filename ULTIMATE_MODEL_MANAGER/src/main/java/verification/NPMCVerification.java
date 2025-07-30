@@ -22,6 +22,10 @@ import java.io.IOException;
 import java.util.*;
 
 public class NPMCVerification {
+	
+	static {
+	    mXparser.consolePrintln(false);
+	}
    	
 
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);

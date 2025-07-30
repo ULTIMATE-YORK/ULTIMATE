@@ -136,7 +136,6 @@
     </dependency>
 
 
-  
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -262,9 +261,10 @@
             </goals>
             <configuration>
               <transformers>
-                <transformer
+                <transformer>
                   implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>main.Main</mainClass>
+                  <mainClass>
+                  main.Main</mainClass>
                 </transformer>
               </transformers>
               <createDependencyReducedPom>false</createDependencyReducedPom>

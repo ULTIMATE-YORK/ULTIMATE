@@ -48,6 +48,7 @@
 			<Button fx:id="verifyButton" onAction="#verify" text="Verify"/>
 			<CheckBox fx:id="showAllResults" text="Show All Results" selected="true"/>
 			<Button fx:id="plotButton" onAction="#plotResults" mnemonicParsing="false" text="Plot results" visible="false"/>
+			<Button fx:id="exportButton" onAction="#exportResults" mnemonicParsing="false" text="Export to CSV" visible="false"/>
 		</HBox>
 		
 	<StackPane VBox.vgrow="ALWAYS">

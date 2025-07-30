@@ -68,11 +68,11 @@ The tool has a simple operation. By default, the tool will launch into a 'blank 
 
 For each model in the current project, there will be a number of *Uncategorised Parameters* that are found by parsing the provided model file. These are any constants in the model file that have no value set. 
 
-For each *Uncategorised Parameter*, the user can choose to define it as either an *External Parameter* or a *Dependency Parameter*. The former will require the user to supply either a fixed value or a data (see note) file in the case of a learned value (Mean or Bayes for example). The latter will require the user to choose another model in the project on which the *Dependency Parameter* depends on. Additionally, a *property* must be given which will be verified on the chosen model.
+For each *Uncategorised Parameter*, the user can choose to define it as an *External Parameter*, a *Dependency Parameter* or an *Internal Parameter*. *External Parameters* will require the user to supply a fixed value, a range  or a data (see note) file in the case of a learned value (Mean or Bayes for example). *Dependency Parameters* will require the user to choose another model in the project on which the *Dependency Parameter* depends on. Additionally, a *Property* must be given which will be verified on the chosen model. Fianlly, an *Internal Parameter* is defined as an interger set, a float set or a boolean. In the case of the first two, a range and interval will be provided. 
 
 Once every *Uncategorised Parameter* has been defined, the user may add *properties* to models by navigating to the *Properties* tab within the tool. Select a model from the left to add a property to and then press the *+* button to add a property. 
 
-To verify a property, select it (it must be highlighted) and click the *Verify* button (still inside the Property tab). If verification is succesful, a result will appear in the textbox below the button. If verification fails, open the *Logs* tab to view the source of the error. These logs can also be saved to a file. 
+To verify a property, select it (it must be highlighted) and click the *Verify* button (still inside the Property tab). If verification is succesful, a result will appear in the textbox below the button. If verification fails, open the *Logs* tab to view the source of the error. These logs can also be saved to a file. Results are displayed in a list view underneath the verify button. The user can toggle between showing all results or only the results of the currently selected Model/Property. When verification is run and there are ranged *External Parameters* in the World Model, there will be multiple results (for each possible configuration). Clicking on such results will display a *'Plot Results'* button which will produce line plots. If there is a single ranged parameter, this will be plotted on the x-axis. When multiple ranged parameters exist, the user will be asked to choose which one to ploit on the x-axis.
 
 The current project can be saved by pressing *File -> Save*.
 
@@ -80,13 +80,4 @@ The current project can be saved by pressing *File -> Save*.
 
 ### Video Guide
 
-<table>
-  <tr>
-    <td>
-      <a href="https://github.com/user-attachments/assets/fcd053ae-10bd-4fdf-9df8-da782176301b">
-        <img src="https://github.com/user-attachments/assets/57bcb869-bc42-42ea-a5b1-a89abf7a9994" alt="Image 1" width="700">
-      </a>
-    </td>
-  </tr>
-  <tr>
-</table>
+https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
