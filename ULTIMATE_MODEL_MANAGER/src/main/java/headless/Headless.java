@@ -17,6 +17,8 @@ import parameters.InternalParameter;
 import org.mariuszgromada.math.mxparser.mXparser;
 
 import ultimate.Ultimate;
+import verification.EvoCheckerUltimateInstance;
+
 import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.nio.file.Path;
@@ -116,7 +118,8 @@ public class Headless {
 							+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
 			ultimate.generateEvolvableModelFiles();
 			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
-			ultimate.instantiateEvoCheckerInstance(ultimate);
+			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
+			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
 			System.out.println("Running EvoChecker to synthesise parameters...\n");
 			ultimate.executeEvoChecker();

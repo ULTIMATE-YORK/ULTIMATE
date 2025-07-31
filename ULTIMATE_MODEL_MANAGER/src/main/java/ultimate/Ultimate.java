@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 import evochecker.EvoChecker;
+import evochecker.lifecycle.IUltimate;
 
 public class Ultimate {
 
@@ -45,7 +46,7 @@ public class Ultimate {
     private String property;
     private String objectivesConstraints;
 
-    private HashMap<String, String> internalParameterValues = new HashMap<>();
+    private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
     private EvoChecker evoChecker;
     private SolutionSet synthesisedParameters;
     private Path evolvableProjectFilePath;
@@ -73,7 +74,7 @@ public class Ultimate {
     public void generateModelInstances() {
         try {
             for (Model m : models) {
-                m.setInternalParametersFromHashMap(internalParameterValues);
+                m.setInternalParametersFromHashMap(internalParameterValuesHashMap);
                 FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
                         m.getInternalParameters());
             }
@@ -102,14 +103,14 @@ public class Ultimate {
         return internalParameters;
     }
 
-    public void setInternalParameters(HashMap<String, String> internalParameterValues) {
+    public void setInternalParameters(HashMap<String, String> internalParameterValuesHashMap) {
 
         // this sets the internal parameter values, but these are only actually
         // "instantiated" into
         // the model when instantiateProject is called (via
         // setInternalParametersFromHashMap)
 
-        this.internalParameterValues = internalParameterValues;
+        this.internalParameterValuesHashMap = internalParameterValuesHashMap;
     }
 
     public void setTargetModelID(String modelID) {
@@ -199,7 +200,7 @@ public class Ultimate {
 
     // }
 
-    public void instantiateEvoCheckerInstance(Ultimate ultimateInstance) {
+    public void instantiateEvoCheckerInstance(IUltimate ultimateInstance) {
         evoChecker = new EvoChecker();
         evoChecker.setUltimateInstance(ultimateInstance);
     }

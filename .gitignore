@@ -11,3 +11,5 @@ ULTIMATE_MODEL_MANAGER/prism
 ULTIMATE_MODEL_MANAGER/prism-games
 ULTIMATE_MODEL_MANAGER/data
 outputs/
+/.vscode
+install_ultimate
