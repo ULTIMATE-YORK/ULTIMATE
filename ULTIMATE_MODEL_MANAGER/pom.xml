@@ -19,12 +19,12 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
-  <repositories>
+  <!-- <repositories>
     <repository>
       <id>evochecker_repo</id>
       <url>file://${basedir}/evorepo</url>
     </repository>
-  </repositories>
+  </repositories> -->
 
   <dependencies>
     <!-- <dependency>
@@ -230,13 +230,13 @@
             <id>install_jars</id>
             <phase>validate</phase>
             <configuration>
-              <file>${basedir}/EvoChecker-1.1.1.jar</file>
+              <file>${basedir}/evochecker_for_ultimate.jar</file>
               <groupId>edu.evochecker_project</groupId>
-              <artifactId>evochecker</artifactId>
-              <version>1.0.1-SNAPSHOT</version>
+              <artifactId>evochecker_for_ultimate</artifactId>
+              <version>1.0.0</version>
               <packaging>jar</packaging>
               <generatePom>true</generatePom>
-              <localRepositoryPath>${basedir}/evorepo</localRepositoryPath>
+              <!-- <localRepositoryPath>${basedir}/evorepo</localRepositoryPath> -->
             </configuration>
             <goals>
               <goal>install-file</goal>
