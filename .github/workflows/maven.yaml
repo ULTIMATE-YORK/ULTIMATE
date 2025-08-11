@@ -27,7 +27,7 @@ jobs:
 
       - name: Install local jars
         working-directory: ULTIMATE_MODEL_MANAGER
-        run: mvn install:install-file -Dfile=libs/evochecker_for_ultimate.jar -DgroupId=edu.evochecker_project -DartifactId=evochecker_for_ultimate  -Dversion=1.0.0 -Dpackaging=jar -DlocalRepositoryPath=m2repo
+        run: mvn install:install-file -Dfile=libs/evochecker_for_ultimate.jar -DgroupId=edu.evochecker_project -DartifactId=evochecker_for_ultimate  -Dversion=1.0.0 -Dpackaging=jar
 
 
       - name: Build with Maven
