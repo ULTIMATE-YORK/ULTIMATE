@@ -1,0 +1,16 @@
+#! /bin/sh
+
+set -e
+
+ORIGIN_DIR=$(pwd)
+
+echo "Installing ULTIMATE-EvoChecker. If you do not see 'Complete!', there was an error."
+echo "Installing EvoChecker to Maven"
+mvn install:install-file -Dfile=EvoChecker-1.1.1.jar -DgroupId=edu.evochecker_project -DartifactId=evochecker -Dversion=1.0.1-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=evorepo
+echo "Packaging ULTIMATE"
+mvn clean package 
+ 
+
+cd $ORIGIN_DIR
+
+echo "Complete!"

@@ -19,6 +19,13 @@
     <maven.compiler.target>17</maven.compiler.target>
   </properties>
 
+  <repositories>
+    <repository>
+      <id>evochecker_repo</id>
+      <url>file://${basedir}/evorepo</url>
+    </repository>
+  </repositories>
+
   <dependencies>
     <!-- <dependency>
       <groupId>xerces</groupId>
@@ -213,6 +220,29 @@
         <configuration>
           <release>17</release>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-install-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install_jars</id>
+            <phase>validate</phase>
+            <configuration>
+              <file>${basedir}/EvoChecker-1.1.1.jar</file>
+              <groupId>edu.evochecker_project</groupId>
+              <artifactId>evochecker</artifactId>
+              <version>1.0.1-SNAPSHOT</version>
+              <packaging>jar</packaging>
+              <generatePom>true</generatePom>
+              <localRepositoryPath>${basedir}/evorepo</localRepositoryPath>
+            </configuration>
+            <goals>
+              <goal>install-file</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <!-- Copy Resources (Libraries and Runtime Files) -->

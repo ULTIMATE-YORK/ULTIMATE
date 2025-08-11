@@ -88,6 +88,8 @@ public class Headless {
 	public static void main(String[] args) throws NumberFormatException, IOException {
 
 		// create the parser
+		System.setProperty("slf4j.internal.verbosity", "WARN");
+
 		setUpCLI();
 		getArgs(args);
 
