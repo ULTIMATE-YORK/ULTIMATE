@@ -25,15 +25,18 @@ jobs:
       - name: Verify Java Version
         run: java -version
 
-      - name: Install local jars
+      - name: Maven: clean
         working-directory: ULTIMATE_MODEL_MANAGER
-        run: mvn install:install-file -Dfile=libs/evochecker_for_ultimate.jar -DgroupId=edu.evochecker_project -DartifactId=evochecker_for_ultimate  -Dversion=1.0.0 -Dpackaging=jar
+        run: mvn clean
 
-
-      - name: Build with Maven
+      - name: Maven: validate
         working-directory: ULTIMATE_MODEL_MANAGER
-        run: mvn clean install
+        run: mvn validate
+
+      - name: Maven: install
+        working-directory: ULTIMATE_MODEL_MANAGER
+        run: mvn install -U
       
-      - name: Run tests
+      - name: Maven: test
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn test
