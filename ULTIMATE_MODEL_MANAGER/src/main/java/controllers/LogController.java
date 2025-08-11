@@ -17,7 +17,7 @@ public class LogController {
 	@FXML private TextFlow logsField;
 	@FXML private Button saveLogs;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
+    private SharedContext sharedContext = SharedContext.getContext();
 	
     @FXML
     private void initialize() {

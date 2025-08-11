@@ -32,7 +32,7 @@ import evochecker.lifecycle.IUltimate;
 
 public class Ultimate {
 
-    private final SharedContext sharedContext = SharedContext.getInstance();
+    private final SharedContext sharedContext = SharedContext.getContext();
 
     private Project project;
     private String projectFile;
@@ -63,10 +63,16 @@ public class Ultimate {
         this.verbose = verbose;
     }
 
-    public void loadProject(String projectFile) throws IOException {
-        this.projectFile = projectFile;
-        project = new Project(projectFile);
-        sharedContext.setProject(project);
+    public void setProject(Project project) {
+        this.project = project;
+    }
+
+    public void loadProjectFromFile(String filepath) throws IOException {
+        project = new Project(filepath);
+        this.setProject(project);
+    }
+
+    public void initialiseProject() {
         models.addAll(project.getModels());
         verifier = new NPMCVerification(models);
     }
@@ -211,7 +217,8 @@ public class Ultimate {
                     "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
             System.exit(1);
         }
-        evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile, null);
+        evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile,
+                null);
     }
 
     public void executeEvoChecker() {

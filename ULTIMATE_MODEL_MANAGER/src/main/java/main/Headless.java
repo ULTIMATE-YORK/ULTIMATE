@@ -32,7 +32,7 @@ public class Headless {
 	private static String modelID = null;
 	private static String property = null;
 	private static boolean help = false;
-    private static SharedContext sharedContext = SharedContext.getInstance();
+    private static SharedContext sharedContext = SharedContext.getContext();
     
 	private static void setUpCLI() {		
 		Option help = new Option("help", "prints usage help inforamtion");
@@ -101,7 +101,7 @@ public class Headless {
 			return;
 		}
 		
-		sharedContext.setProject(project);
+		// sharedContext.setProject(project);
 	    Model testingModel = null;
 	    ArrayList<Model> models = new ArrayList<>();
 		models.addAll(project.getModels());

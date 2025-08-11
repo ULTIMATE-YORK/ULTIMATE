@@ -72,9 +72,7 @@ public class PropertiesController {
 	private ObservableList<String> allVerificationResults = FXCollections.observableArrayList();
 	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationResults, s -> true);
 
-	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+	private Project project = SharedContext.getUltimateInstance().getProject();
     
     private String verificationResult = "";
     private int verificationCount = 1;
@@ -98,7 +96,7 @@ public class PropertiesController {
 			Alerter.showErrorAlert("No Model Selected", "Select a model to add a property to!");
 			return;
 		}
-		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/add_property.fxml", "Add Property");
+		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_property.fxml", "Add Property");
 	}
 	
 	@FXML

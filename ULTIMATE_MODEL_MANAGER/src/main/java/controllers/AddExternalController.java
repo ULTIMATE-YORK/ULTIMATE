@@ -22,6 +22,7 @@ import parameters.UncategorisedParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
+import ultimate.Ultimate;
 
 public class AddExternalController {
 	
@@ -39,8 +40,7 @@ public class AddExternalController {
 	
 	private String dataFile = null;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getUltimateInstance().getProject();
 	private static final Logger logger = LoggerFactory.getLogger(AddExternalController.class);
 	
 	private boolean ranged = false;
@@ -120,7 +120,7 @@ public class AddExternalController {
 	
 	@FXML
 	private void chooseDataFile() {
-		dataFile = openDataFileDialog(sharedContext.getMainStage());
+		dataFile = openDataFileDialog(SharedContext.getMainStage());
 	}
 	
 	@FXML

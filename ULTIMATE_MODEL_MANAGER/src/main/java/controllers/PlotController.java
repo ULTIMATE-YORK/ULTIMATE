@@ -14,8 +14,8 @@ public class PlotController {
 	@FXML private ScrollPane chartHolder;
 	@FXML private Button generatePlotsButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private SharedContext sharedContext = SharedContext.getContext();
+    private Project project = SharedContext.getUltimateInstance().getProject();
 	
 	@FXML
 	private void generatePlots() {

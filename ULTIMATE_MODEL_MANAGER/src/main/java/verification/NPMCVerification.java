@@ -185,8 +185,7 @@ public class NPMCVerification {
             List<String> inputData = new ArrayList<>();
             VerificationModel startVerificationModel = sccModels.get(0);
             String startModelId = startVerificationModel.getModelId();
-            SharedContext sharedContext = SharedContext.getInstance();
-            Project project = sharedContext.getProject();
+            Project project = SharedContext.getUltimateInstance().getProject();
             String pmcPath = project.getStormInstall(); // Update as needed
             
             // Get the file path of the start model
@@ -539,8 +538,8 @@ public class NPMCVerification {
         if (isPrismGamesModel) {
             logger.info("Detected PRISM-games model type. Using PrismGamesProcessAPI...");
             try {
-                SharedContext sharedContext = SharedContext.getInstance();
-                Project project = sharedContext.getProject();
+                SharedContext sharedContext = SharedContext.getContext();
+                Project project = SharedContext.getUltimateInstance().getProject();
                 String prismGamesPath = project.getPrismGamesInstall();
                 
                 // Check if prismGamesPath is valid
@@ -587,8 +586,7 @@ public class NPMCVerification {
         // Try with Prism as fallback
         logger.info("Trying  fallback with PRISM...");
         try {
-            SharedContext sharedContext = SharedContext.getInstance();
-            Project project = sharedContext.getProject();
+            Project project = SharedContext.getUltimateInstance().getProject();
             String prismPath = project.getPrismInstall();
             return PrismProcessAPI.run(originalModel, property, prismPath);
         } catch (IOException prismProcessException) {

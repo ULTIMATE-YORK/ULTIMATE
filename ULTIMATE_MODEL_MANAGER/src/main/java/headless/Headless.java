@@ -28,7 +28,7 @@ import java.nio.file.Files;
 public class Headless {
 
 	private static Options options = new Options();
-	private static String projectFile = null;
+	private static String projectFilePath = null;
 	private static String outputDir = null;
 	private static String modelID = null;
 	private static String property = null;
@@ -72,7 +72,7 @@ public class Headless {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(options, args);
-			projectFile = line.getOptionValue("pf");
+			projectFilePath = line.getOptionValue("pf");
 			modelID = line.getOptionValue("m");
 			property = line.getOptionValue("p");
 			outputDir = line.getOptionValue("o");
@@ -99,9 +99,10 @@ public class Headless {
 			return;
 		}
 
-		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: " + Paths.get(projectFile).getFileName().toString()+"\n");
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: " + Paths.get(projectFilePath).getFileName().toString()+"\n");
 		Ultimate ultimate = new Ultimate();
-		ultimate.loadProject(projectFile);
+		ultimate.loadProjectFromFile(projectFilePath);
+		ultimate.initialiseProject();
 		ultimate.setTargetModelID(modelID);
 
 
@@ -143,13 +144,13 @@ public class Headless {
 					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
 					.collect(Collectors.joining("\n\t"));
 
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
 					+ "\nProblem type: Synthesis"
 					+ "\nModel ID: " + modelID
 					+ "\nInternal Parameters:\n\t" + parameterNames + "\n"
 					+ "Results were saved to /data/ULTIMATE");
 		} else {
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
 					+ "\nProblem type: Verification"
 					+ "\nModel ID: " + modelID
 					+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
@@ -158,7 +159,7 @@ public class Headless {
 		// Write the results HashMap to a file
 		if (outputDir != null) {
 			String fileName = outputDir + "/ultimate_results_" +
-					(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown")
+					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_") : "unknown")
 					+
 					"_" +
 					(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +

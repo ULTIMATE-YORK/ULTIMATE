@@ -38,8 +38,8 @@ public class ParameterController {
 	@FXML private VBox undefinedParametersVBox;
 	@FXML private VBox parameterDialogs;
 
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private SharedContext sharedContext = SharedContext.getContext();
+    private Project project = SharedContext.getUltimateInstance().getProject();
 
 	@FXML
 	public void initialize() {

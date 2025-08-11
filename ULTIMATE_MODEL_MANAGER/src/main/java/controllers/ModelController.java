@@ -25,8 +25,8 @@ public class ModelController {
 	@FXML private Button downButton;
 	@FXML private ListView<Model> modelListView;
 	
-	private SharedContext sharedContext = SharedContext.getInstance();
-	private Project project = sharedContext.getProject();
+	private SharedContext sharedContext = SharedContext.getContext();
+    private Project project = SharedContext.getUltimateInstance().getProject();
 
     @FXML
     public void initialize() {

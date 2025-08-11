@@ -21,8 +21,7 @@ public class AddInternalController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 
-	private SharedContext sharedContext = SharedContext.getInstance();
-	private Project project = sharedContext.getProject();
+	private Project project = SharedContext.getUltimateInstance().getProject();
 	
 	@FXML
 	public void initialize() {

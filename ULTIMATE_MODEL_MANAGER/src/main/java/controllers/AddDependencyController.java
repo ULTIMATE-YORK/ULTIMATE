@@ -11,6 +11,7 @@ import parameters.UncategorisedParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
+import ultimate.Ultimate;
 
 public class AddDependencyController {
 	
@@ -20,8 +21,9 @@ public class AddDependencyController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private SharedContext sharedContext = SharedContext.getContext();
+	private Ultimate ultimate = SharedContext.getUltimateInstance();
+    private Project project = ultimate.getProject();
 	
 	@FXML
 	public void initialize() {

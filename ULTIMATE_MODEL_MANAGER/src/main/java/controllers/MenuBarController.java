@@ -28,8 +28,7 @@ public class MenuBarController {
 	@FXML private MenuItem choosePrism;
 	@FXML private MenuItem chooseStorm;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();	
+    private Project project = SharedContext.getUltimateInstance().getProject();
 	
 	private static final Logger logger = LoggerFactory.getLogger(MenuBarController.class);
 
@@ -60,16 +59,16 @@ public class MenuBarController {
 	
 	@FXML
 	private void load() throws IOException {
-		String file = DialogOpener.openUltimateFileDialog(sharedContext.getMainStage());
+		String file = DialogOpener.openUltimateFileDialog(SharedContext.getMainStage());
 		if (file == null) {
 			return;
 		}
 		if (quit()) {
 			// TODO: pull this out into method
 			Stage newMainStage = new Stage();
-			sharedContext.setMainStage(newMainStage);
+			SharedContext.setMainStage(newMainStage);
 			Project project = new Project(file);
-			sharedContext.setProject(project);
+			SharedContext.getUltimateInstance().setProject(project);
 	        // Load the FXML file and initialize its associated controller
 	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
 	        
@@ -106,7 +105,7 @@ public class MenuBarController {
 	}
 	
 	@FXML private void saveAs() {
-		String location = DialogOpener.openUltimateSaveDialog(sharedContext.getMainStage());
+		String location = DialogOpener.openUltimateSaveDialog(SharedContext.getMainStage());
 		// deal with cancel neatly
 		if (location == null) {
 			return;
@@ -120,14 +119,14 @@ public class MenuBarController {
 		if (!project.isBlank()) {
 			boolean q = Alerter.showConfirmationAlert("Project Not Saved!", "Are you sure you want to quit without saving?");
 			if (q) {
-				sharedContext.getMainStage().close();
+				SharedContext.getMainStage().close();
 				return true;
 			}
 			else {
 				return false;
 			}
 		}
-		sharedContext.getMainStage().close();
+		SharedContext.getMainStage().close();
 		return true;
 	}
 	

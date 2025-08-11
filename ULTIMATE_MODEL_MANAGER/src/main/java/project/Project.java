@@ -47,14 +47,14 @@ public class Project {
 	private String saveLocation = null; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
 	private boolean configured = true;
-    private SharedContext sharedContext = SharedContext.getInstance();
+    private SharedContext sharedContext = SharedContext.getContext();
     private boolean isBlank;
     // key will be model id + property and second hashmap will be mapping of configuration to result
     private HashMap<String, HashMap<String, Double>> cache = new HashMap<String, HashMap<String, Double>>(); // cache for storing results of generated models
 	
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
-        sharedContext.setProject(this);
+        // sharedContext.setUltimateProject(this);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		saveLocation = projectPath;
@@ -84,9 +84,9 @@ public class Project {
         this.observableModels = FXCollections.observableArrayList();
         this.currentModel = new SimpleObjectProperty<>(null);
 		this.projectName = "untitled";
-        sharedContext.setProject(this);
-        if (sharedContext.getMainStage() != null) {
-    		sharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
+        // SharedContext.setProject(this);
+        if (SharedContext.getMainStage() != null) {
+    		SharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
 
         }
 		try {

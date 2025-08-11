@@ -18,8 +18,7 @@ public class ExternalParameter {
     private double learnedValue;
     private ArrayList<Double> rangedValues = new ArrayList<Double>();
     
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getUltimateInstance().getProject();
     
     public ExternalParameter(String name, String type, String value) throws NumberFormatException, IOException {
         this.name = name;

@@ -37,8 +37,7 @@ public class EditExternalParameter {
 	
 	private String dataFile = null;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getUltimateInstance().getProject();
     
     private ExternalParameter ep;
     
@@ -120,7 +119,7 @@ chooseType.getItems().addAll("Fixed","Mean","Mean-Rate", "Bayes", "Bayes-Rate", 
 	
 	@FXML
 	private void chooseDataFile() {
-		dataFile = openDataFileDialog(sharedContext.getMainStage());
+		dataFile = openDataFileDialog(SharedContext.getMainStage());
 	}
 	
 	@FXML
