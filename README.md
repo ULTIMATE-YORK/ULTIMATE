@@ -40,6 +40,8 @@ The full path to each executable for storm, storm-pars and prism will need to be
 {"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
 ```
 
+Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory.
+
 ### Option 1:
 
 Still within the folder 'ULTIMATE_MODEL_MANAGER', the simplest way to run the tool is to use the maven integration in the project. Run the following commands:
@@ -78,6 +80,28 @@ The current project can be saved by pressing *File -> Save*.
 
 **NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files. ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
 
+### Use of headless mode
+
+ULTIMATE features a headless mode alongside the GUI.
+
+To run headless mode, use:
+
+```
+java -jar target/ultimate-headless.jar -pf <project file> -m <model ID> -p <property> -o <output directory>
+```
+|Argument|Description|
+|-|-|
+|-pf| Project file path: path to a .ultimate file which defines the world model. These can be constructed and modified via the GUI.|
+|-m| Model ID: the ID of the specific model you wish to investigate within the world model.|
+|-p| Property: either the PCTL definition of a property (e.g. Pmin=?[F "done"]) or a file containing one such property per line. If left blank, all the properties of the model within the .ultimate file will be verified.|
+|-o| Output directory path: path to a directory at which ULTIMATE will output its verification results (with a random file name). If left blank, ULIMATE will print its results but not save them to a file.
+
+
+
 ### Video Guide
 
 https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
+
+### Publications
+
+Calinescu, Radu, et al. "Verification and External Parameter Inference for Stochastic World Models." [arXiv preprint arXiv:2503.16034 (2025)](https://doi.org/10.48550/arXiv.2503.16034)
