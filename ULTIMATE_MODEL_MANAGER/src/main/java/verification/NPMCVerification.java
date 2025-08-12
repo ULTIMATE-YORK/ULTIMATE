@@ -22,37 +22,35 @@ import java.util.*;
 
 public class NPMCVerification {
 
+    private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
-	
-    
     static class VerificationModel {
         private String modelId;
         private HashMap<String, Double> parameters;
-        
+
         public VerificationModel(String modelId) {
             this.modelId = modelId;
             this.parameters = new HashMap<>();
         }
-        
+
         public void setParameter(String paramName, double value) {
             this.parameters.put(paramName, value);
             logger.info("    → Setting parameter " + paramName + " = " + value + " for model " + modelId);
         }
-        
+
         public HashMap<String, Double> getParameters() {
             return parameters;
         }
-        
+
         public String getModelId() {
             return modelId;
         }
-        
+
         @Override
         public String toString() {
             return modelId;
         }
-        
+
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof VerificationModel) {
@@ -60,7 +58,7 @@ public class NPMCVerification {
             }
             return false;
         }
-        
+
         @Override
         public int hashCode() {
             return modelId.hashCode();
@@ -72,23 +70,24 @@ public class NPMCVerification {
     private ArrayList<Model> originalModels;
     private boolean usePythonSolver = false;
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
+
     public NPMCVerification(ArrayList<Model> models) {
-        License.iConfirmNonCommercialUse("ultimate,");  // Add this line to confirm license for math lib
+        License.iConfirmNonCommercialUse("ultimate,"); // Add this line to confirm license for math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
     }
-    
+
     public void setPythonSolverPath(String path) {
         this.pythonSolverPath = path;
     }
-    
+
     public void setModelsBasePath(String path) {
     }
-    
+
     private void initializeFromModels(ArrayList<Model> models) {
         logger.info("Initializing verification from models...");
-        
+
         // Create VerificationModel objects
         for (Model model : models) {
             VerificationModel vm = new VerificationModel(model.getModelId());
@@ -98,7 +97,7 @@ public class NPMCVerification {
         // Compute SCCs using DependencyGraph
         DependencyGraph depGraph = new DependencyGraph(models);
         List<Set<String>> sccs = depGraph.getSCC();
-        
+
         // Convert SCCs to VerificationModel format
         sccMap = new HashMap<>();
         for (Set<String> scc : sccs) {
@@ -120,33 +119,34 @@ public class NPMCVerification {
     }
 
     private double verifyModel(VerificationModel verificationModel, String property) throws IOException {
-        logger.info("\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
-        
+        logger.info(
+                "\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
+
         List<VerificationModel> currentSCC = sccMap.get(verificationModel);
         logger.info("Current SCC: " + currentSCC);
-        
+
         // Check if we need to use Python solver for this SCC
         if (!usePythonSolver) {
             for (VerificationModel model : currentSCC) {
                 logger.info("\nProcessing model: " + model);
                 List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
                 logger.info("Dependencies found: " + dependencies);
-                
+
                 for (DependencyParameter dep : dependencies) {
                     VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
                     List<VerificationModel> targetSCC = sccMap.get(targetModel);
-                    
+
                     if (!targetSCC.equals(currentSCC)) {
                         logger.info("  Processing dependency: " + dep);
                         logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
                         double result = verifyModel(targetModel, dep.getDefinition());
-                        model.setParameter(dep.getName(), result); 
+                        model.setParameter(dep.getName(), result);
                     } else {
                         logger.info("  Skipping dependency: " + dep + " (same SCC)");
                     }
                 }
             }
-            
+
             if (currentSCC.size() > 1) {
                 logger.info("\nResolving SCC for models: " + currentSCC);
                 try {
@@ -170,16 +170,20 @@ public class NPMCVerification {
                 resolveSCCWithPythonSolver(currentSCC);
             }
         }
-        
+
         double result = performPMC(verificationModel, property);
         logger.info("Final PMC result for " + verificationModel + ": " + result);
         // TODO : export model files with parameters set
         return result;
     }
-    
+
     private void resolveSCCWithPythonSolver(List<VerificationModel> sccModels) {
         logger.info("Starting SCC resolution using Python solver for models: " + sccModels);
-        
+        System.out.println("Starting SCC resolution using Python solver for models: " + sccModels);
+
+        // TODO: performance could probably be improved here by caching the results of the SCC resolution
+        // This would vastly speed up e.g. ULTIMATE synthesis (for models where this needs to be called)  
+
         try {
             // Prepare input for Python solver
             List<String> inputData = new ArrayList<>();
@@ -188,65 +192,66 @@ public class NPMCVerification {
             SharedContext sharedContext = SharedContext.getInstance();
             Project project = sharedContext.getProject();
             String pmcPath = project.getStormInstall(); // Update as needed
-            
+
             // Get the file path of the start model
             Model originalStartModel = getOriginalModel(startModelId);
             if (originalStartModel == null) {
-            	logger.error("Could not find original model for ID: " + startModelId);
+                logger.error("Could not find original model for ID: " + startModelId);
                 throw new RuntimeException("Could not find original model for ID: " + startModelId);
             }
-            
+
             String modelFilePath = originalStartModel.getVerificationFilePath();
             if (modelFilePath == null || modelFilePath.isEmpty()) {
-            	logger.error("Model path is empty for model: " + startModelId);
+                logger.error("Model path is empty for model: " + startModelId);
                 throw new RuntimeException("Model path is empty for model: " + startModelId);
             }
-            
+
             for (VerificationModel model : sccModels) {
                 Model originalModel = getOriginalModel(model.getModelId());
                 if (originalModel == null) {
                     logger.warn("Warning: Could not find original model for ID: " + model.getModelId());
                     continue;
                 }
-                
+
                 String currentModelFilePath = originalModel.getVerificationFilePath();
                 if (currentModelFilePath == null || currentModelFilePath.isEmpty()) {
                     logger.warn("Warning: File path is empty for model: " + model.getModelId());
                     continue;
                 }
-                
+
                 for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
                     VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
-                    
+
                     if (sccModels.contains(targetModel)) {
                         Model originalTargetModel = getOriginalModel(targetModel.getModelId());
                         if (originalTargetModel == null) {
-                            logger.warn("Warning: Could not find original target model for ID: " + targetModel.getModelId());
+                            logger.warn("Warning: Could not find original target model for ID: "
+                                    + targetModel.getModelId());
                             continue;
                         }
-                        
+
                         String targetModelFilePath = originalTargetModel.getVerificationFilePath();
                         if (targetModelFilePath == null || targetModelFilePath.isEmpty()) {
                             logger.warn("Warning: File path is empty for target model: " + targetModel.getModelId());
                             continue;
                         }
-                        
+
                         // Format: "dependent_model, source_model, property, variable_name"
-                        String inputLine = currentModelFilePath + ", " + 
-                                           targetModelFilePath + ", " + 
-                                           dep.getDefinition() + ", " + 
-                                           dep.getName();
+                        String inputLine = currentModelFilePath + ", " +
+                                targetModelFilePath + ", " +
+                                dep.getDefinition() + ", " +
+                                dep.getName();
                         inputData.add(inputLine);
                     }
                 }
             }
-            
+
             if (inputData.isEmpty()) {
                 logger.info("No dependencies found for SCC models. Skipping Python solver.");
                 return;
             }
-            
-                    // Build command for Python solver
+
+            // Build command for Python solver
             List<String> command = new ArrayList<>();
             String pythonPath = project.getPythonInstall();
             command.add(pythonPath);
@@ -259,10 +264,10 @@ public class NPMCVerification {
             command.add(modelFilePath);
             command.add("--input");
             command.addAll(inputData);
-//          command.add(" -pc");
+            // command.add(" -pc");
 
             logCommandWithLineBreaks(logger, command);
-            
+
             logger.info("Executing Python solver with command: ");
             for (String cmd : command) {
                 logger.info(cmd + " ");
@@ -271,7 +276,7 @@ public class NPMCVerification {
             for (String input : inputData) {
                 logger.info(input);
             }
-            
+
             // Execute Python solver
             ProcessBuilder processBuilder = new ProcessBuilder(command);
             processBuilder.redirectErrorStream(true);
@@ -283,16 +288,17 @@ public class NPMCVerification {
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             Map<String, Double> results = new HashMap<>();
-            
+
             while ((line = reader.readLine()) != null) {
                 logger.info(line);
-                
+
                 // Parse results from Python output
                 if (line.startsWith("Optimal parameters:")) {
-                    // Parse parameters from line like "Optimal parameters: {'param1': 0.123, 'param2': 0.456}"
+                    // Parse parameters from line like "Optimal parameters: {'param1': 0.123,
+                    // 'param2': 0.456}"
                     String paramsStr = line.substring(line.indexOf('{') + 1, line.lastIndexOf('}'));
                     String[] params = paramsStr.split(", ");
-                    
+
                     for (String param : params) {
                         String[] keyValue = param.split(":");
                         if (keyValue.length == 2) {
@@ -303,21 +309,21 @@ public class NPMCVerification {
                     }
                 }
             }
-            
+
             int exitCode = process.waitFor();
-            logger.info("Python solver exited with code: " + exitCode+" Time elapsed: "+(endTime-startTime));
-            
+            logger.info("Python solver exited with code: " + exitCode + " Time elapsed: " + (endTime - startTime));
+
             if (exitCode != 0) {
-            	logger.error("Python solver failed with exit code " + exitCode);
+                logger.error("Python solver failed with exit code " + exitCode);
                 throw new RuntimeException("Python solver failed with exit code " + exitCode);
             }
-            
+
             // Set calculated parameters to models
             if (!results.isEmpty()) {
                 for (Map.Entry<String, Double> entry : results.entrySet()) {
                     String paramName = entry.getKey();
                     Double paramValue = entry.getValue();
-                    
+
                     // Find which model this parameter belongs to
                     for (VerificationModel model : sccModels) {
                         for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
@@ -329,10 +335,10 @@ public class NPMCVerification {
                     }
                 }
             } else {
-            	logger.error("Failed to get results from Python solver");
+                logger.error("Failed to get results from Python solver");
                 throw new RuntimeException("Failed to get results from Python solver");
             }
-            
+
         } catch (IOException e) {
             logger.error("IOException when executing Python solver: " + e.getMessage());
             throw new RuntimeException("Failed to execute Python solver: " + e.getMessage(), e);
@@ -342,14 +348,14 @@ public class NPMCVerification {
             throw new RuntimeException("Python solver process interrupted: " + e.getMessage(), e);
         } catch (Exception e) {
             logger.error("Unexpected error during Python solver execution: " + e.getMessage());
-            //e.printStackTrace();
-            throw new RuntimeException("Python solver failed: " + e.getMessage(), e);
+            // e.printStackTrace();
+            throw new RuntimeException("Python solver failed: " + e.getMessage() +"\nHave you installed the Python dependencies?", e);
         }
     }
-    
+
     private void resolveSCC(List<VerificationModel> sccModels) {
         logger.info("Starting SCC resolution for models: " + sccModels);
-        
+
         // Store equations and their variables
         List<String> equations = new ArrayList<>();
         Set<String> variableSet = new HashSet<>();
@@ -360,19 +366,19 @@ public class NPMCVerification {
             logger.info("\nGetting dependencies for model: " + model);
             for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
                 VerificationModel targetModel = modelMap.get(dep.getModel().getModelId());
-                
+
                 if (sccModels.contains(targetModel)) {
                     String rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), null);
-                    
+
                     // Check if rational function is null or empty
                     if (rationalFunction == null || rationalFunction.trim().isEmpty()) {
-                        throw new RuntimeException("Failed to get rational function for " + dep.getName() + 
-                                                   " in model " + model.getModelId());
+                        throw new RuntimeException("Failed to get rational function for " + dep.getName() +
+                                " in model " + model.getModelId());
                     }
-                    
+
                     String equation = dep.getName() + " = " + rationalFunction;
                     logger.info("  Adding equation: " + equation);
-                    
+
                     // Transform equation to standard form f(x) = 0
                     String transformedEq = transformEquation(equation);
                     equations.add(transformedEq);
@@ -408,11 +414,11 @@ public class NPMCVerification {
             for (int i = 0; i < variables.length; i++) {
                 String variable = variables[i];
                 String equation = equationMap.get(variable);
-                
+
                 // Create expression to solve for current variable
                 String solveExpr = "solve(" + equation + ", " + variable + ", 0, 1)";
                 Expression e = new Expression(solveExpr, args);
-                
+
                 double newValue = e.calculate();
                 if (Double.isNaN(newValue)) {
                     logger.warn("  Failed to solve for " + variable);
@@ -448,19 +454,19 @@ public class NPMCVerification {
             }
         }
     }
-    
+
     private String transformEquation(String equation) {
         // Split equation into left and right sides
         String[] sides = equation.split("\\s*=\\s*");
         if (sides.length != 2) {
-        	logger.error("Invalid equation format: " + equation);
+            logger.error("Invalid equation format: " + equation);
             throw new IllegalArgumentException("Invalid equation format: " + equation);
         }
 
         // Move everything to left side (subtract right side)
         return "(" + sides[0] + ")-(" + sides[1] + ")";
     }
-    
+
     private List<DependencyParameter> getDependencyParams(String modelId) {
         for (Model model : originalModels) {
             if (model.getModelId().equals(modelId)) {
@@ -469,18 +475,18 @@ public class NPMCVerification {
         }
         return new ArrayList<>();
     }
-    
+
     private String getRationalFunction(VerificationModel model, String property, List<String> paramNames) {
         logger.info("Performing parametric MC for " + model + " with property " + property);
-        
+
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
-        	logger.error("Model not found: " + model.getModelId());
+            logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
 
         try {
-        	StormAPI sAPI = new StormAPI();
+            StormAPI sAPI = new StormAPI();
             String equationStr = sAPI.runPars(originalModel, property);
             logger.info("Received equation: " + equationStr);
             return equationStr;
@@ -492,7 +498,8 @@ public class NPMCVerification {
     }
 
     private double performPMC(VerificationModel model, String property) throws FileNotFoundException {
-        // System.out.println("Performing PMC for " + model + " with property " + property);
+        // System.out.println("Performing PMC for " + model + " with property " +
+        // property);
         logger.info("Performing PMC for " + model + " with property " + property);
         Model originalModel = getOriginalModel(model.getModelId());
         if (originalModel == null) {
@@ -500,14 +507,16 @@ public class NPMCVerification {
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
         try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashExternalParameters(), originalModel.getHashInternalParameters());
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(),
+                    originalModel.getHashExternalParameters(), originalModel.getHashInternalParameters());
         } catch (NumberFormatException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
         try {
-            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters(), originalModel.getHashInternalParameters());
+            FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), model.getParameters(),
+                    originalModel.getHashInternalParameters());
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -519,14 +528,15 @@ public class NPMCVerification {
             if (modelFilePath != null && !modelFilePath.isEmpty()) {
                 // Read the content of the model file to check for game model keywords
                 String modelContent = FileUtils.readFileAsString(modelFilePath);
-                
+
                 // Check if model content contains game model identifiers anywhere in the file
-                // We don't limit to just the first line as the model type might be after comments
-                if (modelContent != null && 
-                    (modelContent.contains("smg") || 
-                     modelContent.contains("tsg") || 
-                     modelContent.contains("csg") || 
-                     modelContent.contains("tptg"))) {
+                // We don't limit to just the first line as the model type might be after
+                // comments
+                if (modelContent != null &&
+                        (modelContent.contains("smg") ||
+                                modelContent.contains("tsg") ||
+                                modelContent.contains("csg") ||
+                                modelContent.contains("tptg"))) {
                     isPrismGamesModel = true;
                     logger.info("Detected PRISM-games model type: file contains game model identifier");
                 }
@@ -542,32 +552,32 @@ public class NPMCVerification {
                 SharedContext sharedContext = SharedContext.getInstance();
                 Project project = sharedContext.getProject();
                 String prismGamesPath = project.getPrismGamesInstall();
-                
+
                 // Check if prismGamesPath is valid
                 if (prismGamesPath == null || prismGamesPath.isEmpty()) {
                     logger.warn("PRISM-games installation path is not configured. Using default location.");
                     // Try to use a default location if not configured
                     prismGamesPath = project.getPrismInstall().replace("prism", "prism-games");
                 }
-                
+
                 logger.info("Using PRISM-games executable path: " + prismGamesPath);
-                
+
                 // Always export strategy for PRISM-games models
                 String modelName = getModelName(originalModel.getVerificationFilePath());
                 String propertyName = getPropertyName(property);
-                
+
                 // Create a directory for strategies if it doesn't exist
                 String strategyDir = "strategies";
                 new File(strategyDir).mkdirs();
-                
+
                 String strategyFilePath = strategyDir + "/" + modelName + "_" + propertyName + ".dot";
                 logger.info("Exporting strategy to: " + strategyFilePath);
-                
+
                 // Use property index 1 if not specified in the property string
                 int propertyIndex = getPropertyIndex(property);
-                
-               return PrismGamesProcessAPI.run(originalModel, property, 
-                                                               prismGamesPath);
+
+                return PrismGamesProcessAPI.run(originalModel, property,
+                        prismGamesPath);
             } catch (IOException prismGamesException) {
                 logger.error("Error running PrismGamesProcessAPI: " + prismGamesException.getMessage());
                 // Fall back to other methods if PrismGames fails
@@ -581,9 +591,9 @@ public class NPMCVerification {
         } catch (Exception stormException) {
             // Extract just the error message without stack trace
             logger.error("Error running Storm: " + stormException.getMessage());
-            //throw new Exception();
-        }       
-        
+            // throw new Exception();
+        }
+
         // Try with Prism as fallback
         logger.info("Trying  fallback with PRISM...");
         try {
@@ -594,10 +604,11 @@ public class NPMCVerification {
         } catch (IOException prismProcessException) {
             logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
             // Only throw if all attempts fail
-            throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + 
-                                      ": " + prismProcessException.getMessage());
+            throw new RuntimeException("All model checking methods failed for model " + model.getModelId() +
+                    ": " + prismProcessException.getMessage());
         }
     }
+
     private Model getOriginalModel(String modelId) {
         for (Model model : originalModels) {
             if (model.getModelId().equals(modelId)) {
@@ -606,6 +617,7 @@ public class NPMCVerification {
         }
         return null;
     }
+
     /**
      * Extracts a model name from its file path for use in strategy export filename
      * 
@@ -616,21 +628,22 @@ public class NPMCVerification {
         if (modelFilePath == null || modelFilePath.isEmpty()) {
             return "model";
         }
-        
+
         // Extract just the filename
         String fileName = new File(modelFilePath).getName();
-        
+
         // Remove file extension
         int lastDotIndex = fileName.lastIndexOf('.');
         if (lastDotIndex > 0) {
             return fileName.substring(0, lastDotIndex);
         }
-        
+
         return fileName;
     }
 
     /**
-     * Creates a simplified property name from a property string for use in strategy export filename
+     * Creates a simplified property name from a property string for use in strategy
+     * export filename
      * 
      * @param property The property string
      * @return A simplified property name
@@ -639,15 +652,15 @@ public class NPMCVerification {
         if (property == null || property.isEmpty()) {
             return "prop";
         }
-        
+
         // Create a safe filename by replacing special characters
         String safeProperty = property.replaceAll("[^a-zA-Z0-9]", "_");
-        
+
         // Limit length for filenames
         if (safeProperty.length() > 20) {
             safeProperty = safeProperty.substring(0, 20);
         }
-        
+
         return safeProperty;
     }
 
@@ -660,13 +673,13 @@ public class NPMCVerification {
     private int getPropertyIndex(String property) {
         // Default property index
         int propertyIndex = 1;
-        
+
         // Check if property contains a specific index pattern like "P4:" or similar
         if (property != null && !property.isEmpty()) {
             // Look for patterns like "P1:", "P2:", etc.
             java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("P(\\d+):");
             java.util.regex.Matcher matcher = pattern.matcher(property);
-            
+
             if (matcher.find()) {
                 try {
                     propertyIndex = Integer.parseInt(matcher.group(1));
@@ -675,9 +688,10 @@ public class NPMCVerification {
                 }
             }
         }
-        
+
         return propertyIndex;
     }
+
     private void logCommandWithLineBreaks(Logger logger, List<String> command) {
         StringBuilder fullCommand = new StringBuilder();
         for (int i = 0; i < command.size(); i++) {

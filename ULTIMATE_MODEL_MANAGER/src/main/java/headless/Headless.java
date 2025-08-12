@@ -56,7 +56,7 @@ public class Headless {
 				.build();
 
 		Option outputDir = Option.builder("o")
-				.argName("directory")
+				.argName("output directory")
 				.hasArg()
 				.desc("The output directory for the results file. If left unspecified, no file will be created.")
 				.build();
@@ -99,11 +99,13 @@ public class Headless {
 			return;
 		}
 
-		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: " + Paths.get(projectFile).getFileName().toString()+"\n");
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\n"
+				+ "\nProject file: " + Paths.get(projectFile).getFileName().toString()
+				+ "\nModel ID: " + modelID
+				+ "\nProperty file/definition: " + (property == null ? "(none specified - checking all)" : property) + "\n");
 		Ultimate ultimate = new Ultimate();
 		ultimate.loadProject(projectFile);
 		ultimate.setTargetModelID(modelID);
-
 
 		if (ultimate.getProject().containsRangedParameters()) {
 			System.err.println(
@@ -137,7 +139,8 @@ public class Headless {
 		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
 		// TODO: systemise the output by creating something like a OutputGenerator class
-		// TODO: maybe also write some utility to stylise the output, e.g. OutputUtility.printHeader()
+		// TODO: maybe also write some utility to stylise the output, e.g.
+		// OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
 			String parameterNames = internalParameters.stream()
 					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
