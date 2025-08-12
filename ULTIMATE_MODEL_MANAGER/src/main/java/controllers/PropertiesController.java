@@ -221,7 +221,7 @@ public class PropertiesController {
 
 	    CompletableFuture.runAsync(() -> {
 	        try {
-	            if (project.containsRanged()) {
+	            if (project.containsRangedParameters()) {
 	                handleRangedVerification(vModel, vProp, modalStage);
 	            } else {
 	                handleSimpleVerification(vModel, vProp, modalStage);
@@ -296,6 +296,9 @@ public class PropertiesController {
 	    Scene modalScene = new Scene(box, 300, 200);
 	    modalStage.setScene(modalScene);
 
+		// merge conflict resolved here: quite a large block of code seemed to have been added and then deleted on the plotting branch.
+		// presuming the current iteration is correct as the plotting branch was merged 21 days prior (4f6f836f810c6440d2f97f1e0d756b4a28f16f54).
+
 	    return modalStage;
 	}
 
@@ -347,7 +350,7 @@ public class PropertiesController {
 	    }
 
 	    for (Model m : models) {
-	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters());
+	        FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getHashExternalParameters(), m.getHashInternalParameters());
 	    }
 
 	    NPMCVerification verifier = new NPMCVerification(models);
@@ -636,7 +639,7 @@ public class PropertiesController {
 	}	
 
 	private void runVerificationsSequentially(
-	        List<HashMap<Model, HashMap<String, Double>>> rounds,
+	        List<HashMap<Model, HashMap<String, Double>>> rounds, 
 	        int index,
 	        ArrayList<Model> models,
 	        String verifyModelId,
@@ -671,7 +674,8 @@ public class PropertiesController {
 	            }
 	        }
 	        try {
-				FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+				// FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
+				throw new IOException("Sequential verification not supported in this branch"); // Placeholder for actual file writing logic
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

@@ -1,0 +1,25 @@
+dtmc
+
+// chance of cheater cheating
+const double boldness;
+const double weighting;
+
+const double pFair = (1-weighting)/5;
+
+module cheater
+
+    // whether or not he cheats
+    cheating: [0..1] init 0;
+    diceRoll: [0..6] init 0;
+
+    // either cheat (use weighted dice) or play fair
+    [playFair] cheating=0 -> 1/6 : (diceRoll'=1) + 1/6 : (diceRoll'=2) + 1/6 : (diceRoll'=3) + 1/6 : (diceRoll'=4) + 1/6: (diceRoll'=5) + 1/6 : (diceRoll'=6);
+    [cheat] cheating=1 -> pFair : (diceRoll'=1) + pFair : (diceRoll'=2) + pFair : (diceRoll'=3) + pFair : (diceRoll'=4) + pFair : (diceRoll'=5) + weighting : (diceRoll'=6);
+
+
+    // in both cases the cheater decides whether to cheat again next roll
+    [playFair] true -> 1-boldness: (cheating'=0) + boldness: (cheating'=1);
+    [cheat] true -> 1-boldness: (cheating'=0) + boldness: (cheating'=1);
+
+	
+endmodule

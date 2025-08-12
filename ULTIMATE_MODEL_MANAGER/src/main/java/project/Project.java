@@ -256,7 +256,7 @@ public class Project {
 	}
     
 	private void setupConfigs() throws IOException {
-        File configFile = new File("config.json");
+        File configFile = new File(System.getenv("ULTIMATE_DIR") + "/config.json");
         String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
         JSONObject configJSON = new JSONObject(content);
         
@@ -323,7 +323,7 @@ public class Project {
 		
 	}
 	
-	public boolean containsRanged() {
+	public boolean containsRangedParameters() {
 		for (Model model : models) {
 			for (ExternalParameter parameter : model.getExternalParameters()) {
 				if (parameter.getType().equals("Ranged")) {

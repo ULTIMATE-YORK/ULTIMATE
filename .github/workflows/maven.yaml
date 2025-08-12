@@ -25,10 +25,18 @@ jobs:
       - name: Verify Java Version
         run: java -version
 
-      - name: Build with Maven
+      - name: Maven - clean
         working-directory: ULTIMATE_MODEL_MANAGER
-        run: mvn clean install
+        run: mvn clean
+
+      - name: Maven - validate
+        working-directory: ULTIMATE_MODEL_MANAGER
+        run: mvn validate
+
+      - name: Maven - install
+        working-directory: ULTIMATE_MODEL_MANAGER
+        run: mvn install -U
       
-      - name: Run tests
+      - name: Maven - test
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn test
