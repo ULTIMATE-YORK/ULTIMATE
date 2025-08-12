@@ -80,7 +80,7 @@ The current project can be saved by pressing *File -> Save*.
 
 **NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files. ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
 
-### Use of headless mode
+### Use of Headless Mode
 
 ULTIMATE features a headless mode alongside the GUI.
 
@@ -89,13 +89,32 @@ To run headless mode, use:
 ```
 java -jar target/ultimate-headless.jar -pf <project file> -m <model ID> -p <property> -o <output directory>
 ```
+
 |Argument|Description|
 |-|-|
 |-pf| Project file path: path to a .ultimate file which defines the world model. These can be constructed and modified via the GUI.|
 |-m| Model ID: the ID of the specific model you wish to investigate within the world model.|
-|-p| Property: either the PCTL definition of a property (e.g. Pmin=?[F "done"]) or a file containing one such property per line. If left blank, all the properties of the model within the .ultimate file will be verified.|
+|-p| Property: either the PCTL definition of a property (e.g. Pmin=?[F "done"]) or a file containing one such property per line. If left blank, all the properties of the model specified by the model ID within the .ultimate file will be verified.|
 |-o| Output directory path: path to a directory at which ULTIMATE will output its verification results (with a random file name). If left blank, ULIMATE will print its results but not save them to a file.
 
+You will need a valid .ultimate file to use headless mode. This is best obtained by constructing a world model with the GUI.
+
+### Property Synthesis
+
+ULTIMATE can be used to optimise the free parameters of world models. This is accomplished via integration with [EvoChecker](https://github.com/gerasimou/EvoChecker/). Given a world model with free ('internal') parameters and a set of objectives and constraints, ULTIMATE uses EvoChecker to evolve the population of internal parameter configurations and thus generate a Pareto set of parameter values which optimise for the objectives whilst respecting the constraints.
+
+Synthesis presently only works in headless mode. To use it, simply run the headless version as described above on a .ultimate model which contains internal parameters. ULTIMATE will detect this as a synthesis problem, and run invoke EvoChecker. Do not provide a property file or definition; all properties, objectives, and constraints are defined within the .ultimate file. Synthesis may take some time, as ULTIMATE will invoke EvoChecker, which performs evolution and invokes ULTIMATE once per genetic individual in order to find the associated values of the objectives and constraints.
+
+To adjust the behaviour of EvoChecker, one may modify evochecker_config.properties. Important settings include:
+
+|Setting|Description|
+|-|-|
+|ALGORITHM|The genetic algorithm used for the evolution: NGSAII, MOCELL, SPEA2, RANDOM.|
+|POPULATION_SIZE|The size of the initial population for the GA.|
+|MAX_EVALUATIONS|The total number of ULTIMATE invocations. Note that EvoChecker invokes ULTIMATE once per individual per generation. Therefore if MAX_EVALUATIONS = 2*POPULATION_SIZE, evolution will last roughly two generations.|
+|PLOT_PARETO_FRONT|Whether or not to plot the Pareto front after synthesis.|
+|VERBOSE|Sets the verbosity of EvoChecker. If TRUE then the fitness of each individual will be printed.|
+|MODEL_CHECKING_ENGINE_LIBS_DIRECTORY | Libs for EvoChecker This should be libs/runtime or libs/runtime-amd64 depending on your architecture.|
 
 
 ### Video Guide
