@@ -39,8 +39,13 @@ The full path to each executable for storm, storm-pars and prism will need to be
 ```json
 {"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
 ```
+Then, add an environment variable to your system called 'ULTIMATE_DIR' which points to the ultimate/ULTIMATE_MODEL_MANAGER directory. For example, Linux users can add the following to their .bashrc:
 
-Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory.
+```
+export ULTIMATE_DIR=<path to ultimate/ULTIMATE_MODEL_MANAGER>
+```
+
+Finally, make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory.
 
 ### Option 1:
 
@@ -82,9 +87,9 @@ The current project can be saved by pressing *File -> Save*.
 
 ### Use of Headless Mode
 
-ULTIMATE features a headless mode alongside the GUI.
+ULTIMATE features a headless mode alongside the GUI. 
 
-To run headless mode, use:
+To run headless mode, first compile it with `mvn clean install` in the ULTIMATE_MODEL_MANAGER folder. Then use:
 
 ```
 java -jar target/ultimate-headless.jar -pf <project file> -m <model ID> -p <property> -o <output directory>
