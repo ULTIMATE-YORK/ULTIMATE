@@ -2,15 +2,15 @@ package parameters;
 
 import jmetal.encodings.variable.Int;
 
-public class InternalParameter {
+public class InternalParameter implements IStaticParameter {
 	private String name;
 	private String type = "double";
-	private Number min;
-	private Number max;
+	private String min;
+	private String max;
 	private Double interval;
 	private String value;
 
-	public InternalParameter(String name, String type, Number min, Number max, Double interval) {
+	public InternalParameter(String name, String type, String min, String max, Double interval) {
 		this.name = name;
 		this.type = type;
 		this.min = min;
@@ -18,18 +18,17 @@ public class InternalParameter {
 		this.interval = interval;
 	}
 
-	public InternalParameter(String name, String type, String min, String max, Double interval) {
+	public InternalParameter(String name, String min, String max, Double interval) {
 		this.name = name;
-		this.type = type;
 
-		if (("int".equals(type))) {
-			this.min = Integer.parseInt(min);
-			this.max = Integer.parseInt(max);
-		} else {
-			this.min = Double.parseDouble(min);
-			this.max = Double.parseDouble(max);
-		}
-
+		// if (("int".equals(type))) {
+		// 	this.min = Integer.parseInt(min);
+		// 	this.max = Integer.parseInt(max);
+		// } else {
+		// }
+		this.min = min;
+		this.max = max;
+		
 		this.interval = interval;
 	}
 
@@ -47,11 +46,11 @@ public class InternalParameter {
 		return this.type;
 	}
 
-	public Number getMin() {
+	public String getMin() {
 		return this.min;
 	}
 
-	public Number getMax() {
+	public String getMax() {
 		return this.max;
 	}
 
@@ -77,11 +76,11 @@ public class InternalParameter {
 		this.interval = interval;
 	}
 
-	public void setMin(Double min) {
+	public void setMin(String min) {
 		this.min = min;
 	}
 
-	public void setMax(Double max) {
+	public void setMax(String max) {
 		this.max = max;
 	}
 

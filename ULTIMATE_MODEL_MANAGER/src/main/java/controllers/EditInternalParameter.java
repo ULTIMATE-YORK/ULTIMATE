@@ -19,7 +19,7 @@ public class EditInternalParameter {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
 	
 	private InternalParameter ip;
 	
@@ -31,8 +31,8 @@ public class EditInternalParameter {
 	@FXML
 	private void saveIParam() {
 		String typeValue = type.getValue();
-        Double min = Double.parseDouble(this.min.getText());
-        Double max = Double.parseDouble(this.max.getText());
+        String min = this.min.getText();
+        String max = this.max.getText();
         Double interval = Double.parseDouble(this.interval.getText());
         if (typeValue == null || min == null || max == null || interval == null) {
         	Alerter.showErrorAlert("Invalid Parameter", "Please define all parameters!");

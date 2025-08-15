@@ -28,11 +28,10 @@ public class Main extends Application {
         // Set up the shared context singleton instance for sharing data across the application
         SharedContext.setMainStage(stage); // Store the primary stage in the shared context
         
-        // set up blank project
         Project blankProject = new Project();
-        // set the reference
-        SharedContext.getUltimateInstance().setProject(blankProject);
-
+        SharedContext.setProject(blankProject);
+        // SharedContext.getUltimateInstance().setProject(SharedContext.getProject());
+        
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
         

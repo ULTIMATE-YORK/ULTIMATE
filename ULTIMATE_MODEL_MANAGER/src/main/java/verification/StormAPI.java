@@ -17,7 +17,7 @@ public class StormAPI {
 	private static final Logger logger = LoggerFactory.getLogger(StormAPI.class);
 	
 	public double run(Model model, String propFile) throws IOException {
-    	project = SharedContext.getUltimateInstance().getProject();
+    	project = SharedContext.getProject();
 	    String si = project.getStormInstall();
 		String command = String.format(si + " --prism \"%s\" --prop \"%s\" -pc", model.getVerificationFilePath(), propFile);
 		String output = OSCommandExecutor.executeCommand(command);
@@ -27,7 +27,7 @@ public class StormAPI {
 	}
 	
 	public String runPars(Model model, String propFile) throws IOException {
-    	project = SharedContext.getUltimateInstance().getProject();
+    	project = SharedContext.getProject();
 	    String spi = project.getStormParsInstall();
 		String command = String.format(spi + " --mode solutionfunction --prism \"%s\" --prop \"%s\"", model.getVerificationFilePath(), propFile);
 		String output = OSCommandExecutor.executeCommand(command);

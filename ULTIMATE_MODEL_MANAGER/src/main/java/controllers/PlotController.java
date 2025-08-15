@@ -15,7 +15,7 @@ public class PlotController {
 	@FXML private Button generatePlotsButton;
 	
     private SharedContext sharedContext = SharedContext.getContext();
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
 	
 	@FXML
 	private void generatePlots() {

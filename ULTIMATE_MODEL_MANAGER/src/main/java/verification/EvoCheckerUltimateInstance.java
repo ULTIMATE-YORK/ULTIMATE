@@ -9,12 +9,12 @@ public class EvoCheckerUltimateInstance implements IUltimate {
 
     private Ultimate ultimate;
 
-    public EvoCheckerUltimateInstance(Ultimate ultimate){
+    public EvoCheckerUltimateInstance(Ultimate ultimate) {
         this.ultimate = ultimate;
     }
 
     public void setTargetModelId(String id) {
-        ultimate.setTargetModelID(id);
+        ultimate.setTargetModelById(id);
     }
 
     public void setInternalParameters(HashMap<String, String> internalParameterValuesHashMap) {
@@ -39,13 +39,13 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         }
     }
 
-    public void setVerificationProperty(String propertyFileOrString){
+    public void setVerificationProperty(String propertyFileOrString) {
         ultimate.setVerificationProperty(propertyFileOrString);
     }
 
-    public HashMap<String, Double> getResults(){
+    // TODO: In EvoChecker: conform to the new data type HashMap<String, String>.
+    public HashMap<String, String> getResults() {
         return ultimate.getResults();
     }
 
-    
 }

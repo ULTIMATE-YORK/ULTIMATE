@@ -7,7 +7,7 @@ import java.util.Arrays;
 
 public class MeanCalculator {
     
-	public static double computeMean(String filename, String character) throws IOException, NumberFormatException {
+	public static Double computeMean(String filename, String character) throws IOException, NumberFormatException {
         // Read file content as a single string
         String content = new String(Files.readAllBytes(Paths.get(filename)));
 
@@ -22,8 +22,8 @@ public class MeanCalculator {
     }
 	
 	
-	public static double computeMeanRate(String filename, String character) throws NumberFormatException, IOException {
-		double mean = computeMean(filename, character);
+	public static Double computeMeanRate(String filename, String character) throws NumberFormatException, IOException {
+		Double mean = computeMean(filename, character);
 		if (mean == 0.0) {
 			return 0.0;
 		}

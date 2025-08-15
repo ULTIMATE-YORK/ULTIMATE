@@ -21,7 +21,9 @@ import parameters.InternalParameter;
 import jmetal.core.SolutionSet;
 import jmetal.core.Solution;
 import java.util.List;
-
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
@@ -29,16 +31,14 @@ import java.nio.file.StandardCopyOption;
 
 import evochecker.EvoChecker;
 import evochecker.lifecycle.IUltimate;
+import parameters.IStaticParameter;
 
 public class Ultimate {
 
-    private final SharedContext sharedContext = SharedContext.getContext();
+    // private Project project;
+    // private String projectFilePath;
 
-    private Project project;
-    private String projectFile;
-
-    private Model testingModel;
-    private String testingModelID;
+    private Model targetModel;
 
     private NPMCVerification verifier;
     private ArrayList<Model> models = new ArrayList<>();
@@ -47,33 +47,54 @@ public class Ultimate {
     private String objectivesConstraints;
 
     private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
+    private HashMap<String, String> externalParameterValuesHashMap = new HashMap<>();
+
     private EvoChecker evoChecker;
     private SolutionSet synthesisedParameters;
     private Path evolvableProjectFilePath;
 
+    private String mode;
+
     private boolean verbose;
 
-    java.util.HashMap<String, Double> results = new java.util.HashMap<>();
+    java.util.HashMap<String, String> results = new java.util.HashMap<>();
 
     public Ultimate() {
 
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getMode() {
+        return mode;
     }
 
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
 
-    public void setProject(Project project) {
-        this.project = project;
-    }
+    // public void setProject(Project project) {
+    // this.project = project;
+    // this.projectFilePath = project.getPath();
+    // }
 
-    public void loadProjectFromFile(String filepath) throws IOException {
-        project = new Project(filepath);
-        this.setProject(project);
-    }
+    // public void loadProjectFromFile(String filepath) throws IOException {
+    // this.projectFilePath = filepath;
+    // project = new Project(filepath);
+    // // issue is that the project import requires the project path which is only
+    // initialised AFTER the project is loaded.
+    // this.setProject(project);
+    // }
 
-    public void initialiseProject() {
-        models.addAll(project.getModels());
+    public void initialiseModels() {
+        Set<Model> projectModels = SharedContext.getProject().getModels();
+        if (projectModels == null || projectModels.size() == 0) {
+            System.err
+                    .println("Warning: ULTIMATE tried to initialise models, but no models were found in the project.");
+        }
+        models.addAll(SharedContext.getProject().getModels());
         verifier = new NPMCVerification(models);
     }
 
@@ -81,6 +102,7 @@ public class Ultimate {
         try {
             for (Model m : models) {
                 m.setInternalParametersFromHashMap(internalParameterValuesHashMap);
+                m.setExternalParametersFromHashMap(externalParameterValuesHashMap);
                 FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
                         m.getInternalParameters());
             }
@@ -92,6 +114,7 @@ public class Ultimate {
     }
 
     public ObservableList<InternalParameter> getInternalParameters() {
+        Project project = SharedContext.getProject();
         if (project == null) {
             throw new IllegalStateException("Project has not been instantiated yet.");
         }
@@ -113,32 +136,38 @@ public class Ultimate {
 
         // this sets the internal parameter values, but these are only actually
         // "instantiated" into
-        // the model when instantiateProject is called (via
+        // the model when generateModelInstances is called (via
         // setInternalParametersFromHashMap)
 
         this.internalParameterValuesHashMap = internalParameterValuesHashMap;
     }
 
-    public void setTargetModelID(String modelID) {
-        this.testingModelID = modelID;
-        for (Model m : models) {
-            if (m.getModelId().equals(modelID)) {
-                this.testingModel = m;
-                return;
-            }
+    public void setExternalParameters(HashMap<String, ?> params) {
+        HashMap<String, String> hm = new HashMap<>();
+        for (Map.Entry<String, ?> e : params.entrySet()) {
+            hm.put(e.getKey(), e.getValue().toString());
         }
+        this.externalParameterValuesHashMap = hm;
+    }
 
-        if (this.testingModel == null) {
+    public void setTargetModelById(String modelID) {
+        System.out.println("setTestingModel: " + models.stream().map(Model::getModelId).collect(Collectors.toList()));
+        Model matchingModel = models.stream().filter(model -> model.getModelId().equals(modelID)).findFirst().orElse(null);
+        this.targetModel = matchingModel;
+
+        if (this.targetModel == null) {
             throw new IllegalArgumentException("Model ID not found: " + modelID); // Fail if not found
         }
     }
 
     public void generateEvolvableModelFiles() {
 
+        Project project = SharedContext.getProject();
+
         try {
 
             Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
-            Path sourceProjectPath = Paths.get(projectFile);
+            Path sourceProjectPath = Paths.get(project.getPath());
             Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
             evolvableProjectFilePath = targetProjectPath;
             Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
@@ -168,10 +197,11 @@ public class Ultimate {
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
         if (property == null) {
-            for (Property p : testingModel.getProperties()) {
+            for (Property p : targetModel.getProperties()) {
                 if (verbose)
                     System.out.println("Verifying property: " + p.getProperty());
-                double result_value = verifier.verify(testingModelID, p.getProperty());
+                String result_value = verifier.verify(targetModel.getModelId(), p.getProperty());
+                System.out.println("Result: " + result_value);
                 results.put(p.toString(), result_value);
             }
         } else {
@@ -182,12 +212,12 @@ public class Ultimate {
                     if (verbose)
                         System.out.println("Verifying property: " + line.trim());
                     if (!line.trim().isEmpty()) {
-                        double result_value = verifier.verify(testingModelID, line.trim());
+                        String result_value = verifier.verify(targetModel.getModelId(), line.trim());
                         results.put(line.trim(), result_value);
                     }
                 }
             } else { // string -> verify single property
-                double result_value = verifier.verify(testingModelID, property);
+                String result_value = verifier.verify(targetModel.getModelId(), property);
                 if (verbose)
                     System.out.println(property + ": " + result_value);
                 results.put(property, result_value);
@@ -234,8 +264,12 @@ public class Ultimate {
         this.property = propertyFileOrString;
     }
 
+    public void setVerificationProperty(Property property) {
+        this.property = property.toString();
+    }
+
     // TODO: safely rename to getVerificationResults
-    public java.util.HashMap<String, Double> getResults() {
+    public java.util.HashMap<String, String> getResults() {
         return results;
     }
 
@@ -283,6 +317,35 @@ public class Ultimate {
         results = new java.util.HashMap<>();
     }
 
+    public String generateModelConfigurationIdentifier() throws IOException {
+
+        StringBuilder configIdBuilder = new StringBuilder();
+
+        // save all eps, ips, to string
+        for (Model m : this.models) {
+            for (IStaticParameter p : m.getStaticParameters()) {
+                configIdBuilder.append(p.getName() + " : " + p.getValue() + "\n");
+            }
+        }
+
+        return configIdBuilder.toString();
+    }
+
+    public HashMap<String, String> generateModelConfigurationHashMap() throws IOException {
+
+        HashMap<String, String> modelConfigurationHashMap = new HashMap<>();
+
+        // save all eps, ips, to string
+        for (Model m : this.models) {
+            for (IStaticParameter p : m.getStaticParameters()) {
+                modelConfigurationHashMap.put(p.getName(), p.getValue());
+            }
+        }
+
+        return modelConfigurationHashMap;
+
+    }
+
     public String getVerificationResultsInfo() {
 
         StringBuilder resultsInfo = new StringBuilder();
@@ -293,12 +356,21 @@ public class Ultimate {
 
     }
 
-    public String getProjectFile() {
-        return projectFile;
-    }
+    // public String getProjectFilePath() {
+    // return projectFilePath;
+    // }
 
-    public String getTestingModelID() {
-        return testingModelID;
+    // public String getProjectDirectoryPath(){
+    // if (projectFilePath == null) {
+    // return null;
+    // }
+    // Path path = Paths.get(projectFilePath);
+    // Path parent = path.getParent();
+    // return parent != null ? parent.toString() : null;
+    // }
+
+    public String getTargetModelId() {
+        return targetModel.getModelId();
     }
 
     public String getProperty() {
@@ -309,12 +381,12 @@ public class Ultimate {
         return objectivesConstraints;
     }
 
-    public Project getProject() {
-        return project;
-    }
+    // public Project getProject() {
+    // return project;
+    // }
 
-    public Model getTestingModel() {
-        return testingModel;
+    public Model getTargetModel() {
+        return targetModel;
     }
 
     public Path getEvolvableProjectFilePath() {

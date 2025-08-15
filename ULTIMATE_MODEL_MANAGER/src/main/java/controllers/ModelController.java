@@ -26,7 +26,7 @@ public class ModelController {
 	@FXML private ListView<Model> modelListView;
 	
 	private SharedContext sharedContext = SharedContext.getContext();
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
 
     @FXML
     public void initialize() {
@@ -59,7 +59,7 @@ public class ModelController {
 	        newModel.addUncategorisedParametersFromFile();
 	        project.addModel(newModel);
 	        //System.out.println("Model added successfully: " + newModel);
-	        if (project.directory() == null) {
+	        if (project.getDirectoryPath() == null) {
 	        	Path file = Paths.get(filePath);
 	        	Path parent = file.getParent(); 
 	        	project.setDirectory(parent.toString());

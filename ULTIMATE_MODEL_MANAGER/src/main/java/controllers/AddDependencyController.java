@@ -23,7 +23,7 @@ public class AddDependencyController {
 	
     private SharedContext sharedContext = SharedContext.getContext();
 	private Ultimate ultimate = SharedContext.getUltimateInstance();
-    private Project project = ultimate.getProject();
+    private Project project = SharedContext.getProject();
 	
 	@FXML
 	public void initialize() {

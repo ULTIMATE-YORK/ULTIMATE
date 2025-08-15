@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.Files;
+import sharedContext.SharedContext;
+import project.Project;
 
 public class Headless {
 
@@ -99,14 +101,14 @@ public class Headless {
 			return;
 		}
 
-		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: " + Paths.get(projectFilePath).getFileName().toString()+"\n");
-		Ultimate ultimate = new Ultimate();
-		ultimate.loadProjectFromFile(projectFilePath);
-		ultimate.initialiseProject();
-		ultimate.setTargetModelID(modelID);
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: "
+				+ Paths.get(projectFilePath).getFileName().toString() + "\n");
+		SharedContext.loadProjectFromPath(projectFilePath);
+		Ultimate ultimate = SharedContext.getUltimateInstance();
+		ultimate.initialiseModels();
+		ultimate.setTargetModelById(modelID);
 
-
-		if (ultimate.getProject().containsRangedParameters()) {
+		if (SharedContext.getProject().containsRangedParameters()) {
 			System.err.println(
 					"Ranged external parameters were found in the project."
 							+ "\nHeadless mode does not yet support experiments (projects with ranged external parameters)."
@@ -135,10 +137,11 @@ public class Headless {
 			ultimate.execute();
 		}
 
-		java.util.HashMap<String, Double> results = ultimate.getResults();
+		java.util.HashMap<String, String> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
 		// TODO: systemise the output by creating something like a OutputGenerator class
-		// TODO: maybe also write some utility to stylise the output, e.g. OutputUtility.printHeader()
+		// TODO: maybe also write some utility to stylise the output, e.g.
+		// OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
 			String parameterNames = internalParameters.stream()
 					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
@@ -159,7 +162,8 @@ public class Headless {
 		// Write the results HashMap to a file
 		if (outputDir != null) {
 			String fileName = outputDir + "/ultimate_results_" +
-					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_") : "unknown")
+					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_")
+							: "unknown")
 					+
 					"_" +
 					(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
@@ -172,7 +176,7 @@ public class Headless {
 			try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
 					java.nio.file.Paths.get(fileName),
 					java.nio.charset.StandardCharsets.UTF_8)) {
-				for (java.util.Map.Entry<String, Double> entry : results.entrySet()) {
+				for (java.util.Map.Entry<String, String> entry : results.entrySet()) {
 					writer.write(entry.getKey() + ": " + entry.getValue());
 					writer.newLine();
 				}

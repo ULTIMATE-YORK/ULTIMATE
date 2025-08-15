@@ -28,7 +28,7 @@ public class MenuBarController {
 	@FXML private MenuItem choosePrism;
 	@FXML private MenuItem chooseStorm;
 	
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
 	
 	private static final Logger logger = LoggerFactory.getLogger(MenuBarController.class);
 
@@ -68,7 +68,7 @@ public class MenuBarController {
 			Stage newMainStage = new Stage();
 			SharedContext.setMainStage(newMainStage);
 			Project project = new Project(file);
-			SharedContext.getUltimateInstance().setProject(project);
+			SharedContext.setProject(project);
 	        // Load the FXML file and initialize its associated controller
 	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
 	        

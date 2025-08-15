@@ -18,7 +18,7 @@ public class EditDependencyParameter {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
     
     private DependencyParameter dp;
 	

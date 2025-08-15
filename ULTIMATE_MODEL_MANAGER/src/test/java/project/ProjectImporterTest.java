@@ -16,7 +16,7 @@ public class ProjectImporterTest {
 	@Test
 	void testImportProject() throws IOException {
 		ProjectImporter importer = new ProjectImporter(getResourcePath("projectTestResources/SMD.ultimate"));
-		Set<Model> projectModels = importer.importProject();
+		Set<Model> projectModels = importer.importProjectModels();
 	    assertTrue(projectModels.size() == 2);
 	}
 	

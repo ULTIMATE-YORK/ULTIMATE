@@ -1,5 +1,7 @@
 package sharedContext;
 
+import java.io.IOException;
+
 import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
@@ -8,6 +10,7 @@ public class SharedContext {
 
     private static final SharedContext context = new SharedContext(); // Singleton instance
     private static Ultimate ultimate;
+    private static Project project;
     private static Stage mainStage;
 
     private SharedContext() {
@@ -28,6 +31,24 @@ public class SharedContext {
 
     public static Ultimate getUltimateInstance() {
         return ultimate;
+    }
+
+    public static Project getProject() {
+        return project;
+    }
+
+    public static void setProject(Project _project) {
+        project = _project;
+    }
+
+    public static void loadProjectFromPath(String projectPath) {
+        try {
+            project = new Project(projectPath);
+            // System.out.
+        } catch (IOException e) {
+            System.err.println("Error: encountered an exception whilst loading the project from " + projectPath);
+            e.printStackTrace();
+        }
     }
 
 }

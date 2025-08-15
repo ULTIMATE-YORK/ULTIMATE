@@ -9,17 +9,23 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Observable;
+import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
+import parameters.FixedExternalParameter;
+import parameters.RangedExternalParameter;
 import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
 import property.Property;
 import utils.Alerter;
 import utils.FileUtils;
 import utils.PrismFileParser;
+import parameters.IParameter;
+import parameters.IStaticParameter;
 
 /**
  * Represents a model in the system.
@@ -43,6 +49,8 @@ public class Model {
 																												// the
 																												// model
 																												// verification
+
+	private HashMap<String, Double> results2 = new HashMap<String, Double>();
 
 	/**
 	 * Constructor to initialise a new Model object.
@@ -222,18 +230,26 @@ public class Model {
 		return externalParameters;
 	}
 
-	public HashMap<String, Double> getHashExternalParameters() throws NumberFormatException, IOException {
-		HashMap<String, Double> hash = new HashMap<>();
+	public HashMap<String, ExternalParameter> getHashExternalParameters() {
+		HashMap<String, ExternalParameter> hash = new HashMap<>();
 		for (ExternalParameter ep : externalParameters) {
-			hash.put(ep.getName(), ep.evaluate());
+			hash.put(ep.getName(), ep);
 		}
 		return hash;
 	}
 
-	public HashMap<String, InternalParameter> getHashInternalParameters() throws NumberFormatException, IOException {
+	public HashMap<String, InternalParameter> getHashInternalParameters() {
 		HashMap<String, InternalParameter> hash = new HashMap<>();
 		for (InternalParameter ip : internalParameters) {
 			hash.put(ip.getName(), ip);
+		}
+		return hash;
+	}
+
+	public HashMap<String, DependencyParameter> getHashDependencyParameters() {
+		HashMap<String, DependencyParameter> hash = new HashMap<>();
+		for (DependencyParameter dp : dependencyParameters) {
+			hash.put(dp.getName(), dp);
 		}
 		return hash;
 	}
@@ -326,30 +342,31 @@ public class Model {
 		}
 	}
 
-	public ArrayList<HashMap<String, Double>> getCartesianExternal() {
-		ArrayList<ExternalParameter> rangedEPs = new ArrayList<>();
+	public ArrayList<HashMap<String, String>> getCartesianExternal() {
+		ArrayList<RangedExternalParameter> rangedEPs = new ArrayList<>();
+
 		for (ExternalParameter ep : externalParameters) {
-			if (ep.getType().equals("Ranged")) {
-				rangedEPs.add(ep);
+			if (ep instanceof RangedExternalParameter) {
+				rangedEPs.add((RangedExternalParameter) ep);
 			}
 		}
-		ArrayList<HashMap<String, Double>> results = new ArrayList<>();
+		ArrayList<HashMap<String, String>> results = new ArrayList<>();
 		backtrack(rangedEPs, 0, new HashMap<>(), results);
 		return results;
 	}
 
-	private void backtrack(ArrayList<ExternalParameter> params, int index, HashMap<String, Double> current,
-			ArrayList<HashMap<String, Double>> results) {
+	private void backtrack(ArrayList<RangedExternalParameter> params, int index, HashMap<String, String> current,
+			ArrayList<HashMap<String, String>> results) {
 		if (index == params.size()) {
 			results.add(new HashMap<>(current));
 			return;
 		}
 
-		ExternalParameter param = params.get(index);
+		RangedExternalParameter param = params.get(index);
 		String name = param.getName();
-		ArrayList<Double> values = param.getRangedValues();
+		ArrayList<String> values = param.getValueOptions();
 
-		for (double val : values) {
+		for (String val : values) {
 			current.put(name, val);
 			backtrack(params, index + 1, current, results);
 		}
@@ -372,7 +389,7 @@ public class Model {
 
 	public boolean isRangedModel() {
 		for (ExternalParameter ep : this.externalParameters) {
-			if (ep.getType().equals("Ranged")) {
+			if (ep instanceof RangedExternalParameter) {
 				return true;
 			}
 		}
@@ -405,7 +422,7 @@ public class Model {
 
 	public ArrayList<String> rangedToString() {
 		ArrayList<String> ret = new ArrayList<String>();
-		for (HashMap<String, Double> configs : this.getCartesianExternal()) {
+		for (HashMap<String, String> configs : this.getCartesianExternal()) {
 			String basic = this.toString();
 			for (String key : configs.keySet()) {
 				basic += "\n" + key + " : " + configs.get(key) + "\n";
@@ -418,6 +435,16 @@ public class Model {
 	public String toString() {
 		return this.modelId + internalParameters.toString() + externalParameters.toString()
 				+ dependencyParameters.toString() + uncategorisedParameters.toString();
+	}
+
+	// TODO: IMPORTANT: fix these variables. What is results used for? Try to delete
+	// and just use results2. This all seems like a hack for external parameters.
+	public void addResults(HashMap<String, Double> results) {
+		this.results2 = results;
+	}
+
+	public HashMap<String, Double> getResults() {
+		return this.results2;
 	}
 
 	public void addResult(String prop, HashMap<String, Double> configResult) {
@@ -454,6 +481,28 @@ public class Model {
 
 	}
 
+	public void setExternalParametersFromHashMap(HashMap<String, String> hashExternalParameters) {
+
+		for (ExternalParameter ep : externalParameters) {
+			for (String key : hashExternalParameters.keySet()) {
+				try {
+					ep.setValue(hashExternalParameters.get(key));
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException(e.getMessage());
+				}
+				break;
+			}
+		}
+	}
+
+	public void setDependencyParameter(String name, String value) {
+		// TODO: I could do some simply caching
+		// would set a cache key before setting this, then next time I come to set dps
+		// i would check the new key against the old and skip if they're the same
+		this.getHashDependencyParameters().get(name).setValue(value);
+	}
+
 	public void setInternalParameterValue(String name, String value) {
 		for (InternalParameter ip : internalParameters) {
 			if (ip.getName().equals(name)) {
@@ -463,5 +512,43 @@ public class Model {
 		}
 		Alerter.showWarningAlert("Parameter Not Found",
 				"The internal parameter with name '" + name + "' was not found in the model.");
+	}
+
+	public ObservableList<IStaticParameter> getStaticParameters() {
+
+		ObservableList<IStaticParameter> allStaticParameters = FXCollections.observableArrayList();
+		allStaticParameters.addAll(getInternalParameters());
+		allStaticParameters.addAll(getExternalParameters());
+
+		return allStaticParameters;
+
+	}
+
+	public HashMap<String, IParameter> getHashParameters() {
+
+		HashMap<String, IParameter> allParameters = new HashMap<>();
+		allParameters.putAll(getHashInternalParameters());
+		allParameters.putAll(getHashExternalParameters());
+		allParameters.putAll(getHashDependencyParameters());
+
+		return allParameters;
+
+	}
+
+	public ObservableList<IParameter> getParameters() {
+
+		ObservableList<IParameter> allParameters = FXCollections.observableArrayList();
+		allParameters.addAll(getInternalParameters());
+		allParameters.addAll(getExternalParameters());
+		allParameters.addAll(getDependencyParameters());
+
+		return allParameters;
+
+	}
+
+	public void resetDependencyParameters() {
+		for (DependencyParameter dp : dependencyParameters) {
+			dp.setValue(null);
+		}
 	}
 }

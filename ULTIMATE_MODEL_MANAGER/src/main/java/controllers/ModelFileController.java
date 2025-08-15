@@ -17,7 +17,7 @@ public class ModelFileController {
 
     @FXML private TextFlow modelFile;    
     private SharedContext sharedContext = SharedContext.getContext();
-    private Project project = SharedContext.getUltimateInstance().getProject();
+    private Project project = SharedContext.getProject();
 
     @FXML
     public void initialize() {
