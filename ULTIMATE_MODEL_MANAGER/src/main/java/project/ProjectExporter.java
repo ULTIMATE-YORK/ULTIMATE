@@ -55,7 +55,7 @@ public class ProjectExporter {
             for (DependencyParameter dep : model.getDependencyParameters()) {
                 JSONObject depObj = new JSONObject();
                 depObj.put("name", dep.getName());
-                depObj.put("modelId", dep.getModel().getModelId());
+                depObj.put("modelId", dep.getSourceModel().getModelId());
                 depObj.put("property", formatDefinition(dep.getDefinition()));
                 dependencyObject.put(dep.getName(), depObj);
             }

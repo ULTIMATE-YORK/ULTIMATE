@@ -1,31 +1,24 @@
 package headless;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import evochecker.EvoChecker;
-import javafx.collections.FXCollections;
+import org.mariuszgromada.math.mxparser.License;
+
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
-import org.mariuszgromada.math.mxparser.mXparser;
-
+import sharedContext.SharedContext;
 import ultimate.Ultimate;
 import verification.EvoCheckerUltimateInstance;
 
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import sharedContext.SharedContext;
-import project.Project;
 
 public class Headless {
 
@@ -91,6 +84,7 @@ public class Headless {
 
 		// create the parser
 		System.setProperty("slf4j.internal.verbosity", "WARN");
+        // License.iConfirmNonCommercialUse("ULTIMATE"); // Add this line to confirm license for math lib
 
 		setUpCLI();
 		getArgs(args);
@@ -101,7 +95,7 @@ public class Headless {
 			return;
 		}
 
-		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\nProject file: "
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\n\nProject file: "
 				+ Paths.get(projectFilePath).getFileName().toString() + "\n");
 		SharedContext.loadProjectFromPath(projectFilePath);
 		Ultimate ultimate = SharedContext.getUltimateInstance();
@@ -126,12 +120,12 @@ public class Headless {
 			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
 			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
-			System.out.println("Running EvoChecker to synthesise parameters...\n");
+			System.out.println("Running EvoChecker to synthesise parameters...");
 			ultimate.executeEvoChecker();
 			ultimate.writeSynthesisResultsToFile();
 
 		} else {
-			System.out.println("Beginning a verification problem.\n");
+			System.out.println("Beginning a verification problem.");
 			ultimate.setVerificationProperty(property);
 			ultimate.generateModelInstances();
 			ultimate.execute();

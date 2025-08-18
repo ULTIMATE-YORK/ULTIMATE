@@ -6,7 +6,6 @@ import utils.FileUtils;
 
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
-import org.mariuszgromada.math.mxparser.License;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,49 +25,50 @@ public class NPMCVerification {
     private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
 
     // static class Model {
-    //     // wrapper around the model 
-    //     private String modelId;
-    //     private HashMap<String, ExternalParameter> parameters;
+    // // wrapper around the model
+    // private String modelId;
+    // private HashMap<String, ExternalParameter> parameters;
 
-    //     public Model(String modelId) {
-    //         this.modelId = modelId;
-    //         this.parameters = new HashMap<>();
-    //     }
+    // public Model(String modelId) {
+    // this.modelId = modelId;
+    // this.parameters = new HashMap<>();
+    // }
 
-    //     public void setDependencyParameter(String paramName, String value) {
-    //         try {
-    //             this.parameters.get(paramName).setValue(value);
-    //         } catch (Exception e) {
-    //             throw new RuntimeException("Error setting dependency parameter value.");
-    //         }
-    //         logger.info("    → Setting parameter " + paramName + " = " + value + " for model " + modelId);
-    //     }
+    // public void setDependencyParameter(String paramName, String value) {
+    // try {
+    // this.parameters.get(paramName).setValue(value);
+    // } catch (Exception e) {
+    // throw new RuntimeException("Error setting dependency parameter value.");
+    // }
+    // logger.info(" → Setting parameter " + paramName + " = " + value + " for model
+    // " + modelId);
+    // }
 
-    //     public HashMap<String, String> getDependencyParameters() {
-    //         return parameters;
-    //     }
+    // public HashMap<String, String> getDependencyParameters() {
+    // return parameters;
+    // }
 
-    //     public String getModelId() {
-    //         return modelId;
-    //     }
+    // public String getModelId() {
+    // return modelId;
+    // }
 
-    //     @Override
-    //     public String toString() {
-    //         return modelId;
-    //     }
+    // @Override
+    // public String toString() {
+    // return modelId;
+    // }
 
-    //     @Override
-    //     public boolean equals(Object obj) {
-    //         if (obj instanceof Model) {
-    //             return this.modelId.equals(((Model) obj).modelId);
-    //         }
-    //         return false;
-    //     }
+    // @Override
+    // public boolean equals(Object obj) {
+    // if (obj instanceof Model) {
+    // return this.modelId.equals(((Model) obj).modelId);
+    // }
+    // return false;
+    // }
 
-    //     @Override
-    //     public int hashCode() {
-    //         return modelId.hashCode();
-    //     }
+    // @Override
+    // public int hashCode() {
+    // return modelId.hashCode();
+    // }
     // }
 
     private Map<String, Model> modelMap;
@@ -78,7 +78,6 @@ public class NPMCVerification {
     private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
 
     public NPMCVerification(ArrayList<Model> models) {
-        License.iConfirmNonCommercialUse("ultimate,"); // Add this line to confirm license for math lib
         this.originalModels = models;
         this.modelMap = new HashMap<>();
         initializeFromModels(models);
@@ -139,7 +138,7 @@ public class NPMCVerification {
                 logger.info("Dependencies found: " + dependencies);
 
                 for (DependencyParameter dep : dependencies) {
-                    Model targetModel = modelMap.get(dep.getModel().getModelId());
+                    Model targetModel = modelMap.get(dep.getSourceModel().getModelId());
                     List<Model> targetSCC = sccMap.get(targetModel);
 
                     if (!targetSCC.equals(currentSCC)) {
@@ -221,7 +220,7 @@ public class NPMCVerification {
                 }
 
                 for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
-                    Model targetModel = modelMap.get(dep.getModel().getModelId());
+                    Model targetModel = modelMap.get(dep.getSourceModel().getModelId());
 
                     if (sccModels.contains(targetModel)) {
                         Model originalTargetModel = getOriginalModel(targetModel.getModelId());
@@ -366,7 +365,7 @@ public class NPMCVerification {
         for (Model model : sccModels) {
             logger.info("\nGetting dependencies for model: " + model);
             for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
-                Model targetModel = modelMap.get(dep.getModel().getModelId());
+                Model targetModel = modelMap.get(dep.getSourceModel().getModelId());
 
                 if (sccModels.contains(targetModel)) {
                     String rationalFunction = getRationalFunction(targetModel, dep.getDefinition(), null);
@@ -518,7 +517,7 @@ public class NPMCVerification {
         // Check if the model is a PRISM-games model
         boolean isPrismGamesModel = false;
         try {
-            String modelFilePath = originalModel.getVerificationFilePath(); // this 
+            String modelFilePath = originalModel.getVerificationFilePath(); // this
             if (modelFilePath != null && !modelFilePath.isEmpty()) {
                 // Read the content of the model file to check for game model keywords
                 String modelContent = FileUtils.readFileAsString(modelFilePath);

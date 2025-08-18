@@ -40,7 +40,7 @@ public class DependencyGraph {
 		for (Model model : models) {
 			// loop through the DependencyParameters of each model
 			for (DependencyParameter dp : model.getDependencyParameters()) {
-				dependencyGraph.addEdge(model.getModelId(), dp.getModel().getModelId());
+				dependencyGraph.addEdge(model.getModelId(), dp.getSourceModel().getModelId());
 			}
 		}
 		

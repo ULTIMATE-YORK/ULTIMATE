@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.management.RuntimeErrorException;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -175,14 +177,17 @@ public class ProjectImporter {
 						try {
 							String depId = depObj.getString("modelId");
 							String depDefinition = depObj.getString("property");
-							models.forEach(modelo -> {
-								if (modelo.getModelId().equals(depId)) {
-									// FIXME: what if a model is not in the project?
-									DependencyParameter depParam = new DependencyParameter(depName, modelo,
-											depDefinition);
-									model.addDependencyParameter(depParam);
-								}
-							});
+							Model sourceModel = models.stream().filter(m -> m.getModelId().equals(depId)).findFirst()
+									.orElse(null);
+							if (sourceModel == null) {
+								throw new RuntimeException("Tried to create a dependency parameter '" + depName
+										+ "' for model '" + depId + "' which is dependent on model '" + depId
+										+ "', but this model could not be found. Make sure all arguments are properly set.");
+							} else {
+								DependencyParameter depParam = new DependencyParameter(depName, sourceModel,
+										depDefinition);
+								model.addDependencyParameter(depParam);
+							}
 						} catch (Exception e) {
 							brokenDParameterNames
 									.add((depObj.has("name") ? depObj.getString("name")
@@ -233,6 +238,7 @@ public class ProjectImporter {
 
 				break;
 		}
+
 	}
 
 	/*

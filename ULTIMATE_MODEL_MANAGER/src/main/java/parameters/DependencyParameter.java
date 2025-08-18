@@ -4,14 +4,14 @@ import model.Model;
 
 public class DependencyParameter implements IParameter {
     private String name;
-    private Model model;
+    private Model sourceModel;
     private String definition; // definition of the property to be verified on model
     // TODO make this a result type?
     private String result;
 
     public DependencyParameter(String name, Model model, String definition) {
         this.name = name;
-        this.model = model;
+        this.sourceModel = model;
         this.definition = definition;
     }
 
@@ -21,8 +21,8 @@ public class DependencyParameter implements IParameter {
         return this.name;
     }
 
-    public Model getModel() {
-        return this.model;
+    public Model getSourceModel() {
+        return this.sourceModel;
     }
 
     public String getDefinition() {
@@ -39,8 +39,8 @@ public class DependencyParameter implements IParameter {
         this.name = newName;
     }
 
-    public void setModel(Model newModel) {
-        this.model = newModel;
+    public void setSourceModel(Model newModel) {
+        this.sourceModel = newModel;
     }
 
     public void setDefinition(String newDefinition) {
@@ -56,7 +56,7 @@ public class DependencyParameter implements IParameter {
     }
 
     public String toString() {
-        return "Dependency Parameter: " + name + "\nModel ID: " + model.getModelId() + "\nProperty Definition: "
+        return "Dependency Parameter: " + name + "\nModel ID: " + sourceModel.getModelId() + "\nProperty Definition: "
                 + definition.replace("\\", "") + "\n";
     }
 

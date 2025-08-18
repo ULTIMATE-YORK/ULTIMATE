@@ -1,37 +1,28 @@
 package ultimate;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import evochecker.EvoChecker;
+import evochecker.lifecycle.IUltimate;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import jmetal.core.SolutionSet;
 import model.Model;
+import parameters.IStaticParameter;
+import parameters.InternalParameter;
 import project.Project;
 import property.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
 import verification.NPMCVerification;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import javafx.collections.FXCollections;
-import parameters.InternalParameter;
-import javafx.collections.ObservableList;
-import parameters.InternalParameter;
-import jmetal.core.SolutionSet;
-import jmetal.core.Solution;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-
-import evochecker.EvoChecker;
-import evochecker.lifecycle.IUltimate;
-import parameters.IStaticParameter;
 
 public class Ultimate {
 
@@ -60,7 +51,6 @@ public class Ultimate {
     java.util.HashMap<String, String> results = new java.util.HashMap<>();
 
     public Ultimate() {
-
     }
 
     public void setMode(String mode) {
@@ -94,7 +84,7 @@ public class Ultimate {
             System.err
                     .println("Warning: ULTIMATE tried to initialise models, but no models were found in the project.");
         }
-        models.addAll(SharedContext.getProject().getModels());
+        models.addAll(projectModels);
         verifier = new NPMCVerification(models);
     }
 
@@ -151,8 +141,8 @@ public class Ultimate {
     }
 
     public void setTargetModelById(String modelID) {
-        System.out.println("setTestingModel: " + models.stream().map(Model::getModelId).collect(Collectors.toList()));
-        Model matchingModel = models.stream().filter(model -> model.getModelId().equals(modelID)).findFirst().orElse(null);
+        Model matchingModel = models.stream().filter(model -> model.getModelId().equals(modelID)).findFirst()
+                .orElse(null);
         this.targetModel = matchingModel;
 
         if (this.targetModel == null) {
@@ -201,7 +191,6 @@ public class Ultimate {
                 if (verbose)
                     System.out.println("Verifying property: " + p.getProperty());
                 String result_value = verifier.verify(targetModel.getModelId(), p.getProperty());
-                System.out.println("Result: " + result_value);
                 results.put(p.toString(), result_value);
             }
         } else {

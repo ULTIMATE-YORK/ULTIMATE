@@ -71,8 +71,6 @@ public class Project {
 		importer = new ProjectImporter(projectPath);
 		saveLocation = projectPath;
 		models = importer.importProjectModels();
-		System.out
-				.println("Models in importer: " + models.stream().map(Model::getModelId).collect(Collectors.toList()));
 		// Initialise currentModel property (first model in the set or null)
 		currentModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
 		// Initialise the observable list with the contents of the set
@@ -158,7 +156,6 @@ public class Project {
 	}
 
 	public Set<Model> getModels() {
-		System.out.println("getModels: " + models.stream().map(Model::getModelId).collect(Collectors.toList()));
 		return this.models;
 	}
 
