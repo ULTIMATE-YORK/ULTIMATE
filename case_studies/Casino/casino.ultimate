@@ -2,13 +2,24 @@
     "casino": {
         "fileName": "casino.dtmc",
         "id": "casino",
+        "synthesis":{
+        	"properties": [
+			"Objective, max: R{\"wins\"}=?[C<=50]",
+			"Constraint, min, 0.5: P=?[F<50 noticed=1]"
+        	]
+        },
         "parameters": {
-            "environment": {"perceptiveness": {
+            "environment": {"perceptiveness":{
                 "name": "perceptiveness",
                 "type": "Fixed",
                 "value": "0.3"
             }},
-            "internal": {"blackjack": {"name": "blackjack"}},
+            "internal": {
+                "blackjack": {"name": "blackjack",
+                    "type" : "int",
+                    "min" : "0",
+                    "max" : "1"
+                    }},
             "dependency": {"pWin": {
                 "modelId": "cheater",
                 "name": "pWin",
@@ -20,11 +31,16 @@
     "cheater": {
         "fileName": "cheater.dtmc",
         "id": "cheater",
+         "synthesis":{
+        	"properties": [
+			"Objective, max: S=?[cheating=1]"
+        	]
+        },
         "parameters": {
             "environment": {},
             "internal": {
-                "boldness": {"name": "boldness"},
-                "weighting": {"name": "weighting"}
+            "weighting": {"name": "weighting", "type" : "double", "min" : "0.166", "max" : "1.0"},
+            "boldness": {"name": "boldness", "type" : "double", "min" : "0.1", "max" : "1.0"}
             },
             "dependency": {}
         },
