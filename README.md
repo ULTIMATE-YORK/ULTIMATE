@@ -41,35 +41,46 @@ The full path to each executable for storm, storm-pars and prism will need to be
 ```
 Then, add an environment variable to your system called 'ULTIMATE_DIR' which points to the ultimate/ULTIMATE_MODEL_MANAGER directory. For example, Linux users can add the following to their .bashrc:
 
-```
+```console
 export ULTIMATE_DIR=<path to ultimate/ULTIMATE_MODEL_MANAGER>
 ```
 
-Finally, make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory.
+Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory. Note that the requirements presently consist only of numpy as scipy, so this is most important if you are using a fresh virtual environment.
 
-### Option 1:
+Next, navigate to ULTIMATE_MODEL_MANAGER and run the following to install EvoChecker to ULTIMATE's local maven repo (m2repo/):
 
-Still within the folder 'ULTIMATE_MODEL_MANAGER', the simplest way to run the tool is to use the maven integration in the project. Run the following commands:
+```console
+mvn install:install-file \
+  -Dfile=libs/evochecker_for_ultimate.jar \
+  -DgroupId=edu.evochecker_project \
+  -DartifactId=evochecker_for_ultimate \
+  -Dversion=1.0.0 \
+  -Dpackaging=jar
+```
+
+Finally, run:
 
 ```console
 mvn clean install
+```
+
+This will generate the ULTIMATE jar files.
+
+### Running the GUI:
+
+Still within the folder 'ULTIMATE_MODEL_MANAGER', the fastest way to start the GUI is via maven. Simply run:
+
+```console
 mvn exec:java
 ```
-### Option 2:
 
-Alternatively, if the 'exec:java' command does not work, you can run the jar file directly. However, you will need to provide the module path for the JavaFX SDK you have downloaded.
-Firstly, from the 'ULTIMATE_MODEL_MANAGER' folder, run:
-
-```console
-mvn clean install
-```
-Once the project has been built, you will need to run the following:
+Alternatively, if the 'exec:java' command does not work, you can run the jar file directly. However, you will need to provide the module path for the JavaFX SDK you have downloaded. Once the project has been built, using `mvn clean install`, to run the following:
 
 ```console
 java --module-path <path_to_javafx_sdk/libs> --add-modules javafx.controls,javafx.fxml -jar <path_to_jar>
 ```
 
-### Running the tool
+### Using the Tool via the GUI
 
 The tool has a simple operation. By default, the tool will launch into a 'blank project' containing no models. The user can either choose to load an exisitng ultimate file using *File -> Load* or a single prism model file by pressing the *+* button next to the *Models* label. This will open a file dialog for the user to choose the appropriate file.
 
@@ -91,7 +102,7 @@ ULTIMATE features a headless mode alongside the GUI.
 
 To run headless mode, first compile it with `mvn clean install` in the ULTIMATE_MODEL_MANAGER folder. Then use:
 
-```
+```console
 java -jar target/ultimate-headless.jar -pf <project file> -m <model ID> -p <property> -o <output directory>
 ```
 
