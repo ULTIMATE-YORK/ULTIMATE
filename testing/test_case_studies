@@ -3,20 +3,21 @@
 cd $ULTIMATE_DIR
 ULTIMATE_MAIN_DIR=$(dirname "$(pwd)")
 NUM_TESTS_FAILED=0
+echo "Testing ULTIMATE case studies..."
 while IFS="," read -ra line; do
     line[0]="${line[0]//\\ / }"
-    printf "\nTesting ${line[0]} - ${line[1]} - ${line[2]}"
+    printf "\n>>>>>>>>> Testing ${line[0]} - ${line[1]} - ${line[2]}"
     output=$(java -jar $ULTIMATE_DIR/target/ultimate-headless.jar -pf "$ULTIMATE_MAIN_DIR/${line[0]}" -m "${line[1]}" -p "${line[2]}" 2>&1)
-    result=\0
+    result="FAILURE" 
     if [[ $output =~ Result:\ ([^[:space:]]+) ]]; then
         result="${BASH_REMATCH[1]}"
     fi
 
-    if [[ $result==${line[3]} ]]; then
+    if [[ $result == ${line[3]} ]]; then
         printf ": PASS --- expected result was obtained ($result)."
     else
-        printf "\nFAIL --- ULTIMATE output was:\n$output\n"
-        NUM_TESTS_FAILED=$NUM_TESTS_FAILED+1
+        printf "\nFAIL --- expected result was ${line[3]} but ULTIMATE output was:\n\n$output\n\n"
+        ((NUM_TESTS_FAILED++))
     fi
 done < $ULTIMATE_MAIN_DIR/testing/expected_results.csv
 
