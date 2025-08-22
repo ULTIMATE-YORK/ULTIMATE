@@ -17,7 +17,11 @@
         "fileName": "robot_coordination2.prism",
         "id": "robot_coordination2",
         "parameters": {
-            "environment": {},
+            "environment": {"k": {
+                "name": "k",
+                "type": "Fixed",
+                "value": "8"
+            }},
             "internal": {},
             "dependency": {"q": {
                 "modelId": "objectDetection",

@@ -5,20 +5,18 @@
 // concurrent game model
 csg
 
-const int k; // step bound
-
 // the players
 player robot1 robot1 endplayer
 player robot2 robot2 endplayer
 
 const double q; // probability of movement failure
-const int l; // size of grid
+const int k; // size of grid
 
 // corner points
 const int xmin = 0;
 const int ymin = 0;
-const int xmax = l-1;
-const int ymax = l-1;
+const int xmax = k-1;
+const int ymax = k-1;
 
 // initial grid positions for the robots
 const int xi1 = xmin; const int yi1 = ymin;
