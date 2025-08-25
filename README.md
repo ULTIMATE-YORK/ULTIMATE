@@ -55,7 +55,8 @@ mvn install:install-file \
   -DgroupId=edu.evochecker_project \
   -DartifactId=evochecker_for_ultimate \
   -Dversion=1.0.0 \
-  -Dpackaging=jar
+  -Dpackaging=jar \
+  -DlocalRepositoryPath=$PWD/m2repo
 ```
 
 Finally, run:
