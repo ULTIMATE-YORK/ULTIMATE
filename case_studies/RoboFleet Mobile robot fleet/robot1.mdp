@@ -71,7 +71,7 @@ module robot1
  // from l7 - Obstacle
  // from l8
  [l8_up]  l=8 -> p_l5:(l'=5) + (1-p_l5):(l'=fail);
- [l8_right] l=9 -> p_l9:(l'=9) + (1-p_l9):(l'=fail);
+ [l8_right] l=8 -> p_l9:(l'=9) + (1-p_l9):(l'=fail);
 
  // from l9 (goal location)
  [goalReached]  l=9 -> 1:(l'=9);
