@@ -32,7 +32,7 @@ const double pMed;  // = 0.7; //value for tests
 const double pHigh=1-pLow-pMed;
 
 // external parameter
-const double pLargeObject = 0.6;
+const double pLargeObject; // = 0.6; //value for tests
 
 module Sensor
   step : [0..2] init 0;
