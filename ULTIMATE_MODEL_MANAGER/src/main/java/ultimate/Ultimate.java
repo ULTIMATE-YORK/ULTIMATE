@@ -7,14 +7,21 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import evochecker.EvoChecker;
+import evochecker.genetic.genes.AbstractGene;
+import evochecker.genetic.jmetal.encoding.ArrayInt;
+import evochecker.genetic.jmetal.encoding.ArrayReal;
 import evochecker.lifecycle.IUltimate;
+// import evochecker.properties.Property;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
+import jmetal.core.Variable;
 import model.Model;
 import parameters.IStaticParameter;
 import parameters.InternalParameter;
@@ -45,6 +52,7 @@ public class Ultimate {
     private Path evolvableProjectFilePath;
 
     private String mode;
+    private int synthesisProgress;
 
     private boolean verbose;
 
@@ -182,7 +190,7 @@ public class Ultimate {
 
     }
 
-    public void execute() throws NumberFormatException, IOException {
+    public void executeVerification() throws NumberFormatException, IOException {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
@@ -225,6 +233,10 @@ public class Ultimate {
 
     // }
 
+    public EvoChecker getEvoCheckerInstance() {
+        return evoChecker;
+    }
+
     public void instantiateEvoCheckerInstance(IUltimate ultimateInstance) {
         evoChecker = new EvoChecker();
         evoChecker.setUltimateInstance(ultimateInstance);
@@ -240,7 +252,17 @@ public class Ultimate {
                 null);
     }
 
-    public void executeEvoChecker() {
+    public void initialiseEvoCheckerInstance(String projectFile, String objectivesConstraintsFileOrString) {
+        if (evoChecker == null) {
+            System.err.println(
+                    "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
+            System.exit(1);
+        }
+        evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile,
+                objectivesConstraintsFileOrString);
+    }
+
+    public void executeSynthesis() {
         evoChecker.start();
         evoChecker.printStatistics();
     }
@@ -258,7 +280,7 @@ public class Ultimate {
     }
 
     // TODO: safely rename to getVerificationResults
-    public java.util.HashMap<String, String> getResults() {
+    public java.util.HashMap<String, String> getVerificationResults() {
         return results;
     }
 
@@ -277,28 +299,6 @@ public class Ultimate {
             System.err.println("Couldn't write the synthesis results to file.");
             e.printStackTrace();
         }
-
-        // double[][] resultsMatrix = getSynthesisResults();
-        // System.out.println("\nResults(" + resultsMatrix.length + "," +
-        // resultsMatrix[0].length + "):\n");
-
-        // try {
-        // java.io.FileWriter writer = new java.io.FileWriter("synthesis_results.txt");
-        // for (double[] row : resultsMatrix) {
-        // for (int i = 0; i < row.length; i++) {
-        // System.out.println(row[i]);
-        // writer.write(Double.toString(row[i]));
-        // if (i < row.length - 1) {
-        // writer.write(", ");
-        // }
-        // }
-        // writer.write(System.lineSeparator());
-        // }
-        // writer.close();
-        // } catch (IOException e) {
-        // System.err.println("Error writing synthesis results to file: " +
-        // e.getMessage());
-        // }
 
     }
 
@@ -370,9 +370,64 @@ public class Ultimate {
         return objectivesConstraints;
     }
 
-    // public Project getProject() {
-    // return project;
-    // }
+    public ArrayList<HashMap<String, String>> getSynthesisParetoFront() {
+
+        ArrayList<HashMap<String, String>> results = new ArrayList<>();
+        SolutionSet evoSolutions = evoChecker.getSolutions();
+        List<evochecker.properties.Property> evoObjectives = evoChecker.getObjectives();
+        for (int i = 0; i < evoSolutions.getCapacity(); i++) {
+            Solution s = evoSolutions.get(i);
+            HashMap<String, String> r = new HashMap<>();
+            for (int j = 0; j < evoObjectives.size(); j++) {
+                r.put("Objective " + evoObjectives.get(j).getExpression(), String.valueOf(s.getObjective(j)));
+            }
+            results.add(r);
+        }
+
+        return results;
+    }
+
+    public ArrayList<HashMap<String, String>> getSynthesisParetoSet() {
+
+        ArrayList<HashMap<String, String>> results = new ArrayList<>();
+        SolutionSet evoSolutions = evoChecker.getSolutions();
+        List<String> internalParameterNames = evoChecker.getInternalParameterNames();
+        // Set<Model> models = SharedContext.getProject().getModels();
+        int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
+        System.out.println(internalParameterNames + " " + numberInternalParameters);
+        // List<evochecker.properties.Property> evoObjectives =
+        // evoChecker.getObjectives();
+        for (int i = 0; i < evoSolutions.size(); i++) {
+            Solution s = evoSolutions.get(i);
+            HashMap<String, String> r = new HashMap<>();
+            for (int j = 0; j < models.size(); j++) {
+                Model m = models.get(j);
+                for (int k = 0; k < m.getInternalParameters().size(); k++) {
+
+                    try {
+                        Variable var = s.getDecisionVariables()[j];
+                        Object value;
+
+                        if (var instanceof ArrayInt) {
+                            value = ((ArrayInt) var).getValue(k);
+                        } else if (var instanceof ArrayReal) {
+                            value = ((ArrayReal) var).getValue(k);
+                        } else {
+                            value = var instanceof Variable ? ((Variable) var).getValue() : var;
+                        }
+
+                        r.put(m.getInternalParameters().get(k).getName(), value.toString());
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+            results.add(r);
+        }
+
+        return results;
+
+    }
 
     public Model getTargetModel() {
         return targetModel;
@@ -380,6 +435,14 @@ public class Ultimate {
 
     public Path getEvolvableProjectFilePath() {
         return evolvableProjectFilePath;
+    }
+
+    public void setSynthesisProgress(int progress) {
+        synthesisProgress = progress;
+    }
+
+    public int getSynthesisProgress() {
+        return synthesisProgress;
     }
 
 }

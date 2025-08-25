@@ -40,8 +40,8 @@ public class EditInternalParameter {
         }
         else {
         	InternalParameter internalParam = new InternalParameter(ip.getName(), typeValue, min, max, interval);
-			project.getCurrentModel().addInternalParameter(internalParam);
-			project.getCurrentModel().removeInternalParameter(ip);
+			project.getTargetModel().addInternalParameter(internalParam);
+			project.getTargetModel().removeInternalParameter(ip);
 			closeDialog();
         }
 	}

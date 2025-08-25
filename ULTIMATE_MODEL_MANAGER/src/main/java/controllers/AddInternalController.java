@@ -25,7 +25,7 @@ public class AddInternalController {
 	
 	@FXML
 	public void initialize() {
-		undefinedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
+		undefinedParameters.setItems(project.getTargetModel().getUncategorisedParameters());
 		type.getItems().addAll("int range","int set","double range", "bool", "distribution");
 	}
 	
@@ -42,8 +42,8 @@ public class AddInternalController {
         }
         else {
         	InternalParameter internalParam = new InternalParameter(name.toString(), typeValue, min, max, interval);
-			project.getCurrentModel().addInternalParameter(internalParam);
-			project.getCurrentModel().removeUncategorisedParameter(undefinedParameters.getValue());
+			project.getTargetModel().addInternalParameter(internalParam);
+			project.getTargetModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();
         }
 	}

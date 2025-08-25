@@ -18,6 +18,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import org.json.JSONException;
 import model.Model;
@@ -27,6 +29,7 @@ import parameters.FixedExternalParameter;
 import parameters.InternalParameter;
 import parameters.LearnedExternalParameter;
 import parameters.RangedExternalParameter;
+import parameters.SynthesisObjective;
 import utils.Alerter;
 
 public class ProjectImporter {
@@ -76,20 +79,27 @@ public class ProjectImporter {
 			}
 		}
 
-		// Initialise the models parameters
+		// Initialise the model parameters
 		for (Model model : models) {
 			try {
-				JSONObject parametersObject = modelObjects.get(model.getModelId()).getJSONObject("parameters");
+				JSONObject modelObj = modelObjects.get(model.getModelId());
+				JSONObject parametersObject = modelObj.getJSONObject("parameters");
 				// Define the array of parameter types
 				String[] parameterTypes = { "environment", "dependency", "internal" };
 				for (String parameterType : parameterTypes) {
 					deserializeParameters(parametersObject, model, parameterType, models);
 				}
-				model.addUncategorisedParametersFromFile();
+				if (modelObj.has("synthesis")) {
+					JSONObject synthesisObject = modelObj.getJSONObject("synthesis");
+					model.setSynthesisObjectives(importSynthesisObjectives(model, synthesisObject));
+					model.addUncategorisedParametersFromFile();
+				}
 				// add the properties
-				JSONArray properties = modelObjects.get(model.getModelId()).getJSONArray("properties");
-				for (int i = 0; i < properties.length(); i++) {
-					model.addProperty(properties.getString(i));
+				if (modelObj.has("properties")) {
+					JSONArray properties = modelObj.getJSONArray("properties");
+					for (int i = 0; i < properties.length(); i++) {
+						model.addProperty(properties.getString(i));
+					}
 				}
 			} catch (Exception e) {
 				throw e;
@@ -97,6 +107,7 @@ public class ProjectImporter {
 		}
 		;
 		return models;
+
 	}
 
 	/*
@@ -247,6 +258,17 @@ public class ProjectImporter {
 	private String getDirectory(String projectPath) {
 		Path path = Paths.get(projectPath);
 		return path.toAbsolutePath().getParent().toString(); // Get directory
+	}
+
+	private ObservableList<SynthesisObjective> importSynthesisObjectives(Model model, JSONObject synthesisObject) {
+
+		ObservableList<SynthesisObjective> ocs = FXCollections.observableArrayList();
+		JSONArray propertiesArray = synthesisObject.getJSONArray("properties");
+		for (Object prop : propertiesArray) {
+			ocs.add(new SynthesisObjective(prop.toString()));
+		}
+		System.out.println("ocs: " + ocs.stream().map(SynthesisObjective::toString).collect(Collectors.toList()));
+		return ocs;
 	}
 
 }

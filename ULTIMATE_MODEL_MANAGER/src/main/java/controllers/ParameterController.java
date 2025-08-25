@@ -61,23 +61,23 @@ public class ParameterController {
 
 	private void firstcall() {
 		Platform.runLater(() -> {
-			if (project.getCurrentModel() != null) {
+			if (project.getTargetModel() != null) {
 				try {
-					modelDetails.setText("Model ID: " + project.getCurrentModel().getModelId() + "\nFile: "
-							+ FileUtils.removePrismFileExtension(project.getCurrentModel().getFilePath()));
+					modelDetails.setText("Model ID: " + project.getTargetModel().getModelId() + "\nFile: "
+							+ FileUtils.removePrismFileExtension(project.getTargetModel().getFilePath()));
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				System.out.println("UI first load");
-				uParamList.setItems(project.getCurrentModel().getUncategorisedParameters());
-				dParamList.setItems(project.getCurrentModel().getDependencyParameters());
-				System.out.println(project.getCurrentModel().getDependencyParameters().stream()
+				uParamList.setItems(project.getTargetModel().getUncategorisedParameters());
+				dParamList.setItems(project.getTargetModel().getDependencyParameters());
+				System.out.println(project.getTargetModel().getDependencyParameters().stream()
 						.map(DependencyParameter::getName).collect(Collectors.toList()));
-				eParamList.setItems(project.getCurrentModel().getExternalParameters());
-				System.out.println(project.getCurrentModel().getInternalParameters().stream()
+				eParamList.setItems(project.getTargetModel().getExternalParameters());
+				System.out.println(project.getTargetModel().getInternalParameters().stream()
 						.map(InternalParameter::getName).collect(Collectors.toList()));
-				iParamList.setItems(project.getCurrentModel().getInternalParameters());
+				iParamList.setItems(project.getTargetModel().getInternalParameters());
 			}
 		});
 	}
@@ -90,17 +90,17 @@ public class ParameterController {
 				// Retrieve the list of Uncategorised Parameters from the new model.
 				Platform.runLater(() -> {
 					System.out.println("UI refresh");
-					System.out.println(project.getCurrentModel().getDependencyParameters().stream()
+					System.out.println(project.getTargetModel().getDependencyParameters().stream()
 							.map(DependencyParameter::getName).collect(Collectors.toList()));
-					System.out.println(project.getCurrentModel().getInternalParameters().stream()
+					System.out.println(project.getTargetModel().getInternalParameters().stream()
 							.map(InternalParameter::getName).collect(Collectors.toList()));
 					uParamList.setItems(newModel.getUncategorisedParameters());
-					dParamList.setItems(project.getCurrentModel().getDependencyParameters());
-					eParamList.setItems(project.getCurrentModel().getExternalParameters());
-					iParamList.setItems(project.getCurrentModel().getInternalParameters());
+					dParamList.setItems(project.getTargetModel().getDependencyParameters());
+					eParamList.setItems(project.getTargetModel().getExternalParameters());
+					iParamList.setItems(project.getTargetModel().getInternalParameters());
 					try {
-						modelDetails.setText("Model ID: " + project.getCurrentModel().getModelId() + "\nFile: "
-								+ FileUtils.removePrismFileExtension(project.getCurrentModel().getFilePath()));
+						modelDetails.setText("Model ID: " + project.getTargetModel().getModelId() + "\nFile: "
+								+ FileUtils.removePrismFileExtension(project.getTargetModel().getFilePath()));
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -145,8 +145,8 @@ public class ParameterController {
 				public void onRemove(DependencyParameter dp) {
 					String name = dp.getName();
 					// Handle remove action for the dependency parameter dp
-					project.getCurrentModel().removeDependencyParameter(dp);
-					project.getCurrentModel().addUncategorisedParameter(new UncategorisedParameter(name));
+					project.getTargetModel().removeDependencyParameter(dp);
+					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));
 				}
 			});
 			return cell;
@@ -170,8 +170,8 @@ public class ParameterController {
 				public void onRemove(ExternalParameter ep) {
 					String name = ep.getName();
 					// Handle remove action for the external parameter ep
-					project.getCurrentModel().removeExternalParameter(ep);
-					project.getCurrentModel().addUncategorisedParameter(new UncategorisedParameter(name));
+					project.getTargetModel().removeExternalParameter(ep);
+					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));
 				}
 			});
 			return cell;
@@ -194,8 +194,8 @@ public class ParameterController {
 				public void onRemove(InternalParameter ip) {
 					String name = ip.getName();
 					// Handle remove action for the internal parameter ip
-					project.getCurrentModel().removeInternalParameter(ip);
-					project.getCurrentModel().addUncategorisedParameter(new UncategorisedParameter(name));
+					project.getTargetModel().removeInternalParameter(ip);
+					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));
 				}
 			});
 			return cell;

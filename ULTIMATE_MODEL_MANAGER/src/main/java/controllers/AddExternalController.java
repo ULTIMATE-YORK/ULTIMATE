@@ -62,7 +62,7 @@ public class AddExternalController {
 
 	@FXML
 	private void initialize() {
-		uncategorisedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
+		uncategorisedParameters.setItems(project.getTargetModel().getUncategorisedParameters());
 		chooseType.getItems().addAll("Fixed", "Mean", "Mean-Rate", "Bayes", "Bayes-Rate", "Ranged");
 
 		valueLabel.setManaged(false);
@@ -147,8 +147,8 @@ public class AddExternalController {
 		if (type.toLowerCase() == "fixed") {
 			try {
 				ExternalParameter eParam = new FixedExternalParameter(name.toString(), value);
-				project.getCurrentModel().addExternalParameter(eParam);
-				project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				project.getTargetModel().addExternalParameter(eParam);
+				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
@@ -182,8 +182,8 @@ public class AddExternalController {
 
 			try {
 				ExternalParameter eParam = new RangedExternalParameter(name.toString(), rangedValues);
-				project.getCurrentModel().addExternalParameter(eParam);
-				project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				project.getTargetModel().addExternalParameter(eParam);
+				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
 				closeDialog();
 			} catch (IOException e) {
 				closeDialog();
@@ -195,8 +195,8 @@ public class AddExternalController {
 		} else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS.contains(type.toLowerCase())) {
 			try {
 				ExternalParameter eParam = new LearnedExternalParameter(name.toString(), type, dataFile);
-				project.getCurrentModel().addExternalParameter(eParam);
-				project.getCurrentModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				project.getTargetModel().addExternalParameter(eParam);
+				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
 				closeDialog();
 			} catch (IOException e) {
 				closeDialog();

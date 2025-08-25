@@ -28,7 +28,7 @@ public class ModelFileController {
     private void firstcall() {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return FileUtils.getFileContent(project.getCurrentModel().getFilePath());
+                return FileUtils.getFileContent(project.getTargetModel().getFilePath());
             } catch (IOException e) {
                 Alerter.showErrorAlert("Model File not found!", e.getMessage());
                 return null;

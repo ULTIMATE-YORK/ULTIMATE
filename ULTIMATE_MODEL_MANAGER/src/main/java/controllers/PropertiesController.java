@@ -5,7 +5,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -16,7 +19,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -36,13 +41,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Model;
+import parameters.SynthesisObjective;
 import project.Project;
+import project.synthesis.EvoCheckerUltimateInstance;
+import project.synthesis.SynthesisSolution;
 import property.Property;
 import results.RangedExperimentResults;
 import sharedContext.SharedContext;
@@ -52,6 +61,7 @@ import utils.FileUtils;
 import utils.Font;
 import verification.NPMCVerification;
 import ultimate.Ultimate;
+import java.util.List;
 
 public class PropertiesController {
 
@@ -65,9 +75,14 @@ public class PropertiesController {
 	private Button verifyButton;
 	@FXML
 	private ListView<String> verifyResults;
+	@FXML
+	private ListView<SynthesisSolution> synthesiseResults;
 	// @FXML private ProgressIndicator progressIndicator;
 	@FXML
 	private ListView<Property> propertyListView;
+	@FXML
+	private ListView<SynthesisObjective> synthesisListView;
+
 	@FXML
 	private CheckBox showAllResults;
 	@FXML
@@ -81,11 +96,12 @@ public class PropertiesController {
 	@FXML
 	private Button exportButton;
 
-	private Label verificationLabel;
+	private Label popUpLabel;
 	private String currentModelId = null;
 	private String currentProperty = null;
 
 	private ObservableList<String> allVerificationResults = FXCollections.observableArrayList();
+	private ObservableList<SynthesisSolution> allSynthesisResults = FXCollections.observableArrayList();
 	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationResults, s -> true);
 
 	private Project project = SharedContext.getProject();
@@ -100,17 +116,21 @@ public class PropertiesController {
 
 	@FXML
 	private void initialize() {
-		if (project.getCurrentModel() != null) {
-			propertyListView.setItems(project.getCurrentModel().getProperties());
+		if (project.getTargetModel() != null) {
+			propertyListView.setItems(project.getTargetModel().getProperties());
+			synthesisListView.setItems(project.getTargetModel().getSynthesisObjectives());
+			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		}
 		verifyResults.setItems(filteredVerificationResults); // <--- set filtered list
+		// TODO: tidy this mess up:
+		synthesiseResults.setItems(allSynthesisResults);
 		setCells();
 		setListeners();
 	}
 
 	@FXML
 	private void addProperty() throws IOException {
-		if (project.getCurrentModel() == null) {
+		if (project.getTargetModel() == null) {
 			Alerter.showErrorAlert("No Model Selected", "Select a model to add a property to!");
 			return;
 		}
@@ -227,13 +247,14 @@ public class PropertiesController {
 		verificationResult = "";
 		verificationCount = 1;
 
-		Model vModel = project.getCurrentModel();
+		Model vModel = project.getTargetModel();
 		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
 
 		if (!validateSelection(vModel, vProp))
 			return;
 
-		Stage modalStage = createModalStage("Verification in Progress");
+		Stage modalStage = createPopUpStage("Verification in Progress",
+				"Verifying property " + vProp.getProperty() + " of model " + vModel.getModelId());
 
 		modalStage.show();
 
@@ -304,26 +325,21 @@ public class PropertiesController {
 		return true;
 	}
 
-	private Stage createModalStage(String title) {
+	private Stage createPopUpStage(String title, String labelContents) {
 		Stage modalStage = new Stage();
 		modalStage.initModality(Modality.APPLICATION_MODAL);
 		modalStage.setTitle(title);
 
 		ProgressIndicator modalProgress = new ProgressIndicator();
-		modalProgress.setPrefSize(100, 100);
+		modalProgress.setPrefSize(400, 400);
 
-		verificationLabel = new Label("Starting verification...");
+		popUpLabel = new Label(labelContents);
 
-		VBox box = new VBox(20, modalProgress, verificationLabel);
+		VBox box = new VBox(20, modalProgress, popUpLabel);
 		box.setAlignment(Pos.CENTER);
 
 		Scene modalScene = new Scene(box, 300, 200);
 		modalStage.setScene(modalScene);
-
-		// merge conflict resolved here: quite a large block of code seemed to have been
-		// added and then deleted on the plotting branch.
-		// presuming the current iteration is correct as the plotting branch was merged
-		// 21 days prior (4f6f836f810c6440d2f97f1e0d756b4a28f16f54).
 
 		return modalStage;
 	}
@@ -388,7 +404,7 @@ public class PropertiesController {
 
 		// Update the progress label in the modal
 		Platform.runLater(() -> {
-			verificationLabel
+			popUpLabel
 					.setText("Running verification " + index + " of " + totalVerifications + "...");
 
 		});
@@ -399,8 +415,8 @@ public class PropertiesController {
 				.supplyAsync(() -> {
 					try {
 						ultimate.resetResults();
-						ultimate.execute();
-						return ultimate.getResults();
+						ultimate.executeVerification();
+						return ultimate.getVerificationResults();
 					} catch (IOException e) {
 						e.printStackTrace();
 						return null;
@@ -471,8 +487,8 @@ public class PropertiesController {
 		ultimate.setTargetModelById(vModel.getModelId());
 		ultimate.setVerificationProperty(vProp);
 		ultimate.generateModelInstances();
-		ultimate.execute();
-		String result = ultimate.getResults().values().iterator().next();
+		ultimate.executeVerification();
+		String result = ultimate.getVerificationResults().values().iterator().next();
 
 		Platform.runLater(() -> {
 			// project.addCacheResult(verificationKey, config, result);
@@ -697,6 +713,7 @@ public class PropertiesController {
 			Platform.runLater(() -> {
 				if (newModel != null) {
 					propertyListView.setItems(newModel.getProperties());
+					synthesisListView.setItems(newModel.getSynthesisObjectives());
 					currentModelId = newModel.getModelId();
 				} else {
 					currentModelId = null;
@@ -754,7 +771,7 @@ public class PropertiesController {
 			if (event.getCode() == KeyCode.BACK_SPACE) {
 				Property selectedProperty = propertyListView.getSelectionModel().getSelectedItem();
 				if (selectedProperty != null) {
-					project.getCurrentModel().removeProperty(selectedProperty); // Remove the selected property
+					project.getTargetModel().removeProperty(selectedProperty); // Remove the selected property
 				}
 			}
 		});
@@ -812,7 +829,7 @@ public class PropertiesController {
 		// Update the progress label in the modal
 		int currentVerification = verificationCount;
 		Platform.runLater(() -> {
-			verificationLabel
+			popUpLabel
 					.setText("Running verification " + currentVerification + " of " + totalVerifications + "...");
 		});
 
@@ -962,4 +979,88 @@ public class PropertiesController {
 		}
 		return false;
 	}
+
+	private void setPopUpContents(String text) {
+		Platform.runLater(() -> {
+			popUpLabel.setText(text);
+		});
+	}
+
+	private void appendPopUpContents(String text) {
+		Platform.runLater(() -> {
+			popUpLabel.setText(popUpLabel.getText() + "\n" + text);
+		});
+	}
+
+	@FXML
+	public void synthesise() {
+
+		Ultimate ultimate = SharedContext.getUltimateInstance();
+
+		Stage modalStage = createPopUpStage("Synthesis in Progress",
+				"Running synthesis for " + currentModelId + " with synthesis objectives:\n" + synthesisListView
+						.getItems().stream().map(SynthesisObjective::toString).collect(Collectors.joining("\n")));
+		modalStage.show();
+
+		CompletableFuture.supplyAsync(() -> {
+			String runId = LocalDateTime.now()
+					.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + currentModelId;
+			appendPopUpContents("\nInitialising models...");
+			ultimate.initialiseModels();
+			ultimate.setTargetModelById(currentModelId);
+			appendPopUpContents("Generating model files...");
+			ultimate.generateEvolvableModelFiles();
+			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
+			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
+			appendPopUpContents("Initialising EvoChecker...");
+			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
+			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
+			appendPopUpContents("Running synthesis...");
+			ultimate.executeSynthesis();
+			ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
+			ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
+
+			appendPopUpContents("Synthesis complete.\nCompiling results...");
+
+			ObservableList<SynthesisSolution> runResult = FXCollections.observableArrayList();
+			for (int i = 0; i < synthesisFront.size(); i++) {
+
+				HashMap<String, String> internalParameterValues = synthesisSet.get(i);
+				HashMap<String, String> objectiveValues = synthesisFront.get(i);
+
+				SynthesisSolution solution = new SynthesisSolution(
+						runId,
+						Integer.toString(i),
+						currentModelId,
+						ultimate.getEvoCheckerInstance().getObjectives().stream()
+								.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
+						ultimate.getEvoCheckerInstance().getConstraints().stream()
+								.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
+						internalParameterValues,
+						objectiveValues);
+
+				runResult.add(solution);
+			}
+			return runResult;
+
+		}).thenAccept(runResult -> {
+			allSynthesisResults.addAll(runResult);
+			Platform.runLater(() -> {
+				modalStage.close();
+				ultimate.writeSynthesisResultsToFile();
+			});
+		}).exceptionally(e -> {
+			e.printStackTrace();
+
+			Platform.runLater(() -> {
+				appendPopUpContents("An error occurred during synthesis.\n" + e);
+			});
+
+			return null;
+		}
+
+		);
+
+	}
+
 }

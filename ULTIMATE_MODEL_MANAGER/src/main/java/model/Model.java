@@ -18,6 +18,7 @@ import parameters.DependencyParameter;
 import parameters.ExternalParameter;
 import parameters.FixedExternalParameter;
 import parameters.RangedExternalParameter;
+import parameters.SynthesisObjective;
 import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
 import property.Property;
@@ -42,6 +43,7 @@ public class Model {
 	private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
 	private ObservableList<InternalParameter> internalParameters; // List of internal parameters
 	private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
+	private ObservableList<SynthesisObjective> synthesisObjectives; // List of undefined parameters
 	private ObservableList<Property> properties;
 	private File verificationFile;
 	private HashMap<String, HashMap<String, Double>> results = new HashMap<String, HashMap<String, Double>>(); // Results
@@ -66,6 +68,7 @@ public class Model {
 		this.externalParameters = FXCollections.observableArrayList();
 		this.internalParameters = FXCollections.observableArrayList();
 		this.uncategorisedParameters = FXCollections.observableArrayList();
+		this.synthesisObjectives = FXCollections.observableArrayList();
 		// addUncategorisedParametersFromFile();
 
 		this.properties = FXCollections.observableArrayList();
@@ -512,6 +515,18 @@ public class Model {
 		}
 		Alerter.showWarningAlert("Parameter Not Found",
 				"The internal parameter with name '" + name + "' was not found in the model.");
+	}
+
+	public ObservableList<SynthesisObjective> getSynthesisObjectives() {
+		return this.synthesisObjectives;
+	}
+
+	public void setSynthesisObjectives(ObservableList<SynthesisObjective> synthesisObjectives) {
+		this.synthesisObjectives = synthesisObjectives;
+	}
+
+	public void addSynthesisObjective(SynthesisObjective synthesisObjective) {
+		this.synthesisObjectives.add(synthesisObjective);
 	}
 
 	public ObservableList<IStaticParameter> getStaticParameters() {

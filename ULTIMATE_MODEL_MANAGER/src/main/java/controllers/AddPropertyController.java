@@ -24,7 +24,7 @@ public class AddPropertyController {
 			return;
 		}
 		else {
-			project.getCurrentModel().addProperty(property);
+			project.getTargetModel().addProperty(property);
 			cancel();
 		}
 	}

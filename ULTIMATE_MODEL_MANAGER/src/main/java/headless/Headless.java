@@ -15,10 +15,9 @@ import org.mariuszgromada.math.mxparser.License;
 
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
+import project.synthesis.EvoCheckerUltimateInstance;
 import sharedContext.SharedContext;
 import ultimate.Ultimate;
-import verification.EvoCheckerUltimateInstance;
-
 
 public class Headless {
 
@@ -84,7 +83,8 @@ public class Headless {
 
 		// create the parser
 		System.setProperty("slf4j.internal.verbosity", "WARN");
-        // License.iConfirmNonCommercialUse("ULTIMATE"); // Add this line to confirm license for math lib
+		// License.iConfirmNonCommercialUse("ULTIMATE"); // Add this line to confirm
+		// license for math lib
 
 		setUpCLI();
 		getArgs(args);
@@ -121,17 +121,16 @@ public class Headless {
 			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
 			System.out.println("Running EvoChecker to synthesise parameters...");
-			ultimate.executeEvoChecker();
+			ultimate.executeSynthesis();
 			ultimate.writeSynthesisResultsToFile();
 
 		} else {
 			System.out.println("Beginning a verification problem.");
 			ultimate.setVerificationProperty(property);
 			ultimate.generateModelInstances();
-			ultimate.execute();
+			ultimate.executeVerification();
 		}
 
-		java.util.HashMap<String, String> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
 		// TODO: systemise the output by creating something like a OutputGenerator class
 		// TODO: maybe also write some utility to stylise the output, e.g.
@@ -155,6 +154,7 @@ public class Headless {
 		}
 		// Write the results HashMap to a file
 		if (outputDir != null) {
+			java.util.HashMap<String, String> results = ultimate.getVerificationResults();
 			String fileName = outputDir + "/ultimate_results_" +
 					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_")
 							: "unknown")

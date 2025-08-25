@@ -139,8 +139,8 @@ public class EditExternalParameter {
 
 		if (type.toLowerCase() == "fixed") {
 			try {
-				project.getCurrentModel().removeExternalParameter(ep);
-				project.getCurrentModel()
+				project.getTargetModel().removeExternalParameter(ep);
+				project.getTargetModel()
 						.addExternalParameter(new FixedExternalParameter(ep.getName(), value));
 				closeDialog();
 			} catch (NumberFormatException e) {
@@ -173,8 +173,8 @@ public class EditExternalParameter {
 			}
 
 			try {
-				project.getCurrentModel().removeExternalParameter(ep);
-				project.getCurrentModel()
+				project.getTargetModel().removeExternalParameter(ep);
+				project.getTargetModel()
 						.addExternalParameter(new RangedExternalParameter(ep.getName(), rangedValues));
 				closeDialog();
 			} catch (IOException e) {
@@ -187,8 +187,8 @@ public class EditExternalParameter {
 
 		else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS.contains(type.toLowerCase())) {
 			try {
-				project.getCurrentModel().removeExternalParameter(ep);
-				project.getCurrentModel()
+				project.getTargetModel().removeExternalParameter(ep);
+				project.getTargetModel()
 						.addExternalParameter(new FixedExternalParameter(ep.getName(), value));
 				closeDialog();
 			} catch (NumberFormatException e) {

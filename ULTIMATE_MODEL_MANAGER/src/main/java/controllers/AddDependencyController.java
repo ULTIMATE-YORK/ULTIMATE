@@ -27,7 +27,7 @@ public class AddDependencyController {
 	
 	@FXML
 	public void initialize() {
-		undefinedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
+		undefinedParameters.setItems(project.getTargetModel().getUncategorisedParameters());
 		chooseModel.setItems(project.getObservableModels());
 		
 	    // Set a custom StringConverter to display models using the toName() method
@@ -57,8 +57,8 @@ public class AddDependencyController {
 		}
 		else {
 			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def);
-			project.getCurrentModel().addDependencyParameter(depParam);
-			project.getCurrentModel().removeUncategorisedParameter(undefinedParameters.getValue());
+			project.getTargetModel().addDependencyParameter(depParam);
+			project.getTargetModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();
 		}
 	}

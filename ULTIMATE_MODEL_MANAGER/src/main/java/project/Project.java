@@ -38,7 +38,7 @@ public class Project {
 	private Set<Model> models; // set of models in the project
 	private String projectPath;
 	private ObservableList<Model> observableModels; // The observable list used for UI binding
-	private ObjectProperty<Model> currentModel; // Observable property of current model
+	private ObjectProperty<Model> targetModel; // Observable property of current model
 	private String projectName;
 	private ProjectImporter importer;
 	private ProjectExporter exporter;
@@ -72,7 +72,7 @@ public class Project {
 		saveLocation = projectPath;
 		models = importer.importProjectModels();
 		// Initialise currentModel property (first model in the set or null)
-		currentModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
+		targetModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
 		// Initialise the observable list with the contents of the set
 		observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
@@ -95,7 +95,7 @@ public class Project {
 	public Project() {
 		this.models = new HashSet<Model>();
 		this.observableModels = FXCollections.observableArrayList();
-		this.currentModel = new SimpleObjectProperty<>(null);
+		this.targetModel = new SimpleObjectProperty<>(null);
 		this.projectName = "untitled";
 		// SharedContext.setProject(this);
 		if (SharedContext.getMainStage() != null) {
@@ -161,15 +161,15 @@ public class Project {
 
 	// Getter for currentModel property (for binding)
 	public ObjectProperty<Model> currentModelProperty() {
-		return currentModel;
+		return targetModel;
 	}
 
 	public void setCurrentModel(Model model) {
-		this.currentModel.set(model);
+		this.targetModel.set(model);
 	}
 
-	public Model getCurrentModel() {
-		return currentModel.get();
+	public Model getTargetModel() {
+		return targetModel.get();
 	}
 
 	public ObjectProperty<String> chosenPMCProperty() {
@@ -210,7 +210,7 @@ public class Project {
 
 	public void refresh() {
 		// Save the current model's ID (if any)
-		Model oldModel = getCurrentModel();
+		Model oldModel = getTargetModel();
 		String oldModelId = oldModel != null ? oldModel.getModelId() : null;
 
 		save();
