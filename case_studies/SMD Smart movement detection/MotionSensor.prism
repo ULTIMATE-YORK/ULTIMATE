@@ -27,8 +27,8 @@
 dtmc
 
 // Dependency parameters from the other model
-const double pLow = 0.8;
-const double pMed = 0.7;
+const double pLow;  // = 0.8; //value for tests
+const double pMed;  // = 0.7; //value for tests
 const double pHigh=1-pLow-pMed;
 
 // external parameter
