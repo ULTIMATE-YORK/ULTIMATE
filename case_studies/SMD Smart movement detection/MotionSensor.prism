@@ -3,7 +3,7 @@
 // However, the DTMC only models what happens during one such activation.
 // 
 // When the sensor is activated, it needs to deal with one of three situations:
-// - no moving object exists in the area monitored by the sensor (probability 0.8)
+// - no moving object exists in the area monitored by the sensor (probability =<0.85)
 // - a small, irrelevant object (e.g., a leaf) is being moved around by the wind (probability 0.15)
 // - a large, relevant object, e.g. cat or dog or intruder is present in the area (probability is an external parameter)
 //
