@@ -39,7 +39,7 @@ public class EditInternalParameter {
         	return;
         }
         else {
-        	InternalParameter internalParam = new InternalParameter(ip.getName(), typeValue, min, max, interval);
+        	InternalParameter internalParam = new InternalParameter(ip.getName(), min, max);
 			project.getTargetModel().addInternalParameter(internalParam);
 			project.getTargetModel().removeInternalParameter(ip);
 			closeDialog();

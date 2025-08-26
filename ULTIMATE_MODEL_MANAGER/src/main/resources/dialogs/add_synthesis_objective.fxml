@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" VBox.vgrow="ALWAYS" spacing="10.0" fx:controller="controllers.AddSynthesisObjectiveController" >
+
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10"/>
+	</padding>
+		
+	
+	<Label text="Objective Type" />
+ 	<ChoiceBox fx:id="typeChoiceBox" />
+ 	<ChoiceBox fx:id="minOrMaxChoiceBox" />
+
+	<Label text="Definition:" />
+	<TextField fx:id="definitionTextField" />
+	
+	<Label fx:id="constraintValueLabel" text="Constraint Value:" />
+	<TextField fx:id="constraintTextField" />
+
+
+	<HBox spacing="10.0" alignment="CENTER" >
+		<Button fx:id="saveButton" text="save" onAction="#save" />
+		<Button fx:id="cancelButton" text="cancel" onAction="#cancel" />
+	</HBox>
+
+</VBox>

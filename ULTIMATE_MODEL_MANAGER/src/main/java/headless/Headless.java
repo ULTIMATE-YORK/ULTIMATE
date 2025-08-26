@@ -137,7 +137,7 @@ public class Headless {
 		// OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
 			String parameterNames = internalParameters.stream()
-					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
+					.map((InternalParameter x) -> (x.getName()))
 					.collect(Collectors.joining("\n\t"));
 
 			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath

@@ -12,16 +12,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.management.RuntimeErrorException;
-
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
-import org.json.JSONException;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
@@ -89,10 +85,10 @@ public class ProjectImporter {
 				for (String parameterType : parameterTypes) {
 					deserializeParameters(parametersObject, model, parameterType, models);
 				}
+
 				if (modelObj.has("synthesis")) {
 					JSONObject synthesisObject = modelObj.getJSONObject("synthesis");
 					model.setSynthesisObjectives(importSynthesisObjectives(model, synthesisObject));
-					model.addUncategorisedParametersFromFile();
 				}
 				// add the properties
 				if (modelObj.has("properties")) {
@@ -101,6 +97,9 @@ public class ProjectImporter {
 						model.addProperty(properties.getString(i));
 					}
 				}
+
+				model.addUncategorisedParametersFromFile();
+
 			} catch (Exception e) {
 				throw e;
 			}
@@ -126,15 +125,15 @@ public class ProjectImporter {
 		switch (parameterType) {
 			case "environment":
 				// Deserialize environment parameters
-				JSONObject environmentObject = parametersObject.optJSONObject("environment");
+				JSONObject externalObject = parametersObject.optJSONObject("environment");
 				ArrayList<String> brokenEParameterNames = new ArrayList<>();
 				ArrayList<Exception> externalParameterImportExceptions = new ArrayList<>();
 
 				// TODO: instantiate correct type of externalParameter based on 'type' from the
 				// JSON
-				if (environmentObject != null) {
-					environmentObject.keySet().forEach(envName -> {
-						JSONObject envObj = environmentObject.getJSONObject(envName);
+				if (externalObject != null) {
+					externalObject.keySet().forEach(envName -> {
+						JSONObject envObj = externalObject.getJSONObject(envName);
 						try {
 							String type = envObj.getString("type");
 							if (type.toLowerCase().equals("ranged")) {
@@ -228,10 +227,11 @@ public class ProjectImporter {
 							InternalParameter internalParam = new InternalParameter(
 									ipn.get("name").toString(),
 									ipn.get("min").toString(),
-									ipn.get("max").toString(),
-									null);
+									ipn.get("max").toString());
 							model.addInternalParameter(internalParam);
 						} catch (JSONException e) {
+							// e.printStackTrace();
+							// System.out.println(e.getMessage());
 							brokenIParameterNames
 									.add((ipn.has("name") ? ipn.getString("name") : "[unnamed internal parameter]"));
 						}
@@ -242,7 +242,7 @@ public class ProjectImporter {
 								"Exception(s) occurred when importing the following internal parameter(s) for '"
 										+ model.getModelId() + "':\n\n"
 										+ String.join(", ", brokenIParameterNames)
-										+ "\n\nPlease make sure the file is properly formatted and and each internal parameter has the following fields:\n\tname\n\ttype\n\tmin\n\tmax"
+										+ "\n\nPlease make sure the file is properly formatted and and each internal parameter has the following fields:\n\tname\n\tmin\n\tmax"
 										+ "\n\nYou must reload the project for any changes to take effect.");
 					}
 				}

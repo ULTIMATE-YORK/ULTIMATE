@@ -55,6 +55,7 @@ import project.synthesis.SynthesisSolution;
 import property.Property;
 import results.RangedExperimentResults;
 import sharedContext.SharedContext;
+import ui.UiUtilities;
 import utils.Alerter;
 import utils.DialogOpener;
 import utils.FileUtils;
@@ -67,6 +68,10 @@ public class PropertiesController {
 
 	@FXML
 	private Button addProperty;
+	@FXML
+	private Button addSynthesisObjective;
+	@FXML
+	private Button removeSynthesisObjective;
 	@FXML
 	private Button scrollUp;
 	@FXML
@@ -85,6 +90,8 @@ public class PropertiesController {
 
 	@FXML
 	private CheckBox showAllResults;
+	@FXML
+	private CheckBox plotSynthesisCheckBox;
 	@FXML
 	private Button plotButton;
 	@FXML
@@ -117,6 +124,8 @@ public class PropertiesController {
 	@FXML
 	private void initialize() {
 		if (project.getTargetModel() != null) {
+			// UiUtilities.makeListViewTextSelectable(propertyListView);
+			// UiUtilities.makeListViewTextSelectable(synthesisListView);
 			propertyListView.setItems(project.getTargetModel().getProperties());
 			synthesisListView.setItems(project.getTargetModel().getSynthesisObjectives());
 			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
@@ -131,10 +140,30 @@ public class PropertiesController {
 	@FXML
 	private void addProperty() throws IOException {
 		if (project.getTargetModel() == null) {
-			Alerter.showErrorAlert("No Model Selected", "Select a model to add a property to!");
+			Alerter.showErrorAlert("No Model Selected", "Select a model to which to add a property!");
 			return;
 		}
 		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_property.fxml", "Add Property");
+	}
+
+	@FXML
+	private void addSynthesisObjective() throws IOException {
+		if (project.getTargetModel() == null) {
+			Alerter.showErrorAlert("No Model Selected", "Select a model to which to add a synthesis objective!");
+			return;
+		}
+		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_synthesis_objective.fxml",
+				"Add Synthesis Objective");
+	}
+
+	@FXML
+	private void removeSynthesisObjective() throws IOException {
+		if (project.getTargetModel() == null) {
+			Alerter.showErrorAlert("No Model Selected", "Select a model to which to add a synthesis objective!");
+			return;
+		}
+		SynthesisObjective so = synthesisListView.getSelectionModel().getSelectedItem();
+		project.getTargetModel().removeSynthesisObjective(so);
 	}
 
 	@FXML
@@ -998,8 +1027,7 @@ public class PropertiesController {
 		Ultimate ultimate = SharedContext.getUltimateInstance();
 
 		Stage modalStage = createPopUpStage("Synthesis in Progress",
-				"Running synthesis for " + currentModelId + " with synthesis objectives:\n" + synthesisListView
-						.getItems().stream().map(SynthesisObjective::toString).collect(Collectors.joining("\n")));
+				"Running synthesis for " + currentModelId);
 		modalStage.show();
 
 		CompletableFuture.supplyAsync(() -> {
@@ -1015,6 +1043,7 @@ public class PropertiesController {
 			appendPopUpContents("Initialising EvoChecker...");
 			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
+			ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(plotSynthesisCheckBox.isSelected());
 			appendPopUpContents("Running synthesis...");
 			ultimate.executeSynthesis();
 			ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();

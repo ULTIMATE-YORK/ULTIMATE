@@ -26,6 +26,7 @@ import model.Model;
 import parameters.IStaticParameter;
 import parameters.InternalParameter;
 import project.Project;
+import project.ProjectExporter;
 import property.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
@@ -169,6 +170,11 @@ public class Ultimate {
             Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
             evolvableProjectFilePath = targetProjectPath;
             Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
+
+            // write the synthesis objectives into the temporary file
+            ProjectExporter exporter = new ProjectExporter(SharedContext.getProject());
+            exporter.saveExport(targetProjectPath.toString());
+
 
             for (Model m : models) {
 

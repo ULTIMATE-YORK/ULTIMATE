@@ -1,35 +1,17 @@
 package parameters;
 
-import jmetal.encodings.variable.Int;
-
 public class InternalParameter implements IStaticParameter {
 	private String name;
-	private String type = "double";
+	// private String type = "double";
 	private String min;
 	private String max;
-	private Double interval;
+	// private Double interval;
 	private String value;
 
-	public InternalParameter(String name, String type, String min, String max, Double interval) {
+	public InternalParameter(String name, String min, String max) {
 		this.name = name;
-		this.type = type;
 		this.min = min;
 		this.max = max;
-		this.interval = interval;
-	}
-
-	public InternalParameter(String name, String min, String max, Double interval) {
-		this.name = name;
-
-		// if (("int".equals(type))) {
-		// 	this.min = Integer.parseInt(min);
-		// 	this.max = Integer.parseInt(max);
-		// } else {
-		// }
-		this.min = min;
-		this.max = max;
-		
-		this.interval = interval;
 	}
 
 	public InternalParameter(String name) {
@@ -42,9 +24,9 @@ public class InternalParameter implements IStaticParameter {
 		return this.name;
 	}
 
-	public String getType() {
-		return this.type;
-	}
+	// public String getType() {
+	// return this.type;
+	// }
 
 	public String getMin() {
 		return this.min;
@@ -54,9 +36,9 @@ public class InternalParameter implements IStaticParameter {
 		return this.max;
 	}
 
-	public Double getInterval() {
-		return this.interval;
-	}
+	// public Double getInterval() {
+	// return this.interval;
+	// }
 
 	public String getValue() {
 		return this.value;
@@ -68,13 +50,13 @@ public class InternalParameter implements IStaticParameter {
 		this.name = newName;
 	}
 
-	public void setType(String type) {
-		this.type = type;
-	}
+	// public void setType(String type) {
+	// this.type = type;
+	// }
 
-	public void setInterval(Double interval) {
-		this.interval = interval;
-	}
+	// public void setInterval(Double interval) {
+	// this.interval = interval;
+	// }
 
 	public void setMin(String min) {
 		this.min = min;
@@ -96,7 +78,11 @@ public class InternalParameter implements IStaticParameter {
 	}
 
 	public String toString() {
-		return "Internal Parameter: " + getName() + "\nType: " + getType() + "\nMin: " + getMin() + "\nMax: " + getMax()
-				+ "\nInterval: " + getInterval() + "\n";
+		// return "Internal Parameter: " + getName() + "\nType:" + type + "\nMin: " +
+		// getMin() + "\nMax: "
+		// + getMax()
+		// + "\nInterval: " + getInterval() + "\n";
+		return "Internal Parameter: " + getName() + "\nMin: " + getMin() + "\nMax: " + getMax()
+				+ "\n";
 	}
 }

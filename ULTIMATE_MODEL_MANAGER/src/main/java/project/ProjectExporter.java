@@ -17,6 +17,7 @@ import parameters.FixedExternalParameter;
 import parameters.InternalParameter;
 import parameters.LearnedExternalParameter;
 import parameters.RangedExternalParameter;
+import parameters.SynthesisObjective;
 import property.Property;
 import utils.Alerter;
 import utils.FileUtils;
@@ -62,29 +63,35 @@ public class ProjectExporter {
             parametersObject.put("dependency", dependencyObject);
 
             // Handling environment parameters
-            JSONObject environmentObject = new JSONObject();
-            for (ExternalParameter env : model.getExternalParameters()) {
+            JSONObject externalObject = new JSONObject();
+            for (ExternalParameter ep : model.getExternalParameters()) {
                 JSONObject envObj = new JSONObject();
-                envObj.put("name", env.getName());
-                if (env instanceof RangedExternalParameter) {
-                    envObj.put("rangedValues", new JSONArray(((RangedExternalParameter) env).getValueOptions()));
-                } else if (env instanceof LearnedExternalParameter) {
-                    envObj.put("value", ((LearnedExternalParameter) env).getValueSource());
-                } else if (env instanceof FixedExternalParameter) {
-                    envObj.put("value", ((FixedExternalParameter) env).getValue());
+                envObj.put("name", ep.getName());
+                if (ep instanceof RangedExternalParameter) {
+                    envObj.put("type", "ranged");
+                    envObj.put("rangedValues", new JSONArray(((RangedExternalParameter) ep).getValueOptions()));
+                } else if (ep instanceof LearnedExternalParameter) {
+                    envObj.put("type", ((LearnedExternalParameter)ep).getType());
+                    envObj.put("value", ((LearnedExternalParameter) ep).getValueSource());
+                } else if (ep instanceof FixedExternalParameter) {
+                    envObj.put("type", "fixed");
+                    envObj.put("value", ((FixedExternalParameter) ep).getValue());
                 }
                 // System.out.println("External Parameter: " + env.getName() + "\nType: " +
                 // env.getType() + "\nValue: " + env.getValue());
-                environmentObject.put(env.getName(), envObj);
+                externalObject.put(ep.getName(), envObj);
             }
-            parametersObject.put("environment", environmentObject);
+            parametersObject.put("environment", externalObject);
 
             // Handling internal parameters
             JSONObject internalObject = new JSONObject();
             for (InternalParameter internal : model.getInternalParameters()) {
-                JSONObject internalObj = new JSONObject();
-                internalObj.put("name", internal.getName());
-                internalObject.put(internal.getName(), internalObj);
+                JSONObject ipNode = new JSONObject();
+                ipNode.put("name", internal.getName());
+                ipNode.put("min", internal.getMin());
+                ipNode.put("max", internal.getMax());
+                // ipNode.put("type", internal.getType());
+                internalObject.put(internal.getName(), ipNode);
             }
             parametersObject.put("internal", internalObject);
 
@@ -94,8 +101,17 @@ public class ProjectExporter {
                 propertiesArray.put(formatDefinition(p.getProperty()));
             }
 
+            // synthesis objectives
+            JSONArray synthesisPropertiesArray = new JSONArray();
+            for (SynthesisObjective s : model.getSynthesisObjectives()) {
+                synthesisPropertiesArray.put(s.getDefinition());
+            }
+            JSONObject synthesisNode = new JSONObject();
+            synthesisNode.put("properties", synthesisPropertiesArray);
+
             modelObject.put("parameters", parametersObject);
             modelObject.put("properties", propertiesArray);
+            modelObject.put("synthesis", synthesisNode);
             modelsObject.put(model.getModelId(), modelObject);
         }
 

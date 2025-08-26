@@ -51,6 +51,10 @@ public class LearnedExternalParameter extends ExternalParameter {
 		this.type = type;
 	}
 
+	public String getType() {
+		return this.type;
+	}
+
 	// FIXME : os-dependent paths
 	public String evaluateParameterValue() throws NumberFormatException, IOException {
 		switch (type) {

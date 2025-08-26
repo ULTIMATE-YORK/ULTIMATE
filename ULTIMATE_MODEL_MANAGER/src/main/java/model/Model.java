@@ -286,7 +286,8 @@ public class Model {
 				boolean dexists = dependencyParameters.stream()
 						.anyMatch(dp -> dp.getName().equals(parsedParam));
 				boolean eexists = externalParameters.stream().anyMatch(ep -> ep.getName().equals(parsedParam));
-				if (!dexists && !eexists) {
+				boolean iexists = internalParameters.stream().anyMatch(ip -> ip.getName().equals(parsedParam));
+				if (!dexists && !eexists && !iexists) {
 					this.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
 				}
 			}
@@ -341,6 +342,17 @@ public class Model {
 			if (current.getName().equals(ip.getName())) {
 				iter.remove(); // Safely remove from internalParameters
 				break; // Assuming names are unique, break out of the loop.
+			}
+		}
+	}
+
+	public void removeSynthesisObjective(SynthesisObjective so) {
+		Iterator<SynthesisObjective> iter = this.synthesisObjectives.iterator();
+		while (iter.hasNext()) {
+			SynthesisObjective current = iter.next();
+			if (current.getDefinition().equals(so.getDefinition())) {
+				iter.remove();
+				break;
 			}
 		}
 	}
