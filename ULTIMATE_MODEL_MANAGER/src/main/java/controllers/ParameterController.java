@@ -69,14 +69,9 @@ public class ParameterController {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				System.out.println("UI first load");
 				uParamList.setItems(project.getTargetModel().getUncategorisedParameters());
 				dParamList.setItems(project.getTargetModel().getDependencyParameters());
-				System.out.println(project.getTargetModel().getDependencyParameters().stream()
-						.map(DependencyParameter::getName).collect(Collectors.toList()));
 				eParamList.setItems(project.getTargetModel().getExternalParameters());
-				System.out.println(project.getTargetModel().getInternalParameters().stream()
-						.map(InternalParameter::getName).collect(Collectors.toList()));
 				iParamList.setItems(project.getTargetModel().getInternalParameters());
 			}
 		});
@@ -89,11 +84,6 @@ public class ParameterController {
 			if (newModel != null) {
 				// Retrieve the list of Uncategorised Parameters from the new model.
 				Platform.runLater(() -> {
-					System.out.println("UI refresh");
-					System.out.println(project.getTargetModel().getDependencyParameters().stream()
-							.map(DependencyParameter::getName).collect(Collectors.toList()));
-					System.out.println(project.getTargetModel().getInternalParameters().stream()
-							.map(InternalParameter::getName).collect(Collectors.toList()));
 					uParamList.setItems(newModel.getUncategorisedParameters());
 					dParamList.setItems(project.getTargetModel().getDependencyParameters());
 					eParamList.setItems(project.getTargetModel().getExternalParameters());
@@ -143,7 +133,7 @@ public class ParameterController {
 
 				@Override
 				public void onRemove(DependencyParameter dp) {
-					String name = dp.getName();
+					String name = dp.getNameInModel();
 					// Handle remove action for the dependency parameter dp
 					project.getTargetModel().removeDependencyParameter(dp);
 					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));
@@ -159,7 +149,7 @@ public class ParameterController {
 				@Override
 				public void onEdit(ExternalParameter ep) {
 					try {
-						DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_external_param.fxml",
+						DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/edit_external_param.fxml",
 								"Edit External Parameter", ep);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -168,7 +158,7 @@ public class ParameterController {
 
 				@Override
 				public void onRemove(ExternalParameter ep) {
-					String name = ep.getName();
+					String name = ep.getNameInModel();
 					// Handle remove action for the external parameter ep
 					project.getTargetModel().removeExternalParameter(ep);
 					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));
@@ -192,7 +182,7 @@ public class ParameterController {
 
 				@Override
 				public void onRemove(InternalParameter ip) {
-					String name = ip.getName();
+					String name = ip.getNameInModel();
 					// Handle remove action for the internal parameter ip
 					project.getTargetModel().removeInternalParameter(ip);
 					project.getTargetModel().addUncategorisedParameter(new UncategorisedParameter(name));

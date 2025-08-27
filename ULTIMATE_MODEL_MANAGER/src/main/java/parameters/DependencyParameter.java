@@ -6,18 +6,23 @@ public class DependencyParameter implements IParameter {
     private String name;
     private Model sourceModel;
     private String definition; // definition of the property to be verified on model
-    // TODO make this a result type?
+    private String uniqueIdentifier;
     private String result;
 
-    public DependencyParameter(String name, Model model, String definition) {
+    public DependencyParameter(String name, Model model, String definition, String uniqueIdentifier) {
         this.name = name;
         this.sourceModel = model;
         this.definition = definition;
+        this.uniqueIdentifier = uniqueIdentifier;
     }
 
     // GETTER METHODS
 
-    public String getName() {
+    // public String getNameInModel() {
+    //     return uniqueIdentifier;
+    // }
+
+    public String getNameInModel() {
         return this.name;
     }
 

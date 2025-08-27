@@ -56,6 +56,7 @@ public class Ultimate {
     private int synthesisProgress;
 
     private boolean verbose;
+    private boolean modelParametersWritten;
 
     java.util.HashMap<String, String> results = new java.util.HashMap<>();
 
@@ -87,7 +88,7 @@ public class Ultimate {
     // this.setProject(project);
     // }
 
-    public void initialiseModels() {
+    public void loadModelsFromProject() {
         Set<Model> projectModels = SharedContext.getProject().getModels();
         if (projectModels == null || projectModels.size() == 0) {
             System.err
@@ -97,51 +98,28 @@ public class Ultimate {
         verifier = new NPMCVerification(models);
     }
 
-    public void generateModelInstances() {
+    private void writeParametersToModelFiles() {
         try {
             for (Model m : models) {
-                m.setInternalParametersFromHashMap(internalParameterValuesHashMap);
-                m.setExternalParametersFromHashMap(externalParameterValuesHashMap);
+                m.setInternalParameterValuesFromMap(internalParameterValuesHashMap);
+                m.setExternalParameterValuesFromMap(externalParameterValuesHashMap);
                 FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
                         m.getInternalParameters());
             }
-
+            modelParametersWritten = true;
         } catch (IOException e) {
             e.printStackTrace();
             return;
         }
     }
 
-    public ObservableList<InternalParameter> getInternalParameters() {
-        Project project = SharedContext.getProject();
-        if (project == null) {
-            throw new IllegalStateException("Project has not been instantiated yet.");
-        }
-
-        ArrayList<Model> models = new ArrayList<>(project.getModels());
-        ObservableList<InternalParameter> internalParameters = FXCollections.observableArrayList();
-        if (models.isEmpty()) {
-            throw new IllegalStateException("No models found in the project.");
-        }
-
-        for (Model model : models) {
-            internalParameters.addAll(model.getInternalParameters());
-        }
-
-        return internalParameters;
-    }
-
-    public void setInternalParameters(HashMap<String, String> internalParameterValuesHashMap) {
-
-        // this sets the internal parameter values, but these are only actually
-        // "instantiated" into
-        // the model when generateModelInstances is called (via
-        // setInternalParametersFromHashMap)
-
+    public void setInternalParameterValuesMap(HashMap<String, String> internalParameterValuesHashMap) {
+        modelParametersWritten = false;
         this.internalParameterValuesHashMap = internalParameterValuesHashMap;
     }
 
-    public void setExternalParameters(HashMap<String, ?> params) {
+    public void setExternalParameterValuesMap(HashMap<String, ?> params) {
+        modelParametersWritten = false;
         HashMap<String, String> hm = new HashMap<>();
         for (Map.Entry<String, ?> e : params.entrySet()) {
             hm.put(e.getKey(), e.getValue().toString());
@@ -150,6 +128,11 @@ public class Ultimate {
     }
 
     public void setTargetModelById(String modelID) {
+
+        if (models == null) {
+            throw new RuntimeException("'Models' was null. Did you call .loadModelFromProject?");
+        }
+
         Model matchingModel = models.stream().filter(model -> model.getModelId().equals(modelID)).findFirst()
                 .orElse(null);
         this.targetModel = matchingModel;
@@ -163,6 +146,14 @@ public class Ultimate {
 
         Project project = SharedContext.getProject();
 
+        if (project == null) {
+            throw new RuntimeException("Could not find the project in the SharedContext. Have both been initialised?");
+        }
+
+        if (models == null) {
+            throw new RuntimeException("'Models' was null. Did you call .loadModelFromProject?");
+        }
+
         try {
 
             Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
@@ -174,7 +165,6 @@ public class Ultimate {
             // write the synthesis objectives into the temporary file
             ProjectExporter exporter = new ProjectExporter(SharedContext.getProject());
             exporter.saveExport(targetProjectPath.toString());
-
 
             for (Model m : models) {
 
@@ -200,6 +190,9 @@ public class Ultimate {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
+        if (!modelParametersWritten) { 
+            writeParametersToModelFiles();
+        }
         if (property == null) {
             for (Property p : targetModel.getProperties()) {
                 if (verbose)
@@ -243,34 +236,33 @@ public class Ultimate {
         return evoChecker;
     }
 
-    public void instantiateEvoCheckerInstance(IUltimate ultimateInstance) {
+    public void createEvoCheckerInstance(IUltimate ultimateInstance) {
         evoChecker = new EvoChecker();
         evoChecker.setUltimateInstance(ultimateInstance);
     }
 
     public void initialiseEvoCheckerInstance(String projectFile) {
         if (evoChecker == null) {
-            System.err.println(
-                    "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
-            System.exit(1);
+            throw new RuntimeException(
+                    "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'createEvoCheckerInstance' first");
         }
         evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile,
                 null);
     }
 
-    public void initialiseEvoCheckerInstance(String projectFile, String objectivesConstraintsFileOrString) {
-        if (evoChecker == null) {
-            System.err.println(
-                    "Attempted to initialise EvoChecker, but it has not yet been instantiated. Call 'instantiateEvoCheckerInstance' first");
-            System.exit(1);
-        }
-        evoChecker.setConfigurationFile(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties", projectFile,
-                objectivesConstraintsFileOrString);
-    }
-
     public void executeSynthesis() {
-        evoChecker.start();
-        evoChecker.printStatistics();
+        if (evoChecker == null) {
+            throw new RuntimeException(
+                    "Attempted to run synthesis, but EvoChecker has not yet been instantiated. Call 'createEvoCheckerInstance' first");
+        }
+        try {
+            evoChecker.start();
+            evoChecker.printStatistics();
+        } catch (Exception e) {
+            throw new RuntimeException(
+                    "Error running EvoChecker. Was it properly initialised with initialiseEvoCheckerInstance?\n"
+                            + e.getMessage());
+        }
     }
 
     public void setObjectivesConstraints(String propertyFileOrString) {
@@ -316,10 +308,9 @@ public class Ultimate {
 
         StringBuilder configIdBuilder = new StringBuilder();
 
-        // save all eps, ips, to string
         for (Model m : this.models) {
             for (IStaticParameter p : m.getStaticParameters()) {
-                configIdBuilder.append(p.getName() + " : " + p.getValue() + "\n");
+                configIdBuilder.append(p.getNameInModel() + " : " + p.getValue() + "\n");
             }
         }
 
@@ -333,7 +324,7 @@ public class Ultimate {
         // save all eps, ips, to string
         for (Model m : this.models) {
             for (IStaticParameter p : m.getStaticParameters()) {
-                modelConfigurationHashMap.put(p.getName(), p.getValue());
+                modelConfigurationHashMap.put(p.getNameInModel(), p.getValue());
             }
         }
 
@@ -398,11 +389,10 @@ public class Ultimate {
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
         SolutionSet evoSolutions = evoChecker.getSolutions();
         List<String> internalParameterNames = evoChecker.getInternalParameterNames();
-        // Set<Model> models = SharedContext.getProject().getModels();
         int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
         System.out.println(internalParameterNames + " " + numberInternalParameters);
-        // List<evochecker.properties.Property> evoObjectives =
-        // evoChecker.getObjectives();
+
+        // TODO: why is the structure of the solutions so strange?
         for (int i = 0; i < evoSolutions.size(); i++) {
             Solution s = evoSolutions.get(i);
             HashMap<String, String> r = new HashMap<>();
@@ -422,7 +412,7 @@ public class Ultimate {
                             value = var instanceof Variable ? ((Variable) var).getValue() : var;
                         }
 
-                        r.put(m.getInternalParameters().get(k).getName(), value.toString());
+                        r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

@@ -136,9 +136,9 @@ public class Model {
 		externalParameters = parameters;
 	}
 
-	public ExternalParameter getExternalParameter(String name) {
+	public ExternalParameter getExternalParameter(String uuid) {
 		for (ExternalParameter ep : externalParameters) {
-			if (ep.getName().equals(name)) {
+			if (ep.getNameInModel().equals(uuid)) {
 				return ep;
 			}
 		}
@@ -236,7 +236,7 @@ public class Model {
 	public HashMap<String, ExternalParameter> getHashExternalParameters() {
 		HashMap<String, ExternalParameter> hash = new HashMap<>();
 		for (ExternalParameter ep : externalParameters) {
-			hash.put(ep.getName(), ep);
+			hash.put(ep.getNameInModel(), ep);
 		}
 		return hash;
 	}
@@ -244,7 +244,7 @@ public class Model {
 	public HashMap<String, InternalParameter> getHashInternalParameters() {
 		HashMap<String, InternalParameter> hash = new HashMap<>();
 		for (InternalParameter ip : internalParameters) {
-			hash.put(ip.getName(), ip);
+			hash.put(ip.getNameInModel(), ip);
 		}
 		return hash;
 	}
@@ -252,7 +252,7 @@ public class Model {
 	public HashMap<String, DependencyParameter> getHashDependencyParameters() {
 		HashMap<String, DependencyParameter> hash = new HashMap<>();
 		for (DependencyParameter dp : dependencyParameters) {
-			hash.put(dp.getName(), dp);
+			hash.put(dp.getNameInModel(), dp);
 		}
 		return hash;
 	}
@@ -284,9 +284,9 @@ public class Model {
 			List<String> params = parser.parseFile(this.getFilePath());
 			for (String parsedParam : params) {
 				boolean dexists = dependencyParameters.stream()
-						.anyMatch(dp -> dp.getName().equals(parsedParam));
-				boolean eexists = externalParameters.stream().anyMatch(ep -> ep.getName().equals(parsedParam));
-				boolean iexists = internalParameters.stream().anyMatch(ip -> ip.getName().equals(parsedParam));
+						.anyMatch(dp -> dp.getNameInModel().equals(parsedParam));
+				boolean eexists = externalParameters.stream().anyMatch(ep -> ep.getNameInModel().equals(parsedParam));
+				boolean iexists = internalParameters.stream().anyMatch(ip -> ip.getNameInModel().equals(parsedParam));
 				if (!dexists && !eexists && !iexists) {
 					this.addUncategorisedParameter(new UncategorisedParameter(parsedParam));
 				}
@@ -303,7 +303,7 @@ public class Model {
 		Iterator<DependencyParameter> iter = this.dependencyParameters.iterator();
 		while (iter.hasNext()) {
 			DependencyParameter current = iter.next();
-			if (current.getName().equals(dp.getName())) {
+			if (current.getNameInModel().equals(dp.getNameInModel())) {
 				iter.remove(); // Safely remove from dependencyParameters
 				break; // Assuming names are unique, break out of the loop.
 			}
@@ -314,7 +314,7 @@ public class Model {
 		Iterator<ExternalParameter> iter = this.externalParameters.iterator();
 		while (iter.hasNext()) {
 			ExternalParameter current = iter.next();
-			if (current.getName().equals(ep.getName())) {
+			if (current.getNameInModel().equals(ep.getNameInModel())) {
 				iter.remove(); // Safely remove from dependencyParameters
 				break; // Assuming names are unique, break out of the loop.
 			}
@@ -339,7 +339,7 @@ public class Model {
 		Iterator<InternalParameter> iter = this.internalParameters.iterator();
 		while (iter.hasNext()) {
 			InternalParameter current = iter.next();
-			if (current.getName().equals(ip.getName())) {
+			if (current.getNameInModel().equals(ip.getNameInModel())) {
 				iter.remove(); // Safely remove from internalParameters
 				break; // Assuming names are unique, break out of the loop.
 			}
@@ -378,7 +378,7 @@ public class Model {
 		}
 
 		RangedExternalParameter param = params.get(index);
-		String name = param.getName();
+		String name = param.getNameInModel();
 		ArrayList<String> values = param.getValueOptions();
 
 		for (String val : values) {
@@ -435,18 +435,6 @@ public class Model {
 		return verificationFile.getAbsolutePath();
 	}
 
-	public ArrayList<String> rangedToString() {
-		ArrayList<String> ret = new ArrayList<String>();
-		for (HashMap<String, String> configs : this.getCartesianExternal()) {
-			String basic = this.toString();
-			for (String key : configs.keySet()) {
-				basic += "\n" + key + " : " + configs.get(key) + "\n";
-			}
-			ret.add(basic);
-		}
-		return ret;
-	}
-
 	public String toString() {
 		return this.modelId + internalParameters.toString() + externalParameters.toString()
 				+ dependencyParameters.toString() + uncategorisedParameters.toString();
@@ -482,12 +470,12 @@ public class Model {
 		return results.get(prop);
 	}
 
-	public void setInternalParametersFromHashMap(HashMap<String, String> hashInternalParameters) {
+	public void setInternalParameterValuesFromMap(HashMap<String, String> hashInternalParameters) {
 
 		for (InternalParameter ip : internalParameters) {
 			for (String key : hashInternalParameters.keySet()) {
 				// System.out.println(key + " " + hashInternalParameters.get(key));
-				if (ip.getName().equals(key)) {
+				if (ip.getNameInModel().equals(key)) {
 					ip.setValue(hashInternalParameters.get(key));
 					break;
 				}
@@ -496,23 +484,26 @@ public class Model {
 
 	}
 
-	public void setExternalParametersFromHashMap(HashMap<String, String> hashExternalParameters) {
+	public void setExternalParameterValuesFromMap(HashMap<String, String> hashExternalParameters) {
 
-		for (ExternalParameter ep : externalParameters) {
-			for (String key : hashExternalParameters.keySet()) {
-				try {
-					ep.setValue(hashExternalParameters.get(key));
-				} catch (Exception e) {
-					e.printStackTrace();
-					throw new RuntimeException(e.getMessage());
-				}
-				break;
+		System.out.println("hashExternalParameters: " + hashExternalParameters);
+		System.out.println("externalParameters: " + externalParameters);
+
+		for (String key : hashExternalParameters.keySet()) {
+			ExternalParameter ep = externalParameters.stream().filter(p -> p.getNameInModel() == key).findFirst()
+					.orElse(null);
+			try {
+				ep.setValue(hashExternalParameters.get(key));
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new RuntimeException(e.getMessage());
 			}
+			continue;
 		}
 	}
 
 	public void setDependencyParameter(String name, String value) {
-		// TODO: I could do some simply caching
+		// TODO: I could do some simple caching
 		// would set a cache key before setting this, then next time I come to set dps
 		// i would check the new key against the old and skip if they're the same
 		this.getHashDependencyParameters().get(name).setValue(value);
@@ -520,7 +511,7 @@ public class Model {
 
 	public void setInternalParameterValue(String name, String value) {
 		for (InternalParameter ip : internalParameters) {
-			if (ip.getName().equals(name)) {
+			if (ip.getNameInModel().equals(name)) {
 				ip.setValue(value);
 				return;
 			}

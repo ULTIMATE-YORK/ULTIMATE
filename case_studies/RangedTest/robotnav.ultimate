@@ -1,0 +1,147 @@
+{"models": {
+    "robot1": {
+        "synthesis": {"properties": []},
+        "fileName": "robot1.mdp",
+        "id": "robot1",
+        "parameters": {
+            "environment": {
+                "p_l1": {
+                    "name": "p_l1",
+                    "type": "mean",
+                    "value": "robot1_p_l1.dat"
+                },
+                "p_l2": {
+                    "name": "p_l2",
+                    "type": "mean",
+                    "value": "robot1_p_l2.dat"
+                },
+                "p_l3": {
+                    "name": "p_l3",
+                    "type": "mean",
+                    "value": "robot1_p_l3.dat"
+                },
+                "p_l4": {
+                    "name": "p_l4",
+                    "type": "mean",
+                    "value": "robot1_p_l4.dat"
+                },
+                "p_l9": {
+                    "name": "p_l9",
+                    "type": "mean",
+                    "value": "robot1_p_l9.dat"
+                },
+                "p_l5": {
+                    "name": "p_l5",
+                    "type": "mean",
+                    "value": "robot1_p_l5.dat"
+                },
+                "p_l6": {
+                    "name": "p_l6",
+                    "type": "mean",
+                    "value": "robot1_p_l6.dat"
+                },
+                "p_l8": {
+                    "name": "p_l8",
+                    "type": "mean",
+                    "value": "robot1_p_l8.dat"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["Pmax=?[F done]"]
+    },
+    "robot2": {
+        "synthesis": {"properties": []},
+        "fileName": "robot2.mdp",
+        "id": "robot2",
+        "parameters": {
+            "environment": {
+                "p_l1": {
+                    "rangedValues": [
+                        "0.000",
+                        "0.100",
+                        "0.200",
+                        "0.300",
+                        "0.400",
+                        "0.500",
+                        "0.600",
+                        "0.700",
+                        "0.800",
+                        "0.900",
+                        "1.000"
+                    ],
+                    "name": "p_l1",
+                    "type": "ranged"
+                },
+                "p_l2": {
+                    "name": "p_l2",
+                    "type": "mean",
+                    "value": "robot2_p_l2.dat"
+                },
+                "p_l3": {
+                    "name": "p_l3",
+                    "type": "mean",
+                    "value": "robot2_p_l3.dat"
+                },
+                "p_l4": {
+                    "name": "p_l4",
+                    "type": "mean",
+                    "value": "robot2_p_l4.dat"
+                },
+                "p_l9": {
+                    "name": "p_l9",
+                    "type": "mean",
+                    "value": "robot2_p_l9.dat"
+                },
+                "p_l6": {
+                    "name": "p_l6",
+                    "type": "mean",
+                    "value": "robot2_p_l6.dat"
+                },
+                "p_l7": {
+                    "name": "p_l7",
+                    "type": "mean",
+                    "value": "robot2_p_l7.dat"
+                },
+                "p_l8": {
+                    "name": "p_l8",
+                    "type": "mean",
+                    "value": "robot2_p_l8.dat"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["Pmax=?[F done]"]
+    },
+    "supervisor": {
+        "synthesis": {"properties": []},
+        "fileName": "supervisor.dtmc",
+        "id": "supervisor",
+        "parameters": {
+            "environment": {"nAttempts": {
+                "name": "nAttempts",
+                "type": "fixed",
+                "value": "2"
+            }},
+            "internal": {},
+            "dependency": {
+                "pR2": {
+                    "modelId": "robot2",
+                    "name": "pR2",
+                    "property": "Pmax=?[F done]"
+                },
+                "pR1": {
+                    "modelId": "robot1",
+                    "name": "pR1",
+                    "property": "Pmax=?[F done]"
+                }
+            }
+        },
+        "properties": [
+            "R{\\\"failures\\\"}=?[F done]",
+            "R{\\\"cost\\\"}=?[F done]"
+        ]
+    }
+}}

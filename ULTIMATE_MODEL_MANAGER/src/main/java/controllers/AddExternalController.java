@@ -26,13 +26,14 @@ import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
 import ultimate.Ultimate;
+import model.Model;
 
 public class AddExternalController {
 
 	@FXML
 	private Label valueLabel;
 	@FXML
-	private ChoiceBox<UncategorisedParameter> uncategorisedParameters;
+	private ChoiceBox<UncategorisedParameter> uParameterNameChoiceBox;
 	@FXML
 	private ChoiceBox<String> chooseType;
 	@FXML
@@ -44,7 +45,7 @@ public class AddExternalController {
 	@FXML
 	private TextField rangeStep;
 	@FXML
-	private TextField chooseText;
+	private TextField chooseValue;
 	@FXML
 	private Button chooseButton;
 	@FXML
@@ -59,16 +60,18 @@ public class AddExternalController {
 
 	private boolean ranged = false;
 	private ArrayList<String> rangedValues = new ArrayList<String>();
+	private Model targetModel;
 
 	@FXML
 	private void initialize() {
-		uncategorisedParameters.setItems(project.getTargetModel().getUncategorisedParameters());
+		targetModel = project.getTargetModel();
+		uParameterNameChoiceBox.setItems(targetModel.getUncategorisedParameters());
 		chooseType.getItems().addAll("Fixed", "Mean", "Mean-Rate", "Bayes", "Bayes-Rate", "Ranged");
 
 		valueLabel.setManaged(false);
 		valueLabel.setVisible(false);
-		chooseText.setVisible(false);
-		chooseText.setManaged(false); // Ensures it doesn't take up space when hidden
+		chooseValue.setVisible(false);
+		chooseValue.setManaged(false); // Ensures it doesn't take up space when hidden
 		chooseButton.setVisible(false);
 		chooseButton.setManaged(false);
 
@@ -76,8 +79,8 @@ public class AddExternalController {
 		chooseType.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal.equals("Fixed")) {
 				// show text area and hide button
-				chooseText.setVisible(true);
-				chooseText.setManaged(true);
+				chooseValue.setVisible(true);
+				chooseValue.setManaged(true);
 				chooseButton.setVisible(false);
 				chooseButton.setManaged(false);
 				valueLabel.setManaged(true);
@@ -106,12 +109,12 @@ public class AddExternalController {
 				chooseButton.setManaged(false);
 				valueLabel.setVisible(false);
 				valueLabel.setManaged(false);
-				chooseText.setVisible(false);
-				chooseText.setManaged(false);
+				chooseValue.setVisible(false);
+				chooseValue.setManaged(false);
 			} else {
 				// show button
-				chooseText.setVisible(false);
-				chooseText.setManaged(false);
+				chooseValue.setVisible(false);
+				chooseValue.setManaged(false);
 				chooseButton.setVisible(true);
 				chooseButton.setManaged(true);
 				valueLabel.setManaged(true);
@@ -137,37 +140,45 @@ public class AddExternalController {
 
 	@FXML
 	private void saveEParam() {
-		UncategorisedParameter name = uncategorisedParameters.getValue();
+		UncategorisedParameter parameterToCategorise = uParameterNameChoiceBox.getValue();
 		String type = chooseType.getValue();
-		String value = chooseText.getText();
+		String value = chooseValue.getText();
+		System.out.println(String.format("Saving %s %s %s", parameterToCategorise, type, value));
 
 		// TODO: this is all basically reused code from EditExternalParameter
 		// Clean it up by editing the other class to account for uncategorised
 		// parameters
-		if (type.toLowerCase() == "fixed") {
+		if (type.trim().toLowerCase().equals("fixed")) {
 			try {
-				ExternalParameter eParam = new FixedExternalParameter(name.toString(), value);
-				project.getTargetModel().addExternalParameter(eParam);
-				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				ExternalParameter eParam = new FixedExternalParameter(parameterToCategorise.getName(), value,
+						targetModel.getModelId());
+				targetModel.addExternalParameter(eParam);
+				targetModel.removeUncategorisedParameter(uParameterNameChoiceBox.getValue());
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
 				closeDialog();
 			}
 
-		} else if (type.toLowerCase() == "ranged") {
-			// value = "";
+		} else if (type.trim().toLowerCase().equals("ranged")) {
+			System.out.println(
+					String.format("Saving ranged %s %s %s %s %s", parameterToCategorise, type, rangeMin.getText(),
+							rangeMax.getText(), rangeStep.getText()));
 			try {
 				Double min = Double.parseDouble(rangeMin.getText());
 				Double max = Double.parseDouble(rangeMax.getText());
 				Double step = Double.parseDouble(rangeStep.getText());
 				if (max < min) {
-					Alerter.showErrorAlert("Invalid Input!", "The minimum value must be less than the maximum value.");
-					return;
+					Platform.runLater(() -> {
+						Alerter.showErrorAlert("Invalid Range", "'Max' must be larger than 'min'.");
+						return;
+					});
 				}
 				if (step <= 0) {
-					Alerter.showErrorAlert("Invalid Range!", "The step value must be greater than 0.");
-					return;
+					Platform.runLater(() -> {
+						Alerter.showErrorAlert("Invalid Range", "The step must be greater than 0.");
+						return;
+					});
 				}
 
 				for (BigDecimal currentvalue = BigDecimal.valueOf(min); currentvalue.compareTo(
@@ -176,14 +187,32 @@ public class AddExternalController {
 				}
 
 			} catch (NumberFormatException e) {
-				Alerter.showErrorAlert("Invalid Range", "The range values must be numbers.");
-				return;
+				Platform.runLater(() -> {
+					Alerter.showErrorAlert("Invalid Range", "The range values must be numbers.");
+					return;
+				});
 			}
 
 			try {
-				ExternalParameter eParam = new RangedExternalParameter(name.toString(), rangedValues);
-				project.getTargetModel().addExternalParameter(eParam);
-				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
+				ExternalParameter eParam = new RangedExternalParameter(parameterToCategorise.getName(), rangedValues,
+						targetModel.getModelId());
+				targetModel.addExternalParameter(eParam);
+				targetModel.removeUncategorisedParameter(uParameterNameChoiceBox.getValue());
+				closeDialog();
+			} catch (IOException e) {
+				Platform.runLater(() -> Alerter.showErrorAlert("IO Exception", e.getMessage()));
+				closeDialog();
+			} catch (NumberFormatException e) {
+				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File Type", e.getMessage()));
+				closeDialog();
+			}
+
+		} else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS.contains(type.trim().toLowerCase())) {
+			try {
+				ExternalParameter eParam = new LearnedExternalParameter(parameterToCategorise.getName(), type,
+						dataFile, targetModel.getModelId());
+				targetModel.addExternalParameter(eParam);
+				targetModel.removeUncategorisedParameter(uParameterNameChoiceBox.getValue());
 				closeDialog();
 			} catch (IOException e) {
 				closeDialog();
@@ -191,27 +220,20 @@ public class AddExternalController {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
 				closeDialog();
 			}
-
-		} else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS.contains(type.toLowerCase())) {
-			try {
-				ExternalParameter eParam = new LearnedExternalParameter(name.toString(), type, dataFile);
-				project.getTargetModel().addExternalParameter(eParam);
-				project.getTargetModel().removeUncategorisedParameter(uncategorisedParameters.getValue());
-				closeDialog();
-			} catch (IOException e) {
-				closeDialog();
-			} catch (NumberFormatException e) {
-				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
-				closeDialog();
-			}
-
+		} else {
+			Platform.runLater(() -> {
+				Alerter.showErrorAlert("Unknown type", "The type " + type + "is unknown.");
+			});
 		}
+
 	}
 
 	@FXML
 	private void closeDialog() {
-		Stage stage = (Stage) cancelButton.getScene().getWindow();
-		stage.close();
+		Platform.runLater(() -> {
+			Stage stage = (Stage) cancelButton.getScene().getWindow();
+			stage.close();
+		});
 	}
 
 	private String openDataFileDialog(Stage stage) {

@@ -37,7 +37,7 @@ public class EditDependencyParameter {
 			return;
 		}
 		else {
-			DependencyParameter depParam = new DependencyParameter(dp.getName(), model, def);
+			DependencyParameter depParam = new DependencyParameter(dp.getNameInModel(), model, def,project.getTargetModel().getModelId());
 			project.getTargetModel().addDependencyParameter(depParam);
 			project.getTargetModel().removeDependencyParameter(dp);
 			project.refresh();

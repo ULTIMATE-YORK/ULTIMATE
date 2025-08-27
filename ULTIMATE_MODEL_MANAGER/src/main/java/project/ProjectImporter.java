@@ -143,16 +143,19 @@ public class ProjectImporter {
 								for (int i = 0; i < rangedValues.length(); i++) {
 									rangedValuesList.add(rangedValues.getString(i));
 								}
-								ExternalParameter envParam = new RangedExternalParameter(envName, rangedValuesList);
+								ExternalParameter envParam = new RangedExternalParameter(envName, rangedValuesList,
+										model.getModelId());
 								model.addExternalParameter(envParam);
 							} else if (type.toLowerCase().equals("fixed")) {
 								String value = envObj.getString("value");
-								ExternalParameter envParam = new FixedExternalParameter(envName, value);
+								ExternalParameter envParam = new FixedExternalParameter(envName, value,
+										model.getModelId());
 								model.addExternalParameter(envParam);
 							} else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS
 									.contains(type.toLowerCase())) {
 								String valueSource = envObj.getString("value");
-								ExternalParameter envParam = new LearnedExternalParameter(envName, type, valueSource);
+								ExternalParameter envParam = new LearnedExternalParameter(envName, type, valueSource,
+										model.getModelId());
 								model.addExternalParameter(envParam);
 							}
 
@@ -191,11 +194,12 @@ public class ProjectImporter {
 									.orElse(null);
 							if (sourceModel == null) {
 								throw new RuntimeException("Tried to create a dependency parameter '" + depName
-										+ "' for model '" + depId + "' which is dependent on model '" + depId
+										+ "' for model '" + model.getModelId() + "' which is dependent on model '"
+										+ depId
 										+ "', but this model could not be found. Make sure all arguments are properly set.");
 							} else {
 								DependencyParameter depParam = new DependencyParameter(depName, sourceModel,
-										depDefinition);
+										depDefinition, model.getModelId());
 								model.addDependencyParameter(depParam);
 							}
 						} catch (Exception e) {
@@ -227,7 +231,8 @@ public class ProjectImporter {
 							InternalParameter internalParam = new InternalParameter(
 									ipn.get("name").toString(),
 									ipn.get("min").toString(),
-									ipn.get("max").toString());
+									ipn.get("max").toString(),
+									model.getModelId() + "-" + ipn.get("name").toString());
 							model.addInternalParameter(internalParam);
 						} catch (JSONException e) {
 							// e.printStackTrace();
@@ -267,7 +272,6 @@ public class ProjectImporter {
 		for (Object prop : propertiesArray) {
 			ocs.add(new SynthesisObjective(prop.toString()));
 		}
-		System.out.println("ocs: " + ocs.stream().map(SynthesisObjective::toString).collect(Collectors.toList()));
 		return ocs;
 	}
 

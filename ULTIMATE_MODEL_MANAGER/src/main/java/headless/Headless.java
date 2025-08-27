@@ -99,7 +99,7 @@ public class Headless {
 				+ Paths.get(projectFilePath).getFileName().toString() + "\n");
 		SharedContext.loadProjectFromPath(projectFilePath);
 		Ultimate ultimate = SharedContext.getUltimateInstance();
-		ultimate.initialiseModels();
+		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(modelID);
 
 		if (SharedContext.getProject().containsRangedParameters()) {
@@ -110,7 +110,7 @@ public class Headless {
 			System.exit(1);
 		}
 
-		ObservableList<InternalParameter> internalParameters = ultimate.getInternalParameters();
+		ObservableList<InternalParameter> internalParameters = SharedContext.getProject().getAllInternalParameters();
 		if (internalParameters.size() > 0) {
 			System.out.println(
 					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
@@ -118,16 +118,14 @@ public class Headless {
 			ultimate.generateEvolvableModelFiles();
 			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
 			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
-			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
+			ultimate.createEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
 			System.out.println("Running EvoChecker to synthesise parameters...");
 			ultimate.executeSynthesis();
 			ultimate.writeSynthesisResultsToFile();
-
 		} else {
 			System.out.println("Beginning a verification problem.");
 			ultimate.setVerificationProperty(property);
-			ultimate.generateModelInstances();
 			ultimate.executeVerification();
 		}
 
@@ -137,7 +135,7 @@ public class Headless {
 		// OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
 			String parameterNames = internalParameters.stream()
-					.map((InternalParameter x) -> (x.getName()))
+					.map((InternalParameter x) -> (x.getNameInModel()))
 					.collect(Collectors.joining("\n\t"));
 
 			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath

@@ -21,8 +21,6 @@ public class AddDependencyController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getContext();
-	private Ultimate ultimate = SharedContext.getUltimateInstance();
     private Project project = SharedContext.getProject();
 	
 	@FXML
@@ -56,7 +54,7 @@ public class AddDependencyController {
 			return;
 		}
 		else {
-			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def);
+			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def, project.getTargetModel().getModelId());
 			project.getTargetModel().addDependencyParameter(depParam);
 			project.getTargetModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();

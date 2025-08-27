@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,7 +26,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
 import parameters.ExternalParameter;
+import parameters.InternalParameter;
 import parameters.RangedExternalParameter;
+import parameters.SynthesisObjective;
 import sharedContext.SharedContext;
 import utils.Alerter;
 //import utils.Alerter;
@@ -55,7 +58,7 @@ public class Project {
 	private boolean isBlank;
 	// key will be model id + property and second hashmap will be mapping of
 	// configuration to result
-	private HashMap<String, HashMap<String, Double>> cache = new HashMap<String, HashMap<String, Double>>(); // cache
+	private HashMap<String, HashMap<String, String>> cache = new HashMap<String, HashMap<String, String>>(); // cache
 																												// for
 																												// storing
 																												// results
@@ -348,13 +351,13 @@ public class Project {
 		return false;
 	}
 
-	public HashMap<String, ArrayList<String>> generateRangedExperimentConfiguration() {
+	public HashMap<String, ArrayList<String>> getRangedExternalVariableValues() {
 		HashMap<String, ArrayList<String>> experimentConfiguration = new HashMap<>();
 
 		for (Model m : models) {
 			for (ExternalParameter ep : m.getExternalParameters()) {
 				if (ep instanceof RangedExternalParameter) {
-					experimentConfiguration.put(ep.getName(), ((RangedExternalParameter) ep).getValueOptions());
+					experimentConfiguration.put(ep.getNameInModel(), ((RangedExternalParameter) ep).getValueOptions());
 				}
 			}
 		}
@@ -362,16 +365,31 @@ public class Project {
 		return experimentConfiguration;
 	}
 
+	// public HashMap<String, HashMap<String, ArrayList<String>>> getRangedExternalVariableValues() {
+	// 	HashMap<String, HashMap<String, ArrayList<String>>> experimentConfiguration = new HashMap<>();
+
+	// 	for (Model m : models) {
+	// 		HashMap<String, ArrayList<String>> thisModelHashMap = new HashMap<>();
+	// 		for (ExternalParameter ep : m.getExternalParameters()) {
+	// 			if (ep instanceof RangedExternalParameter) {
+	// 				thisModelHashMap.put(ep.getNameInModel(), ((RangedExternalParameter) ep).getValueOptions());
+	// 			}
+	// 		}
+	// 		experimentConfiguration.put(m.getModelId(), thisModelHashMap);
+	// 	}
+
+	// 	return experimentConfiguration;
+	// }
+
 	public ArrayList<HashMap<String, String>> generateExperimentPlan() {
 
 		// generate plan by combining every possible external parameter value with every
 		// other
-		HashMap<String, ArrayList<String>> experimentConfig = generateRangedExperimentConfiguration(); // key: parameter
-																										// name, value:
-																										// range
+		HashMap<String, ArrayList<String>> rangedExternalVariableValues = getRangedExternalVariableValues();
+		System.out.println(String.format("rangedExternalVariableValues: %s", rangedExternalVariableValues));
 
 		ArrayList<HashMap<String, String>> experimentPlan = getAllCombinations(new ArrayList<HashMap<String, String>>(),
-				experimentConfig, 0);
+				rangedExternalVariableValues, 0);
 
 		return experimentPlan;
 
@@ -414,17 +432,17 @@ public class Project {
 		String propertyName = propertyNames.get(depth);
 
 		ArrayList<String> thisDepthPropertyValues = experimentConfig.get(propertyName);
-		ArrayList<HashMap<String, String>> allLowerCombinations = getAllCombinations(combinations, experimentConfig,
-				depth + 1);
 		ArrayList<HashMap<String, String>> newCombinations = new ArrayList<>();
 
-		if (depth == experimentConfig.size()) {
+		if (depth == propertyNames.size()-1) {
 			for (String value : thisDepthPropertyValues) {
 				HashMap<String, String> bottomCombination = new HashMap<>();
 				bottomCombination.put(propertyName, value);
 				newCombinations.add(bottomCombination);
 			}
 		} else {
+			ArrayList<HashMap<String, String>> allLowerCombinations = getAllCombinations(combinations, experimentConfig,
+					depth + 1);
 			for (String value : thisDepthPropertyValues) {
 				for (HashMap<String, String> lc : allLowerCombinations) {
 					HashMap<String, String> combination = new HashMap<>();
@@ -439,101 +457,55 @@ public class Project {
 
 	}
 
-	public ArrayList<HashMap<Model, HashMap<String, String>>> generateModelResultsHashMap(ArrayList<Model> models) {
-		ArrayList<HashMap<Model, HashMap<String, String>>> results = new ArrayList<>();
-		backtrack(models, 0, new HashMap<>(), results);
-		return results;
+
+	public HashMap<String, String> getCacheResult(String key) {
+		return cache.get(key);
 	}
 
-	private void backtrack(ArrayList<Model> models, int index,
-			HashMap<Model, HashMap<String, String>> current,
-			ArrayList<HashMap<Model, HashMap<String, String>>> results) {
-		if (index == models.size()) {
-			results.add(new HashMap<>(current));
-			return;
-		}
-
-		Model model = models.get(index);
-		ArrayList<HashMap<String, String>> configs = model.getCartesianExternal();
-
-		for (HashMap<String, String> config : configs) {
-			current.put(model, config);
-			backtrack(models, index + 1, current, results);
-			// Optional: current.remove(model); // Not needed due to overwrite
-		}
+	public void addCacheResult(String key, HashMap<String, String> result) {
+		cache.put(key, result);
 	}
 
-	public Double getCacheResult(String verification, String config) {
-		try {
-			String normalizedConfig = normalizeConfigString(config);
-			return cache.get(verification).get(normalizedConfig);
-		} catch (Exception e) {
-			return null;
-		}
-	}
+	// private String normalizeConfigString(String config) {
+	// 	// Remove all whitespace
+	// 	String cleaned = config.replaceAll("\\s+", "");
 
-	public void addCacheResult(String verification, String config, Double result) {
-		String normalizedConfig = normalizeConfigString(config);
-		try {
-			cache.get(verification).put(normalizedConfig, result);
-		} catch (Exception e) {
-			HashMap<String, Double> newConfig = new HashMap<>();
-			newConfig.put(normalizedConfig, result);
-			cache.put(verification, newConfig);
-		}
-	}
+	// 	// Separate letters and numbers
+	// 	StringBuilder letters = new StringBuilder();
+	// 	ArrayList<BigInteger> numbers = new ArrayList<>();
 
-	public void addCacheResult(String config, Double result) {
-		// String normalizedConfig = normalizeConfigString(config);
-		// try {
-		// cache.get(verification).put(normalizedConfig, result);
-		// } catch (Exception e) {
-		// HashMap<String, Double> newConfig = new HashMap<>();
-		// newConfig.put(normalizedConfig, result);
-		// cache.put(verification, newConfig);
-		// }
-	}
+	// 	StringBuilder numberBuffer = new StringBuilder();
+	// 	for (char c : cleaned.toCharArray()) {
+	// 		if (Character.isDigit(c)) {
+	// 			numberBuffer.append(c);
+	// 		} else {
+	// 			// Flush any buffered number
+	// 			if (numberBuffer.length() > 0) {
+	// 				numbers.add(new BigInteger(numberBuffer.toString()));
+	// 				numberBuffer.setLength(0);
+	// 			}
+	// 			letters.append(c);
+	// 		}
+	// 	}
+	// 	// Flush any trailing number
+	// 	if (numberBuffer.length() > 0) {
+	// 		numbers.add(new BigInteger(numberBuffer.toString()));
+	// 	}
 
-	private String normalizeConfigString(String config) {
-		// Remove all whitespace
-		String cleaned = config.replaceAll("\\s+", "");
+	// 	// Sort letters and numbers
+	// 	char[] letterArray = letters.toString().toCharArray();
+	// 	Arrays.sort(letterArray);
+	// 	numbers.sort(null); // Natural order for BigInteger
 
-		// Separate letters and numbers
-		StringBuilder letters = new StringBuilder();
-		ArrayList<BigInteger> numbers = new ArrayList<>();
+	// 	// Build normalized string
+	// 	StringBuilder normalized = new StringBuilder();
+	// 	normalized.append(letterArray);
+	// 	for (BigInteger num : numbers) {
+	// 		normalized.append(num);
+	// 	}
 
-		StringBuilder numberBuffer = new StringBuilder();
-		for (char c : cleaned.toCharArray()) {
-			if (Character.isDigit(c)) {
-				numberBuffer.append(c);
-			} else {
-				// Flush any buffered number
-				if (numberBuffer.length() > 0) {
-					numbers.add(new BigInteger(numberBuffer.toString()));
-					numberBuffer.setLength(0);
-				}
-				letters.append(c);
-			}
-		}
-		// Flush any trailing number
-		if (numberBuffer.length() > 0) {
-			numbers.add(new BigInteger(numberBuffer.toString()));
-		}
-
-		// Sort letters and numbers
-		char[] letterArray = letters.toString().toCharArray();
-		Arrays.sort(letterArray);
-		numbers.sort(null); // Natural order for BigInteger
-
-		// Build normalized string
-		StringBuilder normalized = new StringBuilder();
-		normalized.append(letterArray);
-		for (BigInteger num : numbers) {
-			normalized.append(num);
-		}
-
-		return normalized.toString();
-	}
+	// 	return normalized.toString();
+	// }
 
 	/*
 	 * Gets the directory of the project
@@ -558,4 +530,34 @@ public class Project {
 	public boolean isConfigured() {
 		return configured;
 	}
+
+	public ObservableList<SynthesisObjective> getAllSynthesisObjectives() {
+
+		ObservableList<SynthesisObjective> synthesisParameters = FXCollections.observableArrayList();
+		if (models.isEmpty()) {
+			throw new IllegalStateException("No models found in the project.");
+		}
+
+		for (Model model : models) {
+			synthesisParameters.addAll(model.getSynthesisObjectives());
+		}
+
+		return synthesisParameters;
+
+	}
+
+	public ObservableList<InternalParameter> getAllInternalParameters() {
+
+		ObservableList<InternalParameter> internalParameters = FXCollections.observableArrayList();
+		if (models.isEmpty()) {
+			throw new IllegalStateException("No models found in the project.");
+		}
+
+		for (Model model : models) {
+			internalParameters.addAll(model.getInternalParameters());
+		}
+
+		return internalParameters;
+	}
+
 }

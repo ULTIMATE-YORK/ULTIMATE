@@ -137,18 +137,19 @@ public class EditExternalParameter {
 		String type = chooseType.getValue();
 		String value = chooseText.getText();
 
-		if (type.toLowerCase() == "fixed") {
+		if (type.toLowerCase().equals("fixed")) {
 			try {
 				project.getTargetModel().removeExternalParameter(ep);
 				project.getTargetModel()
-						.addExternalParameter(new FixedExternalParameter(ep.getName(), value));
+						.addExternalParameter(
+								new FixedExternalParameter(ep.getNameInModel(), value, project.getTargetModel().getModelId()));
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
 				closeDialog();
 			}
 
-		} else if (type.toLowerCase() == "ranged") {
+		} else if (type.toLowerCase().equals("ranged")) {
 			ArrayList<String> rangedValues = new ArrayList<String>();
 			try {
 				Double min = Double.parseDouble(rangeMin.getText());
@@ -175,7 +176,8 @@ public class EditExternalParameter {
 			try {
 				project.getTargetModel().removeExternalParameter(ep);
 				project.getTargetModel()
-						.addExternalParameter(new RangedExternalParameter(ep.getName(), rangedValues));
+						.addExternalParameter(new RangedExternalParameter(ep.getNameInModel(), rangedValues,
+								project.getTargetModel().getModelId()));
 				closeDialog();
 			} catch (IOException e) {
 				closeDialog();
@@ -189,7 +191,8 @@ public class EditExternalParameter {
 			try {
 				project.getTargetModel().removeExternalParameter(ep);
 				project.getTargetModel()
-						.addExternalParameter(new FixedExternalParameter(ep.getName(), value));
+						.addExternalParameter(
+								new FixedExternalParameter(ep.getNameInModel(), value, project.getTargetModel().getModelId()));
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));

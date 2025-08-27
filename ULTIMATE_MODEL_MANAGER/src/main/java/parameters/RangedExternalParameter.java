@@ -3,22 +3,14 @@ package parameters;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import javafx.application.Platform;
-import learning.BayesianAverageCalculator;
-import learning.MeanCalculator;
-import project.Project;
-import sharedContext.SharedContext;
-import utils.Alerter;
-
 public class RangedExternalParameter extends ExternalParameter {
-	private String name;
 	private final String type = "ranged";
 	private ArrayList<String> valueOptions = new ArrayList<String>();
 	private String currentValue;
 
-	public RangedExternalParameter(String name, ArrayList<String> valueOptions)
+	public RangedExternalParameter(String name, ArrayList<String> valueOptions, String uniqueIdentifier)
 			throws NumberFormatException, IOException {
-		super(name, null);
+		super(name, uniqueIdentifier);
 		this.valueOptions = valueOptions;
 
 	}
@@ -42,7 +34,7 @@ public class RangedExternalParameter extends ExternalParameter {
 	}
 
 	public String toString() {
-		return "External Parameter: " + name + "\nType: " + type + "\nValues: " +
+		return "Ranged External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValues: " +
 				String.join(", ", valueOptions)
 				+ "\n";
 	}

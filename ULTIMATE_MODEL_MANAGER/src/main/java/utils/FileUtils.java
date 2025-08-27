@@ -177,18 +177,18 @@ public class FileUtils {
 		for (ExternalParameter ep : externalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
 			try {
-				String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ep.getName()) + "\\s*(=\\s*[^;]+)?;";
+				String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ep.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
 				Pattern pattern = Pattern.compile(regex);
 				Matcher matcher = pattern.matcher(line);
 				if (matcher.find()) {
 					String valueType = matcher.group(1);
-					updatedLine = "const " + valueType + " " + ep.getName() + " = " + ep.getValue() + ";";
+					updatedLine = "const " + valueType + " " + ep.getNameInModel() + " = " + ep.getValue() + ";";
 					break;
 				}
 			} catch (NullPointerException e) {
 				e.printStackTrace();
 				throw new RuntimeException(
-						"Could not construct regex for " + ep.getClass().getName() + "with name " + ep.getName());
+						"Could not construct regex for " + ep.getClass().getName() + "with name " + ep.getNameInModel());
 			}
 		}
 		return updatedLine;
@@ -199,12 +199,12 @@ public class FileUtils {
 		String updatedLine = null;
 		for (InternalParameter ip : internalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
-			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getName()) + "\\s*(=\\s*[^;]+)?;";
+			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "const " + valueType + " " + ip.getName() + " = " + ip.getValue() + ";";
+				updatedLine = "const " + valueType + " " + ip.getNameInModel() + " = " + ip.getValue() + ";";
 				break;
 			}
 		}
@@ -376,12 +376,12 @@ public class FileUtils {
 		String updatedLine = null;
 		for (InternalParameter ip : internalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
-			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getName()) + "\\s*(=\\s*[^;]+)?;";
+			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "evolve " + valueType + " " + ip.getName() + " [" + ip.getMin() + ".." + ip.getMax()
+				updatedLine = "evolve " + valueType + " " + ip.getNameInModel() + " [" + ip.getMin() + ".." + ip.getMax()
 						+ "];";
 				break;
 			}

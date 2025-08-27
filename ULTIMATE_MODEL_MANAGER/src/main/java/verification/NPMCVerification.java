@@ -145,7 +145,7 @@ public class NPMCVerification {
                         logger.info("  Processing dependency: " + dep);
                         logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
                         String result = verifyModel(targetModel, dep.getDefinition());
-                        model.setDependencyParameter(dep.getName(), result);
+                        model.setDependencyParameter(dep.getNameInModel(), result);
                     } else {
                         logger.info("  Skipping dependency: " + dep + " (same SCC)");
                     }
@@ -240,7 +240,7 @@ public class NPMCVerification {
                         String inputLine = currentModelFilePath + ", " +
                                 targetModelFilePath + ", " +
                                 dep.getDefinition() + ", " +
-                                dep.getName();
+                                dep.getNameInModel();
                         inputData.add(inputLine);
                     }
                 }
@@ -327,8 +327,8 @@ public class NPMCVerification {
                     // Find which model this parameter belongs to
                     for (Model model : sccModels) {
                         for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
-                            if (dep.getName().equals(paramName)) {
-                                model.setDependencyParameter(paramName, paramValue);
+                            if (dep.getNameInModel().equals(paramName)) {
+                                model.setDependencyParameter(dep.getNameInModel(), paramValue);
                                 break;
                             }
                         }
@@ -372,18 +372,18 @@ public class NPMCVerification {
 
                     // Check if rational function is null or empty
                     if (rationalFunction == null || rationalFunction.trim().isEmpty()) {
-                        throw new RuntimeException("Failed to get rational function for " + dep.getName() +
-                                " in model " + model.getModelId());
+                        throw new RuntimeException("Failed to get rational function for " + dep.getNameInModel() +
+                                " in model " + model.getModelId() + "(" + dep.getNameInModel() + ")");
                     }
 
-                    String equation = dep.getName() + " = " + rationalFunction;
+                    String equation = dep.getNameInModel() + " = " + rationalFunction;
                     logger.info("  Adding equation: " + equation);
 
                     // Transform equation to standard form f(x) = 0
                     String transformedEq = transformEquation(equation);
                     equations.add(transformedEq);
-                    equationMap.put(dep.getName(), transformedEq);
-                    variableSet.add(dep.getName());
+                    equationMap.put(dep.getNameInModel(), transformedEq);
+                    variableSet.add(dep.getNameInModel());
                 }
             }
         }

@@ -45,7 +45,8 @@ public class AddInternalController {
 				return;
 			});
 		} else {
-			InternalParameter internalParam = new InternalParameter(name.toString(), min, max);
+			InternalParameter internalParam = new InternalParameter(name.toString(), min, max,
+					project.getTargetModel().getModelId() + "-" + name.toString());
 			project.getTargetModel().addInternalParameter(internalParam);
 			project.getTargetModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();

@@ -2,30 +2,30 @@ package parameters;
 
 public class InternalParameter implements IStaticParameter {
 	private String name;
-	// private String type = "double";
+	private String uniqueIdentifier;
 	private String min;
 	private String max;
-	// private Double interval;
 	private String value;
 
-	public InternalParameter(String name, String min, String max) {
+	public InternalParameter(String name, String min, String max, String uniqueIdentifier) {
 		this.name = name;
 		this.min = min;
 		this.max = max;
+		this.uniqueIdentifier = uniqueIdentifier;
 	}
 
-	public InternalParameter(String name) {
+	public InternalParameter(String name, String uuid) {
 		this.name = name;
 	}
 
 	// GETTER METHODS
 
-	public String getName() {
+	public String getNameInModel() {
 		return this.name;
 	}
 
-	// public String getType() {
-	// return this.type;
+	// public String getNameInModel() {
+	// 	return uniqueIdentifier;
 	// }
 
 	public String getMin() {
@@ -82,7 +82,7 @@ public class InternalParameter implements IStaticParameter {
 		// getMin() + "\nMax: "
 		// + getMax()
 		// + "\nInterval: " + getInterval() + "\n";
-		return "Internal Parameter: " + getName() + "\nMin: " + getMin() + "\nMax: " + getMax()
+		return "Internal Parameter: " + getNameInModel() + "\nMin: " + getMin() + "\nMax: " + getMax()
 				+ "\n";
 	}
 }

@@ -4,12 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.application.Platform;
 import learning.BayesianAverageCalculator;
 import learning.MeanCalculator;
-import project.Project;
 import sharedContext.SharedContext;
-import utils.Alerter;
 
 public class LearnedExternalParameter extends ExternalParameter {
 	private String type;
@@ -18,9 +15,9 @@ public class LearnedExternalParameter extends ExternalParameter {
 	public static final ArrayList<String> LEARNED_PARAMETER_TYPE_OPTIONS = new ArrayList<String>(
 			List.of("mean", "mean-rate", "bayes", "bayes-rate"));
 
-	public LearnedExternalParameter(String name, String type, String valueSource)
+	public LearnedExternalParameter(String name, String type, String valueSource, String uniqueIdentifier)
 			throws NumberFormatException, IOException {
-		super(name, null);
+		super(name, uniqueIdentifier);
 		this.type = type.trim().toLowerCase();
 		this.valueSource = valueSource;
 	}
@@ -43,8 +40,9 @@ public class LearnedExternalParameter extends ExternalParameter {
 
 	@Override
 	public void setValue(String value) throws Exception {
-		throw new Exception(
-				"Cannot directly set a value on an external parameter that is not of type 'fixed' --- use 'setValueSource' instead.");
+		throw new Exception(String.format(
+				"Cannot directly set a value on an external parameter that is of type 'learned' --- use 'setValueSource' instead.\nName: %s\nAttempted to set to value: %s",
+				super.getNameInModel(), value));
 	}
 
 	public void setType(String type) {
@@ -77,16 +75,16 @@ public class LearnedExternalParameter extends ExternalParameter {
 			// return rangedValue;
 		}
 
-		throw new IOException("Could not evaluate the value of LearnedExternalParameter '" + super.getName()
+		throw new IOException("Could not evaluate the value of LearnedExternalParameter '" + super.getNameInModel()
 				+ "'' with unknown type '" + type + "'");
 	}
 
 	public String toString() {
 		try {
-			return "External Parameter: " + super.getName() + "\nType: " + type + "\nValue: " + this.getValue()
+			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValue: " + this.getValue()
 					+ "\nSource: " + valueSource + "\n";
 		} catch (IOException e) {
-			return "External Parameter: " + super.getName() + "\nType: " + type + "\nValue: (calculation error)"
+			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValue: (calculation error)"
 					+ "\nSource: " + valueSource + "\n";
 		}
 

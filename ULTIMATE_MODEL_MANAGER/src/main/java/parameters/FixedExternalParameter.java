@@ -1,13 +1,11 @@
 package parameters;
 
-import java.io.IOException;
-
 public class FixedExternalParameter extends ExternalParameter {
 
 	private String value;
 
-	public FixedExternalParameter(String name, String value) {
-		super(name, null);
+	public FixedExternalParameter(String name, String value, String uniqueIdentifier) {
+		super(name, uniqueIdentifier);
 		this.value = value;
 	}
 
@@ -23,9 +21,8 @@ public class FixedExternalParameter extends ExternalParameter {
 
 	public String toString() {
 
-		return "Fixed external Parameter: " + super.getName() + "\nType: " + super.getName() + "\nValue: "
-				+ super.getName()
-				+ "\n";
+		return "Fixed External Parameter: " + super.getNameInModel() + "\nType: fixed" + "\nValue: "
+				+ value + "\n";
 
 	}
 }

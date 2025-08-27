@@ -53,7 +53,7 @@ import project.Project;
 import project.synthesis.EvoCheckerUltimateInstance;
 import project.synthesis.SynthesisSolution;
 import property.Property;
-import results.RangedExperimentResults;
+// import results.RangedExperimentResults;
 import sharedContext.SharedContext;
 import ui.UiUtilities;
 import utils.Alerter;
@@ -61,6 +61,7 @@ import utils.DialogOpener;
 import utils.FileUtils;
 import utils.Font;
 import verification.NPMCVerification;
+import verification.RangedVerificationResults;
 import ultimate.Ultimate;
 import java.util.List;
 
@@ -103,23 +104,22 @@ public class PropertiesController {
 	@FXML
 	private Button exportButton;
 
-	private Label popUpLabel;
+	private Label modalLabel;
 	private String currentModelId = null;
 	private String currentProperty = null;
 
-	private ObservableList<String> allVerificationResults = FXCollections.observableArrayList();
-	private ObservableList<SynthesisSolution> allSynthesisResults = FXCollections.observableArrayList();
-	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationResults, s -> true);
+	private Ultimate ultimate;
+
+	private ObservableList<String> allVerificationDisplayResults = FXCollections.observableArrayList();
+	private ObservableList<SynthesisSolution> allSynthesisDisplayResults = FXCollections.observableArrayList();
+	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationDisplayResults,
+			s -> true);
 
 	private Project project = SharedContext.getProject();
 
-	private String verificationResult = "";
-	private int verificationCount = 1;
-	private int totalVerifications = 0; // updated later
-
-	RangedExperimentResults experimentResults;
-
 	private String xaxis = "";
+
+	private ProgressIndicator modalProgress;
 
 	@FXML
 	private void initialize() {
@@ -132,7 +132,7 @@ public class PropertiesController {
 		}
 		verifyResults.setItems(filteredVerificationResults); // <--- set filtered list
 		// TODO: tidy this mess up:
-		synthesiseResults.setItems(allSynthesisResults);
+		synthesiseResults.setItems(allSynthesisDisplayResults);
 		setCells();
 		setListeners();
 	}
@@ -273,8 +273,8 @@ public class PropertiesController {
 
 	@FXML
 	private void verify() throws IOException {
-		verificationResult = "";
-		verificationCount = 1;
+		// verificationResult = "";
+		// verificationCount = 1;
 
 		Model vModel = project.getTargetModel();
 		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
@@ -293,8 +293,8 @@ public class PropertiesController {
 					// this seems completely broken. Why does handleRangeVerification add its
 					// results to the models themselves, whilst simple verification adds them to
 					// modelResults? This all needs to be cleaned and unified.
-					// handleRangedVerification(vModel, vProp, modalStage);
-					System.err.println("Ranged experiments have been temporarily disabled.");
+					handleRangedVerification(vModel, vProp, modalStage);
+					// System.err.println("Ranged experiments have been temporarily disabled.");
 				} else {
 					handleSimpleVerification(vModel, vProp, modalStage);
 				}
@@ -359,12 +359,12 @@ public class PropertiesController {
 		modalStage.initModality(Modality.APPLICATION_MODAL);
 		modalStage.setTitle(title);
 
-		ProgressIndicator modalProgress = new ProgressIndicator();
+		modalProgress = new ProgressIndicator();
 		modalProgress.setPrefSize(400, 400);
 
-		popUpLabel = new Label(labelContents);
+		modalLabel = new Label(labelContents);
 
-		VBox box = new VBox(20, modalProgress, popUpLabel);
+		VBox box = new VBox(20, modalProgress, modalLabel);
 		box.setAlignment(Pos.CENTER);
 
 		Scene modalScene = new Scene(box, 300, 200);
@@ -382,82 +382,64 @@ public class PropertiesController {
 	}
 
 	private void handleRangedVerification(Model vModel, Property vProp, Stage modalStage) throws Exception {
-		ArrayList<Model> models = new ArrayList<>(project.getModels());
-		models.sort(Comparator.comparing(Model::getModelId));
-
-		ArrayList<String> configurations = generateConfigurations(models);
-		String verificationKey = vModel.getModelId() + " + " + vProp.getProperty();
-
-		// Skip if any configuration is already cached
-		// Not sure this block is appropriate? Why skip all if only some config is
-		// cached? (- BDH)
-		// for (String config : configurations) {
-		// if (project.getCacheResult(verificationKey, config) != null) {
-		// Platform.runLater(modalStage::close);
-		// return;
-		// }
-		// }
 
 		ArrayList<HashMap<String, String>> experimentPlan = project.generateExperimentPlan();
-		HashMap<String, ArrayList<String>> experimentConfiguration = project.generateRangedExperimentConfiguration();
-
 		ExecutorService executor = Executors.newSingleThreadExecutor();
 
-		// verificationResult += "Verification of " + vModel.getModelId() + " with
-		// property: " + vProp.getProperty()
-		// + "\n";
+		ultimate = SharedContext.getUltimateInstance();
+		ultimate.loadModelsFromProject();
+		ultimate.setTargetModelById(currentModelId);
 
-		experimentResults = new RangedExperimentResults(experimentConfiguration);
-		runVerificationsSequentially(0, experimentPlan, experimentConfiguration, executor, modalStage);
+		System.out.println(experimentPlan);
+		ObservableList<RangedVerificationResults> results = FXCollections.observableArrayList();
+		runVerificationsSequentially2(0, vModel, vProp, experimentPlan, results, executor, modalStage);
 
 	}
 
-	private void runVerificationsSequentially(int index, ArrayList<HashMap<String, String>> experimentPlan,
-			HashMap<String, ArrayList<String>> experimentConfiguration, ExecutorService executor, Stage modalStage)
+	private void runVerificationsSequentially2(int index, Model vModel, Property vProp,
+			ArrayList<HashMap<String, String>> experimentPlan, ObservableList<RangedVerificationResults> results,
+			ExecutorService executor, Stage modalStage)
 			throws IOException {
 
-		Ultimate ultimate = SharedContext.getUltimateInstance();
-		ultimate.resetResults();
+		String episodeCacheKey = ultimate.generateModelConfigurationIdentifier();
 
-		// for this index, get the intended value of the external parameters, set them,
-		// and execute.
+		if (index == experimentPlan.size() - 1) {
+			Platform.runLater(() -> {
+				for (RangedVerificationResults r : results) {
+					addVerificationResult(String.format("Experiment result:\n%s", r.getDisplayString()));
+				}
+				modalStage.close();
+			});
+			return;
+		}
 
-		// TODO: this will probably cause issues, need to change it from just being
-		// doubles only.
 		HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
-		ultimate.setExternalParameters(thisIterationExternalParameterValues);
-		String episodeConfigId = ultimate.generateModelConfigurationIdentifier();
-
-		// TODO: caching
-		// ep.set(epConfig);
-
-		// Update the progress label in the modal
-		Platform.runLater(() -> {
-			popUpLabel
-					.setText("Running verification " + index + " of " + totalVerifications + "...");
-
-		});
-
-		// NPMCVerification verifier = new NPMCVerification(models);
+		//Issue: this only works if the verification model is the only one with external parameters to set.
+		vModel.setExternalParameterValuesFromMap(thisIterationExternalParameterValues);
 
 		CompletableFuture
 				.supplyAsync(() -> {
-					try {
-						ultimate.resetResults();
-						ultimate.executeVerification();
-						return ultimate.getVerificationResults();
-					} catch (IOException e) {
-						e.printStackTrace();
-						return null;
+					if (project.getCacheResult(episodeCacheKey) != null) {
+						return project.getCacheResult(episodeCacheKey);
+					} else {
+						try {
+							ultimate.executeVerification();
+							return ultimate.getVerificationResults();
+						} catch (IOException e) {
+							e.printStackTrace();
+							return null;
+						}
 					}
 				}, executor)
 				.thenAccept(ultimateResults -> {
 					Platform.runLater(() -> {
+						modalProgress.setProgress((((double)index) + 1) / ((double)experimentPlan.size()));
+						modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
 						try {
 							if (ultimateResults != null) {
-								HashMap<String, String> iterationConfig = ultimate.generateModelConfigurationHashMap();
-								// experimentResults.addResult(iterationConfig, ultimateResults);
-
+								project.addCacheResult(episodeCacheKey, ultimateResults);
+								results.add(new RangedVerificationResults(
+										thisIterationExternalParameterValues, ultimateResults));
 							} else {
 								modalStage.close(); // Ensure modal is closed on error
 								Alerter.showErrorAlert("Verification Failed",
@@ -472,7 +454,7 @@ public class PropertiesController {
 					});
 
 					try {
-						runVerificationsSequentially(index + 1, experimentPlan, experimentConfiguration, executor,
+						runVerificationsSequentially2(index + 1, vModel, vProp, experimentPlan, results, executor,
 								modalStage);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -486,7 +468,7 @@ public class PropertiesController {
 					Platform.runLater(() -> {
 						modalStage.close(); // Ensure modal is closed on error
 						Alerter.showErrorAlert("Verification Failed",
-								"AThere was an error communicating with the verification engine. Please run verification again");
+								"There was an error communicating with the verification engine. Please run verification again");
 					});
 					return null;
 				});
@@ -501,35 +483,34 @@ public class PropertiesController {
 		for (Model m : models) {
 			configBuilder.append(m.toString());
 		}
+
 		configBuilder.append(vProp.getProperty());
 
-		String config = configBuilder.toString();
-		String verificationKey = vModel.getModelId() + " + " + vProp.getProperty();
+		// TODO: fix the caching key
+		String cachingKey = configBuilder.toString() + vModel.getModelId() + " + " + vProp.getProperty();
 
-		if (project.getCacheResult(verificationKey, config) != null) {
+		if (project.getCacheResult(cachingKey) != null) {
+			String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
+					+ vProp.getProperty()
+					+ "\nResult: " + project.getCacheResult(cachingKey).get(vProp.getProperty()) + "\n";
+			addVerificationResult(verificationResult);
 			Platform.runLater(modalStage::close);
 			return;
 		}
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
-		ultimate.initialiseModels();
+		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(vModel.getModelId());
 		ultimate.setVerificationProperty(vProp);
-		ultimate.generateModelInstances();
 		ultimate.executeVerification();
-		String result = ultimate.getVerificationResults().values().iterator().next();
+		HashMap<String, String> result = ultimate.getVerificationResults();
+		project.addCacheResult(cachingKey, result);
+		String verificationResult = "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty()
+				+ "\nResult: " + result.get(vProp.getProperty()) + "\n";
+		addVerificationResult(verificationResult);
 
 		Platform.runLater(() -> {
-			// project.addCacheResult(verificationKey, config, result);
-			HashMap<String, String> modelResults = new HashMap<>();
-			// modelResults.put("DEFAULT", result);
-			// vModel.addResult(vProp.toString(), modelResults);
-
-			verificationResult += "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty()
-					+ "\nResult: " + result + "\n";
-
 			modalStage.close();
-			addVerificationResult(verificationResult);
 		});
 	}
 
@@ -808,173 +789,9 @@ public class PropertiesController {
 		// verifyResults.setCellFactory(null);
 	}
 
-	private void runVerificationsSequentially(
-			List<HashMap<Model, HashMap<String, String>>> rounds,
-			int index,
-			ArrayList<Model> models,
-			String verifyModelId,
-			String property,
-			ExecutorService executor,
-			Stage modalStage) throws Exception {
-
-		AtomicReference<String> ep = new AtomicReference<>("");
-		totalVerifications = rounds.size();
-
-		if (index >= rounds.size()) {
-			executor.shutdown();
-			Platform.runLater(() -> {
-				modalStage.close(); // Close the modal window here
-				addVerificationResult(verificationResult);
-				// updateVerifyResults(); // Update the results
-			});
-			return;
-		}
-
-		HashMap<Model, HashMap<String, String>> round = rounds.get(index);
-		String ep_config = generateKeyValueString(round);
-		String epConfig = "";
-
-		// Apply parameter values and write to files
-		for (Model m : round.keySet()) {
-			HashMap<String, String> parameters = round.get(m);
-			for (Map.Entry<String, String> entry : parameters.entrySet()) {
-				if (entry.getValue() != null) {
-					m.getExternalParameter(entry.getKey()).setValue(entry.getValue());
-					epConfig += entry.getKey() + " : " + entry.getValue() + "\n";
-				}
-			}
-			try {
-				// FileUtils.writeParametersToFile(m.getVerificationFilePath(), parameters);
-				throw new IOException("Sequential verification not supported in this branch"); // Placeholder for actual
-																								// file writing logic
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-
-		ep.set(epConfig);
-
-		// Update the progress label in the modal
-		int currentVerification = verificationCount;
-		Platform.runLater(() -> {
-			popUpLabel
-					.setText("Running verification " + currentVerification + " of " + totalVerifications + "...");
-		});
-
-		NPMCVerification verifier = new NPMCVerification(models);
-
-		// Run verification asynchronously
-		CompletableFuture
-				.supplyAsync(() -> {
-					try {
-						return verifier.verify(verifyModelId, property);
-					} catch (IOException e) {
-						e.printStackTrace();
-						return null;
-					}
-				}, executor)
-				.thenAccept(result -> {
-					Platform.runLater(() -> {
-						if (result != null) {
-							String verification = verifyModelId + " + " + property;
-							String config = buildConfigString(models);
-							config += ep;
-							// project.addCacheResult(verification, config, result);
-
-							Model model = models.stream()
-									.filter(m -> m.getModelId().equals(verifyModelId))
-									.findFirst()
-									.orElse(null);
-							HashMap<String, Double> modelResults = new HashMap<>();
-							// modelResults.put(ep_config, result); // keyed by the configuration of the
-							// experiment/episode
-							verificationResult += "\nVerification " + verificationCount + " of " + totalVerifications
-									+ "\nConfiguration:\n" + ep_config + "\nResult: " + result + "\n";
-							verificationCount++;
-							model.addResult(property, modelResults);
-						} else {
-							modalStage.close(); // Ensure modal is closed on error
-							Alerter.showErrorAlert("Verification Failed",
-									"There was an error communicating with the verification engine. Please run verification again.");
-						}
-					});
-					try {
-						runVerificationsSequentially(rounds, index + 1, models, verifyModelId, property, executor,
-								modalStage);
-					} catch (Exception e) {
-						e.printStackTrace();
-						modalStage.close();
-						Alerter.showErrorAlert("Verification Failed",
-								"There was an error communicating with the verification engine. Please run verification again.");
-					}
-				})
-				.exceptionally(ex -> {
-					ex.printStackTrace();
-					Platform.runLater(() -> {
-						modalStage.close(); // Ensure modal is closed on error
-						Alerter.showErrorAlert("Verification Failed",
-								"AThere was an error communicating with the verification engine. Please run verification again");
-					});
-					return null;
-				});
-	}
-
-	private ArrayList<String> generateConfigurations(List<Model> models) {
-		ArrayList<String> configs = new ArrayList<>();
-		ArrayList<ArrayList<String>> allModelStrings = new ArrayList<>();
-
-		// Prepare nested list
-		for (Model m : models) {
-			if (m.isRangedModel()) {
-				allModelStrings.add(m.rangedToString());
-			} else {
-				ArrayList<String> single = new ArrayList<>();
-				single.add(m.toString());
-				allModelStrings.add(single);
-			}
-		}
-
-		// Start recursive combination
-		generatePermutations(allModelStrings, 0, new StringBuilder(), configs);
-		return configs;
-	}
-
-	private void generatePermutations(List<ArrayList<String>> allModelStrings, int depth, StringBuilder current,
-			List<String> result) {
-		if (depth == allModelStrings.size()) {
-			result.add(current.toString());
-			return;
-		}
-
-		ArrayList<String> currentList = allModelStrings.get(depth);
-		for (String s : currentList) {
-			int originalLength = current.length();
-			current.append(s);
-			generatePermutations(allModelStrings, depth + 1, current, result);
-			current.setLength(originalLength); // backtrack
-		}
-	}
-
-	private String generateKeyValueString(HashMap<Model, HashMap<String, String>> round) {
-		StringBuilder result = new StringBuilder();
-
-		for (Map.Entry<Model, HashMap<String, String>> modelEntry : round.entrySet()) {
-			HashMap<String, String> parameters = modelEntry.getValue();
-			for (Map.Entry<String, String> paramEntry : parameters.entrySet()) {
-				result.append(paramEntry.getKey())
-						.append(" : ")
-						.append(paramEntry.getValue())
-						.append("\n");
-			}
-		}
-
-		return result.toString().trim(); // Remove the trailing newline
-	}
-
 	private void addVerificationResult(String result) {
 		Platform.runLater(() -> {
-			allVerificationResults.add(result); // <-- add to backing list
+			allVerificationDisplayResults.add(result); // <-- add to backing list
 		});
 	}
 
@@ -1011,20 +828,37 @@ public class PropertiesController {
 
 	private void setPopUpContents(String text) {
 		Platform.runLater(() -> {
-			popUpLabel.setText(text);
+			modalLabel.setText(text);
 		});
 	}
 
 	private void appendPopUpContents(String text) {
 		Platform.runLater(() -> {
-			popUpLabel.setText(popUpLabel.getText() + "\n" + text);
+			modalLabel.setText(modalLabel.getText() + "\n" + text);
 		});
 	}
 
 	@FXML
+	// TODO: this doesn't work if I run it twice in a row
 	public void synthesise() {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
+
+		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
+			Platform.runLater(() -> {
+				Alerter.showInfoAlert("Cannot Run Synthesis",
+						"Cannot run synthesis for this world model as there are no internal parameters in the constituent models. Please add some and try again.");
+			});
+			return;
+		}
+
+		if (SharedContext.getProject().getAllSynthesisObjectives().size() == 0) {
+			Platform.runLater(() -> {
+				Alerter.showInfoAlert("Cannot Run Synthesis",
+						"Cannot run synthesis for this world model as there are no synthesis objectives in the constituent models. Please add some and try again.");
+			});
+			return;
+		}
 
 		Stage modalStage = createPopUpStage("Synthesis in Progress",
 				"Running synthesis for " + currentModelId);
@@ -1034,14 +868,14 @@ public class PropertiesController {
 			String runId = LocalDateTime.now()
 					.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + currentModelId;
 			appendPopUpContents("\nInitialising models...");
-			ultimate.initialiseModels();
+			ultimate.loadModelsFromProject();
 			ultimate.setTargetModelById(currentModelId);
 			appendPopUpContents("Generating model files...");
 			ultimate.generateEvolvableModelFiles();
 			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
 			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
 			appendPopUpContents("Initialising EvoChecker...");
-			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
+			ultimate.createEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
 			ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(plotSynthesisCheckBox.isSelected());
 			appendPopUpContents("Running synthesis...");
@@ -1073,7 +907,7 @@ public class PropertiesController {
 			return runResult;
 
 		}).thenAccept(runResult -> {
-			allSynthesisResults.addAll(runResult);
+			allSynthesisDisplayResults.addAll(runResult);
 			Platform.runLater(() -> {
 				modalStage.close();
 				ultimate.writeSynthesisResultsToFile();

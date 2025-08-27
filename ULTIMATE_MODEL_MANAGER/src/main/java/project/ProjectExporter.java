@@ -55,10 +55,10 @@ public class ProjectExporter {
             JSONObject dependencyObject = new JSONObject();
             for (DependencyParameter dep : model.getDependencyParameters()) {
                 JSONObject depObj = new JSONObject();
-                depObj.put("name", dep.getName());
+                depObj.put("name", dep.getNameInModel());
                 depObj.put("modelId", dep.getSourceModel().getModelId());
                 depObj.put("property", formatDefinition(dep.getDefinition()));
-                dependencyObject.put(dep.getName(), depObj);
+                dependencyObject.put(dep.getNameInModel(), depObj);
             }
             parametersObject.put("dependency", dependencyObject);
 
@@ -66,7 +66,7 @@ public class ProjectExporter {
             JSONObject externalObject = new JSONObject();
             for (ExternalParameter ep : model.getExternalParameters()) {
                 JSONObject envObj = new JSONObject();
-                envObj.put("name", ep.getName());
+                envObj.put("name", ep.getNameInModel());
                 if (ep instanceof RangedExternalParameter) {
                     envObj.put("type", "ranged");
                     envObj.put("rangedValues", new JSONArray(((RangedExternalParameter) ep).getValueOptions()));
@@ -79,7 +79,7 @@ public class ProjectExporter {
                 }
                 // System.out.println("External Parameter: " + env.getName() + "\nType: " +
                 // env.getType() + "\nValue: " + env.getValue());
-                externalObject.put(ep.getName(), envObj);
+                externalObject.put(ep.getNameInModel(), envObj);
             }
             parametersObject.put("environment", externalObject);
 
@@ -87,11 +87,11 @@ public class ProjectExporter {
             JSONObject internalObject = new JSONObject();
             for (InternalParameter internal : model.getInternalParameters()) {
                 JSONObject ipNode = new JSONObject();
-                ipNode.put("name", internal.getName());
+                ipNode.put("name", internal.getNameInModel());
                 ipNode.put("min", internal.getMin());
                 ipNode.put("max", internal.getMax());
                 // ipNode.put("type", internal.getType());
-                internalObject.put(internal.getName(), ipNode);
+                internalObject.put(internal.getNameInModel(), ipNode);
             }
             parametersObject.put("internal", internalObject);
 

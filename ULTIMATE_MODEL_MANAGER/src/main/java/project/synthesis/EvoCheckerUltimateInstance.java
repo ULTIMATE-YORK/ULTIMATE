@@ -18,11 +18,12 @@ public class EvoCheckerUltimateInstance implements IUltimate {
     }
 
     public void setInternalParameters(HashMap<String, String> internalParameterValuesHashMap) {
-        ultimate.setInternalParameters(internalParameterValuesHashMap);
+        ultimate.setInternalParameterValuesMap(internalParameterValuesHashMap);
     }
 
+    //TODO: remove this in IUltimate
     public void generateModelInstances() {
-        ultimate.generateModelInstances();
+        // ultimate.writeParametersToModelFiles();
     }
 
     public void resetResults() {
