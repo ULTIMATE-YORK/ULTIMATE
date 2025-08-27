@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import evochecker.EvoChecker;
 import evochecker.genetic.genes.AbstractGene;
@@ -90,6 +91,7 @@ public class Ultimate {
     // }
 
     public void loadModelsFromProject() {
+        models = new ArrayList<>();
         Set<Model> projectModels = SharedContext.getProject().getModels();
         if (projectModels == null || projectModels.size() == 0) {
             System.err
@@ -120,12 +122,12 @@ public class Ultimate {
     }
 
     // public void setExternalParameterValuesMap(HashMap<String, ?> params) {
-    //     modelParametersWritten = false;
-    //     HashMap<String, String> hm = new HashMap<>();
-    //     for (Map.Entry<String, ?> e : params.entrySet()) {
-    //         hm.put(e.getKey(), e.getValue().toString());
-    //     }
-    //     this.externalParameterValuesHashMap = hm;
+    // modelParametersWritten = false;
+    // HashMap<String, String> hm = new HashMap<>();
+    // for (Map.Entry<String, ?> e : params.entrySet()) {
+    // hm.put(e.getKey(), e.getValue().toString());
+    // }
+    // this.externalParameterValuesHashMap = hm;
     // }
 
     public void setTargetModelById(String modelID) {
@@ -191,7 +193,7 @@ public class Ultimate {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
-        if (!modelParametersWritten) { 
+        if (!modelParametersWritten) {
             writeParametersToModelFiles();
         }
         if (property == null) {
@@ -415,6 +417,8 @@ public class Ultimate {
 
                         r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
                     } catch (Exception e) {
+                        System.out.println(String.format("%s %s %s\n\n%s\n\n%s", i, j, k, m.getInternalParameters(),
+                                models.stream().map(Model::getModelId).collect(Collectors.toList())));
                         throw new RuntimeException(e);
                     }
                 }
@@ -442,11 +446,11 @@ public class Ultimate {
         return synthesisProgress;
     }
 
-    public void setSynthesisUpdateCallback(Runnable runnable){
+    public void setSynthesisUpdateCallback(Runnable runnable) {
         this.updateCallback = runnable;
     }
 
-    public Runnable getUpdateProgressCallback(){
+    public Runnable getUpdateProgressCallback() {
         return updateCallback;
     }
 
