@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Observable;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import javafx.collections.FXCollections;
@@ -24,6 +25,7 @@ import parameters.UncategorisedParameter;
 import property.Property;
 import utils.Alerter;
 import utils.FileUtils;
+import utils.ParameterUtilities;
 import utils.PrismFileParser;
 import parameters.IParameter;
 import parameters.IStaticParameter;
@@ -78,7 +80,7 @@ public class Model {
 	public void addProperty(String newProp) {
 		// check the property is novel
 		for (Property p : properties) {
-			if (p.getProperty().equals(newProp)) {
+			if (p.getDefinition().equals(newProp)) {
 				Alerter.showWarningAlert("Property Already Exists", "The property could not be added to the model");
 				return;
 			}
@@ -230,6 +232,7 @@ public class Model {
 	 * @return the list of environment parameters
 	 */
 	public ObservableList<ExternalParameter> getExternalParameters() {
+		System.out.println("External params:" + externalParameters);
 		return externalParameters;
 	}
 
@@ -497,6 +500,32 @@ public class Model {
 			} catch (Exception e) {
 				e.printStackTrace();
 				throw new RuntimeException(e.getMessage());
+			}
+			continue;
+		}
+	}
+
+	public void setExternalParametersByUniqueIdMap(HashMap<String, String> hashExternalParameters) {
+
+		System.out.println("hashExternalParameters: " + hashExternalParameters);
+		System.out.println("my ep UUIDs: " + externalParameters.stream()
+				.map(ep -> ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()))
+				.collect(Collectors.toList()));
+		for (String key : hashExternalParameters.keySet()) {
+			ExternalParameter ep = externalParameters.stream()
+					.filter(p -> ParameterUtilities.generateUniqueParameterId(this.modelId, p.getNameInModel()).equals(key))
+					.findFirst()
+					.orElse(null);
+			if (ep != null) {
+				try {
+					ep.setValue(hashExternalParameters.get(key));
+					System.out.println(String.format("Model %s: set %s (UUID %s) to %s", modelId, ep.getNameInModel(),
+							ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()),
+							hashExternalParameters.get(key)));
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException(e.getMessage());
+				}
 			}
 			continue;
 		}

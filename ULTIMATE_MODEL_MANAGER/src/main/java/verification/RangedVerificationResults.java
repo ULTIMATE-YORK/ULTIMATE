@@ -1,7 +1,6 @@
 package verification;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class RangedVerificationResults {
@@ -29,9 +28,12 @@ public class RangedVerificationResults {
 
     public String getDisplayString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(externalParametersValues.values().stream().collect(Collectors.joining("|")));
-        sb.append(": ");
-        sb.append(results.values().stream().collect(Collectors.joining("|")));
+        sb.append(">>> Parameter Values:");
+        sb.append(externalParametersValues.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.joining("\n")));
+        sb.append("\n>>> Verification Results:");
+        sb.append(results.entrySet().stream().map(entry -> entry.getKey() + ": " + entry.getValue())
+                .collect(Collectors.joining("\n")));
         return sb.toString();
     }
 

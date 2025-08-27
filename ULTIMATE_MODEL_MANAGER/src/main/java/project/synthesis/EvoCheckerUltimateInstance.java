@@ -8,6 +8,7 @@ import ultimate.Ultimate;
 public class EvoCheckerUltimateInstance implements IUltimate {
 
     private Ultimate ultimate;
+    private Runnable updateCallback;
 
     public EvoCheckerUltimateInstance(Ultimate ultimate) {
         this.ultimate = ultimate;
@@ -21,7 +22,7 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         ultimate.setInternalParameterValuesMap(internalParameterValuesHashMap);
     }
 
-    //TODO: remove this in IUltimate
+    // TODO: remove this in IUltimate
     public void generateModelInstances() {
         // ultimate.writeParametersToModelFiles();
     }
@@ -44,13 +45,15 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         ultimate.setVerificationProperty(propertyFileOrString);
     }
 
-    // TODO: In EvoChecker: conform to the new data type HashMap<String, String>.
     public HashMap<String, String> getResults() {
         return ultimate.getVerificationResults();
     }
 
     public void updateSynthesisProgress(int evaluations) {
         ultimate.setSynthesisProgress(evaluations);
+        if (ultimate.getUpdateProgressCallback() != null) {
+            ultimate.getUpdateProgressCallback().run();
+        }
     }
 
 }

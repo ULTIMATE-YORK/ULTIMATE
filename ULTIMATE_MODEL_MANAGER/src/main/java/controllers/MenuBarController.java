@@ -16,6 +16,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import project.Project;
 import sharedContext.SharedContext;
+import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
 
@@ -69,6 +70,8 @@ public class MenuBarController {
 			SharedContext.setMainStage(newMainStage);
 			Project project = new Project(file);
 			SharedContext.setProject(project);
+			Ultimate ultimate = new Ultimate();
+			SharedContext.setUltimate(ultimate);
 	        // Load the FXML file and initialize its associated controller
 	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
 	        

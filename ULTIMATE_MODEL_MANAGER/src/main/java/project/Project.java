@@ -9,12 +9,14 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Observable;
 import java.util.Set;
 import java.util.stream.Collectors;
+import utils.ParameterUtilities;
 
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -25,10 +27,13 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Model;
+import parameters.DependencyParameter;
 import parameters.ExternalParameter;
+import parameters.IStaticParameter;
 import parameters.InternalParameter;
 import parameters.RangedExternalParameter;
 import parameters.SynthesisObjective;
+import property.Property;
 import sharedContext.SharedContext;
 import utils.Alerter;
 //import utils.Alerter;
@@ -54,7 +59,7 @@ public class Project {
 	private String saveLocation = null; // set when a project has been saved as, used for subsequent saves
 	private String directory = null;
 	private boolean configured = true;
-	private SharedContext sharedContext = SharedContext.getContext();
+	// private SharedContext SharedContext = SharedContext.getContext();
 	private boolean isBlank;
 	// key will be model id + property and second hashmap will be mapping of
 	// configuration to result
@@ -69,7 +74,7 @@ public class Project {
 	public Project(String projectPath) throws IOException {
 		this.directory = getDirectory(projectPath);
 		this.projectPath = projectPath;
-		// sharedContext.setUltimateProject(this);
+		// SharedContext.setUltimateProject(this);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
 		importer = new ProjectImporter(projectPath);
 		saveLocation = projectPath;
@@ -282,7 +287,7 @@ public class Project {
 		if (FileUtils.isFile(stormInstall) && !stormInstall.equals("")) {
 			this.stormInstall = stormInstall;
 		} else {
-			if (sharedContext.getMainStage() != null) {
+			if (SharedContext.getMainStage() != null) {
 				Alerter.showWarningAlert("No Storm Installation found!",
 						"Please configure the location of the storm install on your system!");
 				configured = false;
@@ -293,7 +298,7 @@ public class Project {
 		if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
 			this.stormParsInstall = stormParsInstall;
 		} else {
-			if (sharedContext.getMainStage() != null) {
+			if (SharedContext.getMainStage() != null) {
 				Alerter.showWarningAlert("No Storm-Pars Installation found!",
 						"Please configure the location of the storm-pars install on your system!");
 				configured = false;
@@ -304,7 +309,7 @@ public class Project {
 		if (FileUtils.isFile(prismInstall) && !prismInstall.equals("")) {
 			this.prismInstall = prismInstall;
 		} else {
-			if (sharedContext.getMainStage() != null) {
+			if (SharedContext.getMainStage() != null) {
 				Alerter.showWarningAlert("No PRISM Installation found!",
 						"Please configure the location of the PRISM install on your system!");
 				configured = false;
@@ -315,7 +320,7 @@ public class Project {
 		if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
 			this.prismGamesInstall = prismGamesInstall;
 		} else {
-			if (sharedContext.getMainStage() != null) {
+			if (SharedContext.getMainStage() != null) {
 				Alerter.showWarningAlert("No PRISM games Installation found!",
 						"Please configure the location of the PRISM Games install on your system!");
 				configured = false;
@@ -326,7 +331,7 @@ public class Project {
 		if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
 			this.pythonInstall = pythonInstall;
 		} else {
-			if (sharedContext.getMainStage() != null) {
+			if (SharedContext.getMainStage() != null) {
 				Alerter.showWarningAlert("No python Installation found!",
 						"Please configure the location of the python install on your system!");
 				configured = false;
@@ -335,10 +340,10 @@ public class Project {
 
 	}
 
-	// TODO Generate a temporary directory of evolable model files for evochecker
-	public void generateEvoModels() {
+	// // TODO Generate a temporary directory of evolable model files for evochecker
+	// public void generateEvoModels() {
 
-	}
+	// }
 
 	public boolean containsRangedParameters() {
 		for (Model model : models) {
@@ -357,7 +362,9 @@ public class Project {
 		for (Model m : models) {
 			for (ExternalParameter ep : m.getExternalParameters()) {
 				if (ep instanceof RangedExternalParameter) {
-					experimentConfiguration.put(ep.getNameInModel(), ((RangedExternalParameter) ep).getValueOptions());
+					experimentConfiguration.put(
+							ParameterUtilities.generateUniqueParameterId(m.getModelId(), ep.getNameInModel()),
+							((RangedExternalParameter) ep).getValueOptions());
 				}
 			}
 		}
@@ -365,20 +372,23 @@ public class Project {
 		return experimentConfiguration;
 	}
 
-	// public HashMap<String, HashMap<String, ArrayList<String>>> getRangedExternalVariableValues() {
-	// 	HashMap<String, HashMap<String, ArrayList<String>>> experimentConfiguration = new HashMap<>();
+	// public HashMap<String, HashMap<String, ArrayList<String>>>
+	// getRangedExternalVariableValues() {
+	// HashMap<String, HashMap<String, ArrayList<String>>> experimentConfiguration =
+	// new HashMap<>();
 
-	// 	for (Model m : models) {
-	// 		HashMap<String, ArrayList<String>> thisModelHashMap = new HashMap<>();
-	// 		for (ExternalParameter ep : m.getExternalParameters()) {
-	// 			if (ep instanceof RangedExternalParameter) {
-	// 				thisModelHashMap.put(ep.getNameInModel(), ((RangedExternalParameter) ep).getValueOptions());
-	// 			}
-	// 		}
-	// 		experimentConfiguration.put(m.getModelId(), thisModelHashMap);
-	// 	}
+	// for (Model m : models) {
+	// HashMap<String, ArrayList<String>> thisModelHashMap = new HashMap<>();
+	// for (ExternalParameter ep : m.getExternalParameters()) {
+	// if (ep instanceof RangedExternalParameter) {
+	// thisModelHashMap.put(ep.getNameInModel(), ((RangedExternalParameter)
+	// ep).getValueOptions());
+	// }
+	// }
+	// experimentConfiguration.put(m.getModelId(), thisModelHashMap);
+	// }
 
-	// 	return experimentConfiguration;
+	// return experimentConfiguration;
 	// }
 
 	public ArrayList<HashMap<String, String>> generateExperimentPlan() {
@@ -434,7 +444,7 @@ public class Project {
 		ArrayList<String> thisDepthPropertyValues = experimentConfig.get(propertyName);
 		ArrayList<HashMap<String, String>> newCombinations = new ArrayList<>();
 
-		if (depth == propertyNames.size()-1) {
+		if (depth == propertyNames.size() - 1) {
 			for (String value : thisDepthPropertyValues) {
 				HashMap<String, String> bottomCombination = new HashMap<>();
 				bottomCombination.put(propertyName, value);
@@ -457,7 +467,6 @@ public class Project {
 
 	}
 
-
 	public HashMap<String, String> getCacheResult(String key) {
 		return cache.get(key);
 	}
@@ -467,44 +476,44 @@ public class Project {
 	}
 
 	// private String normalizeConfigString(String config) {
-	// 	// Remove all whitespace
-	// 	String cleaned = config.replaceAll("\\s+", "");
+	// // Remove all whitespace
+	// String cleaned = config.replaceAll("\\s+", "");
 
-	// 	// Separate letters and numbers
-	// 	StringBuilder letters = new StringBuilder();
-	// 	ArrayList<BigInteger> numbers = new ArrayList<>();
+	// // Separate letters and numbers
+	// StringBuilder letters = new StringBuilder();
+	// ArrayList<BigInteger> numbers = new ArrayList<>();
 
-	// 	StringBuilder numberBuffer = new StringBuilder();
-	// 	for (char c : cleaned.toCharArray()) {
-	// 		if (Character.isDigit(c)) {
-	// 			numberBuffer.append(c);
-	// 		} else {
-	// 			// Flush any buffered number
-	// 			if (numberBuffer.length() > 0) {
-	// 				numbers.add(new BigInteger(numberBuffer.toString()));
-	// 				numberBuffer.setLength(0);
-	// 			}
-	// 			letters.append(c);
-	// 		}
-	// 	}
-	// 	// Flush any trailing number
-	// 	if (numberBuffer.length() > 0) {
-	// 		numbers.add(new BigInteger(numberBuffer.toString()));
-	// 	}
+	// StringBuilder numberBuffer = new StringBuilder();
+	// for (char c : cleaned.toCharArray()) {
+	// if (Character.isDigit(c)) {
+	// numberBuffer.append(c);
+	// } else {
+	// // Flush any buffered number
+	// if (numberBuffer.length() > 0) {
+	// numbers.add(new BigInteger(numberBuffer.toString()));
+	// numberBuffer.setLength(0);
+	// }
+	// letters.append(c);
+	// }
+	// }
+	// // Flush any trailing number
+	// if (numberBuffer.length() > 0) {
+	// numbers.add(new BigInteger(numberBuffer.toString()));
+	// }
 
-	// 	// Sort letters and numbers
-	// 	char[] letterArray = letters.toString().toCharArray();
-	// 	Arrays.sort(letterArray);
-	// 	numbers.sort(null); // Natural order for BigInteger
+	// // Sort letters and numbers
+	// char[] letterArray = letters.toString().toCharArray();
+	// Arrays.sort(letterArray);
+	// numbers.sort(null); // Natural order for BigInteger
 
-	// 	// Build normalized string
-	// 	StringBuilder normalized = new StringBuilder();
-	// 	normalized.append(letterArray);
-	// 	for (BigInteger num : numbers) {
-	// 		normalized.append(num);
-	// 	}
+	// // Build normalized string
+	// StringBuilder normalized = new StringBuilder();
+	// normalized.append(letterArray);
+	// for (BigInteger num : numbers) {
+	// normalized.append(num);
+	// }
 
-	// 	return normalized.toString();
+	// return normalized.toString();
 	// }
 
 	/*
@@ -558,6 +567,39 @@ public class Project {
 		}
 
 		return internalParameters;
+	}
+
+	public String generateProjectConfigCacheKey() {
+		ArrayList<Model> modelsArray = new ArrayList<>(models);
+		modelsArray.sort(Comparator.comparing(Model::getModelId));
+
+		StringBuilder sb = new StringBuilder();
+		for (Model m : modelsArray) {
+			sb.append("++" + m.getModelId() + "+");
+			for (IStaticParameter sp : m.getStaticParameters()) {
+				String value;
+				try {
+					value = sp.getValue();
+				} catch (IOException e) {
+					// as this is only for generating the cache string,
+					// it is sufficient to do this and not throw anything.
+					value = "NOT_SET_CORRECTLY";
+				}
+				sb.append(sp.getNameInModel() + ":" + value + "+");
+			}
+			for (DependencyParameter dp : m.getDependencyParameters()) {
+				sb.append(dp.getNameInModel() + ":" + dp.getDefinition() + ":" + dp.getSourceModel() + "+");
+			}
+		}
+
+		return sb.toString();
+	}
+
+	public String generateCacheKey(Model vModel, Property vProp) {
+
+		String projectConfigKey = generateProjectConfigCacheKey();
+		return projectConfigKey + "+" + vModel.getModelId() + "+" + vProp.getDefinition();
+
 	}
 
 }

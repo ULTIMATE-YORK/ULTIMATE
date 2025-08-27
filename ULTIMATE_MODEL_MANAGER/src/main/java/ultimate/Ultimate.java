@@ -57,6 +57,7 @@ public class Ultimate {
 
     private boolean verbose;
     private boolean modelParametersWritten;
+    private Runnable updateCallback;
 
     java.util.HashMap<String, String> results = new java.util.HashMap<>();
 
@@ -102,7 +103,7 @@ public class Ultimate {
         try {
             for (Model m : models) {
                 m.setInternalParameterValuesFromMap(internalParameterValuesHashMap);
-                m.setExternalParameterValuesFromMap(externalParameterValuesHashMap);
+                // m.setExternalParameterValuesFromMap(externalParameterValuesHashMap);
                 FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
                         m.getInternalParameters());
             }
@@ -118,14 +119,14 @@ public class Ultimate {
         this.internalParameterValuesHashMap = internalParameterValuesHashMap;
     }
 
-    public void setExternalParameterValuesMap(HashMap<String, ?> params) {
-        modelParametersWritten = false;
-        HashMap<String, String> hm = new HashMap<>();
-        for (Map.Entry<String, ?> e : params.entrySet()) {
-            hm.put(e.getKey(), e.getValue().toString());
-        }
-        this.externalParameterValuesHashMap = hm;
-    }
+    // public void setExternalParameterValuesMap(HashMap<String, ?> params) {
+    //     modelParametersWritten = false;
+    //     HashMap<String, String> hm = new HashMap<>();
+    //     for (Map.Entry<String, ?> e : params.entrySet()) {
+    //         hm.put(e.getKey(), e.getValue().toString());
+    //     }
+    //     this.externalParameterValuesHashMap = hm;
+    // }
 
     public void setTargetModelById(String modelID) {
 
@@ -196,8 +197,8 @@ public class Ultimate {
         if (property == null) {
             for (Property p : targetModel.getProperties()) {
                 if (verbose)
-                    System.out.println("Verifying property: " + p.getProperty());
-                String result_value = verifier.verify(targetModel.getModelId(), p.getProperty());
+                    System.out.println("Verifying property: " + p.getDefinition());
+                String result_value = verifier.verify(targetModel.getModelId(), p.getDefinition());
                 results.put(p.toString(), result_value);
             }
         } else {
@@ -439,6 +440,14 @@ public class Ultimate {
 
     public int getSynthesisProgress() {
         return synthesisProgress;
+    }
+
+    public void setSynthesisUpdateCallback(Runnable runnable){
+        this.updateCallback = runnable;
+    }
+
+    public Runnable getUpdateProgressCallback(){
+        return updateCallback;
     }
 
 }

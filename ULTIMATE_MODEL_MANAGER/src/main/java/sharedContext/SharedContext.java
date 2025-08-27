@@ -41,6 +41,10 @@ public class SharedContext {
         project = _project;
     }
 
+    public static void setUltimate(Ultimate _ultimate){
+        ultimate = _ultimate;
+    }
+
     public static void loadProjectFromPath(String projectPath) {
         try {
             project = new Project(projectPath);

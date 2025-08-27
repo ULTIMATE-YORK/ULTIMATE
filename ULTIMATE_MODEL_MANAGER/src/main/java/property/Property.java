@@ -3,22 +3,22 @@ package property;
 // TODO: add verification to strings
 public class Property {
 	
-	private String property;
+	private String definition;
 	
 	public Property(String property) {
-		this.property = property;
+		this.definition = property;
 	}
 	
-	public void setProperty(String newProp) {
-		this.property = newProp;
+	public void setDefinition(String newProp) {
+		this.definition = newProp;
 	}
 	
-	public String getProperty() {
-		return this.property;
+	public String getDefinition() {
+		return this.definition;
 	}
 	
 	public String toString() {
-		return getProperty();
+		return getDefinition();
 	}
 
 }

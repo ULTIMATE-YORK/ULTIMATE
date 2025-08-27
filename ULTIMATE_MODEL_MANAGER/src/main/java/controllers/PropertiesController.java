@@ -8,21 +8,15 @@ import java.io.StringReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.Date;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -55,15 +49,11 @@ import project.synthesis.SynthesisSolution;
 import property.Property;
 // import results.RangedExperimentResults;
 import sharedContext.SharedContext;
-import ui.UiUtilities;
+import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
-import utils.FileUtils;
 import utils.Font;
-import verification.NPMCVerification;
 import verification.RangedVerificationResults;
-import ultimate.Ultimate;
-import java.util.List;
 
 public class PropertiesController {
 
@@ -283,7 +273,7 @@ public class PropertiesController {
 			return;
 
 		Stage modalStage = createPopUpStage("Verification in Progress",
-				"Verifying property " + vProp.getProperty() + " of model " + vModel.getModelId());
+				"Verifying property " + vProp.getDefinition() + " of model " + vModel.getModelId());
 
 		modalStage.show();
 
@@ -401,12 +391,13 @@ public class PropertiesController {
 			ExecutorService executor, Stage modalStage)
 			throws IOException {
 
-		String episodeCacheKey = ultimate.generateModelConfigurationIdentifier();
+		String cacheKey = project.generateCacheKey(vModel, vProp);
 
 		if (index == experimentPlan.size() - 1) {
 			Platform.runLater(() -> {
 				for (RangedVerificationResults r : results) {
-					addVerificationResult(String.format("Experiment result:\n%s", r.getDisplayString()));
+					addVerificationResult(String.format("Experiment result for model '%s':\n%s", vModel.getModelId(),
+							r.getDisplayString()));
 				}
 				modalStage.close();
 			});
@@ -414,13 +405,14 @@ public class PropertiesController {
 		}
 
 		HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
-		//Issue: this only works if the verification model is the only one with external parameters to set.
-		vModel.setExternalParameterValuesFromMap(thisIterationExternalParameterValues);
+		for (Model m : project.getModels()) {
+			m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
+		}
 
 		CompletableFuture
 				.supplyAsync(() -> {
-					if (project.getCacheResult(episodeCacheKey) != null) {
-						return project.getCacheResult(episodeCacheKey);
+					if (project.getCacheResult(cacheKey) != null) {
+						return project.getCacheResult(cacheKey);
 					} else {
 						try {
 							ultimate.executeVerification();
@@ -433,11 +425,11 @@ public class PropertiesController {
 				}, executor)
 				.thenAccept(ultimateResults -> {
 					Platform.runLater(() -> {
-						modalProgress.setProgress((((double)index) + 1) / ((double)experimentPlan.size()));
+						modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
 						modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
 						try {
 							if (ultimateResults != null) {
-								project.addCacheResult(episodeCacheKey, ultimateResults);
+								project.addCacheResult(cacheKey, ultimateResults);
 								results.add(new RangedVerificationResults(
 										thisIterationExternalParameterValues, ultimateResults));
 							} else {
@@ -476,23 +468,13 @@ public class PropertiesController {
 	}
 
 	private void handleSimpleVerification(Model vModel, Property vProp, Stage modalStage) throws IOException {
-		ArrayList<Model> models = new ArrayList<>(project.getModels());
-		models.sort(Comparator.comparing(Model::getModelId));
 
-		StringBuilder configBuilder = new StringBuilder();
-		for (Model m : models) {
-			configBuilder.append(m.toString());
-		}
+		String cacheKey = project.generateCacheKey(vModel, vProp);
 
-		configBuilder.append(vProp.getProperty());
-
-		// TODO: fix the caching key
-		String cachingKey = configBuilder.toString() + vModel.getModelId() + " + " + vProp.getProperty();
-
-		if (project.getCacheResult(cachingKey) != null) {
+		if (project.getCacheResult(cacheKey) != null) {
 			String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
-					+ vProp.getProperty()
-					+ "\nResult: " + project.getCacheResult(cachingKey).get(vProp.getProperty()) + "\n";
+					+ vProp.getDefinition()
+					+ "\nResult: " + project.getCacheResult(cacheKey).get(vProp.getDefinition()) + "\n";
 			addVerificationResult(verificationResult);
 			Platform.runLater(modalStage::close);
 			return;
@@ -504,9 +486,10 @@ public class PropertiesController {
 		ultimate.setVerificationProperty(vProp);
 		ultimate.executeVerification();
 		HashMap<String, String> result = ultimate.getVerificationResults();
-		project.addCacheResult(cachingKey, result);
-		String verificationResult = "Verification of " + vModel.getModelId() + " with property: " + vProp.getProperty()
-				+ "\nResult: " + result.get(vProp.getProperty()) + "\n";
+		project.addCacheResult(cacheKey, result);
+		String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
+				+ vProp.getDefinition()
+				+ "\nResult: " + result.get(vProp.getDefinition()) + "\n";
 		addVerificationResult(verificationResult);
 
 		Platform.runLater(() -> {
@@ -736,7 +719,7 @@ public class PropertiesController {
 		propertyListView.getSelectionModel().selectedItemProperty().addListener((obs, oldProperty, newProperty) -> {
 			Platform.runLater(() -> {
 				if (newProperty != null) {
-					currentProperty = newProperty.getProperty();
+					currentProperty = newProperty.getDefinition();
 				} else {
 					currentProperty = null;
 				}
@@ -768,7 +751,7 @@ public class PropertiesController {
 					setGraphic(null);
 					setText(null);
 				} else {
-					Label label = new Label(item.getProperty()); // Display the model ID
+					Label label = new Label(item.getDefinition()); // Display the model ID
 					label.setStyle(Font.UC_LIST_FONT); // Apply font styling
 					setGraphic(label); // Set the label as the cell's graphic
 					setText(null); // Clear any text (not needed with graphic)
@@ -809,6 +792,7 @@ public class PropertiesController {
 		}
 	}
 
+	// TODO: clean this up
 	private boolean hasMultipleResults(String text) {
 		if (text == null || text.isEmpty())
 			return false;
@@ -843,6 +827,12 @@ public class PropertiesController {
 	public void synthesise() {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
+		// ultimate.setSynthesisUpdateCallback(() -> {
+		// 	System.out.println(
+		// 			ultimate.getSynthesisProgress() + " " + ultimate.getEvoCheckerInstance().getMaxEvalutations());
+		// 	modalProgress.setProgress((double) ultimate.getSynthesisProgress()
+		// 			/ ((double) ultimate.getEvoCheckerInstance().getMaxEvalutations()));
+		// });
 
 		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
 			Platform.runLater(() -> {
