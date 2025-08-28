@@ -25,7 +25,6 @@ import jmetal.core.SolutionSet;
 import jmetal.core.Variable;
 import model.Model;
 import parameters.IStaticParameter;
-import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
 import property.Property;
@@ -47,10 +46,9 @@ public class Ultimate {
     private String objectivesConstraints;
 
     private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
-    private HashMap<String, String> externalParameterValuesHashMap = new HashMap<>();
+    // private HashMap<String, String> externalParameterValuesHashMap = new HashMap<>();
 
     private EvoChecker evoChecker;
-    private SolutionSet synthesisedParameters;
     private Path evolvableProjectFilePath;
 
     private String mode;
@@ -391,11 +389,10 @@ public class Ultimate {
 
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
         SolutionSet evoSolutions = evoChecker.getSolutions();
-        List<String> internalParameterNames = evoChecker.getInternalParameterNames();
-        int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
-        System.out.println(internalParameterNames + " " + numberInternalParameters);
+        // List<String> internalParameterNames = evoChecker.getInternalParameterNames();
+        // int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
 
-        // TODO: why is the structure of the solutions so strange?
+        // TODO: why is the structure of the solutions so strange? Fix.
         for (int i = 0; i < evoSolutions.size(); i++) {
             Solution s = evoSolutions.get(i);
             HashMap<String, String> r = new HashMap<>();

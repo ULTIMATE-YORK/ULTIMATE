@@ -188,7 +188,8 @@ public class FileUtils {
 			} catch (NullPointerException e) {
 				e.printStackTrace();
 				throw new RuntimeException(
-						"Could not construct regex for " + ep.getClass().getName() + "with name " + ep.getNameInModel());
+						"Could not construct regex for " + ep.getClass().getName() + "with name "
+								+ ep.getNameInModel());
 			}
 		}
 		return updatedLine;
@@ -204,7 +205,9 @@ public class FileUtils {
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "const " + valueType + " " + ip.getNameInModel() + " = " + ip.getValue() + ";";
+				updatedLine = "const " + valueType + " " + ip.getNameInModel() + " = " + (valueType.equals("int")
+						? Integer.parseInt(ip.getValue())
+						: Double.parseDouble(ip.getValue())) + ";";
 				break;
 			}
 		}
@@ -381,7 +384,17 @@ public class FileUtils {
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "evolve " + valueType + " " + ip.getNameInModel() + " [" + ip.getMin() + ".." + ip.getMax()
+				String minValue = "";
+				String maxValue = "";
+				if (valueType.equals("int")) {
+					minValue = String.valueOf(Integer.parseInt(ip.getMin()));
+					maxValue = String.valueOf(Integer.parseInt(ip.getMax()));
+				} else {
+					minValue = String.valueOf(Double.parseDouble(ip.getMin()));
+					maxValue = String.valueOf(Double.parseDouble(ip.getMax()));
+				}
+				updatedLine = "evolve " + valueType + " " + ip.getNameInModel() + " [" + minValue + ".."
+						+ maxValue
 						+ "];";
 				break;
 			}

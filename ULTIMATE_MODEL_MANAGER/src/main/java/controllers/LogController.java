@@ -16,9 +16,7 @@ public class LogController {
 	
 	@FXML private TextFlow logsField;
 	@FXML private Button saveLogs;
-	
-    private SharedContext sharedContext = SharedContext.getContext();
-	
+		
     @FXML
     private void initialize() {
         // Pass the TextArea to your custom appender.
@@ -27,7 +25,7 @@ public class LogController {
     
     @FXML
     private void saveLogs() {
-    	String filePath = DialogOpener.openLogsSaveDialog(sharedContext.getMainStage());
+    	String filePath = DialogOpener.openLogsSaveDialog(SharedContext.getMainStage());
     	if (filePath == null) {
     		return;
     	}

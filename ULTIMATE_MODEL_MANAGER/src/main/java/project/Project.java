@@ -356,6 +356,15 @@ public class Project {
 		return false;
 	}
 
+	public boolean containsInternalParameters() {
+		for (Model model : models) {
+			if (model.getInternalParameters().size() > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public HashMap<String, ArrayList<String>> getRangedExternalVariableValues() {
 		HashMap<String, ArrayList<String>> experimentConfiguration = new HashMap<>();
 

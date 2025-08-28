@@ -11,7 +11,6 @@ import parameters.UncategorisedParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
-import ultimate.Ultimate;
 
 public class AddDependencyController {
 	

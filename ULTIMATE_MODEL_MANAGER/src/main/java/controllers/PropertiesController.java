@@ -36,6 +36,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextArea;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -49,6 +50,7 @@ import project.synthesis.SynthesisSolution;
 import property.Property;
 // import results.RangedExperimentResults;
 import sharedContext.SharedContext;
+import ui.UiUtilities;
 import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
@@ -79,20 +81,20 @@ public class PropertiesController {
 	@FXML
 	private ListView<SynthesisObjective> synthesisListView;
 
-	@FXML
-	private CheckBox showAllResults;
+	// @FXML
+	// private CheckBox showAllResults;
 	@FXML
 	private CheckBox plotSynthesisCheckBox;
-	@FXML
-	private Button plotButton;
+	// @FXML
+	// private Button plotButton;
 	@FXML
 	private ChoiceBox<String> xaxisparam;
-	@FXML
-	private Button confirmPlotButton;
-	@FXML
-	private Button cancelPlotButton;
-	@FXML
-	private Button exportButton;
+	// @FXML
+	// private Button confirmPlotButton;
+	// @FXML
+	// private Button cancelPlotButton;
+	// @FXML
+	// private Button exportButton;
 
 	private Label modalLabel;
 	private String currentModelId = null;
@@ -114,15 +116,16 @@ public class PropertiesController {
 	@FXML
 	private void initialize() {
 		if (project.getTargetModel() != null) {
-			// UiUtilities.makeListViewTextSelectable(propertyListView);
-			// UiUtilities.makeListViewTextSelectable(synthesisListView);
+
 			propertyListView.setItems(project.getTargetModel().getProperties());
 			synthesisListView.setItems(project.getTargetModel().getSynthesisObjectives());
+
 			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		}
 		verifyResults.setItems(filteredVerificationResults); // <--- set filtered list
-		// TODO: tidy this mess up:
 		synthesiseResults.setItems(allSynthesisDisplayResults);
+		UiUtilities.makeListViewTextSelectable(verifyResults);
+		UiUtilities.makeListViewTextSelectable(synthesiseResults);
 		setCells();
 		setListeners();
 	}
@@ -272,17 +275,22 @@ public class PropertiesController {
 		if (!validateSelection(vModel, vProp))
 			return;
 
+		if (project.containsInternalParameters()) {
+			Platform.runLater(() -> {
+				Alerter.showInfoAlert("Cannot Verify",
+						"Cannot verify this property because the model contains internal parameters."
+								+ "Please modify these to be external or dependency parameters and try again.");
+			});
+			return;
+		}
+
 		Stage modalStage = createPopUpStage("Verification in Progress",
 				"Verifying property " + vProp.getDefinition() + " of model " + vModel.getModelId());
-
 		modalStage.show();
 
 		CompletableFuture.runAsync(() -> {
 			try {
 				if (project.containsRangedParameters()) {
-					// this seems completely broken. Why does handleRangeVerification add its
-					// results to the models themselves, whilst simple verification adds them to
-					// modelResults? This all needs to be cleaned and unified.
 					handleRangedVerification(vModel, vProp, modalStage);
 					// System.err.println("Ranged experiments have been temporarily disabled.");
 				} else {
@@ -314,27 +322,28 @@ public class PropertiesController {
 		}
 	}
 
-	@FXML
-	private void confirmPlot() {
-		String selectedXaxis = xaxisparam.getSelectionModel().getSelectedItem();
-		if (selectedXaxis == null || selectedXaxis.isEmpty()) {
-			Alerter.showErrorAlert("Invalid Selection", "Please choose a parameter for the X-axis.");
-			return;
-		}
+	// @FXML
+	// private void confirmPlot() {
+	// String selectedXaxis = xaxisparam.getSelectionModel().getSelectedItem();
+	// if (selectedXaxis == null || selectedXaxis.isEmpty()) {
+	// Alerter.showErrorAlert("Invalid Selection", "Please choose a parameter for
+	// the X-axis.");
+	// return;
+	// }
 
-		xaxis = selectedXaxis;
+	// xaxis = selectedXaxis;
 
-		// Close the dialog window
-		Stage stage = (Stage) confirmPlotButton.getScene().getWindow();
-		stage.close();
-	}
+	// // Close the dialog window
+	// Stage stage = (Stage) confirmPlotButton.getScene().getWindow();
+	// stage.close();
+	// }
 
-	@FXML
-	private void cancelPlot() {
-		xaxis = "";
-		Stage stage = (Stage) cancelPlotButton.getScene().getWindow();
-		stage.close();
-	}
+	// @FXML
+	// private void cancelPlot() {
+	// xaxis = "";
+	// Stage stage = (Stage) cancelPlotButton.getScene().getWindow();
+	// stage.close();
+	// }
 
 	private boolean validateSelection(Model vModel, Property vProp) {
 		if (vModel == null || vProp == null) {
@@ -382,6 +391,7 @@ public class PropertiesController {
 
 		System.out.println(experimentPlan);
 		ObservableList<RangedVerificationResults> results = FXCollections.observableArrayList();
+		ultimate.setVerificationProperty(vProp.getDefinition());
 		runVerificationsSequentially2(0, vModel, vProp, experimentPlan, results, executor, modalStage);
 
 	}
@@ -727,18 +737,21 @@ public class PropertiesController {
 			});
 		});
 
-		verifyResults.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-			plotButton.setVisible(hasMultipleResults(newVal));
-		});
+		// verifyResults.getSelectionModel().selectedItemProperty().addListener((obs,
+		// oldVal, newVal) -> {
+		// plotButton.setVisible(hasMultipleResults(newVal));
+		// });
 
-		// Add checkbox listener
-		showAllResults.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-			updateVerifyFilter();
-		});
+		// // Add checkbox listener
+		// showAllResults.selectedProperty().addListener((obs, wasSelected, isSelected)
+		// -> {
+		// updateVerifyFilter();
+		// });
 
-		verifyResults.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
-			exportButton.setVisible(hasMultipleResults(newVal));
-		});
+		// verifyResults.getSelectionModel().selectedItemProperty().addListener((obs,
+		// oldVal, newVal) -> {
+		// exportButton.setVisible(hasMultipleResults(newVal));
+		// });
 
 	}
 
@@ -779,17 +792,19 @@ public class PropertiesController {
 	}
 
 	private void updateVerifyFilter() {
-		if (showAllResults != null && showAllResults.isSelected()) {
-			// Show all results
-			filteredVerificationResults.setPredicate(s -> true);
-		} else {
-			// Filter by current model and property
-			filteredVerificationResults.setPredicate(result -> {
-				boolean matchesModel = (currentModelId == null || result.contains(currentModelId));
-				boolean matchesProperty = (currentProperty == null || result.contains(currentProperty));
-				return matchesModel && matchesProperty;
-			});
-		}
+		// if (showAllResults != null && showAllResults.isSelected()) {
+		// // Show all results
+		// filteredVerificationResults.setPredicate(s -> true);
+		// } else {
+		// // Filter by current model and property
+		// filteredVerificationResults.setPredicate(result -> {
+		// boolean matchesModel = (currentModelId == null ||
+		// result.contains(currentModelId));
+		// boolean matchesProperty = (currentProperty == null ||
+		// result.contains(currentProperty));
+		// return matchesModel && matchesProperty;
+		// });
+		// }
 	}
 
 	// TODO: clean this up
@@ -828,10 +843,11 @@ public class PropertiesController {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
 		// ultimate.setSynthesisUpdateCallback(() -> {
-		// 	System.out.println(
-		// 			ultimate.getSynthesisProgress() + " " + ultimate.getEvoCheckerInstance().getMaxEvalutations());
-		// 	modalProgress.setProgress((double) ultimate.getSynthesisProgress()
-		// 			/ ((double) ultimate.getEvoCheckerInstance().getMaxEvalutations()));
+		// System.out.println(
+		// ultimate.getSynthesisProgress() + " " +
+		// ultimate.getEvoCheckerInstance().getMaxEvalutations());
+		// modalProgress.setProgress((double) ultimate.getSynthesisProgress()
+		// / ((double) ultimate.getEvoCheckerInstance().getMaxEvalutations()));
 		// });
 
 		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {

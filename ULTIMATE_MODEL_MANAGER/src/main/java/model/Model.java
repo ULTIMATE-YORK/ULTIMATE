@@ -232,7 +232,6 @@ public class Model {
 	 * @return the list of environment parameters
 	 */
 	public ObservableList<ExternalParameter> getExternalParameters() {
-		System.out.println("External params:" + externalParameters);
 		return externalParameters;
 	}
 
@@ -507,10 +506,10 @@ public class Model {
 
 	public void setExternalParametersByUniqueIdMap(HashMap<String, String> hashExternalParameters) {
 
-		System.out.println("hashExternalParameters: " + hashExternalParameters);
-		System.out.println("my ep UUIDs: " + externalParameters.stream()
-				.map(ep -> ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()))
-				.collect(Collectors.toList()));
+		// System.out.println("hashExternalParameters: " + hashExternalParameters);
+		// System.out.println("my ep UUIDs: " + externalParameters.stream()
+		// 		.map(ep -> ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()))
+		// 		.collect(Collectors.toList()));
 		for (String key : hashExternalParameters.keySet()) {
 			ExternalParameter ep = externalParameters.stream()
 					.filter(p -> ParameterUtilities.generateUniqueParameterId(this.modelId, p.getNameInModel()).equals(key))

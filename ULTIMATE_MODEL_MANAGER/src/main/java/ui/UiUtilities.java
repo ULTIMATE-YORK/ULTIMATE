@@ -13,11 +13,9 @@ public class UiUtilities {
             {
                 textArea.setWrapText(true);
                 textArea.setMouseTransparent(false);
-                textArea.setEditable(false); // selectable
-                textArea.setPrefRowCount(1);
+                textArea.setEditable(false);
             }
-            
-            
+
             @Override
             protected void updateItem(T item, boolean empty) {
                 super.updateItem(item, empty);
@@ -25,6 +23,8 @@ public class UiUtilities {
                     setGraphic(null);
                 } else {
                     textArea.setText(item.toString());
+                    int lines = item.toString().split("\r\n|\r|\n").length;
+                    textArea.setPrefRowCount(lines);
                     setGraphic(textArea);
                 }
             }

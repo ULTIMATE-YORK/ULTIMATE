@@ -11,7 +11,6 @@ import sharedContext.SharedContext;
 
 public class StormAPI {
 	
-    private SharedContext sharedContext = SharedContext.getContext();
     Project project;
     
 	private static final Logger logger = LoggerFactory.getLogger(StormAPI.class);

@@ -25,7 +25,6 @@ public class ModelController {
 	@FXML private Button downButton;
 	@FXML private ListView<Model> modelListView;
 	
-	private SharedContext sharedContext = SharedContext.getContext();
     private Project project = SharedContext.getProject();
 
     @FXML
@@ -38,7 +37,7 @@ public class ModelController {
 
 	@FXML
 	public void addModel() {
-	    String filePath = DialogOpener.openPrismFileDialog(sharedContext.getMainStage());
+	    String filePath = DialogOpener.openPrismFileDialog(SharedContext.getMainStage());
 
 	    if (filePath == null) {
 	        // User cancelled file selection; no need to proceed

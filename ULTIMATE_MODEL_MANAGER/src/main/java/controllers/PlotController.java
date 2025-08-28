@@ -1,14 +1,13 @@
 package controllers;
 
-import java.util.HashMap;
-
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import project.Project;
 import sharedContext.SharedContext;
-import utils.Alerter;
 
+
+// TODO: safely delete (or implement)
 public class PlotController {
 	
 	@FXML private ScrollPane chartHolder;

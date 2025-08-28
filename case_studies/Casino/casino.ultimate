@@ -39,7 +39,7 @@
                 },
                 "weighting": {
                     "min": "0.166",
-                    "max": "1.0",
+                    "max": "1",
                     "name": "weighting"
                 }
             },

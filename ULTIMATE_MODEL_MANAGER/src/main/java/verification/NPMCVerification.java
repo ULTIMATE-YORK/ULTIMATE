@@ -542,7 +542,6 @@ public class NPMCVerification {
         if (isPrismGamesModel) {
             logger.info("Detected PRISM-games model type. Using PrismGamesProcessAPI...");
             try {
-                SharedContext sharedContext = SharedContext.getContext();
                 Project project = SharedContext.getProject();
                 String prismGamesPath = project.getPrismGamesInstall();
 

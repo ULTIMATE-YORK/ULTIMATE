@@ -49,7 +49,6 @@ public class ParameterController {
 	@FXML
 	private VBox parameterDialogs;
 
-	private SharedContext sharedContext = SharedContext.getContext();
 	private Project project = SharedContext.getProject();
 
 	@FXML
@@ -124,7 +123,7 @@ public class ParameterController {
 				@Override
 				public void onEdit(DependencyParameter dp) {
 					try {
-						DialogOpener.openDialogWindow(sharedContext.getMainStage(),
+						DialogOpener.openDialogWindow(SharedContext.getMainStage(),
 								"/dialogs/edit_Dependency_param.fxml", "Edit Dependency Parameter", dp);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -173,7 +172,7 @@ public class ParameterController {
 				@Override
 				public void onEdit(InternalParameter ip) {
 					try {
-						DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/edit_internal_param.fxml",
+						DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/edit_internal_param.fxml",
 								"Edit Internal Parameter", ip);
 					} catch (IOException e) {
 						e.printStackTrace();
@@ -197,19 +196,19 @@ public class ParameterController {
 	// above /
 	@FXML
 	private void addDepParam() throws IOException {
-		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/add_Dependency_param.fxml",
+		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_Dependency_param.fxml",
 				"Add Dependency Parameter");
 	}
 
 	@FXML
 	private void addEParam() throws IOException {
-		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/add_external_param.fxml",
+		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_external_param.fxml",
 				"Add External Parameter");
 	}
 
 	@FXML
 	private void addIParam() throws IOException {
-		DialogOpener.openDialogWindow(sharedContext.getMainStage(), "/dialogs/add_Internal_param.fxml",
+		DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/add_Internal_param.fxml",
 				"Add Internal Parameter");
 	}
 }
