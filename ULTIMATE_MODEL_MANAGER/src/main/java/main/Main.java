@@ -26,14 +26,12 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         // Set up the shared context singleton instance for sharing data across the application
-        SharedContext sharedContext = SharedContext.getInstance(); // Obtain the shared data instance
-        sharedContext.setMainStage(stage); // Store the primary stage in the shared context
+        SharedContext.setMainStage(stage); // Store the primary stage in the shared context
         
-        // set up blank project
         Project blankProject = new Project();
-        // set the reference
-        sharedContext.setProject(blankProject);
-
+        SharedContext.setProject(blankProject);
+        // SharedContext.getUltimateInstance().setProject(SharedContext.getProject());
+        
         // Load the FXML file and initialize its associated controller
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
         

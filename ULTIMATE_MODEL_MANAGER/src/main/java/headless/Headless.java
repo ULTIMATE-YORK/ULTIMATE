@@ -1,34 +1,28 @@
 package headless;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import evochecker.EvoChecker;
-import javafx.collections.FXCollections;
+import org.mariuszgromada.math.mxparser.License;
+
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
-import org.mariuszgromada.math.mxparser.mXparser;
-
+import project.synthesis.EvoCheckerUltimateInstance;
+import sharedContext.SharedContext;
 import ultimate.Ultimate;
-import verification.EvoCheckerUltimateInstance;
-
-import java.util.HashMap;
-import java.util.stream.Collectors;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.Files;
 
 public class Headless {
 
 	private static Options options = new Options();
-	private static String projectFile = null;
+	private static String projectFilePath = null;
 	private static String outputDir = null;
 	private static String modelID = null;
 	private static String property = null;
@@ -72,7 +66,7 @@ public class Headless {
 		CommandLineParser parser = new DefaultParser();
 		try {
 			CommandLine line = parser.parse(options, args);
-			projectFile = line.getOptionValue("pf");
+			projectFilePath = line.getOptionValue("pf");
 			modelID = line.getOptionValue("m");
 			property = line.getOptionValue("p");
 			outputDir = line.getOptionValue("o");
@@ -89,6 +83,8 @@ public class Headless {
 
 		// create the parser
 		System.setProperty("slf4j.internal.verbosity", "WARN");
+		// License.iConfirmNonCommercialUse("ULTIMATE"); // Add this line to confirm
+		// license for math lib
 
 		setUpCLI();
 		getArgs(args);
@@ -99,15 +95,14 @@ public class Headless {
 			return;
 		}
 
-		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\n"
-				+ "\nProject file: " + Paths.get(projectFile).getFileName().toString()
-				+ "\nModel ID: " + modelID
-				+ "\nProperty file/definition: " + (property == null ? "(none specified - checking all)" : property) + "\n");
-		Ultimate ultimate = new Ultimate();
-		ultimate.loadProject(projectFile);
-		ultimate.setTargetModelID(modelID);
+		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\n\nProject file: "
+				+ Paths.get(projectFilePath).getFileName().toString() + "\n");
+		SharedContext.loadProjectFromPath(projectFilePath);
+		Ultimate ultimate = SharedContext.getUltimateInstance();
+		ultimate.loadModelsFromProject();
+		ultimate.setTargetModelById(modelID);
 
-		if (ultimate.getProject().containsRangedParameters()) {
+		if (SharedContext.getProject().containsRangedParameters()) {
 			System.err.println(
 					"Ranged external parameters were found in the project."
 							+ "\nHeadless mode does not yet support experiments (projects with ranged external parameters)."
@@ -115,7 +110,7 @@ public class Headless {
 			System.exit(1);
 		}
 
-		ObservableList<InternalParameter> internalParameters = ultimate.getInternalParameters();
+		ObservableList<InternalParameter> internalParameters = SharedContext.getProject().getAllInternalParameters();
 		if (internalParameters.size() > 0) {
 			System.out.println(
 					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
@@ -123,36 +118,33 @@ public class Headless {
 			ultimate.generateEvolvableModelFiles();
 			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
 			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
-			ultimate.instantiateEvoCheckerInstance(ultimateInstance);
+			ultimate.createEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
-			System.out.println("Running EvoChecker to synthesise parameters...\n");
-			ultimate.executeEvoChecker();
+			System.out.println("Running EvoChecker to synthesise parameters...");
+			ultimate.executeSynthesis();
 			ultimate.writeSynthesisResultsToFile();
-
 		} else {
-			System.out.println("Beginning a verification problem.\n");
+			System.out.println("Beginning a verification problem.");
 			ultimate.setVerificationProperty(property);
-			ultimate.generateModelInstances();
-			ultimate.execute();
+			ultimate.executeVerification();
 		}
 
-		java.util.HashMap<String, Double> results = ultimate.getResults();
 		String resultsInfo = ultimate.getVerificationResultsInfo();
 		// TODO: systemise the output by creating something like a OutputGenerator class
 		// TODO: maybe also write some utility to stylise the output, e.g.
 		// OutputUtility.printHeader()
 		if (internalParameters.size() > 0) {
 			String parameterNames = internalParameters.stream()
-					.map((InternalParameter x) -> (x.getName() + " - " + x.getType()))
+					.map((InternalParameter x) -> (x.getNameInModel()))
 					.collect(Collectors.joining("\n\t"));
 
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
 					+ "\nProblem type: Synthesis"
 					+ "\nModel ID: " + modelID
 					+ "\nInternal Parameters:\n\t" + parameterNames + "\n"
 					+ "Results were saved to /data/ULTIMATE");
 		} else {
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFile
+			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
 					+ "\nProblem type: Verification"
 					+ "\nModel ID: " + modelID
 					+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
@@ -160,8 +152,10 @@ public class Headless {
 		}
 		// Write the results HashMap to a file
 		if (outputDir != null) {
+			java.util.HashMap<String, String> results = ultimate.getVerificationResults();
 			String fileName = outputDir + "/ultimate_results_" +
-					(projectFile != null ? new java.io.File(projectFile).getName().replaceAll("\\W+", "_") : "unknown")
+					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_")
+							: "unknown")
 					+
 					"_" +
 					(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
@@ -174,7 +168,7 @@ public class Headless {
 			try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
 					java.nio.file.Paths.get(fileName),
 					java.nio.charset.StandardCharsets.UTF_8)) {
-				for (java.util.Map.Entry<String, Double> entry : results.entrySet()) {
+				for (java.util.Map.Entry<String, String> entry : results.entrySet()) {
 					writer.write(entry.getKey() + ": " + entry.getValue());
 					writer.newLine();
 				}

@@ -10,13 +10,22 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
+import parameters.FixedExternalParameter;
 import parameters.InternalParameter;
+import parameters.LearnedExternalParameter;
+import parameters.RangedExternalParameter;
+import parameters.SynthesisObjective;
 import utils.Alerter;
 
 public class ProjectImporter {
@@ -29,7 +38,7 @@ public class ProjectImporter {
 		this.directory = getDirectory(projectFilePath);
 	}
 
-	public Set<Model> importProject() throws IOException {
+	public Set<Model> importProjectModels() throws IOException {
 		HashSet<Model> models = extractModels();
 		return models;
 	}
@@ -66,22 +75,38 @@ public class ProjectImporter {
 			}
 		}
 
-		// Initialise the models parameters
-		models.forEach(model -> {
-			JSONObject parametersObject = modelObjects.get(model.getModelId()).getJSONObject("parameters");
-			// Define the array of parameter types
-			String[] parameterTypes = { "environment", "dependency", "internal" };
-			for (String parameterType : parameterTypes) {
-				deserializeParameters(parametersObject, model, parameterType, models);
+		// Initialise the model parameters
+		for (Model model : models) {
+			try {
+				JSONObject modelObj = modelObjects.get(model.getModelId());
+				JSONObject parametersObject = modelObj.getJSONObject("parameters");
+				// Define the array of parameter types
+				String[] parameterTypes = { "environment", "dependency", "internal" };
+				for (String parameterType : parameterTypes) {
+					deserializeParameters(parametersObject, model, parameterType, models);
+				}
+
+				if (modelObj.has("synthesis")) {
+					JSONObject synthesisObject = modelObj.getJSONObject("synthesis");
+					model.setSynthesisObjectives(importSynthesisObjectives(model, synthesisObject));
+				}
+				// add the properties
+				if (modelObj.has("properties")) {
+					JSONArray properties = modelObj.getJSONArray("properties");
+					for (int i = 0; i < properties.length(); i++) {
+						model.addProperty(properties.getString(i));
+					}
+				}
+
+				model.addUncategorisedParametersFromFile();
+
+			} catch (Exception e) {
+				throw e;
 			}
-			model.addUncategorisedParametersFromFile();
-			// add the properties
-			JSONArray properties = modelObjects.get(model.getModelId()).getJSONArray("properties");
-			for (int i = 0; i < properties.length(); i++) {
-				model.addProperty(properties.getString(i));
-			}
-		});
+		}
+		;
 		return models;
+
 	}
 
 	/*
@@ -96,77 +121,140 @@ public class ProjectImporter {
 	 * @param models the set of models in the project
 	 */
 	private void deserializeParameters(JSONObject parametersObject, Model model, String parameterType,
-			HashSet<Model> models) {
+			HashSet<Model> models) throws IOException {
 		switch (parameterType) {
 			case "environment":
 				// Deserialize environment parameters
-				JSONObject environmentObject = parametersObject.optJSONObject("environment");
-				if (environmentObject != null) {
-					environmentObject.keySet().forEach(envName -> {
-						JSONObject envObj = environmentObject.getJSONObject(envName);
-						String type = envObj.getString("type");
-						if (type.equals("Ranged")) {
-							JSONArray rangedValues = envObj.getJSONArray("rangedValues");
-							ArrayList<Double> rangedValuesList = new ArrayList<>();
+				JSONObject externalObject = parametersObject.optJSONObject("environment");
+				ArrayList<String> brokenEParameterNames = new ArrayList<>();
+				ArrayList<Exception> externalParameterImportExceptions = new ArrayList<>();
 
-							for (int i = 0; i < rangedValues.length(); i++) {
-								rangedValuesList.add(rangedValues.getDouble(i));
-							}
-							try {
-								ExternalParameter envParam = new ExternalParameter(envName, type, rangedValuesList);
+				// TODO: instantiate correct type of externalParameter based on 'type' from the
+				// JSON
+				if (externalObject != null) {
+					externalObject.keySet().forEach(envName -> {
+						JSONObject envObj = externalObject.getJSONObject(envName);
+						try {
+							String type = envObj.getString("type");
+							if (type.toLowerCase().equals("ranged")) {
+								JSONArray rangedValues = envObj.getJSONArray("rangedValues");
+								ArrayList<String> rangedValuesList = new ArrayList<>();
+
+								for (int i = 0; i < rangedValues.length(); i++) {
+									rangedValuesList.add(rangedValues.getString(i));
+								}
+								ExternalParameter envParam = new RangedExternalParameter(envName, rangedValuesList,
+										model.getModelId());
 								model.addExternalParameter(envParam);
-							} catch (IOException e) {
-							}
-						} else {
-							String value = envObj.getString("value");
-							try {
-								ExternalParameter envParam = new ExternalParameter(envName, type, value);
+							} else if (type.toLowerCase().equals("fixed")) {
+								String value = envObj.getString("value");
+								ExternalParameter envParam = new FixedExternalParameter(envName, value,
+										model.getModelId());
 								model.addExternalParameter(envParam);
-							} catch (IOException e) {
+							} else if (LearnedExternalParameter.LEARNED_PARAMETER_TYPE_OPTIONS
+									.contains(type.toLowerCase())) {
+								String valueSource = envObj.getString("value");
+								ExternalParameter envParam = new LearnedExternalParameter(envName, type, valueSource,
+										model.getModelId());
+								model.addExternalParameter(envParam);
 							}
+
+						} catch (Exception e) {
+							externalParameterImportExceptions.add(e);
+							brokenEParameterNames
+									.add((envObj.has("name") ? envObj.getString("name")
+											: "[unnamed external parameter]"));
 						}
 					});
+
+					if (brokenEParameterNames.size() > 0) {
+						throw new IOException(
+								"Exception(s) occurred when importing the following external parameter(s) for '"
+										+ model.getModelId() + "':\n\n"
+										+ String.join(", ", brokenEParameterNames)
+										+ "\n\nPlease make sure the file is properly formatted and each external parameter has the following fields:\n\ttype\n\trangedValues or value"
+										+ "\nYou must reload the project for any changes to take effect."
+										+ "\n\nThe exceptions were: \n"
+										+ externalParameterImportExceptions.stream().map(Throwable::toString)
+												.collect(Collectors.joining("\n")));
+					}
 				}
 				break;
 			case "dependency":
 				// Deserialize dependency parameters
 				JSONObject dependencyObject = parametersObject.optJSONObject("dependency");
+				ArrayList<String> brokenDParameterNames = new ArrayList<>();
 				if (dependencyObject != null) {
 					dependencyObject.keySet().forEach(depName -> {
 						JSONObject depObj = dependencyObject.getJSONObject(depName);
-						String depId = depObj.getString("modelId");
-						String depDefinition = depObj.getString("property");
-						models.forEach(modelo -> {
-							if (modelo.getModelId().equals(depId)) {
-								// FIXME: what if a model is not in the project?
-								DependencyParameter depParam = new DependencyParameter(depName, modelo, depDefinition);
+						try {
+							String depId = depObj.getString("modelId");
+							String depDefinition = depObj.getString("property");
+							Model sourceModel = models.stream().filter(m -> m.getModelId().equals(depId)).findFirst()
+									.orElse(null);
+							if (sourceModel == null) {
+								throw new RuntimeException("Tried to create a dependency parameter '" + depName
+										+ "' for model '" + model.getModelId() + "' which is dependent on model '"
+										+ depId
+										+ "', but this model could not be found. Make sure all arguments are properly set.");
+							} else {
+								DependencyParameter depParam = new DependencyParameter(depName, sourceModel,
+										depDefinition, model.getModelId());
 								model.addDependencyParameter(depParam);
 							}
-						});
+						} catch (Exception e) {
+							brokenDParameterNames
+									.add((depObj.has("name") ? depObj.getString("name")
+											: "[unnamed dependency parameter]"));
+						}
 					});
+
+					if (brokenDParameterNames.size() > 0) {
+						throw new IOException(
+								"Exception(s) occurred when importing the following dependency parameter(s) for '"
+										+ model.getModelId() + "':\n\n"
+										+ String.join(", ", brokenDParameterNames)
+										+ "\n\nPlease make sure the file is properly formatted and each dependency parameter has the following fields:\n\tmodelId\n\tproperty"
+										+ "\nYou must reload the project for any changes to take effect.");
+					}
 				}
 				break;
 			case "internal":
 				// Deserialize internal parameters
 				JSONObject internalParametersNode = parametersObject.optJSONObject("internal");
+				ArrayList<String> brokenIParameterNames = new ArrayList<>();
 				if (internalParametersNode != null) {
-
 					// Iterate over subnodes of internalParametersNode
 					internalParametersNode.keySet().forEach(subNodeKey -> {
 						JSONObject ipn = internalParametersNode.getJSONObject(subNodeKey);
-						InternalParameter internalParam = new InternalParameter(
-							ipn.get("name").toString(),
-							ipn.get("type").toString(),
-							ipn.get("min").toString(),
-							ipn.get("max").toString(),
-							null
-							);
-						model.addInternalParameter(internalParam);
+						try {
+							InternalParameter internalParam = new InternalParameter(
+									ipn.get("name").toString(),
+									ipn.get("min").toString(),
+									ipn.get("max").toString(),
+									model.getModelId() + "-" + ipn.get("name").toString());
+							model.addInternalParameter(internalParam);
+						} catch (JSONException e) {
+							// e.printStackTrace();
+							// System.out.println(e.getMessage());
+							brokenIParameterNames
+									.add((ipn.has("name") ? ipn.getString("name") : "[unnamed internal parameter]"));
+						}
 					});
 
+					if (brokenIParameterNames.size() > 0) {
+						throw new IOException(
+								"Exception(s) occurred when importing the following internal parameter(s) for '"
+										+ model.getModelId() + "':\n\n"
+										+ String.join(", ", brokenIParameterNames)
+										+ "\n\nPlease make sure the file is properly formatted and and each internal parameter has the following fields:\n\tname\n\tmin\n\tmax"
+										+ "\n\nYou must reload the project for any changes to take effect.");
+					}
 				}
+
 				break;
 		}
+
 	}
 
 	/*
@@ -175,6 +263,16 @@ public class ProjectImporter {
 	private String getDirectory(String projectPath) {
 		Path path = Paths.get(projectPath);
 		return path.toAbsolutePath().getParent().toString(); // Get directory
+	}
+
+	private ObservableList<SynthesisObjective> importSynthesisObjectives(Model model, JSONObject synthesisObject) {
+
+		ObservableList<SynthesisObjective> ocs = FXCollections.observableArrayList();
+		JSONArray propertiesArray = synthesisObject.getJSONArray("properties");
+		for (Object prop : propertiesArray) {
+			ocs.add(new SynthesisObjective(prop.toString()));
+		}
+		return ocs;
 	}
 
 }

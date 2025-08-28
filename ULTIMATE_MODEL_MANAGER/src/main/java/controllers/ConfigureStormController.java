@@ -23,8 +23,7 @@ public class ConfigureStormController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();	
+    private Project project = SharedContext.getProject();
 	
 	@FXML
 	private void save() throws IOException {

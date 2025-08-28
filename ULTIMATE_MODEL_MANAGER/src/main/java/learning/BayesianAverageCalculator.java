@@ -15,7 +15,7 @@ public class BayesianAverageCalculator {
         //System.out.println("Computed Bayesian Rate: " + resultRate);
     }
 
-    public static double computeBayesianAverage(String filename) throws NumberFormatException, IOException {
+    public static Double computeBayesianAverage(String filename) throws NumberFormatException, IOException {
         int C = 0;
         double prior = 0.0;
         List<Double> values = new ArrayList<>();
@@ -46,15 +46,15 @@ public class BayesianAverageCalculator {
         if (N == 0) return prior; // Avoid division by zero
 
         // Compute mean of the values
-        double meanValue = values.stream().mapToDouble(Double::doubleValue).sum() / N;
+        Double meanValue = values.stream().mapToDouble(Double::doubleValue).sum() / N;
         
         // Compute Bayesian average
-        return (C / (double) (C + N)) * prior + (N / (double) (C + N)) * meanValue;
+        return (Double)(C / (double) (C + N)) * prior + (N / (double) (C + N)) * meanValue;
     }
 
     
-    public static double computeBayesianAverageRate(String filename) throws NumberFormatException, IOException {
-		double bayes = computeBayesianAverage(filename);
+    public static Double computeBayesianAverageRate(String filename) throws NumberFormatException, IOException {
+		Double bayes = computeBayesianAverage(filename);
 		if (bayes == 0.0) {
 			return 0.0;
 		}

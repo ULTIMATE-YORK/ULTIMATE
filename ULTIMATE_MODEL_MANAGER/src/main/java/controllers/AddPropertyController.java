@@ -14,8 +14,7 @@ public class AddPropertyController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getProject();
     
 	@FXML
 	private void save() {
@@ -25,7 +24,7 @@ public class AddPropertyController {
 			return;
 		}
 		else {
-			project.getCurrentModel().addProperty(property);
+			project.getTargetModel().addProperty(property);
 			cancel();
 		}
 	}

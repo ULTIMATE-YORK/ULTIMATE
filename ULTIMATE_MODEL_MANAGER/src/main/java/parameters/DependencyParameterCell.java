@@ -1,5 +1,6 @@
 package parameters;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -32,8 +33,10 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
         super.updateItem(dp, empty);
 
         if (empty || dp == null) {
-            setText(null);
-            setGraphic(null);
+            Platform.runLater(() -> {
+                setText(null);
+                setGraphic(null);
+            });
         } else {
             setPadding(Insets.EMPTY);
             // Build the left column: A Label showing the dependency details.
@@ -82,10 +85,11 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
             removeButton.prefWidthProperty().bind(rightColumn.widthProperty());
             editButton.setMaxWidth(Double.MAX_VALUE);
             removeButton.setMaxWidth(Double.MAX_VALUE);
-            editButton.setMinHeight(25);    // adjust as needed
-            removeButton.setMinHeight(25);  // adjust as needed
-
-            setGraphic(cellBox);
+            editButton.setMinHeight(25); // adjust as needed
+            removeButton.setMinHeight(25); // adjust as needed
+            Platform.runLater(() -> {
+                setGraphic(cellBox);
+            });
         }
     }
 
@@ -95,6 +99,7 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
      */
     public interface DependencyUnitListener {
         void onEdit(DependencyParameter dp);
+
         void onRemove(DependencyParameter dp);
     }
 }

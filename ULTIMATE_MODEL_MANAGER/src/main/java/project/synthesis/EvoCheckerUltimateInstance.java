@@ -1,4 +1,4 @@
-package verification;
+package project.synthesis;
 
 import java.util.HashMap;
 
@@ -8,21 +8,23 @@ import ultimate.Ultimate;
 public class EvoCheckerUltimateInstance implements IUltimate {
 
     private Ultimate ultimate;
+    private Runnable updateCallback;
 
-    public EvoCheckerUltimateInstance(Ultimate ultimate){
+    public EvoCheckerUltimateInstance(Ultimate ultimate) {
         this.ultimate = ultimate;
     }
 
     public void setTargetModelId(String id) {
-        ultimate.setTargetModelID(id);
+        ultimate.setTargetModelById(id);
     }
 
     public void setInternalParameters(HashMap<String, String> internalParameterValuesHashMap) {
-        ultimate.setInternalParameters(internalParameterValuesHashMap);
+        ultimate.setInternalParameterValuesMap(internalParameterValuesHashMap);
     }
 
+    // TODO: remove this in IUltimate
     public void generateModelInstances() {
-        ultimate.generateModelInstances();
+        // ultimate.writeParametersToModelFiles();
     }
 
     public void resetResults() {
@@ -31,7 +33,7 @@ public class EvoCheckerUltimateInstance implements IUltimate {
 
     public void execute() {
         try {
-            ultimate.execute();
+            ultimate.executeVerification();
         } catch (Exception e) {
             System.err.println("Error executing ULTIMATE.");
             e.printStackTrace();
@@ -39,13 +41,19 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         }
     }
 
-    public void setVerificationProperty(String propertyFileOrString){
+    public void setVerificationProperty(String propertyFileOrString) {
         ultimate.setVerificationProperty(propertyFileOrString);
     }
 
-    public HashMap<String, Double> getResults(){
-        return ultimate.getResults();
+    public HashMap<String, String> getResults() {
+        return ultimate.getVerificationResults();
     }
 
-    
+    public void updateSynthesisProgress(int evaluations) {
+        ultimate.setSynthesisProgress(evaluations);
+        if (ultimate.getUpdateProgressCallback() != null) {
+            ultimate.getUpdateProgressCallback().run();
+        }
+    }
+
 }

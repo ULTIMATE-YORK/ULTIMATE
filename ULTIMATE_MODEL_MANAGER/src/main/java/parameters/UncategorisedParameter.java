@@ -2,22 +2,22 @@ package parameters;
 
 /**
  * The UncategorisedParameter class represents a parameter with an undefined or arbitrary name.
- * It extends the Parameter class.
+ * It extends the Parameter class - note: no it doesn't...
  */
 public class UncategorisedParameter {
 
 	 /**
 	  * The name of the parameter.
 	  */
-	 private String parameter;
+	 private String name;
 	
 	 /**
 	  * Constructs an UndefinedParameter with the specified name.
 	  *
-	  * @param parameter the name of the parameter
+	  * @param name the name of the parameter
 	  */
-	 public UncategorisedParameter(String parameter) {
-	  this.parameter = parameter;
+	 public UncategorisedParameter(String name) {
+	  this.name = name;
 	 }
 	
 	 /**
@@ -26,7 +26,7 @@ public class UncategorisedParameter {
 	  * @return the name of the parameter
 	  */
 	 public String getName() {
-	  return this.parameter;
+	  return this.name;
 	 }
 	
 	 /**
@@ -35,7 +35,7 @@ public class UncategorisedParameter {
 	  * @param newName the new name of the parameter
 	  */
 	 public void setName(String newName) {
-	  this.parameter = newName;
+	  this.name = newName;
 	 }
 	
 	 /**

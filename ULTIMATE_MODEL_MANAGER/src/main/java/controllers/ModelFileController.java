@@ -16,8 +16,7 @@ import utils.FileUtils;
 public class ModelFileController {
 
     @FXML private TextFlow modelFile;    
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getProject();
 
     @FXML
     public void initialize() {
@@ -28,7 +27,7 @@ public class ModelFileController {
     private void firstcall() {
         CompletableFuture.supplyAsync(() -> {
             try {
-                return FileUtils.getFileContent(project.getCurrentModel().getFilePath());
+                return FileUtils.getFileContent(project.getTargetModel().getFilePath());
             } catch (IOException e) {
                 Alerter.showErrorAlert("Model File not found!", e.getMessage());
                 return null;

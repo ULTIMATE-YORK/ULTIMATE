@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import model.Model;
 import utils.FileUtils;
 import utils.PrismOutputParser;
-
+import parameters.ExternalParameter;
 import parameters.InternalParameter;
 
 /**
@@ -233,10 +233,10 @@ public class PrismProcessAPI {
      * @throws IOException If there is an error creating the temporary property file
      */
     public static double runWithUpdatedModel(Model model, String property, String prismInstallLocation,
-            Map<String, Double> externalParametersMap, Map<String, InternalParameter> internalParametersMap)
+            Map<String, ExternalParameter> externalParametersMap, Map<String, InternalParameter> internalParametersMap)
             throws IOException {
         // Convert Map to HashMap as required by ModelUtils
-        HashMap<String, Double> hashExternalParameters = new HashMap<>(externalParametersMap);
+        HashMap<String, ExternalParameter> hashExternalParameters = new HashMap<>(externalParametersMap);
         HashMap<String, InternalParameter> hashInternalParameters = new HashMap<>(internalParametersMap);
 
         // Update the model file with the parameter values

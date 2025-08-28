@@ -25,8 +25,7 @@ public class ModelController {
 	@FXML private Button downButton;
 	@FXML private ListView<Model> modelListView;
 	
-	private SharedContext sharedContext = SharedContext.getInstance();
-	private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getProject();
 
     @FXML
     public void initialize() {
@@ -38,7 +37,7 @@ public class ModelController {
 
 	@FXML
 	public void addModel() {
-	    String filePath = DialogOpener.openPrismFileDialog(sharedContext.getMainStage());
+	    String filePath = DialogOpener.openPrismFileDialog(SharedContext.getMainStage());
 
 	    if (filePath == null) {
 	        // User cancelled file selection; no need to proceed
@@ -59,7 +58,7 @@ public class ModelController {
 	        newModel.addUncategorisedParametersFromFile();
 	        project.addModel(newModel);
 	        //System.out.println("Model added successfully: " + newModel);
-	        if (project.directory() == null) {
+	        if (project.getDirectoryPath() == null) {
 	        	Path file = Paths.get(filePath);
 	        	Path parent = file.getParent(); 
 	        	project.setDirectory(parent.toString());

@@ -1,61 +1,48 @@
 {"models": {
     "casino": {
+        "synthesis": {"properties": [
+            "Objective, max: R{\"wins\"}=?[C<=50]",
+            "Constraint, min, 0.5: P=?[F<50 noticed=1]"
+        ]},
         "fileName": "casino.dtmc",
         "id": "casino",
-        "synthesis":{
-        	"properties": [
-			"Objective, max: R{\"wins\"}=?[C<=50]",
-			"Constraint, min, 0.5: P=?[F<50 noticed=1]"
-        	]
-        },
         "parameters": {
-            "environment": {"perceptiveness":{
+            "environment": {"perceptiveness": {
                 "name": "perceptiveness",
-                "type": "Fixed",
+                "type": "fixed",
                 "value": "0.3"
             }},
-            "internal": {
-                "blackjack": {
-                	"name": "blackjack",
-	                "type" : "int",
-	                "min" : "0",
-	                "max" : "1"
-                    }
-		},
-            "dependency": {
-		    "pWin": {
-		        "modelId": "cheater",
-		        "name": "pWin",
-		        "property": "S=?[cheating=1]"
-		    }
-            }
+            "internal": {"blackjack": {
+                "min": "0",
+                "max": "1",
+                "name": "blackjack"
+            }},
+            "dependency": {"pWin": {
+                "modelId": "cheater",
+                "name": "pWin",
+                "property": "S=?[cheating=1]"
+            }}
         },
         "properties": ["P=?[F<10 noticed=1]"]
     },
     "cheater": {
+        "synthesis": {"properties": ["Objective, max: S=?[cheating=1]"]},
         "fileName": "cheater.dtmc",
         "id": "cheater",
-         "synthesis":{
-        	"properties": [
-			"Objective, max: S=?[cheating=1]"
-        	]
-        },
         "parameters": {
             "environment": {},
             "internal": {
-		    "weighting": {
-			    "name": "weighting",
-			    "type" : "double",
-			    "min" : "0.166",
-			    "max" : "1.0"
-		    },
-		    "boldness": {
-		    	"name": "boldness",
-		    	"type" : "double",
-		    	"min" : "0.1",
-		    	"max" : "1.0"
-		    	}
-		    },
+                "boldness": {
+                    "min": "0.1",
+                    "max": "1.0",
+                    "name": "boldness"
+                },
+                "weighting": {
+                    "min": "0.166",
+                    "max": "1",
+                    "name": "weighting"
+                }
+            },
             "dependency": {}
         },
         "properties": []

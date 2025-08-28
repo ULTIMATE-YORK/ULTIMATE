@@ -20,12 +20,11 @@ public class AddDependencyController {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getProject();
 	
 	@FXML
 	public void initialize() {
-		undefinedParameters.setItems(project.getCurrentModel().getUncategorisedParameters());
+		undefinedParameters.setItems(project.getTargetModel().getUncategorisedParameters());
 		chooseModel.setItems(project.getObservableModels());
 		
 	    // Set a custom StringConverter to display models using the toName() method
@@ -54,9 +53,9 @@ public class AddDependencyController {
 			return;
 		}
 		else {
-			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def);
-			project.getCurrentModel().addDependencyParameter(depParam);
-			project.getCurrentModel().removeUncategorisedParameter(undefinedParameters.getValue());
+			DependencyParameter depParam = new DependencyParameter(name.toString(), model, def, project.getTargetModel().getModelId());
+			project.getTargetModel().addDependencyParameter(depParam);
+			project.getTargetModel().removeUncategorisedParameter(undefinedParameters.getValue());
 			closeDialog();
 		}
 	}

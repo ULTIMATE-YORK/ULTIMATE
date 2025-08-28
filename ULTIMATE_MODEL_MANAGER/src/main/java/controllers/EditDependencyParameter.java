@@ -18,8 +18,7 @@ public class EditDependencyParameter {
 	@FXML private Button saveButton;
 	@FXML private Button cancelButton;
 	
-    private SharedContext sharedContext = SharedContext.getInstance();
-    private Project project = sharedContext.getProject();
+    private Project project = SharedContext.getProject();
     
     private DependencyParameter dp;
 	
@@ -38,9 +37,9 @@ public class EditDependencyParameter {
 			return;
 		}
 		else {
-			DependencyParameter depParam = new DependencyParameter(dp.getName(), model, def);
-			project.getCurrentModel().addDependencyParameter(depParam);
-			project.getCurrentModel().removeDependencyParameter(dp);
+			DependencyParameter depParam = new DependencyParameter(dp.getNameInModel(), model, def,project.getTargetModel().getModelId());
+			project.getTargetModel().addDependencyParameter(depParam);
+			project.getTargetModel().removeDependencyParameter(dp);
 			project.refresh();
 			closeDialog();
 		}

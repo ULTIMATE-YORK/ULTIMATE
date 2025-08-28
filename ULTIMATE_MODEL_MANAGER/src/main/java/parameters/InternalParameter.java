@@ -1,63 +1,44 @@
 package parameters;
 
-import jmetal.encodings.variable.Int;
-
-public class InternalParameter {
+public class InternalParameter implements IStaticParameter {
 	private String name;
-	private String type = "double";
-	private Number min;
-	private Number max;
-	private Double interval;
+	private String uniqueIdentifier;
+	private String min;
+	private String max;
 	private String value;
 
-	public InternalParameter(String name, String type, Number min, Number max, Double interval) {
+	public InternalParameter(String name, String min, String max, String uniqueIdentifier) {
 		this.name = name;
-		this.type = type;
 		this.min = min;
 		this.max = max;
-		this.interval = interval;
+		this.uniqueIdentifier = uniqueIdentifier;
 	}
 
-	public InternalParameter(String name, String type, String min, String max, Double interval) {
-		this.name = name;
-		this.type = type;
-
-		if (("int".equals(type))) {
-			this.min = Integer.parseInt(min);
-			this.max = Integer.parseInt(max);
-		} else {
-			this.min = Double.parseDouble(min);
-			this.max = Double.parseDouble(max);
-		}
-
-		this.interval = interval;
-	}
-
-	public InternalParameter(String name) {
+	public InternalParameter(String name, String uuid) {
 		this.name = name;
 	}
 
 	// GETTER METHODS
 
-	public String getName() {
+	public String getNameInModel() {
 		return this.name;
 	}
 
-	public String getType() {
-		return this.type;
-	}
+	// public String getNameInModel() {
+	// 	return uniqueIdentifier;
+	// }
 
-	public Number getMin() {
+	public String getMin() {
 		return this.min;
 	}
 
-	public Number getMax() {
+	public String getMax() {
 		return this.max;
 	}
 
-	public Double getInterval() {
-		return this.interval;
-	}
+	// public Double getInterval() {
+	// return this.interval;
+	// }
 
 	public String getValue() {
 		return this.value;
@@ -69,19 +50,19 @@ public class InternalParameter {
 		this.name = newName;
 	}
 
-	public void setType(String type) {
-		this.type = type;
-	}
+	// public void setType(String type) {
+	// this.type = type;
+	// }
 
-	public void setInterval(Double interval) {
-		this.interval = interval;
-	}
+	// public void setInterval(Double interval) {
+	// this.interval = interval;
+	// }
 
-	public void setMin(Double min) {
+	public void setMin(String min) {
 		this.min = min;
 	}
 
-	public void setMax(Double max) {
+	public void setMax(String max) {
 		this.max = max;
 	}
 
@@ -97,7 +78,11 @@ public class InternalParameter {
 	}
 
 	public String toString() {
-		return "Internal Parameter: " + getName() + "\nType: " + getType() + "\nMin: " + getMin() + "\nMax: " + getMax()
-				+ "\nInterval: " + getInterval() + "\n";
+		// return "Internal Parameter: " + getName() + "\nType:" + type + "\nMin: " +
+		// getMin() + "\nMax: "
+		// + getMax()
+		// + "\nInterval: " + getInterval() + "\n";
+		return "Internal Parameter: " + getNameInModel() + "\nMin: " + getMin() + "\nMax: " + getMax()
+				+ "\n";
 	}
 }

@@ -9,11 +9,16 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import model.Model;
 import parameters.InternalParameter;
 import parameters.ExternalParameter;
+import parameters.IParameter;
+import parameters.IStaticParameter;
+import parameters.ExternalParameter;
 import java.util.List;
+import java.lang.NullPointerException;
 
 public class FileUtils {
 
@@ -165,17 +170,26 @@ public class FileUtils {
 		}
 	}
 
-	private static String findAndFillExternalParameter(String line, List<ExternalParameter> externalParameters) {
+	private static String findAndFillExternalParameter(String line, List<ExternalParameter> externalParameters)
+			throws IOException {
 		String updatedLine = null;
+		// System.out.println(externalParameters.stream().map(ExternalParameter::getName).collect(Collectors.toList()));
 		for (ExternalParameter ep : externalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
-			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ep.getName()) + "\\s*(=\\s*[^;]+)?;";
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(line);
-			if (matcher.find()) {
-				String valueType = matcher.group(1);
-				updatedLine = "const " + valueType + " " + ep.getName() + " = " + ep.getValue() + ";";
-				break;
+			try {
+				String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ep.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
+				Pattern pattern = Pattern.compile(regex);
+				Matcher matcher = pattern.matcher(line);
+				if (matcher.find()) {
+					String valueType = matcher.group(1);
+					updatedLine = "const " + valueType + " " + ep.getNameInModel() + " = " + ep.getValue() + ";";
+					break;
+				}
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+				throw new RuntimeException(
+						"Could not construct regex for " + ep.getClass().getName() + "with name "
+								+ ep.getNameInModel());
 			}
 		}
 		return updatedLine;
@@ -186,12 +200,14 @@ public class FileUtils {
 		String updatedLine = null;
 		for (InternalParameter ip : internalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
-			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getName()) + "\\s*(=\\s*[^;]+)?;";
+			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "const " + valueType + " " + ip.getName() + " = " + ip.getValue() + ";";
+				updatedLine = "const " + valueType + " " + ip.getNameInModel() + " = " + (valueType.equals("int")
+						? Integer.parseInt(ip.getValue())
+						: Double.parseDouble(ip.getValue())) + ";";
 				break;
 			}
 		}
@@ -249,7 +265,7 @@ public class FileUtils {
 	}
 
 	// overflow for hashmaps
-	public static void writeParametersToFile(String filePath, HashMap<String, Double> hashExternalParameters,
+	public static void writeParametersToFile(String filePath, HashMap<String, ExternalParameter> hashExternalParameters,
 			HashMap<String, InternalParameter> hashInternalParameters) {
 
 		try {
@@ -272,11 +288,12 @@ public class FileUtils {
 						Matcher matcher = pattern.matcher(line);
 						if (matcher.find()) {
 							String type = matcher.group(1);
-							double value = hashExternalParameters.get(key);
+							String value = hashExternalParameters.get(key).getValue();
 
 							// If type is "int", cast the value to int before inserting it.
+							// TODO: clean this up
 							if ("int".equals(type)) {
-								updatedLine = "const " + type + " " + key + " = " + ((int) value) + ";";
+								updatedLine = "const " + type + " " + key + " = " + (Integer.parseInt(value)) + ";";
 							} else {
 								updatedLine = "const " + type + " " + key + " = " + value + ";";
 							}
@@ -310,16 +327,74 @@ public class FileUtils {
 		}
 	}
 
+	public static void writeParametersToFile(String filePath, HashMap<String, IParameter> modelParameters) {
+
+		try {
+			// Read all lines from the file
+			Path path = Paths.get(filePath);
+			StringBuilder updatedContent = new StringBuilder();
+
+			// Process each line from the file
+			for (String line : Files.readAllLines(path)) {
+				String updatedLine = line;
+
+				// For each key in the constants map, use regex to find a match for "const
+				// <type> key;"
+
+				if (modelParameters.keySet().size() > 0) {
+					for (String key : modelParameters.keySet()) {
+						// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
+						String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(key) + "\\s*(=\\s*[^;]+)?;";
+						Pattern pattern = Pattern.compile(regex);
+						Matcher matcher = pattern.matcher(line);
+						if (matcher.find()) {
+							String modelConstantDataType = matcher.group(1);
+							String value = modelParameters.get(key).getValue();
+
+							// If type is "int", cast the value to int before inserting it.
+							// TODO: clean this up
+							if ("int".equals(modelConstantDataType)) {
+								updatedLine = "const " + modelConstantDataType + " " + key + " = "
+										+ (Integer.parseInt(value)) + ";";
+							} else {
+								updatedLine = "const " + modelConstantDataType + " " + key + " = " + value + ";";
+							}
+							break; // Stop checking keys for this line once a match is found.
+						}
+					}
+				}
+
+				updatedContent.append(updatedLine).append(System.lineSeparator());
+			}
+
+			// System.out.println(path + "\n" + updatedContent.toString());
+			// Write the updated content back to the file
+			Files.write(path, updatedContent.toString().getBytes());
+		} catch (IOException e) {
+			System.err.println("Error updating model file: " + e.getMessage());
+		}
+	}
+
 	private static String findAndFillEvolvableParameter(String line, List<InternalParameter> internalParameters) {
 		String updatedLine = null;
 		for (InternalParameter ip : internalParameters) {
 			// Updated regex to match "const <type> key = <value>;" or "const <type> key;"
-			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getName()) + "\\s*(=\\s*[^;]+)?;";
+			String regex = "const\\s+(\\S+)\\s+" + Pattern.quote(ip.getNameInModel()) + "\\s*(=\\s*[^;]+)?;";
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
 				String valueType = matcher.group(1);
-				updatedLine = "evolve " + valueType + " " + ip.getName() + " [" + ip.getMin() + ".." + ip.getMax()
+				String minValue = "";
+				String maxValue = "";
+				if (valueType.equals("int")) {
+					minValue = String.valueOf(Integer.parseInt(ip.getMin()));
+					maxValue = String.valueOf(Integer.parseInt(ip.getMax()));
+				} else {
+					minValue = String.valueOf(Double.parseDouble(ip.getMin()));
+					maxValue = String.valueOf(Double.parseDouble(ip.getMax()));
+				}
+				updatedLine = "evolve " + valueType + " " + ip.getNameInModel() + " [" + minValue + ".."
+						+ maxValue
 						+ "];";
 				break;
 			}

@@ -37,6 +37,18 @@
       <artifactId>woodstox-core</artifactId>
       <version>7.1.1</version>
     </dependency> -->
+    <!-- jMetal dependency -->
+    <!-- <dependency>
+      <groupId>org.uma.jmetal</groupId>
+      <artifactId>jmetal-core</artifactId>
+      <version>6.9.1</version>
+    </dependency> -->
+    <!-- PrismAPI dependency -->
+    <!-- <dependency>
+      <groupId>org.modelChecker</groupId>
+      <artifactId>PrismAPI</artifactId>
+      <version>1.0.18</version>
+    </dependency> -->
     <dependency>
       <groupId>commons-cli</groupId>
       <artifactId>commons-cli</artifactId>
