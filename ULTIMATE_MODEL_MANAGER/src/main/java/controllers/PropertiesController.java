@@ -389,7 +389,7 @@ public class PropertiesController {
 		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(currentModelId);
 
-		System.out.println(experimentPlan);
+		// System.out.println("experimentPlan: " + experimentPlan);
 		ObservableList<RangedVerificationResults> results = FXCollections.observableArrayList();
 		ultimate.setVerificationProperty(vProp.getDefinition());
 		runVerificationsSequentially2(0, vModel, vProp, experimentPlan, results, executor, modalStage);
