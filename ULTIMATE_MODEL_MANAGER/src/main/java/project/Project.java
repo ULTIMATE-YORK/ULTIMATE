@@ -405,7 +405,7 @@ public class Project {
 		// generate plan by combining every possible external parameter value with every
 		// other
 		HashMap<String, ArrayList<String>> rangedExternalVariableValues = getRangedExternalVariableValues();
-		System.out.println(String.format("rangedExternalVariableValues: %s", rangedExternalVariableValues));
+		// System.out.println(String.format("rangedExternalVariableValues: %s", rangedExternalVariableValues));
 
 		ArrayList<HashMap<String, String>> experimentPlan = getAllCombinations(new ArrayList<HashMap<String, String>>(),
 				rangedExternalVariableValues, 0);

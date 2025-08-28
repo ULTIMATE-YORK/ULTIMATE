@@ -52,7 +52,7 @@ public class FileUtils {
 		if (isFile(projectPath) && projectPath.toLowerCase().endsWith(".ultimate")) {
 			return true;
 		} else {
-			throw new IOException("File does not exist or is not an ultimate file");
+			throw new IOException("File '" + projectPath + "' does not exist or is not a .ultimate file");
 		}
 	}
 

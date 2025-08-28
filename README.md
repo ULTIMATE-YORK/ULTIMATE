@@ -39,30 +39,48 @@ The full path to each executable for storm, storm-pars and prism will need to be
 ```json
 {"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
 ```
+Then, add an environment variable to your system called 'ULTIMATE_DIR' which points to the ultimate/ULTIMATE_MODEL_MANAGER directory. For example, Linux users can add the following to their .bashrc:
 
-### Option 1:
+```console
+export ULTIMATE_DIR=<path to ultimate/ULTIMATE_MODEL_MANAGER>
+```
 
-Still within the folder 'ULTIMATE_MODEL_MANAGER', the simplest way to run the tool is to use the maven integration in the project. Run the following commands:
+Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory. Note that the requirements presently consist only of numpy as scipy, so this is most important if you are using a fresh virtual environment.
+
+Next, navigate to ULTIMATE_MODEL_MANAGER and run the following to install EvoChecker to ULTIMATE's local maven repo (m2repo/):
+
+```console
+mvn install:install-file \
+  -Dfile=libs/evochecker_for_ultimate.jar \
+  -DgroupId=edu.evochecker_project \
+  -DartifactId=evochecker_for_ultimate \
+  -Dversion=1.0.0 \
+  -Dpackaging=jar
+```
+
+Finally, run:
 
 ```console
 mvn clean install
+```
+
+This will generate the ULTIMATE jar files.
+
+### Running the GUI:
+
+Still within the folder 'ULTIMATE_MODEL_MANAGER', the fastest way to start the GUI is via maven. Simply run:
+
+```console
 mvn exec:java
 ```
-### Option 2:
 
-Alternatively, if the 'exec:java' command does not work, you can run the jar file directly. However, you will need to provide the module path for the JavaFX SDK you have downloaded.
-Firstly, from the 'ULTIMATE_MODEL_MANAGER' folder, run:
-
-```console
-mvn clean install
-```
-Once the project has been built, you will need to run the following:
+Alternatively, if the 'exec:java' command does not work, you can run the jar file directly. However, you will need to provide the module path for the JavaFX SDK you have downloaded. Once the project has been built, using `mvn clean install`, to run the following:
 
 ```console
 java --module-path <path_to_javafx_sdk/libs> --add-modules javafx.controls,javafx.fxml -jar <path_to_jar>
 ```
 
-### Running the tool
+### Using the Tool via the GUI
 
 The tool has a simple operation. By default, the tool will launch into a 'blank project' containing no models. The user can either choose to load an exisitng ultimate file using *File -> Load* or a single prism model file by pressing the *+* button next to the *Models* label. This will open a file dialog for the user to choose the appropriate file.
 
@@ -78,6 +96,47 @@ The current project can be saved by pressing *File -> Save*.
 
 **NOTE: The project file must be saved in the same directory as all the model files as it uses relative paths to find the files. ALL data files for learned values must be in a folder named 'data' in the same folder as the project file and model files.**
 
+### Use of Headless Mode
+
+ULTIMATE features a headless mode alongside the GUI. 
+
+To run headless mode, first compile it with `mvn clean install` in the ULTIMATE_MODEL_MANAGER folder. Then use:
+
+```console
+java -jar target/ultimate-headless.jar -pf <project file> -m <model ID> -p <property> -o <output directory>
+```
+
+|Argument|Description|
+|-|-|
+|-pf| Project file path: path to a .ultimate file which defines the world model. These can be constructed and modified via the GUI.|
+|-m| Model ID: the ID of the specific model you wish to investigate within the world model.|
+|-p| Property: either the PCTL definition of a property (e.g. Pmin=?[F "done"]) or a file containing one such property per line. If left blank, all the properties of the model specified by the model ID within the .ultimate file will be verified.|
+|-o| Output directory path: path to a directory at which ULTIMATE will output its verification results (with a random file name). If left blank, ULIMATE will print its results but not save them to a file.
+
+You will need a valid .ultimate file to use headless mode. This is best obtained by constructing a world model with the GUI.
+
+### Property Synthesis
+
+ULTIMATE can be used to optimise the free parameters of world models. This is accomplished via integration with [EvoChecker](https://github.com/gerasimou/EvoChecker/). Given a world model with free ('internal') parameters and a set of objectives and constraints, ULTIMATE uses EvoChecker to evolve the population of internal parameter configurations and thus generate a Pareto set of parameter values which optimise for the objectives whilst respecting the constraints.
+
+Synthesis presently only works in headless mode. To use it, simply run the headless version as described above on a .ultimate model which contains internal parameters. ULTIMATE will detect this as a synthesis problem, and run invoke EvoChecker. Do not provide a property file or definition; all properties, objectives, and constraints are defined within the .ultimate file. Synthesis may take some time, as ULTIMATE will invoke EvoChecker, which performs evolution and invokes ULTIMATE once per genetic individual in order to find the associated values of the objectives and constraints.
+
+To adjust the behaviour of EvoChecker, one may modify evochecker_config.properties. Important settings include:
+
+|Setting|Description|
+|-|-|
+|ALGORITHM|The genetic algorithm used for the evolution: NGSAII, MOCELL, SPEA2, RANDOM.|
+|POPULATION_SIZE|The size of the initial population for the GA.|
+|MAX_EVALUATIONS|The total number of ULTIMATE invocations. Note that EvoChecker invokes ULTIMATE once per individual per generation. Therefore if MAX_EVALUATIONS = 2*POPULATION_SIZE, evolution will last roughly two generations.|
+|PLOT_PARETO_FRONT|Whether or not to plot the Pareto front after synthesis.|
+|VERBOSE|Sets the verbosity of EvoChecker. If TRUE then the fitness of each individual will be printed.|
+|MODEL_CHECKING_ENGINE_LIBS_DIRECTORY | Libs for EvoChecker This should be libs/runtime or libs/runtime-amd64 depending on your architecture.|
+
+
 ### Video Guide
 
 https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
+
+### Publications
+
+Calinescu, Radu, et al. "Verification and External Parameter Inference for Stochastic World Models." [arXiv preprint arXiv:2503.16034 (2025)](https://doi.org/10.48550/arXiv.2503.16034)

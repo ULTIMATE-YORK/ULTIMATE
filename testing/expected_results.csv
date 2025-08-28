@@ -1,14 +1,14 @@
-case_studies/DPM-FX\ Dynamic\ power\ mgmt\ for\ foreign\ exchange/FX.ultimate,DPM,R{\\\"power\\\"}=? [C<=10000],NOT SET
+case_studies/DPM-FX\ Dynamic\ power\ mgmt\ for\ foreign\ exchange/FX.ultimate,DPM,R{\\\"power\\\"}=? [C<=10000],SKIP
 case_studies/DPM-FX\ Dynamic\ power\ mgmt\ for\ foreign\ exchange/FX.ultimate,FX,R{\"time\"}=?[F\"done\"],49.33558031
 case_studies/RoboFleet\ Mobile\ robot\ fleet/robotnav.ultimate,supervisor,R{\"failures\"}=?[F done],0.002276049685
 case_studies/RoboFleet\ Mobile\ robot\ fleet/robotnav.ultimate,supervisor,R{\"cost\"}=?[F done],2.216240884
 case_studies/RoboFleet\ Mobile\ robot\ fleet/robotnav.ultimate,robot1,Pmax=?[F done],0.9365581925
 case_studies/RoboFleet\ Mobile\ robot\ fleet/robotnav.ultimate,robot2,Pmax=?[F done],0.8260016737
-case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ !\"crash\" U<=6 \"goal1\"] + P[ !\"crash\" U<=6 \"goal2\"]),NOT SET
-case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ !\"crash\" U<=7 \"goal1\"] + P[ !\"crash\" U<=7 \"goal2\"]),NOT SET
-case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ !\"crash\" U<=8 \"goal1\"] + P[ !\"crash\" U<=8 \"goal2\"]),NOT SET
-case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ !\"crash\" U<=9 \"goal1\"] + P[ !\"crash\" U<=9 \"goal2\"]),NOT SET
-case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ !\"crash\" U<=10 \"goal1\"] + P[ !\"crash\" U<=10 \"goal2\"]),NOT SET
+case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ \!\"crash\" U<=6 \"goal1\"] + P[ \!\"crash\" U<=6 \"goal2\"]),0.0
+case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ \!\"crash\" U<=7 \"goal1\"] + P[ \!\"crash\" U<=7 \"goal2\"]),0.038638674318
+case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ \!\"crash\" U<=8 \"goal1\"] + P[ \!\"crash\" U<=8 \"goal2\"]),0.278380314882
+case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ \!\"crash\" U<=9 \"goal1\"] + P[ \!\"crash\" U<=9 \"goal2\"]),0.8040296575929999
+case_studies/RoCo\ Robot\ coordination/roco.ultimate,robot_coordination2,<<robot1:robot2>>max=? (P[ \!\"crash\" U<=10 \"goal1\"] + P[ \!\"crash\" U<=10 \"goal2\"]),1.3693753638600001
 case_studies/SMD\ Smart\ movement\ detection/SMD.ultimate,MotionSensor,P=?[F (step=2 & object=2)],0.4
 case_studies/SMD\ Smart\ movement\ detection/SMD.ultimate,MotionSensor,P=?[F (step=2 & object=2 & detected)],0.392
 case_studies/SMD\ Smart\ movement\ detection/SMD.ultimate,SmartLighting,R{\"power\"}=? [C<=10000],5.0

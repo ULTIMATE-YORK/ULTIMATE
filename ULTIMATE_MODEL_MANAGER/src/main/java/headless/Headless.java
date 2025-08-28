@@ -50,7 +50,7 @@ public class Headless {
 				.build();
 
 		Option outputDir = Option.builder("o")
-				.argName("directory")
+				.argName("output directory")
 				.hasArg()
 				.desc("The output directory for the results file. If left unspecified, no file will be created.")
 				.build();
