@@ -57,6 +57,7 @@ public class AddExternalController {
 	private Project project = SharedContext.getProject();
 	private static final Logger logger = LoggerFactory.getLogger(AddExternalController.class);
 
+	private boolean ranged = false;
 	private ArrayList<String> rangedValues = new ArrayList<String>();
 	private Model targetModel;
 

@@ -842,13 +842,6 @@ public class PropertiesController {
 	public void synthesise() {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
-		// ultimate.setSynthesisUpdateCallback(() -> {
-		// System.out.println(
-		// ultimate.getSynthesisProgress() + " " +
-		// ultimate.getEvoCheckerInstance().getMaxEvalutations());
-		// modalProgress.setProgress((double) ultimate.getSynthesisProgress()
-		// / ((double) ultimate.getEvoCheckerInstance().getMaxEvalutations()));
-		// });
 
 		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
 			Platform.runLater(() -> {
