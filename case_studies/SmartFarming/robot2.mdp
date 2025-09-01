@@ -1,0 +1,89 @@
+// Robot 2 - model
+
+// Model description:
+// The model describes robot R2 moving up/down/left/right through a grid world
+// with 9 locations labelled l1 to l9. The robot **starts at location l1**, 
+// and needs to navigate to **location l8**, where it has a **task T3** to perform.
+// An obstacle is present at location l7, and the robot's transition 
+// through each other location lx, where x=1,2,..., succeeds with a
+// probability p_lx, and fails with probability 1-p_lx.
+// Locations close to the obstacle (l4, l5 and l7) have a higher probability of collision
+// than the rest. A special (but costly) sensor is used for collision detection in these locations.
+
+// +--------|--------|--------+  
+// | l1  R1 | l2     | l3     |
+// | p_l1   | p_l2   | p_l3   |
+// |--------|--------|--------|  
+// | l4     | l5     | l6     |
+// | p_l4   | p_l5   | p_l6   |
+// |--------|--------|--------|  
+// |/ l7 ///| l8 T3  | l9     |
+// |////////| p_l8   | p_l9   |
+// +--------|--------|--------+  
+
+// Aim:
+// The model is used to obtain a policy (i.e., sequence of robot movements) 
+// which maximises the probability that the **robot reaches location l8** to 
+// perform its task. This is done by model checking the property Pmax=?[F done]
+
+
+mdp 
+
+//-- external parameters: probabilities of collision
+const double p_collisionDetected_high;
+const double p_collisionDetected_low;
+//-- probabilities of transitioning successfully (without collisions) through each location lx
+const double p_l1=1-p_collisionDetected_low;
+const double p_l2=1-p_collisionDetected_low;
+const double p_l3=1-p_collisionDetected_low;
+const double p_l4=1-p_collisionDetected_high;
+const double p_l5=1-p_collisionDetected_high;
+const double p_l6=1-p_collisionDetected_low;
+// l7 is blocked
+const double p_l8=p_collisionDetected_high;
+const double p_l9=p_collisionDetected_low;
+//--
+
+const int fail = 10;
+const int succ = 8;  // task done at T8
+
+formula success = l=succ;       // robot successfully completed trip
+formula done = l=succ | l=fail; //robot completed travel with success or failure
+
+const int start = 2; // starting location
+
+module robot2
+ l:[1..10] init start; 
+ // from l1 
+ [l1_down]  l=1 -> p_l4:(l'=4) + (1-p_l4):(l'=fail);
+ [l1_right] l=1 -> p_l2:(l'=2) + (1-p_l2):(l'=fail);
+ // from l2
+ [l2_down]  l=2 -> p_l5:(l'=5) + (1-p_l5):(l'=fail);
+ [l2_left]  l=2 -> p_l1:(l'=1) + (1-p_l1):(l'=fail);
+ [l2_right] l=2 -> p_l3:(l'=3) + (1-p_l3):(l'=fail);
+ // from l3
+ [l3_down]  l=3 -> p_l6:(l'=6) + (1-p_l6):(l'=fail);
+ [l3_left]  l=3 -> p_l2:(l'=2) + (1-p_l2):(l'=fail);
+  // from l4
+ [l4_up]  l=4 -> p_l1:(l'=1) + (1-p_l1):(l'=fail);
+ [l4_right] l=4 -> p_l5:(l'=5) + (1-p_l5):(l'=fail);
+ // from l5
+ [l5_up]  l=5 -> p_l2:(l'=2) + (1-p_l2):(l'=fail);
+ [l5_down]  l=5 -> p_l8:(l'=8) + (1-p_l8):(l'=fail);
+ [l5_left]  l=5 -> p_l4:(l'=4) + (1-p_l4):(l'=fail);
+ [l5_right] l=5 -> p_l6:(l'=6) + (1-p_l6):(l'=fail);
+ // from l6
+ [l6_up]  l=6 -> p_l3:(l'=3) + (1-p_l3):(l'=fail);
+ [l6_down]  l=6 -> p_l9:(l'=9) + (1-p_l9):(l'=fail);
+ [l6_left]  l=6 -> p_l5:(l'=5) + (1-p_l5):(l'=fail);
+ // from l7 - Obstacle
+ // from l8 (**goal location**)
+ [goalReached]  l=8 -> 1:(l'=8);
+ // from l9 
+ [l9_left] l=9 -> p_l8:(l'=8) + (1-p_l8):(l'=fail);
+ [l9_up]  l=9 -> p_l6:(l'=6) + (1-p_l6):(l'=fail);
+ 
+ // fail state
+ [fail] l=10 -> 1:(l'=10);
+endmodule
+

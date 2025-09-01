@@ -1,0 +1,96 @@
+// This DTMC models two robots and a human worker coordinated tasks to be completed in a vineyard.  
+// The human worker is tasked with completing task t1 at location l4.
+// Similarly, robot r1 is tasked with t2 at location l2; and robot r2 with t3 at location l8.
+// Tasks t2 and t3 consists of taking images of the vines at specific locations for their postprocessing
+// for vine identification.
+
+// The probability of each robot successfully transitioning from their initial location to their task
+// destination depends solving the planning problem for each robot, which is modelled separately.
+
+// Aim: Obtain what is the probability of mission success
+// P=?[F worker1=worker1Final & r1=r1Final & r2=r2Final]
+//--- Same as follows but labels from model in props not supported in Evochecker
+//label "success" = worker1=worker1Final & r1=r1Final & r2=r2Final ;
+// P=?[F "success"]
+//------------
+
+// What is the expected cost of the mission?
+// R=?[F ((worker1=worker1Final | worker1=worker1Fail) & (r1=r1Final | r1=r1Fail) & (r2=r2Final | r2=r2Fail))]
+//--- Same as follows but labels from model in props not supported in Evochecker
+// label "done" = ((worker1=worker1Final | worker1=worker1Fail) & (r1=r1Final | r1=r1Fail) & (r2=r2Final | r2=r2Fail));
+// R=?[F "done"]
+//---------------
+
+
+// ---- tests:
+// p_high 0.125343
+// p_low 0.081599999
+// p_r1 0.7746323440343755
+// p_r2 0.10963213235100001
+
+// synthesis 
+// 1,1,1 =  0.05069743587386166 
+// 5,5,5 = 0.0845913932952502
+// 20,20,20 = 0.08492457532896924
+//--------
+
+dtmc
+
+const int worker1_maxRetry_t1l4;
+const int r1_maxRetry_t2l2;
+const int r2_maxRetry_t3l8;
+
+const double p_worker1_t1l4=0.9;
+const double p_r1_t2l2=0.99;
+const double p_r2_t3l8=0.67;
+
+const double p_worker1_travel=1;
+const double p_r1_travel;
+const double p_r2_travel;
+
+
+const int worker1Final = 2;
+const int worker1Fail = 3;
+const int r1Final = 2;
+const int r1Fail = 3;
+const int r2Final = 2;
+const int r2Fail = 3;
+
+module _worker1
+  worker1 : [0..4];
+  worker1retry_t1l4 : [0..worker1_maxRetry_t1l4] init 0;
+
+  [worker1movel4] worker1=0-> p_worker1_travel:(worker1'=0+1) + (1-p_worker1_travel): (worker1'=worker1Fail);
+  [worker1dot1l4Retry] worker1=1 & worker1retry_t1l4 < worker1_maxRetry_t1l4 -> p_worker1_t1l4 : (worker1'=worker1+1) + (1-p_worker1_t1l4) : (worker1'=worker1) & (worker1retry_t1l4' = worker1retry_t1l4+1);
+  [worker1dot1l4] worker1=1 & worker1retry_t1l4 >= worker1_maxRetry_t1l4 -> 1:(worker1'=worker1Fail);
+endmodule
+
+module _r1
+  r1 : [0..4];
+  r1retry_t2l2 : [0..r1_maxRetry_t2l2] init 0;
+
+  [r1movel2] r1=0-> p_r1_travel:(r1'=0+1) + (1-p_r1_travel): (r1'=r1Fail);
+  [r1dot2l2Retry] r1=1 & r1retry_t2l2 < r1_maxRetry_t2l2 -> p_r1_t2l2 : (r1'=r1+1) + (1-p_r1_t2l2) : (r1'=r1) & (r1retry_t2l2' = r1retry_t2l2+1);
+  [r1dot2l2] r1=1 & r1retry_t2l2 >= r1_maxRetry_t2l2 -> 1:(r1'=r1Fail);
+endmodule
+
+module _r2
+  r2 : [0..4];
+  r2retry_t3l8 : [0..r2_maxRetry_t3l8] init 0;
+
+  [r2movel8] r2=0-> p_r2_travel:(r2'=0+1) + (1-p_r2_travel): (r2'=r1Fail);
+  [r2dot3l8Retry] r2=1 & r2retry_t3l8 < r2_maxRetry_t3l8 -> p_r2_t3l8 : (r2'=r2+1) + (1-p_r2_t3l8) : (r2'=r2) & (r2retry_t3l8' = r2retry_t3l8+1);
+  [r2dot3l8] r2=1 & r2retry_t3l8 >= r2_maxRetry_t3l8 -> 1:(r2'=r2Fail);
+endmodule
+
+rewards "cost"
+  [worker1movel4] true:1;
+  [worker1dot1l4] true:3;
+  [worker1dot1l4Retry] true:3;
+  [r1movel2] true:1;
+  [r1dot2l2] true:1;
+  [r1dot2l2Retry] true:1;
+  [r2movel8] true:1;
+  [r2dot3l8] true:1;
+  [r2dot3l8Retry] true:1;
+endrewards

@@ -1,0 +1,49 @@
+// This DTMC models a collision detection system that triggers an alarm if a collision with an obstacle
+// is detected when it is activated. The sensor is activated every time the robot enterns a new room.
+// The DTMC only models what happens during the transit of the robot in one room.
+// 
+// When the sensor is activated, it needs to deal with one of three situations:
+// - no collision detected in the area monitored by the sensor
+// - a collision is detected (probability is an external parameter)
+//
+// The sensor is imperfect, and its collision-detection ability is influenced by how well lit the area is.
+// Three levels of lighting are possible: low, medium and high - with probabilities pLow, pMed and pHigh, 
+// such that pLow + pMed + pHigh = 1. These three probabilities are external parameters from recorded
+// data of the lightning conditions, which depends on the weather.
+//
+// The probabilities that the sensor reports an obstacle collision for the different combinations 
+// of situations and lighting levels are as follows:
+//
+//  situation       low_light    med_light    high_light 
+//  -------------------------------------------------------
+//  no collision    0.1          0.02          0
+//  collision       0.1          0.4           0.999
+//
+//  We want to obtain the probability of collision when the system uses this sensor
+//  P=?[F (step=2 & collision=1 & detected)]
+
+dtmc
+
+
+const double pLow = 0.8;
+const double pMed = 0.1;
+const double pHigh=1-pLow-pMed;
+
+// External parameters
+const double pObjectCollision = 0.57;
+
+
+module Sensor
+  step : [0..2] init 0;
+  collision : [0..1]; // 0 = no collision; 1 = small collision; 2 = large collision
+  detected : bool;
+  
+  [] step=0 -> (1-pObjectCollision):(step'=1)&(collision'=0) + pObjectCollision:(step'=1)&(collision'=1);
+
+  [] step=1 & collision=0 -> (pLow*0.1 + pMed*0.02 + pHigh*0):(step'=2)&(detected'=true) +
+                          (1 - (pLow*0.1 + pMed*0.02 + pHigh*0)):(step'=2)&(detected'=false);  
+  [] step=1 & collision=1 -> (pLow*0.1 + pMed*0.4 + pHigh*0.999):(step'=2)&(detected'=true) +
+                          (1 - (pLow*0.1 + pMed*0.4 + pHigh*0.999)):(step'=2)&(detected'=false);  
+
+  [] step=2 -> true;
+endmodule

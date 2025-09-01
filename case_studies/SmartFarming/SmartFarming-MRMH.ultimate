@@ -1,0 +1,109 @@
+{"models": {
+    "robot1": {
+        "synthesis": {"properties": []},
+        "fileName": "robot1.mdp",
+        "id": "robot1",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "p_collisionDetected_low": {
+                    "modelId": "CollisionSensorLowRisk",
+                    "name": "p_collisionDetected_low",
+                    "property": "Pmax=?[F success]"
+                },
+                "p_collisionDetected_high": {
+                    "modelId": "CollisionSensorHighRisk",
+                    "name": "p_collisionDetected_high",
+                    "property": "Pmax=?[F success]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "MRMHsystem": {
+        "synthesis": {"properties": [
+            "Objective, max: P=?[F worker1=worker1Final & r1=r1Final & r2=r2Final]",
+            "Objective, min: R=?[F ((worker1=worker1Final | worker1=worker1Fail) & (r1=r1Final | r1=r1Fail) & (r2=r2Final | r2=r2Fail))]"
+        ]},
+        "fileName": "MRMHsystem.prism",
+        "id": "MRMHsystem",
+        "parameters": {
+            "environment": {},
+            "internal": {
+                "r1_maxRetry_t2l2": {
+                    "min": "1",
+                    "max": "5",
+                    "name": "r1_maxRetry_t2l2"
+                },
+                "worker1_maxRetry_t1l4": {
+                    "min": "1",
+                    "max": "5",
+                    "name": "worker1_maxRetry_t1l4"
+                },
+                "r2_maxRetry_t3l8": {
+                    "min": "1",
+                    "max": "5",
+                    "name": "r2_maxRetry_t3l8"
+                }
+            },
+            "dependency": {
+                "p_r1_travel": {
+                    "modelId": "robot1",
+                    "name": "p_r1_travel",
+                    "property": "Pmax=?[F success]"
+                },
+                "p_r2_travel": {
+                    "modelId": "robot2",
+                    "name": "p_r2_travel",
+                    "property": "Pmax=?[F success]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "CollisionSensorLowRisk": {
+        "synthesis": {"properties": []},
+        "fileName": "CollisionSensorLowRisk.prism",
+        "id": "CollisionSensorLowRisk",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["P=?[F (step=2 & collision=1 & detected)]"]
+    },
+    "CollisionSensorHighRisk": {
+        "synthesis": {"properties": []},
+        "fileName": "CollisionSensorHighRisk.prism",
+        "id": "CollisionSensorHighRisk",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["P=?[F (step=2 & collision=1 & detected)]"]
+    },
+    "robot2": {
+        "synthesis": {"properties": []},
+        "fileName": "robot2.mdp",
+        "id": "robot2",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "p_collisionDetected_low": {
+                    "modelId": "CollisionSensorLowRisk",
+                    "name": "p_collisionDetected_low",
+                    "property": "Pmax=?[F success]"
+                },
+                "p_collisionDetected_high": {
+                    "modelId": "CollisionSensorHighRisk",
+                    "name": "p_collisionDetected_high",
+                    "property": "Pmax=?[F success]"
+                }
+            }
+        },
+        "properties": []
+    }
+}}
