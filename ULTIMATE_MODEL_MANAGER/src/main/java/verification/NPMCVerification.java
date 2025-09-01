@@ -19,6 +19,8 @@ import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 public class NPMCVerification {
 
@@ -145,7 +147,16 @@ public class NPMCVerification {
                         logger.info("  Processing dependency: " + dep);
                         logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
                         String result = verifyModel(targetModel, dep.getDefinition());
-                        model.setDependencyParameter(dep.getNameInModel(), result);
+                        if (dep.sanityCheck(result)) {
+                            model.setDependencyParameter(dep.getNameInModel(), result);
+                        } else {
+                            throw new RuntimeException(String.format(
+                                    "A dependency parameter (%s) resolved with an impossible value (%s: %s)."
+                                            + "This is probably due to an issue with an issue higher in the dependency tree,"
+                                            + "the root of which is source model %s",
+                                    dep.getNameInModel(), dep.getDefinition(), result,
+                                    dep.getSourceModel().getModelId()));
+                        }
                     } else {
                         logger.info("  Skipping dependency: " + dep + " (same SCC)");
                     }
@@ -506,8 +517,15 @@ public class NPMCVerification {
             logger.error("Model not found: " + model.getModelId());
             throw new IllegalArgumentException("Model not found: " + model.getModelId());
         }
-        // Don't know how this is meant to work. I think it's a substitute for an
-        // if-statement??? -- BDH
+
+        String paramDebugString = originalModel.getHashParameters().values().stream().map(p -> {
+            try {
+                return String.format("%s (%s) : %s", p.getNameInModel(), p.getClass(), p.getValue());
+            } catch (Exception e) {
+                return null;
+            }
+        }).collect(Collectors.joining("\n"));
+        // System.out.println(String.format("Parameters for %s:\n%s", model.getModelId(), paramDebugString));
         try {
             FileUtils.writeParametersToFile(originalModel.getVerificationFilePath(), originalModel.getHashParameters());
         } catch (IOException e) {

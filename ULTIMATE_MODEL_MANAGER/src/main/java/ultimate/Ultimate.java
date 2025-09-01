@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +24,10 @@ import javafx.collections.ObservableList;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.core.Variable;
+import jmetal.util.JMException;
 import model.Model;
 import parameters.IStaticParameter;
+import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
 import property.Property;
@@ -46,7 +49,8 @@ public class Ultimate {
     private String objectivesConstraints;
 
     private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
-    // private HashMap<String, String> externalParameterValuesHashMap = new HashMap<>();
+    // private HashMap<String, String> externalParameterValuesHashMap = new
+    // HashMap<>();
 
     private EvoChecker evoChecker;
     private Path evolvableProjectFilePath;
@@ -74,19 +78,6 @@ public class Ultimate {
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
-
-    // public void setProject(Project project) {
-    // this.project = project;
-    // this.projectFilePath = project.getPath();
-    // }
-
-    // public void loadProjectFromFile(String filepath) throws IOException {
-    // this.projectFilePath = filepath;
-    // project = new Project(filepath);
-    // // issue is that the project import requires the project path which is only
-    // initialised AFTER the project is loaded.
-    // this.setProject(project);
-    // }
 
     public void loadModelsFromProject() {
         models = new ArrayList<>();
@@ -343,19 +334,6 @@ public class Ultimate {
 
     }
 
-    // public String getProjectFilePath() {
-    // return projectFilePath;
-    // }
-
-    // public String getProjectDirectoryPath(){
-    // if (projectFilePath == null) {
-    // return null;
-    // }
-    // Path path = Paths.get(projectFilePath);
-    // Path parent = path.getParent();
-    // return parent != null ? parent.toString() : null;
-    // }
-
     public String getTargetModelId() {
         return targetModel.getModelId();
     }
@@ -390,35 +368,74 @@ public class Ultimate {
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
         SolutionSet evoSolutions = evoChecker.getSolutions();
         // List<String> internalParameterNames = evoChecker.getInternalParameterNames();
-        // int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
+        // int numberInternalParameters =
+        // evoSolutions.get(0).getDecisionVariables().length;
 
+        
         // TODO: why is the structure of the solutions so strange? Fix.
         for (int i = 0; i < evoSolutions.size(); i++) {
             Solution s = evoSolutions.get(i);
             HashMap<String, String> r = new HashMap<>();
+
+            ArrayReal variableContainingDoubles = (ArrayReal) s.getDecisionVariables()[0];
+            ArrayInt variableContainingInts = (ArrayInt) s.getDecisionVariables()[1];
+
+            int doubleCounter = 0;
+            int intCounter = 0;
+
+
             for (int j = 0; j < models.size(); j++) {
                 Model m = models.get(j);
-                for (int k = 0; k < m.getInternalParameters().size(); k++) {
-
-                    try {
-                        Variable var = s.getDecisionVariables()[j];
-                        Object value;
-
-                        if (var instanceof ArrayInt) {
-                            value = ((ArrayInt) var).getValue(k);
-                        } else if (var instanceof ArrayReal) {
-                            value = ((ArrayReal) var).getValue(k);
-                        } else {
-                            value = var instanceof Variable ? ((Variable) var).getValue() : var;
-                        }
-
-                        r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
-                    } catch (Exception e) {
-                        System.out.println(String.format("%s %s %s\n\n%s\n\n%s", i, j, k, m.getInternalParameters(),
-                                models.stream().map(Model::getModelId).collect(Collectors.toList())));
-                        throw new RuntimeException(e);
-                    }
+                if (m.getInternalParameters().size() == 0) {
+                    continue;
                 }
+                for (int k = doubleCounter; k < doubleCounter
+                        + m.getInternalParameters().size(); k++) {
+                    try {
+                        r.put(m.getInternalParameters().get(k).getNameInModel(),
+                                String.valueOf(variableContainingDoubles.getValue(doubleCounter)));
+                    } catch (JMException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+
+                // System.out.println(m.getInternalParameters().stream().map(InternalParameter::getNameInModel)
+                //         .collect(Collectors.toList()));
+                // System.out.println(s.getDecisionVariables().length);
+                // decisionVariableIndexCounter++;
+
+                // // each s.getDecisionVariables will be of length 2 (real, int)
+                // // then real will contain all reals from across the world model
+                // // int will contain all ints
+
+                // for (int k = 0; k < m.getInternalParameters().size(); k++) {
+                //     try {
+                //         Object value;
+                //         if (var instanceof ArrayInt) {
+                //             if (((ArrayInt) var).getLength() == 0) {
+                //                 continue;
+                //             }
+                //             System.out.println("ArrayInt: " + (ArrayInt) var);
+                //             value = ((ArrayInt) var).getValue(k);
+                //         } else if (var instanceof ArrayReal) {
+                //             if (((ArrayReal) var).getLength() == 0) {
+                //                 continue;
+                //             }
+                //             System.out.println("ArrayReal: " + (ArrayReal) var);
+                //             value = ((ArrayReal) var).getValue(k);
+                //         } else {
+                //             throw new RuntimeException("Variable type not recognised: " + var.getVariableType());
+                //         }
+
+                //         r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
+                //     } catch (Exception e) {
+                //         System.out.println(String.format("%s %s %s\n\n%s\n\n%s", i, j, k, m.getInternalParameters(),
+                //                 models.stream().map(Model::getModelId).collect(Collectors.toList())));
+                //         throw new RuntimeException(e);
+                //     }
+                // }
             }
             results.add(r);
         }
