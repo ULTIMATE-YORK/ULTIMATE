@@ -10,12 +10,12 @@
                 "p_collisionDetected_low": {
                     "modelId": "CollisionSensorLowRisk",
                     "name": "p_collisionDetected_low",
-                    "property": "Pmax=?[F success]"
+                    "property": "P=?[F (step=2 & collision=1 & detected)]"
                 },
                 "p_collisionDetected_high": {
                     "modelId": "CollisionSensorHighRisk",
                     "name": "p_collisionDetected_high",
-                    "property": "Pmax=?[F success]"
+                    "property": "P=?[F (step=2 & collision=1 & detected)]"
                 }
             }
         },
@@ -95,12 +95,12 @@
                 "p_collisionDetected_low": {
                     "modelId": "CollisionSensorLowRisk",
                     "name": "p_collisionDetected_low",
-                    "property": "Pmax=?[F success]"
+                    "property": "P=?[F (step=2 & collision=1 & detected)]"
                 },
                 "p_collisionDetected_high": {
                     "modelId": "CollisionSensorHighRisk",
                     "name": "p_collisionDetected_high",
-                    "property": "Pmax=?[F success]"
+                    "property": "P=?[F (step=2 & collision=1 & detected)]"
                 }
             }
         },
