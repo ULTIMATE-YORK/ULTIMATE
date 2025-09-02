@@ -888,6 +888,7 @@ public class PropertiesController {
 
 			appendPopUpContents("Running synthesis...");
 			ultimate.executeSynthesis();
+			ultimate.writeSynthesisResultsToFile();
 			ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
 			ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
 

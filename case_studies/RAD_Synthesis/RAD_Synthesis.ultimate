@@ -1,0 +1,175 @@
+{"models": {
+    "perceive-user": {
+        "synthesis": {"properties": ["Objective, max: P=?[F true]"]},
+        "fileName": "perceive-user.dtmc",
+        "id": "perceive-user",
+        "parameters": {
+            "environment": {
+                "p2_ok_correct": {
+                    "name": "p2_ok_correct",
+                    "type": "mean",
+                    "value": "p2_ok_correct.dat"
+                },
+                "p1_notok_verified": {
+                    "name": "p1_notok_verified",
+                    "type": "mean",
+                    "value": "p1_notok_verified.dat"
+                },
+                "p2_notok_correct": {
+                    "name": "p2_notok_correct",
+                    "type": "mean",
+                    "value": "p2_notok_correct.dat"
+                },
+                "p1_ok_verified": {
+                    "name": "p1_ok_verified",
+                    "type": "mean",
+                    "value": "p1_ok_verified.dat"
+                },
+                "p1_notok_false_correct": {
+                    "name": "p1_notok_false_correct",
+                    "type": "mean",
+                    "value": "p1_notok_false_correct.dat"
+                },
+                "p1_ok_correct": {
+                    "name": "p1_ok_correct",
+                    "type": "mean",
+                    "value": "p1_ok_correct.dat"
+                },
+                "p1_ok_false_correct": {
+                    "name": "p1_ok_false_correct",
+                    "type": "mean",
+                    "value": "p1_ok_false_correct.dat"
+                },
+                "p1_ok_true_correct": {
+                    "name": "p1_ok_true_correct",
+                    "type": "mean",
+                    "value": "p1_ok_true_correct.dat"
+                },
+                "p1_notok_true_correct": {
+                    "name": "p1_notok_true_correct",
+                    "type": "mean",
+                    "value": "p1_notok_true_correct.dat"
+                },
+                "p1_notok_correct": {
+                    "name": "p1_notok_correct",
+                    "type": "mean",
+                    "value": "p2_notok_correct.dat"
+                }
+            },
+            "internal": {
+                "wModel1_2": {
+                    "min": "0",
+                    "max": "1",
+                    "name": "wModel1_2"
+                },
+                "wModel2": {
+                    "min": "0",
+                    "max": "1",
+                    "name": "wModel2"
+                },
+                "wModel1": {
+                    "min": "0",
+                    "max": "1",
+                    "name": "wModel1"
+                }
+            },
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "pick-garment": {
+        "synthesis": {"properties": [
+            "Constraint, min, 0.900000: P=?[F[0,90] s=1]",
+            "Objective, min: R{\"energy\"}=?[F s=1 | s=3]"
+        ]},
+        "fileName": "pick-garment.ctmc",
+        "id": "pick-garment",
+        "parameters": {
+            "environment": {
+                "rRecal": {
+                    "name": "rRecal",
+                    "type": "fixed",
+                    "value": "0.3"
+                },
+                "pSucc": {
+                    "name": "pSucc",
+                    "type": "mean",
+                    "value": "pSucc.dat"
+                },
+                "rPick": {
+                    "name": "rPick",
+                    "type": "mean-rate",
+                    "value": "rPick.dat"
+                }
+            },
+            "internal": {"pRetry": {
+                "min": "0",
+                "max": "1",
+                "name": "pRetry"
+            }},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "dressing-workflow": {
+        "synthesis": {"properties": [
+            "Objective, min: Pmax=?[F s=6]",
+            "Objective, min: Pmin=?[F s=6]"
+        ]},
+        "fileName": "dressing-workflow.pomdp",
+        "id": "dressing-workflow",
+        "parameters": {
+            "environment": {
+                "pDressNotOkFast": {
+                    "name": "pDressNotOkFast",
+                    "type": "bayes",
+                    "value": "pDressNotOkFast_Bayes.dat"
+                },
+                "pDressNotOkSlow": {
+                    "name": "pDressNotOkSlow",
+                    "type": "bayes",
+                    "value": "pDressNotOkSlow_Bayes.dat"
+                },
+                "pRetryAllowed": {
+                    "name": "pRetryAllowed",
+                    "type": "bayes",
+                    "value": "pRetryAllowed_Bayes.dat"
+                },
+                "pDressOkFast": {
+                    "name": "pDressOkFast",
+                    "type": "bayes",
+                    "value": "pDressOkFast_Bayes.dat"
+                },
+                "pDressOkSlow": {
+                    "name": "pDressOkSlow",
+                    "type": "bayes",
+                    "value": "pDressOkSlow_Bayes.dat"
+                },
+                "pOk": {
+                    "name": "pOk",
+                    "type": "fixed",
+                    "value": "0.6"
+                }
+            },
+            "internal": {},
+            "dependency": {
+                "pOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pOkCorrect",
+                    "property": "P=?[F s=4 & ok & predOk]"
+                },
+                "pPickGarment": {
+                    "modelId": "pick-garment",
+                    "name": "pPickGarment",
+                    "property": "P=?[F [0,90] s=1]"
+                },
+                "pNotOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pNotOkCorrect",
+                    "property": "P=?[F s=4 & !ok & !predOk]"
+                }
+            }
+        },
+        "properties": []
+    }
+}}

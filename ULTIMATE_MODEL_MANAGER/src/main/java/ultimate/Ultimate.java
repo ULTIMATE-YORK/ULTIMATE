@@ -1,5 +1,8 @@
 package ultimate;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -365,81 +368,33 @@ public class Ultimate {
 
     public ArrayList<HashMap<String, String>> getSynthesisParetoSet() {
 
+        String fileName = evoChecker.getParetoSetFileName();
+        System.out.println("filename: "+ fileName);
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
-        SolutionSet evoSolutions = evoChecker.getSolutions();
-        // List<String> internalParameterNames = evoChecker.getInternalParameterNames();
-        // int numberInternalParameters =
-        // evoSolutions.get(0).getDecisionVariables().length;
 
-        
-        // TODO: why is the structure of the solutions so strange? Fix.
-        for (int i = 0; i < evoSolutions.size(); i++) {
-            Solution s = evoSolutions.get(i);
-            HashMap<String, String> r = new HashMap<>();
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
 
-            ArrayReal variableContainingDoubles = (ArrayReal) s.getDecisionVariables()[0];
-            ArrayInt variableContainingInts = (ArrayInt) s.getDecisionVariables()[1];
+            // Read header
+            String headerLine = br.readLine();
+            String[] columnNames = headerLine.trim().split("\\s+");
 
-            int doubleCounter = 0;
-            int intCounter = 0;
-
-
-            for (int j = 0; j < models.size(); j++) {
-                Model m = models.get(j);
-                if (m.getInternalParameters().size() == 0) {
-                    continue;
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty())
+                    continue; // skip empty lines
+                String[] tokens = line.trim().split("\\s+");
+                HashMap<String, String> rowMap = new HashMap<>();
+                for (int i = 0; i < tokens.length; i++) {
+                    rowMap.put(columnNames[i], tokens[i]);
                 }
-                for (int k = doubleCounter; k < doubleCounter
-                        + m.getInternalParameters().size(); k++) {
-                    try {
-                        r.put(m.getInternalParameters().get(k).getNameInModel(),
-                                String.valueOf(variableContainingDoubles.getValue(doubleCounter)));
-                    } catch (JMException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-
-
-                // System.out.println(m.getInternalParameters().stream().map(InternalParameter::getNameInModel)
-                //         .collect(Collectors.toList()));
-                // System.out.println(s.getDecisionVariables().length);
-                // decisionVariableIndexCounter++;
-
-                // // each s.getDecisionVariables will be of length 2 (real, int)
-                // // then real will contain all reals from across the world model
-                // // int will contain all ints
-
-                // for (int k = 0; k < m.getInternalParameters().size(); k++) {
-                //     try {
-                //         Object value;
-                //         if (var instanceof ArrayInt) {
-                //             if (((ArrayInt) var).getLength() == 0) {
-                //                 continue;
-                //             }
-                //             System.out.println("ArrayInt: " + (ArrayInt) var);
-                //             value = ((ArrayInt) var).getValue(k);
-                //         } else if (var instanceof ArrayReal) {
-                //             if (((ArrayReal) var).getLength() == 0) {
-                //                 continue;
-                //             }
-                //             System.out.println("ArrayReal: " + (ArrayReal) var);
-                //             value = ((ArrayReal) var).getValue(k);
-                //         } else {
-                //             throw new RuntimeException("Variable type not recognised: " + var.getVariableType());
-                //         }
-
-                //         r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
-                //     } catch (Exception e) {
-                //         System.out.println(String.format("%s %s %s\n\n%s\n\n%s", i, j, k, m.getInternalParameters(),
-                //                 models.stream().map(Model::getModelId).collect(Collectors.toList())));
-                //         throw new RuntimeException(e);
-                //     }
-                // }
+                results.add(rowMap);
             }
-            results.add(r);
-        }
+            br.close();
 
+        } catch (IOException e) {
+            System.err.println("The pareto set file was not found or could not be opened.");
+        }
         return results;
 
     }

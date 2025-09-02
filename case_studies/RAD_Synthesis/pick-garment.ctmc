@@ -1,0 +1,21 @@
+ctmc
+
+const double rPick; // garment picking rate 
+const double rRecal; // recalibration rate
+const double pSucc; // successful picking probability
+const double pRetry; // retry probability - INTERNAL PARAMETER
+
+module pickGarment
+ s : [0..3] init 0; // 0 - initial, 1 - success, 2 - recalibration, 3 - failure
+ 
+ [try]  s=0 -> pSucc*rPick:(s'=1) + (1-pSucc)*rPick*pRetry:(s'=2) + (1-pSucc)*rPick*(1-pRetry):(s'=3);
+ [succ] s=1 -> true;
+ [recal] s=2 -> rRecal:(s'=0);
+ [fail] s=3 -> true;
+endmodule
+
+rewards "energy"
+	s=0: 27; // power use while picking garment
+	s=2: 8;  // power use during recalibration
+endrewards
+
