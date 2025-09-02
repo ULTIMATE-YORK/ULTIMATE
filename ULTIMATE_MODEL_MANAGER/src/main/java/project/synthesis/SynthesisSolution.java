@@ -7,18 +7,18 @@ public class SynthesisSolution {
 
     private final String runId;
     private final String solutionId;
-    private final String modelId;
+    private final String worldModelName;
     private final HashMap<String, String> internalParameterValues; 
     private final HashMap<String, String> objectiveValues;
     private final List<String> objectives;
     private final List<String> constraints;
 
-    public SynthesisSolution(String runId, String solutionId, String model, List<String> objectives,
+    public SynthesisSolution(String runId, String solutionId, String worldModelName, List<String> objectives,
             List<String> constraints,
             HashMap<String, String> internalParameterValues, HashMap<String, String> objectiveValues) {
         this.runId = runId;
         this.solutionId = solutionId;
-        this.modelId = model;
+        this.worldModelName = worldModelName;
         this.objectives = objectives;
         this.constraints = constraints;
         this.internalParameterValues = internalParameterValues;
@@ -58,14 +58,14 @@ public class SynthesisSolution {
         return constraints;
     }
 
-    public String getModelId() {
-        return modelId;
+    public String getWorldModelName() {
+        return worldModelName;
     }
 
     public String getDisplayString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Synthesis Result %s-%s - Model '%s'",runId, solutionId, modelId));
+        sb.append(String.format("Synthesis Result %s-%s - Model '%s'",runId, solutionId, worldModelName));
         // sb.append(String.format("\nConstraints (%d):",
         // constraints.size())).append(String.join("\n", constraints));
         sb.append(String.format("\nObjectives (%d): ", objectives.size()));

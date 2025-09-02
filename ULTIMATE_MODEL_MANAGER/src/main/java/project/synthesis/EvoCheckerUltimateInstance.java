@@ -31,7 +31,8 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         ultimate.resetResults();
     }
 
-    public void execute() {
+    // TODO: in EvoChecker - throw an exception 
+    public void execute(){
         try {
             ultimate.executeVerification();
         } catch (Exception e) {

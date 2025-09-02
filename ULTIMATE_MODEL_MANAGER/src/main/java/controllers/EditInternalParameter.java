@@ -13,13 +13,9 @@ import utils.Alerter;
 public class EditInternalParameter {
 
 	@FXML
-	private ChoiceBox<String> type;
-	@FXML
 	private TextField min;
 	@FXML
 	private TextField max;
-	@FXML
-	private TextField interval;
 	@FXML
 	private Button saveButton;
 	@FXML
@@ -31,16 +27,14 @@ public class EditInternalParameter {
 
 	@FXML
 	public void initialize() {
-		type.getItems().addAll("int range", "int set", "double range", "bool", "distribution");
+
 	}
 
 	@FXML
 	private void saveIParam() {
-		String typeValue = type.getValue();
 		String min = this.min.getText();
 		String max = this.max.getText();
-		Double interval = Double.parseDouble(this.interval.getText());
-		if (typeValue == null || min == null || max == null || interval == null) {
+		if (min == null || max == null) {
 			Alerter.showErrorAlert("Invalid Parameter", "Please define all parameters!");
 			return;
 		} else {

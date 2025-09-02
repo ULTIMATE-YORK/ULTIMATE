@@ -21,6 +21,7 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
@@ -266,8 +267,6 @@ public class PropertiesController {
 
 	@FXML
 	private void verify() throws IOException {
-		// verificationResult = "";
-		// verificationCount = 1;
 
 		Model vModel = project.getTargetModel();
 		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
@@ -287,6 +286,7 @@ public class PropertiesController {
 		Stage modalStage = createPopUpStage("Verification in Progress",
 				"Verifying property " + vProp.getDefinition() + " of model " + vModel.getModelId());
 		modalStage.show();
+		modalProgress.setVisible(true);
 
 		CompletableFuture.runAsync(() -> {
 			try {
@@ -838,7 +838,6 @@ public class PropertiesController {
 	}
 
 	@FXML
-	// TODO: this doesn't work if I run it twice in a row
 	public void synthesise() {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
@@ -860,80 +859,84 @@ public class PropertiesController {
 		}
 
 		Stage modalStage = createPopUpStage("Synthesis in Progress",
-				"Running synthesis for " + currentModelId);
+				"Running synthesis for " + project.getProjectName());
 		modalStage.show();
+		modalProgress.setVisible(true);
 
-		CompletableFuture.supplyAsync(() -> {
-			String runId = LocalDateTime.now()
-					.format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_" + currentModelId;
-			appendPopUpContents("\nInitialising models...");
-			ultimate.loadModelsFromProject();
-			ultimate.setTargetModelById(currentModelId);
-			appendPopUpContents("Generating model files...");
-			ultimate.generateEvolvableModelFiles();
-			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
-			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
-			appendPopUpContents("Initialising EvoChecker...");
-			ultimate.createEvoCheckerInstance(ultimateInstance);
-			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
-			if (plotSynthesisCheckBox.isSelected()) {
-				boolean plottingPossible = 0 < project.getAllSynthesisObjectives().size() &&
-						project.getAllSynthesisObjectives().size() < 3 ? true : false;
-				ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(plottingPossible);
-			} else {
-				System.out.println(
-						"Plotting is not possible as the world model has less than 2 or more than 3 synthesis objectives.");
-				ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(false);
-			}
+		// TODO: communicate that plotting is only possible for 2 or 3 OCs
+		final boolean plotting = plotSynthesisCheckBox.isSelected();
 
-			appendPopUpContents("Running synthesis...");
-			ultimate.executeSynthesis();
-			ultimate.writeSynthesisResultsToFile();
-			ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
-			ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
+		Task<String> task = new Task<>() {
 
-			appendPopUpContents("Synthesis complete.\nCompiling results...");
+			@Override
+			protected String call() throws Exception {
 
-			ObservableList<SynthesisSolution> runResult = FXCollections.observableArrayList();
-			for (int i = 0; i < synthesisFront.size(); i++) {
+				String runId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_"
+						+ project.getProjectName();
 
-				HashMap<String, String> internalParameterValues = synthesisSet.get(i);
-				HashMap<String, String> objectiveValues = synthesisFront.get(i);
+				String message = "Initialising...";
+				updateMessage(message);
+				ultimate.loadModelsFromProject();
+				ultimate.initialiseSynthesis();
 
-				SynthesisSolution solution = new SynthesisSolution(
-						runId,
-						Integer.toString(i),
-						currentModelId,
-						ultimate.getEvoCheckerInstance().getObjectives().stream()
-								.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
-						ultimate.getEvoCheckerInstance().getConstraints().stream()
-								.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
-						internalParameterValues,
-						objectiveValues);
+				message += "\nRunning synthesis...";
+				updateMessage(message);
 
-				runResult.add(solution);
-			}
-			return runResult;
-
-		}).thenAccept(runResult ->
-
-		{
-			allSynthesisDisplayResults.addAll(runResult);
-			Platform.runLater(() -> {
-				modalStage.close();
+				ultimate.executeSynthesis();
 				ultimate.writeSynthesisResultsToFile();
-			});
-		}).exceptionally(e -> {
-			e.printStackTrace();
 
+				ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
+				ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
+
+				message += "\nSynthesis compelte";
+				updateMessage(message);
+
+				List<SynthesisSolution> runResult = new ArrayList<>();
+				for (int i = 0; i < synthesisFront.size(); i++) {
+
+					HashMap<String, String> internalParameterValues = synthesisSet.get(i);
+					HashMap<String, String> objectiveValues = synthesisFront.get(i);
+
+					SynthesisSolution solution = new SynthesisSolution(
+							runId,
+							Integer.toString(i),
+							project.getProjectName(),
+							ultimate.getEvoCheckerInstance().getObjectives().stream()
+									.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
+							ultimate.getEvoCheckerInstance().getConstraints().stream()
+									.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
+							internalParameterValues,
+							objectiveValues);
+
+					runResult.add(solution);
+				}
+
+				Platform.runLater(() -> {
+					allSynthesisDisplayResults.addAll(runResult);
+					modalStage.close();
+					if (plotting){
+						ultimate.plotParetoFront();
+					}
+				});
+
+				return "Synthesis complete.";
+
+			}
+
+		};
+
+		task.setOnFailed(event -> {
+			Throwable e = task.getException();
+			e.printStackTrace();
 			Platform.runLater(() -> {
 				appendPopUpContents("An error occurred during synthesis.\n" + e);
+				modalProgress.setVisible(false);
 			});
+		});
 
-			return null;
-		}
+		modalLabel.textProperty().bind(task.messageProperty());
 
-		);
+		new Thread(task).start();
 
 	}
 

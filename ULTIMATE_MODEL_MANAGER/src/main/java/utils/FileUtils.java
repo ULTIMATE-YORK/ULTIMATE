@@ -215,53 +215,41 @@ public class FileUtils {
 	}
 
 	public static String writeParametersToModelString(String filePath, List<ExternalParameter> externalParameters,
-			List<InternalParameter> internalParameters) {
+			List<InternalParameter> internalParameters) throws IOException {
 
 		Path path = Paths.get(filePath);
 		StringBuilder updatedContent = new StringBuilder();
 
-		try {
-			for (String line : Files.readAllLines(path)) {
+		for (String line : Files.readAllLines(path)) {
 
-				if (externalParameters != null) {
-					String epUpdate = findAndFillExternalParameter(line, externalParameters);
-					if (epUpdate != null) {
-						updatedContent.append(epUpdate).append(System.lineSeparator());
-						continue;
-					}
+			if (externalParameters != null) {
+				String epUpdate = findAndFillExternalParameter(line, externalParameters);
+				if (epUpdate != null) {
+					updatedContent.append(epUpdate).append(System.lineSeparator());
+					continue;
 				}
-
-				if (internalParameters != null) {
-					String ipUpdate = findAndFillInternalParameter(line, internalParameters);
-					if (ipUpdate != null) {
-						updatedContent.append(ipUpdate).append(System.lineSeparator());
-						continue;
-					}
-				}
-				updatedContent.append(line).append(System.lineSeparator());
 			}
-		} catch (Exception e) {
-			System.err.println("Error reading file: " + e.getMessage());
-			e.printStackTrace();
-			System.exit(1);
+
+			if (internalParameters != null) {
+				String ipUpdate = findAndFillInternalParameter(line, internalParameters);
+				if (ipUpdate != null) {
+					updatedContent.append(ipUpdate).append(System.lineSeparator());
+					continue;
+				}
+			}
+			updatedContent.append(line).append(System.lineSeparator());
 		}
 
 		return updatedContent.toString();
 	}
 
 	public static void writeParametersToFile(String filePath, List<ExternalParameter> externalParameters,
-			List<InternalParameter> internalParameters) {
+			List<InternalParameter> internalParameters) throws IOException {
 
 		Path path = Paths.get(filePath);
 		String fileString = writeParametersToModelString(filePath, externalParameters, internalParameters);
+		Files.write(path, fileString.getBytes());
 
-		try {
-			Files.write(path, fileString.getBytes());
-		} catch (Exception e) {
-			System.err.println("Error writing parameters to model file: " + e.getMessage());
-			e.printStackTrace();
-			System.exit(1);
-		}
 	}
 
 	// overflow for hashmaps

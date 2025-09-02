@@ -234,7 +234,7 @@
         </configuration>
       </plugin>
 
-      <plugin>
+      <!-- <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
         <executions>
@@ -255,7 +255,7 @@
             </goals>
           </execution>
         </executions>
-      </plugin>
+      </plugin> -->
 
       <!-- Copy Resources (Libraries and Runtime Files) -->
       <plugin>

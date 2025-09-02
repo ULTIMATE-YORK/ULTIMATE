@@ -100,7 +100,6 @@ public class Headless {
 		SharedContext.loadProjectFromPath(projectFilePath);
 		Ultimate ultimate = SharedContext.getUltimateInstance();
 		ultimate.loadModelsFromProject();
-		ultimate.setTargetModelById(modelID);
 
 		if (SharedContext.getProject().containsRangedParameters()) {
 			System.err.println(
@@ -115,16 +114,13 @@ public class Headless {
 			System.out.println(
 					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
 							+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
-			ultimate.generateEvolvableModelFiles();
-			String evolvableProjectFileDir = ultimate.getEvolvableProjectFilePath().toString();
-			EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(ultimate);
-			ultimate.createEvoCheckerInstance(ultimateInstance);
-			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
+			ultimate.initialiseSynthesis();
 			System.out.println("Running EvoChecker to synthesise parameters...");
 			ultimate.executeSynthesis();
 			ultimate.writeSynthesisResultsToFile();
 		} else {
 			System.out.println("Beginning a verification problem.");
+			ultimate.setTargetModelById(modelID);
 			ultimate.setVerificationProperty(property);
 			ultimate.executeVerification();
 		}

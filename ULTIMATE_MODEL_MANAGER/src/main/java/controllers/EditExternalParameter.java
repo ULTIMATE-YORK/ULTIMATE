@@ -142,7 +142,8 @@ public class EditExternalParameter {
 				project.getTargetModel().removeExternalParameter(ep);
 				project.getTargetModel()
 						.addExternalParameter(
-								new FixedExternalParameter(ep.getNameInModel(), value, project.getTargetModel().getModelId()));
+								new FixedExternalParameter(ep.getNameInModel(), value,
+										project.getTargetModel().getModelId()));
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
@@ -192,10 +193,14 @@ public class EditExternalParameter {
 				project.getTargetModel().removeExternalParameter(ep);
 				project.getTargetModel()
 						.addExternalParameter(
-								new FixedExternalParameter(ep.getNameInModel(), value, project.getTargetModel().getModelId()));
+								new LearnedExternalParameter(ep.getNameInModel(), type.toLowerCase(), dataFile,
+										project.getTargetModel().getModelId()));
 				closeDialog();
 			} catch (NumberFormatException e) {
 				Platform.runLater(() -> Alerter.showErrorAlert("Invalid File type", e.getMessage()));
+				closeDialog();
+			} catch (IOException e) {
+				Platform.runLater(() -> Alerter.showErrorAlert("Could not open file", e.getMessage()));
 				closeDialog();
 			}
 

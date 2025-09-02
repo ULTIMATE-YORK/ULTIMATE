@@ -33,6 +33,7 @@ import parameters.IStaticParameter;
 import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
+import project.synthesis.EvoCheckerUltimateInstance;
 import property.Property;
 import sharedContext.SharedContext;
 import utils.FileUtils;
@@ -93,19 +94,15 @@ public class Ultimate {
         verifier = new NPMCVerification(models);
     }
 
-    private void writeParametersToModelFiles() {
-        try {
-            for (Model m : models) {
-                m.setInternalParameterValuesFromMap(internalParameterValuesHashMap);
-                // m.setExternalParameterValuesFromMap(externalParameterValuesHashMap);
-                FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
-                        m.getInternalParameters());
-            }
-            modelParametersWritten = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
+    private void writeParametersToModelFiles() throws IOException {
+        for (Model m : models) {
+            m.setInternalParameterValuesFromMap(internalParameterValuesHashMap);
+            // m.setExternalParameterValuesFromMap(externalParameterValuesHashMap);
+            FileUtils.writeParametersToFile(m.getVerificationFilePath(), m.getExternalParameters(),
+                    m.getInternalParameters());
         }
+        modelParametersWritten = true;
+
     }
 
     public void setInternalParameterValuesMap(HashMap<String, String> internalParameterValuesHashMap) {
@@ -137,7 +134,7 @@ public class Ultimate {
         }
     }
 
-    public void generateEvolvableModelFiles() {
+    public void generateEvolvableModelFiles() throws IOException {
 
         Project project = SharedContext.getProject();
 
@@ -149,34 +146,26 @@ public class Ultimate {
             throw new RuntimeException("'Models' was null. Did you call .loadModelFromProject?");
         }
 
-        try {
+        Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
+        Path sourceProjectPath = Paths.get(project.getPath());
+        Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
+        evolvableProjectFilePath = targetProjectPath;
+        Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
 
-            Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
-            Path sourceProjectPath = Paths.get(project.getPath());
-            Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
-            evolvableProjectFilePath = targetProjectPath;
-            Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
+        // write the synthesis objectives into the temporary file
+        ProjectExporter exporter = new ProjectExporter(SharedContext.getProject());
+        exporter.saveExport(targetProjectPath.toString());
 
-            // write the synthesis objectives into the temporary file
-            ProjectExporter exporter = new ProjectExporter(SharedContext.getProject());
-            exporter.saveExport(targetProjectPath.toString());
+        for (Model m : models) {
 
-            for (Model m : models) {
+            Path sourceModelPath = sourceProjectPath.resolve(m.getFilePath());
+            Path targetModelPath = tempDir.resolve(sourceModelPath.getFileName());
+            Files.copy(sourceModelPath, targetModelPath, StandardCopyOption.REPLACE_EXISTING);
 
-                Path sourceModelPath = sourceProjectPath.resolve(m.getFilePath());
-                Path targetModelPath = tempDir.resolve(sourceModelPath.getFileName());
-                Files.copy(sourceModelPath, targetModelPath, StandardCopyOption.REPLACE_EXISTING);
-
-                FileUtils.writeEvolvablesToFile(targetModelPath.toString(), m.getInternalParameters());
-                FileUtils.writeParametersToFile(targetModelPath.toString(), m.getExternalParameters(),
-                        null);
-                FileUtils.writeDummyDependenciesToFile(targetModelPath.toString());
-            }
-
-        } catch (Exception e) {
-            System.err.println("Error generating evolvable model files: " + e.getMessage());
-            e.printStackTrace();
-            System.exit(1);
+            FileUtils.writeEvolvablesToFile(targetModelPath.toString(), m.getInternalParameters());
+            FileUtils.writeParametersToFile(targetModelPath.toString(), m.getExternalParameters(),
+                    null);
+            FileUtils.writeDummyDependenciesToFile(targetModelPath.toString());
         }
 
     }
@@ -369,7 +358,6 @@ public class Ultimate {
     public ArrayList<HashMap<String, String>> getSynthesisParetoSet() {
 
         String fileName = evoChecker.getParetoSetFileName();
-        System.out.println("filename: "+ fileName);
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
 
         try {
@@ -421,6 +409,24 @@ public class Ultimate {
 
     public Runnable getUpdateProgressCallback() {
         return updateCallback;
+    }
+
+    // TODO: remove this
+    public void setEvoCheckerPlotting(boolean plotting) {
+        evoChecker.setParetoFrontPlottingOn(plotting);
+    }
+
+    public void plotParetoFront(){
+        evoChecker.plotParetoFront();
+
+    }
+
+    public void initialiseSynthesis() throws IOException {
+        generateEvolvableModelFiles();
+        String evolvableProjectFileDir = getEvolvableProjectFilePath().toString();
+        EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(this);
+        createEvoCheckerInstance(ultimateInstance);
+        initialiseEvoCheckerInstance(evolvableProjectFileDir);
     }
 
 }
