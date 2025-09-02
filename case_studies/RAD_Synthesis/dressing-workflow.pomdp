@@ -25,10 +25,10 @@ module Workflow
   predOk : bool init true; // predicted state of the user
   
   [pick] s=1 -> pPickGarment:(s'=2) + (1-pPickGarment):(s'=6);
-  [obsv] s=2 -> pOk*pOkCorrect: (s'=3) & (predOk'=true) & (ok'=true)
-                + pOk*(1-pOkCorrect): (s'=3) & (predOk'=false) & (ok'=true) 
-                + (1-pOk)*pNotOkCorrect: (s'=3) & (predOk'=false) & (ok'=false)
-                + (1-pOk)*(1-pNotOkCorrect): (s'=3) & (predOk'=true) & (ok'=false);
+  [obsv] s=2 -> pOk*2*pOkCorrect: (s'=3) & (predOk'=true) & (ok'=true)
+                + pOk*(1-2*pOkCorrect): (s'=3) & (predOk'=false) & (ok'=true) 
+                + (1-pOk)*2*pNotOkCorrect: (s'=3) & (predOk'=false) & (ok'=false)
+                + (1-pOk)*(1-2*pNotOkCorrect): (s'=3) & (predOk'=true) & (ok'=false);
 
   // decision to be made: dress slowly (higher success probability, longer time) or at fast speed
   [dressSlow] s=3 & ok -> pDressOkSlow:(s'=5) + (1-pDressOkSlow):(s'=4);

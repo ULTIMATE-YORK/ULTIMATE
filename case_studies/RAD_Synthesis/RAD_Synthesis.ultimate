@@ -1,6 +1,6 @@
 {"models": {
     "perceive-user": {
-        "synthesis": {"properties": ["Objective, max: P=?[F true]"]},
+        "synthesis": {"properties": []},
         "fileName": "perceive-user.dtmc",
         "id": "perceive-user",
         "parameters": {
