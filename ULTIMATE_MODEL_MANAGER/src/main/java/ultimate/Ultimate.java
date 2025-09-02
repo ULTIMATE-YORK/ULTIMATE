@@ -1,11 +1,15 @@
 package ultimate;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +27,10 @@ import javafx.collections.ObservableList;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
 import jmetal.core.Variable;
+import jmetal.util.JMException;
 import model.Model;
 import parameters.IStaticParameter;
+import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
 import property.Property;
@@ -46,7 +52,8 @@ public class Ultimate {
     private String objectivesConstraints;
 
     private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
-    // private HashMap<String, String> externalParameterValuesHashMap = new HashMap<>();
+    // private HashMap<String, String> externalParameterValuesHashMap = new
+    // HashMap<>();
 
     private EvoChecker evoChecker;
     private Path evolvableProjectFilePath;
@@ -74,19 +81,6 @@ public class Ultimate {
     public void setVerbose(boolean verbose) {
         this.verbose = verbose;
     }
-
-    // public void setProject(Project project) {
-    // this.project = project;
-    // this.projectFilePath = project.getPath();
-    // }
-
-    // public void loadProjectFromFile(String filepath) throws IOException {
-    // this.projectFilePath = filepath;
-    // project = new Project(filepath);
-    // // issue is that the project import requires the project path which is only
-    // initialised AFTER the project is loaded.
-    // this.setProject(project);
-    // }
 
     public void loadModelsFromProject() {
         models = new ArrayList<>();
@@ -343,19 +337,6 @@ public class Ultimate {
 
     }
 
-    // public String getProjectFilePath() {
-    // return projectFilePath;
-    // }
-
-    // public String getProjectDirectoryPath(){
-    // if (projectFilePath == null) {
-    // return null;
-    // }
-    // Path path = Paths.get(projectFilePath);
-    // Path parent = path.getParent();
-    // return parent != null ? parent.toString() : null;
-    // }
-
     public String getTargetModelId() {
         return targetModel.getModelId();
     }
@@ -387,42 +368,33 @@ public class Ultimate {
 
     public ArrayList<HashMap<String, String>> getSynthesisParetoSet() {
 
+        String fileName = evoChecker.getParetoSetFileName();
+        System.out.println("filename: "+ fileName);
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
-        SolutionSet evoSolutions = evoChecker.getSolutions();
-        // List<String> internalParameterNames = evoChecker.getInternalParameterNames();
-        // int numberInternalParameters = evoSolutions.get(0).getDecisionVariables().length;
 
-        // TODO: why is the structure of the solutions so strange? Fix.
-        for (int i = 0; i < evoSolutions.size(); i++) {
-            Solution s = evoSolutions.get(i);
-            HashMap<String, String> r = new HashMap<>();
-            for (int j = 0; j < models.size(); j++) {
-                Model m = models.get(j);
-                for (int k = 0; k < m.getInternalParameters().size(); k++) {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(fileName));
 
-                    try {
-                        Variable var = s.getDecisionVariables()[j];
-                        Object value;
+            // Read header
+            String headerLine = br.readLine();
+            String[] columnNames = headerLine.trim().split("\\s+");
 
-                        if (var instanceof ArrayInt) {
-                            value = ((ArrayInt) var).getValue(k);
-                        } else if (var instanceof ArrayReal) {
-                            value = ((ArrayReal) var).getValue(k);
-                        } else {
-                            value = var instanceof Variable ? ((Variable) var).getValue() : var;
-                        }
-
-                        r.put(m.getInternalParameters().get(k).getNameInModel(), value.toString());
-                    } catch (Exception e) {
-                        System.out.println(String.format("%s %s %s\n\n%s\n\n%s", i, j, k, m.getInternalParameters(),
-                                models.stream().map(Model::getModelId).collect(Collectors.toList())));
-                        throw new RuntimeException(e);
-                    }
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.trim().isEmpty())
+                    continue; // skip empty lines
+                String[] tokens = line.trim().split("\\s+");
+                HashMap<String, String> rowMap = new HashMap<>();
+                for (int i = 0; i < tokens.length; i++) {
+                    rowMap.put(columnNames[i], tokens[i]);
                 }
+                results.add(rowMap);
             }
-            results.add(r);
-        }
+            br.close();
 
+        } catch (IOException e) {
+            System.err.println("The pareto set file was not found or could not be opened.");
+        }
         return results;
 
     }

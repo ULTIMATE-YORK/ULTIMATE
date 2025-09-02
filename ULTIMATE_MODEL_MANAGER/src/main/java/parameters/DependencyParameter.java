@@ -19,7 +19,7 @@ public class DependencyParameter implements IParameter {
     // GETTER METHODS
 
     // public String getNameInModel() {
-    //     return uniqueIdentifier;
+    // return uniqueIdentifier;
     // }
 
     public String getNameInModel() {
@@ -63,6 +63,20 @@ public class DependencyParameter implements IParameter {
     public String toString() {
         return "Dependency Parameter: " + name + "\nModel ID: " + sourceModel.getModelId() + "\nProperty Definition: "
                 + definition.replace("\\", "") + "\n";
+    }
+
+    public boolean sanityCheck(String value) {
+
+        Double parsedValue = Double.valueOf(value);
+
+        if (definition.startsWith("P=?") || definition.startsWith("Pmin=?") || definition.startsWith("Pmax=?")) {
+            if (parsedValue < 0 || parsedValue > 1) {
+                return false;
+            }
+        }
+
+        return true;
+
     }
 
 }

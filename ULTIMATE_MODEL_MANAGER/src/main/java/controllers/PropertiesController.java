@@ -399,7 +399,7 @@ public class PropertiesController {
 	private void runVerificationsSequentially2(int index, Model vModel, Property vProp,
 			ArrayList<HashMap<String, String>> experimentPlan, ObservableList<RangedVerificationResults> results,
 			ExecutorService executor, Stage modalStage)
-			throws IOException {
+			throws IOException, Exception {
 
 		String cacheKey = project.generateCacheKey(vModel, vProp);
 
@@ -876,9 +876,19 @@ public class PropertiesController {
 			appendPopUpContents("Initialising EvoChecker...");
 			ultimate.createEvoCheckerInstance(ultimateInstance);
 			ultimate.initialiseEvoCheckerInstance(evolvableProjectFileDir);
-			ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(plotSynthesisCheckBox.isSelected());
+			if (plotSynthesisCheckBox.isSelected()) {
+				boolean plottingPossible = 0 < project.getAllSynthesisObjectives().size() &&
+						project.getAllSynthesisObjectives().size() < 3 ? true : false;
+				ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(plottingPossible);
+			} else {
+				System.out.println(
+						"Plotting is not possible as the world model has less than 2 or more than 3 synthesis objectives.");
+				ultimate.getEvoCheckerInstance().setParetoFrontPlottingOn(false);
+			}
+
 			appendPopUpContents("Running synthesis...");
 			ultimate.executeSynthesis();
+			ultimate.writeSynthesisResultsToFile();
 			ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
 			ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
 
@@ -905,7 +915,9 @@ public class PropertiesController {
 			}
 			return runResult;
 
-		}).thenAccept(runResult -> {
+		}).thenAccept(runResult ->
+
+		{
 			allSynthesisDisplayResults.addAll(runResult);
 			Platform.runLater(() -> {
 				modalStage.close();

@@ -1,0 +1,63 @@
+dtmc
+
+//
+// Model of deep-learning component perceiving the user state as 'ok' or 'no ok'
+//
+
+// Model parameters
+
+// External parameters (derived from data collected from observing the system and its environment)
+const double p1_ok_correct; // p that model 1 correctly predicts 'ok'
+const double p1_ok_verified; // p that 
+const double p1_ok_true_correct;
+const double p1_ok_false_correct;
+const double p1_notok_correct;
+const double p1_notok_verified;
+const double p1_notok_true_correct;
+const double p1_notok_false_correct;
+const double p2_ok_correct;
+const double p2_notok_correct;
+
+const double wModel1; // INTERNAL PARAMETER
+const double wModel2; // INTERNAL PARAMETER
+const double wModel1_2; // INTERNAL PARAMETER
+
+const double weighting = wModel1 + wModel2 + wModel1_2; 
+
+module UserPerception
+    s : [0..4] init 0; // step
+    select: [1..2] init 1; //selection step for models
+    m: [0..3]; // operation mode
+    ok: bool; // true user state
+    predOk: bool; // predicted user state
+    verified: bool; // verifier result
+
+
+    [userInit] s=0 -> 0.5:(s'=1)&(ok'=true) + 0.5:(s'=1)&(ok'=false); //initialisation (user is okay/not okay)
+    [modelInit1] s=1 & select=1-> wModel1/weighting:(s'=2)&(m'=1) + ((wModel2 + wModel1_2)/weighting):(select'=2); // select model 
+    [modelInit2] s=1 & select=2-> wModel2/(wModel2 + wModel1_2):(s'=2)&(m'=2) + (wModel1_2)/(wModel2 + wModel1_2):(s'=2)&(m'=3); // select model 
+
+    // model 1 makes predictions
+    [okM1Pred] s=2 & ok & m=1 -> p1_ok_correct:(s'=4)&(predOk'=true) + (1-p1_ok_correct):(s'=4)&(predOk'=false);
+    [notOkM1Pred] s=2 & !ok & m=1 -> p1_notok_correct:(s'=4)&(predOk'=false) + (1-p1_notok_correct):(s'=4)&(predOk'=true);
+    
+    //model 2 makes predictions
+    [okM2Pred] s=2 & ok & m=2 -> p2_ok_correct:(s'=4)&(predOk'=true) + (1-p2_ok_correct):(s'=4)&(predOk'=false);
+    [notOkM2Pred] s=2 & !ok & m=2 -> p2_notok_correct:(s'=4)&(predOk'=false) + (1-p2_notok_correct):(s'=4)&(predOk'=true);
+    
+    //verified model 1 makes predictions
+    [okM1VerifyPred] s=2 & ok & m=3 -> p1_ok_verified*p1_ok_true_correct:(s'=4)&(verified'=true)&(predOk'=true) +
+                                    p1_ok_verified*(1-p1_ok_true_correct):(s'=4)&(verified'=true)&(predOk'=false) +
+                                    (1-p1_ok_verified)*p1_ok_false_correct:(s'=3)&(verified'=false)&(predOk'=true) +
+                                    (1-p1_ok_verified)*(1-p1_ok_false_correct):(s'=3)&(verified'=false)&(predOk'=false);
+                                    
+    [notOkM1VerifyPred] s=2 & !ok & m=3 -> p1_notok_verified*p1_notok_true_correct:(s'=4)&(verified'=true)&(predOk'=false) +
+                            p1_notok_verified*(1-p1_notok_true_correct):(s'=4)&(verified'=true)&(predOk'=true) +
+                            (1-p1_notok_verified)*p1_notok_false_correct:(s'=3)&(verified'=false)&(predOk'=false) +
+                            (1-p1_notok_verified)*(1-p1_notok_false_correct):(s'=3)&(verified'=false)&(predOk'=true);
+
+    [okM1VeriifyFailedPred] s=3 & ok -> p2_ok_correct:(s'=3)&(predOk'=true) + (1-p2_ok_correct):(s'=3)&(predOk'=false);
+    [notOkM1VeriifyFailedPred] s=3 & !ok -> p2_notok_correct:(s'=3)&(predOk'=false) + (1-p2_notok_correct):(s'=3)&(predOk'=true);
+
+    [done] s=4 -> true;
+endmodule

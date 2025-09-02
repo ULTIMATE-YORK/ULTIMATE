@@ -1,0 +1,42 @@
+mdp
+
+//
+// Model of robot dressing workflow
+//
+
+// Model parameters
+// Dependency parameters (obtained through the analysis of other models)
+const double pPickGarment;
+const double pOkCorrect;
+const double pNotOkCorrect;
+// External parameters (derived from data collected from observations)
+const double pOk;
+const double pDressOkSlow;
+const double pDressOkFast;
+const double pDressNotOkSlow;
+const double pDressNotOkFast;
+const double pRetryAllowed;
+
+// observables s, predOk endobservables
+
+module Workflow
+  s : [1..6] init 1;             // the steps of the workflow
+  ok : bool init true;          // true state of the user (hidden)
+  predOk : bool init true; // predicted state of the user
+  
+  [pick] s=1 -> pPickGarment:(s'=2) + (1-pPickGarment):(s'=6);
+  [obsv] s=2 -> pOk*pOkCorrect: (s'=3) & (predOk'=true) & (ok'=true)
+                + pOk*(1-pOkCorrect): (s'=3) & (predOk'=false) & (ok'=true) 
+                + (1-pOk)*pNotOkCorrect: (s'=3) & (predOk'=false) & (ok'=false)
+                + (1-pOk)*(1-pNotOkCorrect): (s'=3) & (predOk'=true) & (ok'=false);
+
+  // decision to be made: dress slowly (higher success probability, longer time) or at fast speed
+  [dressSlow] s=3 & ok -> pDressOkSlow:(s'=5) + (1-pDressOkSlow):(s'=4);
+  [dressFast] s=3 & ok -> pDressOkFast:(s'=5) + (1-pDressOkFast):(s'=4);
+  [dressSlow] s=3 & !ok -> pDressNotOkSlow:(s'=5) + (1-pDressNotOkSlow):(s'=4);
+  [dressFast] s=3 & !ok -> pDressNotOkFast:(s'=5) + (1-pDressNotOkFast):(s'=4);
+
+  [retry] s=4 -> pRetryAllowed:(s'=3) + (1-pRetryAllowed):(s'=6);
+  [succ] s=5 -> true;
+  [fail] s=6 -> true;      
+endmodule
