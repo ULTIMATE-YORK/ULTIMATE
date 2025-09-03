@@ -15,8 +15,8 @@ import org.mariuszgromada.math.mxparser.License;
 
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
-import project.synthesis.EvoCheckerUltimateInstance;
 import sharedContext.SharedContext;
+import synthesis.EvoCheckerUltimateInstance;
 import ultimate.Ultimate;
 
 public class Headless {

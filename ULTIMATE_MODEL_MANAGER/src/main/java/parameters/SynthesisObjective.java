@@ -21,7 +21,7 @@ public class SynthesisObjective {
     }
 
     public String toString() {
-        return "Synthesis objective: " + this.definition;
+        return this.definition;
     }
 
 }

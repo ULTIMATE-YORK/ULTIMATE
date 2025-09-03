@@ -1,37 +1,29 @@
-package project.synthesis;
+package data;
 
 import java.util.HashMap;
-import java.util.List;
 
 public class SynthesisSolution {
 
-    private final String runId;
     private final String solutionId;
-    private final String worldModelName;
+    private final SynthesisRun parentRun;
     private final HashMap<String, String> internalParameterValues; 
     private final HashMap<String, String> objectiveValues;
-    private final List<String> objectives;
-    private final List<String> constraints;
 
-    public SynthesisSolution(String runId, String solutionId, String worldModelName, List<String> objectives,
-            List<String> constraints,
+    public SynthesisSolution(SynthesisRun parentRun, String solutionId,
             HashMap<String, String> internalParameterValues, HashMap<String, String> objectiveValues) {
-        this.runId = runId;
+        this.parentRun = parentRun;
         this.solutionId = solutionId;
-        this.worldModelName = worldModelName;
-        this.objectives = objectives;
-        this.constraints = constraints;
         this.internalParameterValues = internalParameterValues;
         this.objectiveValues = objectiveValues;
 
     }
 
-    public String getRunId() {
-        return runId;
-    }
-
     public String getSolutionId() {
         return solutionId;
+    }
+
+    public SynthesisRun getParentRun(){
+        return parentRun;
     }
 
     // public void setInternalParameterValues(HashMap<String, String> internalParameterValues) {
@@ -50,29 +42,14 @@ public class SynthesisSolution {
         return objectiveValues;
     }
 
-    public List<String> getObjectives() {
-        return objectives;
-    }
-
-    public List<String> getConstraints() {
-        return constraints;
-    }
-
-    public String getWorldModelName() {
-        return worldModelName;
-    }
-
     public String getDisplayString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("Synthesis Result %s-%s - Model '%s'",runId, solutionId, worldModelName));
-        // sb.append(String.format("\nConstraints (%d):",
-        // constraints.size())).append(String.join("\n", constraints));
-        sb.append(String.format("\nObjectives (%d): ", objectives.size()));
+        sb.append(String.format("\n>>>Objective values (%d): ", objectiveValues.size()));
         for (String key : objectiveValues.keySet()) {
             sb.append(String.format("\n%s: %s", key, objectiveValues.get(key)));
         }
-        sb.append(String.format("\nParameter values (%d): ", internalParameterValues.size()));
+        sb.append(String.format("\n>>>Parameter values (%d): ", internalParameterValues.size()));
         for (String key : internalParameterValues.keySet()) {
             sb.append(String.format("\n%s: %s", key, internalParameterValues.get(key)));
         }

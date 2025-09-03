@@ -33,9 +33,9 @@ import parameters.IStaticParameter;
 import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
-import project.synthesis.EvoCheckerUltimateInstance;
 import property.Property;
 import sharedContext.SharedContext;
+import synthesis.EvoCheckerUltimateInstance;
 import utils.FileUtils;
 import verification.NPMCVerification;
 

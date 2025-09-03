@@ -588,7 +588,7 @@ public class Project {
 			for (IStaticParameter sp : m.getStaticParameters()) {
 				String value;
 				try {
-					value = sp.getValue();
+					value = sp.getValue() != null ? sp.getValue() : "UNSET";
 				} catch (IOException e) {
 					// as this is only for generating the cache string,
 					// it is sufficient to do this and not throw anything.
@@ -601,10 +601,10 @@ public class Project {
 			}
 		}
 
-		return sb.toString();
+		return sb.toString().replace("\n", "");
 	}
 
-	public String generateCacheKey(Model vModel, Property vProp) {
+	public String generateVerificationCacheKey(Model vModel, Property vProp) {
 
 		String projectConfigKey = generateProjectConfigCacheKey();
 		return projectConfigKey + "+" + vModel.getModelId() + "+" + vProp.getDefinition();

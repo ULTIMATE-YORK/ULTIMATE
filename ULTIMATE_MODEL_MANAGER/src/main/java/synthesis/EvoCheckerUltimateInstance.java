@@ -1,4 +1,4 @@
-package project.synthesis;
+package synthesis;
 
 import java.util.HashMap;
 

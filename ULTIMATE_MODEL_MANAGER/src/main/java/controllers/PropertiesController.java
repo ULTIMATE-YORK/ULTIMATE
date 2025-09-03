@@ -17,6 +17,9 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import data.SynthesisRun;
+import data.SynthesisSolution;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +28,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
@@ -46,11 +50,10 @@ import javafx.stage.Stage;
 import model.Model;
 import parameters.SynthesisObjective;
 import project.Project;
-import project.synthesis.EvoCheckerUltimateInstance;
-import project.synthesis.SynthesisSolution;
 import property.Property;
 // import results.RangedExperimentResults;
 import sharedContext.SharedContext;
+import synthesis.EvoCheckerUltimateInstance;
 import ui.UiUtilities;
 import ultimate.Ultimate;
 import utils.Alerter;
@@ -75,7 +78,7 @@ public class PropertiesController {
 	@FXML
 	private ListView<String> verifyResults;
 	@FXML
-	private ListView<SynthesisSolution> synthesiseResults;
+	private ListView<SynthesisRun> synthesisRunsView;
 	// @FXML private ProgressIndicator progressIndicator;
 	@FXML
 	private ListView<Property> propertyListView;
@@ -104,7 +107,7 @@ public class PropertiesController {
 	private Ultimate ultimate;
 
 	private ObservableList<String> allVerificationDisplayResults = FXCollections.observableArrayList();
-	private ObservableList<SynthesisSolution> allSynthesisDisplayResults = FXCollections.observableArrayList();
+	private ObservableList<SynthesisRun> synthesisRuns = FXCollections.observableArrayList();
 	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationDisplayResults,
 			s -> true);
 
@@ -123,10 +126,33 @@ public class PropertiesController {
 
 			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		}
-		verifyResults.setItems(filteredVerificationResults); // <--- set filtered list
-		synthesiseResults.setItems(allSynthesisDisplayResults);
+		verifyResults.setItems(filteredVerificationResults);
+		synthesisRunsView.setItems(synthesisRuns);
+		synthesisRunsView.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2) {
+				SynthesisRun selectedRun = synthesisRunsView.getSelectionModel().getSelectedItem();
+				if (selectedRun != null) {
+					try {
+						FXMLLoader loader = new FXMLLoader(getClass().getResource("/dialogs/synthesis_run_dialog.fxml"));
+						Parent root = loader.load();
+
+						SynthesisRunBoxController controller = loader.getController();
+						Stage stage = new Stage();
+						
+						controller.setSynthesisRun(selectedRun);
+						controller.setStage(stage);
+
+						stage.setTitle("Synthesis Run " + selectedRun.getRunId());
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.setScene(new Scene(root));
+						stage.showAndWait();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
 		UiUtilities.makeListViewTextSelectable(verifyResults);
-		UiUtilities.makeListViewTextSelectable(synthesiseResults);
 		setCells();
 		setListeners();
 	}
@@ -401,7 +427,7 @@ public class PropertiesController {
 			ExecutorService executor, Stage modalStage)
 			throws IOException, Exception {
 
-		String cacheKey = project.generateCacheKey(vModel, vProp);
+		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
 		if (index == experimentPlan.size() - 1) {
 			Platform.runLater(() -> {
@@ -479,7 +505,7 @@ public class PropertiesController {
 
 	private void handleSimpleVerification(Model vModel, Property vProp, Stage modalStage) throws IOException {
 
-		String cacheKey = project.generateCacheKey(vModel, vProp);
+		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
 		if (project.getCacheResult(cacheKey) != null) {
 			String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
@@ -866,13 +892,15 @@ public class PropertiesController {
 		// TODO: communicate that plotting is only possible for 2 or 3 OCs
 		final boolean plotting = plotSynthesisCheckBox.isSelected();
 
+		String runId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss")) + "_"
+				+ project.getProjectName();
+
+		SynthesisRun run = new SynthesisRun(runId, project);
+
 		Task<String> task = new Task<>() {
 
 			@Override
 			protected String call() throws Exception {
-
-				String runId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss")) + "_"
-						+ project.getProjectName();
 
 				String message = "Initialising...";
 				updateMessage(message);
@@ -891,30 +919,26 @@ public class PropertiesController {
 				message += "\nSynthesis compelte";
 				updateMessage(message);
 
-				List<SynthesisSolution> runResult = new ArrayList<>();
+				List<SynthesisSolution> runSolutions = new ArrayList<>();
 				for (int i = 0; i < synthesisFront.size(); i++) {
 
 					HashMap<String, String> internalParameterValues = synthesisSet.get(i);
 					HashMap<String, String> objectiveValues = synthesisFront.get(i);
 
 					SynthesisSolution solution = new SynthesisSolution(
-							runId,
+							run,
 							Integer.toString(i),
-							project.getProjectName(),
-							ultimate.getEvoCheckerInstance().getObjectives().stream()
-									.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
-							ultimate.getEvoCheckerInstance().getConstraints().stream()
-									.map(evochecker.properties.Property::toString).collect(Collectors.toList()),
 							internalParameterValues,
 							objectiveValues);
 
-					runResult.add(solution);
+					runSolutions.add(solution);
 				}
 
 				Platform.runLater(() -> {
-					allSynthesisDisplayResults.addAll(runResult);
+					run.addSolutions(runSolutions);
+					synthesisRuns.add(run);
 					modalStage.close();
-					if (plotting){
+					if (plotting) {
 						ultimate.plotParetoFront();
 					}
 				});

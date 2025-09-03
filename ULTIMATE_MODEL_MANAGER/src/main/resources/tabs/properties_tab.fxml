@@ -79,7 +79,7 @@
 
 			<StackPane VBox.vgrow="ALWAYS">
 				<!-- The main text area for displaying verification results -->
-				<ListView fx:id="synthesiseResults" VBox.vgrow="ALWAYS" />
+				<ListView fx:id="synthesisRunsView" VBox.vgrow="ALWAYS" />
 
 				<!-- The loading spinner, initially hidden -->
 				<ProgressIndicator fx:id="progressIndicator" visible="false" maxWidth="50"
