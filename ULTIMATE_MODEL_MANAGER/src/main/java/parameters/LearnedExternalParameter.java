@@ -81,12 +81,18 @@ public class LearnedExternalParameter extends ExternalParameter {
 
 	public String toString() {
 		try {
-			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValue: " + this.getValue()
+			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValue: "
+					+ this.getValue()
 					+ "\nSource: " + valueSource + "\n";
 		} catch (IOException e) {
-			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type + "\nValue: (calculation error)"
+			return "Learned External Parameter: " + super.getNameInModel() + "\nType: " + type
+					+ "\nValue: (calculation error)"
 					+ "\nSource: " + valueSource + "\n";
 		}
 
+	}
+
+	public String getConfigCacheString() {
+		return String.format("LearnedExternalParameter:%s:%s:%s", getNameInModel(), getType(), getValueSource());
 	}
 }

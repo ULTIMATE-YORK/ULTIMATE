@@ -7,7 +7,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import project.Project;
 import sharedContext.SharedContext;
 import utils.Alerter;
@@ -70,11 +70,11 @@ public class AddSynthesisObjectiveController {
 		} else {
 
 			if (type == "Constraint") {
-				SynthesisObjective so = new SynthesisObjective(
+				SynthesisGoal so = new SynthesisGoal(
 						String.format("%s, %s, %f: %s", type, minOrMax, constraint, definition));
 				project.getTargetModel().addSynthesisObjective(so);
 			} else if (type == "Objective") {
-				SynthesisObjective so = new SynthesisObjective(
+				SynthesisGoal so = new SynthesisGoal(
 						String.format("%s, %s: %s", type, minOrMax, definition));
 				project.getTargetModel().addSynthesisObjective(so);
 			}

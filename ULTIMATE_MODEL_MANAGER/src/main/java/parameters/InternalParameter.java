@@ -85,4 +85,10 @@ public class InternalParameter implements IStaticParameter {
 		return "Internal Parameter: " + getNameInModel() + "\nMin: " + getMin() + "\nMax: " + getMax()
 				+ "\n";
 	}
+
+	public String getConfigCacheString(){
+		return String.format("InternalParameter:%s:%s:%s", getNameInModel(), getMin(), getMax());
+	}
+
 }
+

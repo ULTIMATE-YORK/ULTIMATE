@@ -39,7 +39,7 @@ public class Main extends Application {
         GridPane root = loader.load(); // The root layout is defined in main_view.fxml
 
         // Create a Scene using the root layout and set its dimensions
-        stage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
+        stage.setScene(new Scene(root, 1600, 1000)); 
 
         // Set the title of the primary stage (window)
         //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed

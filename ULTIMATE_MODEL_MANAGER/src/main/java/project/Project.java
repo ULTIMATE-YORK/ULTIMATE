@@ -29,10 +29,11 @@ import javafx.collections.ObservableList;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
+import parameters.IParameter;
 import parameters.IStaticParameter;
 import parameters.InternalParameter;
 import parameters.RangedExternalParameter;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import property.Property;
 import sharedContext.SharedContext;
 import utils.Alerter;
@@ -365,7 +366,8 @@ public class Project {
 		return false;
 	}
 
-	public HashMap<String, ArrayList<String>> getRangedExternalVariableValues() {
+	// TODO : should probably be renamed because of the UUID
+	public HashMap<String, ArrayList<String>> getRangedExternalVariableValueOptions() {
 		HashMap<String, ArrayList<String>> experimentConfiguration = new HashMap<>();
 
 		for (Model m : models) {
@@ -402,11 +404,7 @@ public class Project {
 
 	public ArrayList<HashMap<String, String>> generateExperimentPlan() {
 
-		// generate plan by combining every possible external parameter value with every
-		// other
-		HashMap<String, ArrayList<String>> rangedExternalVariableValues = getRangedExternalVariableValues();
-		// System.out.println(String.format("rangedExternalVariableValues: %s", rangedExternalVariableValues));
-
+		HashMap<String, ArrayList<String>> rangedExternalVariableValues = getRangedExternalVariableValueOptions();
 		ArrayList<HashMap<String, String>> experimentPlan = getAllCombinations(new ArrayList<HashMap<String, String>>(),
 				rangedExternalVariableValues, 0);
 
@@ -549,15 +547,15 @@ public class Project {
 		return configured;
 	}
 
-	public ObservableList<SynthesisObjective> getAllSynthesisObjectives() {
+	public ObservableList<SynthesisGoal> getAllSynthesisObjectives() {
 
-		ObservableList<SynthesisObjective> synthesisParameters = FXCollections.observableArrayList();
+		ObservableList<SynthesisGoal> synthesisParameters = FXCollections.observableArrayList();
 		if (models.isEmpty()) {
 			throw new IllegalStateException("No models found in the project.");
 		}
 
 		for (Model model : models) {
-			synthesisParameters.addAll(model.getSynthesisObjectives());
+			synthesisParameters.addAll(model.getSynthesisGoals());
 		}
 
 		return synthesisParameters;
@@ -578,37 +576,129 @@ public class Project {
 		return internalParameters;
 	}
 
-	public String generateProjectConfigCacheKey() {
+	public String generateParameterConfigurationKey() {
 		ArrayList<Model> modelsArray = new ArrayList<>(models);
 		modelsArray.sort(Comparator.comparing(Model::getModelId));
 
 		StringBuilder sb = new StringBuilder();
 		for (Model m : modelsArray) {
 			sb.append("++" + m.getModelId() + "+");
-			for (IStaticParameter sp : m.getStaticParameters()) {
+			for (IParameter sp : m.getParameters()) {
+				sb.append(sp.getConfigCacheString() + "::");
+			}
+		}
+
+		return sb.toString().replace("\n", "");
+	}
+
+	public String generateParameterValuesKey() {
+		ArrayList<Model> modelsArray = new ArrayList<>(models);
+		modelsArray.sort(Comparator.comparing(Model::getModelId));
+
+		StringBuilder sb = new StringBuilder();
+		for (Model m : modelsArray) {
+			sb.append("++" + m.getModelId() + "+");
+			for (IParameter sp : m.getParameters()) {
 				String value;
 				try {
 					value = sp.getValue();
 				} catch (IOException e) {
-					// as this is only for generating the cache string,
-					// it is sufficient to do this and not throw anything.
-					value = "NOT_SET_CORRECTLY";
+					value = "VALUE_NOT_SET_CORRECTLY";
 				}
-				sb.append(sp.getNameInModel() + ":" + value + "+");
-			}
-			for (DependencyParameter dp : m.getDependencyParameters()) {
-				sb.append(dp.getNameInModel() + ":" + dp.getDefinition() + ":" + dp.getSourceModel() + "+");
+				sb.append(sp.getConfigCacheString() + ":" + value != null ? value : "VALUE_NOT_SET" + "::");
 			}
 		}
 
-		return sb.toString();
+		return sb.toString().replace("\n", "");
 	}
 
-	public String generateCacheKey(Model vModel, Property vProp) {
+	public String generateVerificationCacheKey(Model vModel, Property vProp) {
 
-		String projectConfigKey = generateProjectConfigCacheKey();
+		String projectConfigKey = generateParameterValuesKey();
 		return projectConfigKey + "+" + vModel.getModelId() + "+" + vProp.getDefinition();
 
+	}
+
+	public String generateVerificationCacheKey(String modelId, String propertyDefinition) {
+
+		String projectConfigKey = generateParameterValuesKey();
+		return projectConfigKey + "+" + modelId + "+" + propertyDefinition;
+
+	}
+
+	public HashMap<String, List<InternalParameter>> getModelInternalParameterMap() {
+
+		HashMap<String, List<InternalParameter>> map = new HashMap<>();
+
+		for (Model m : models) {
+			map.put(m.getModelId(), m.getInternalParameters());
+		}
+
+		return map;
+
+	}
+
+	public HashMap<String, String> getInternalParameterValuesMap() {
+		HashMap<String, String> ipValues = new HashMap<>();
+		for (Model m : models) {
+			for (InternalParameter ip : m.getInternalParameters()) {
+				ipValues.put(ip.getNameInModel(), ip.getValue());
+			}
+		}
+		return ipValues;
+	}
+
+	public HashMap<String, String> getExternalParameterValues() {
+		HashMap<String, String> epValues = new HashMap<>();
+		for (Model m : models) {
+			for (ExternalParameter ep : m.getExternalParameters()) {
+				try {
+					epValues.put(ep.getNameInModel(), ep.getValue());
+				} catch (IOException e) {
+					epValues.put(ep.getNameInModel(), "ERROR_GETTING_VALUE");
+				}
+			}
+		}
+		return epValues;
+	}
+
+	public HashMap<String, String> getRangedParameterUniqueIdValueMap() {
+		HashMap<String, String> epValues = new HashMap<>();
+		for (Model m : models) {
+			for (ExternalParameter ep : m.getExternalParameters()) {
+				if (ep instanceof RangedExternalParameter) {
+					epValues.put(ParameterUtilities.generateUniqueParameterId(m.getModelId(), ep.getNameInModel()),
+							((RangedExternalParameter) ep).getValue());
+				}
+			}
+		}
+		return epValues;
+	}
+
+	public HashMap<String, HashMap<String, String>> getRangedParameterValuesPerModel() {
+
+		HashMap<String, HashMap<String, String>> modelValuesMap = new HashMap<>();
+		for (Model m : models) {
+			HashMap<String, String> epValues = new HashMap<>();
+			for (ExternalParameter ep : m.getExternalParameters()) {
+				if (ep instanceof RangedExternalParameter) {
+					epValues.put(ep.getNameInModel(),
+							((RangedExternalParameter) ep).getValue());
+				}
+			}
+			modelValuesMap.put(m.getModelId(), epValues);
+		}
+		return modelValuesMap;
+	}
+
+	public HashMap<String, String> getDependencyParameterValues() {
+		HashMap<String, String> dpValues = new HashMap<>();
+		for (Model m : models) {
+			for (DependencyParameter dp : m.getDependencyParameters()) {
+				dpValues.put(dp.getNameInModel(), dp.getValue());
+			}
+		}
+		return dpValues;
 	}
 
 }

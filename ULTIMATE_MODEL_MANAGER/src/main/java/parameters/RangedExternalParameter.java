@@ -38,4 +38,8 @@ public class RangedExternalParameter extends ExternalParameter {
 				String.join(", ", valueOptions)
 				+ "\n";
 	}
+
+	public String getConfigCacheString() {
+		return String.format("RangedExternalParameter:%s:%s", getNameInModel(), valueOptions);
+	}
 }

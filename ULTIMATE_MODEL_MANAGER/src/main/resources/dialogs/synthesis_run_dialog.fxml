@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" spacing="10" alignment="TOP_LEFT" prefWidth="600"
+	prefHeight="600" fx:controller="controllers.SynthesisRunBoxController">
+
+	<padding>
+		<Insets top="10" right="10" bottom="10" left="10" />
+	</padding>
+
+	<Label text="Run Details" />
+	<ListView fx:id="details" />
+
+	<Label text="Solutions" />
+	<ListView fx:id="solutions" />
+
+	<HBox alignment="CENTER" spacing="10.0">
+		<MenuButton mnemonicParsing="false" text="Plot">
+			<items>
+				<MenuItem fx:id="plotSet" onAction="#plotSet" mnemonicParsing="false"
+					text="Plot synthesised values" />
+				<MenuItem fx:id="plotFront" onAction="#plotFront" mnemonicParsing="false"
+					text="Plot Pareto front" />
+			</items>
+		</MenuButton>
+		<MenuButton mnemonicParsing="false" text="Export">
+			<items>
+				<MenuItem fx:id="exportSet" onAction="#exportSet" mnemonicParsing="false"
+					text="Export synthesised values" />
+				<MenuItem fx:id="exportFront" onAction="#exportFront" mnemonicParsing="false"
+					text="Export Pareto front" />
+			</items>
+		</MenuButton>
+		<Button fx:id="closeButton" text="Close" onAction="#close" />
+	</HBox>
+
+</VBox>

@@ -25,4 +25,8 @@ public class FixedExternalParameter extends ExternalParameter {
 				+ value + "\n";
 
 	}
+
+	public String getConfigCacheString(){
+		return String.format("FixedExternalParameter:%s", getNameInModel());
+	}
 }
