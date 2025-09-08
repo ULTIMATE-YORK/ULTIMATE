@@ -29,6 +29,17 @@ jobs:
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn clean
 
+      - name: Install EvoChecker
+        working-directory: ULTIMATE_MODEL_MANAGER
+        run: |
+          mvn install:install-file \
+            -Dfile=libs/evochecker_for_ultimate.jar \
+            -DgroupId=edu.evochecker_project \
+            -DartifactId=evochecker_for_ultimate \
+            -Dversion=1.0.0 \
+            -Dpackaging=jar \
+            -DlocalRepositoryPath=$PWD/m2repo
+
       - name: Maven - validate
         working-directory: ULTIMATE_MODEL_MANAGER
         run: mvn validate
