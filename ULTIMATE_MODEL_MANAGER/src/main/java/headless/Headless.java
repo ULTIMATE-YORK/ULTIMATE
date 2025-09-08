@@ -114,10 +114,15 @@ public class Headless {
 			System.out.println(
 					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
 							+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
+			if (outputDir == null) {
+				System.out
+						.println("No output directory provided, setting to current directory: " + System.getenv("PWD"));
+				outputDir = System.getenv("PWD");
+			}
 			ultimate.initialiseSynthesis();
 			System.out.println("Running EvoChecker to synthesise parameters...");
 			ultimate.executeSynthesis();
-			ultimate.writeSynthesisResultsToFile();
+			ultimate.writeSynthesisResultsToFile(outputDir, false);
 		} else {
 			System.out.println("Beginning a verification problem.");
 			ultimate.setTargetModelById(modelID);

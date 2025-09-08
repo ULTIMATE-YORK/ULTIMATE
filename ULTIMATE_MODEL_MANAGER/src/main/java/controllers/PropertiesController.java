@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -20,6 +21,9 @@ import java.util.stream.Collectors;
 
 import data.SynthesisRun;
 import data.SynthesisSolution;
+import data.VerificationResult;
+import data.VerificationRun;
+import evochecker.EvoChecker;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -48,7 +52,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.Model;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import project.Project;
 import property.Property;
 // import results.RangedExperimentResults;
@@ -59,7 +63,6 @@ import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
 import utils.Font;
-import verification.RangedVerificationResults;
 
 public class PropertiesController {
 
@@ -75,30 +78,23 @@ public class PropertiesController {
 	private Button scrollDown;
 	@FXML
 	private Button verifyButton;
-	@FXML
-	private ListView<String> verifyResults;
+	// @FXML
+	// private ListView<String> verifyResults;
 	@FXML
 	private ListView<SynthesisRun> synthesisRunsView;
+	@FXML
+	private ListView<VerificationRun> verificationRunsView;
 	// @FXML private ProgressIndicator progressIndicator;
 	@FXML
 	private ListView<Property> propertyListView;
 	@FXML
-	private ListView<SynthesisObjective> synthesisListView;
-
-	// @FXML
-	// private CheckBox showAllResults;
-	@FXML
-	private CheckBox plotSynthesisCheckBox;
-	// @FXML
-	// private Button plotButton;
+	private ListView<SynthesisGoal> synthesisListView;
 	@FXML
 	private ChoiceBox<String> xaxisparam;
-	// @FXML
-	// private Button confirmPlotButton;
-	// @FXML
-	// private Button cancelPlotButton;
-	// @FXML
-	// private Button exportButton;
+	@FXML
+	private ProgressIndicator progressIndicatorSynthesis;
+	@FXML
+	private ProgressIndicator progressIndicatorVerification;
 
 	private Label modalLabel;
 	private String currentModelId = null;
@@ -108,6 +104,7 @@ public class PropertiesController {
 
 	private ObservableList<String> allVerificationDisplayResults = FXCollections.observableArrayList();
 	private ObservableList<SynthesisRun> synthesisRuns = FXCollections.observableArrayList();
+	private ObservableList<VerificationRun> verificationRuns = FXCollections.observableArrayList();
 	private FilteredList<String> filteredVerificationResults = new FilteredList<>(allVerificationDisplayResults,
 			s -> true);
 
@@ -122,23 +119,25 @@ public class PropertiesController {
 		if (project.getTargetModel() != null) {
 
 			propertyListView.setItems(project.getTargetModel().getProperties());
-			synthesisListView.setItems(project.getTargetModel().getSynthesisObjectives());
+			synthesisListView.setItems(project.getTargetModel().getSynthesisGoals());
 
 			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		}
-		verifyResults.setItems(filteredVerificationResults);
+		// verifyResults.setItems(filteredVerificationResults);
 		synthesisRunsView.setItems(synthesisRuns);
+		verificationRunsView.setItems(verificationRuns);
 		synthesisRunsView.setOnMouseClicked(event -> {
 			if (event.getClickCount() == 2) {
 				SynthesisRun selectedRun = synthesisRunsView.getSelectionModel().getSelectedItem();
 				if (selectedRun != null) {
 					try {
-						FXMLLoader loader = new FXMLLoader(getClass().getResource("/dialogs/synthesis_run_dialog.fxml"));
+						FXMLLoader loader = new FXMLLoader(
+								getClass().getResource("/dialogs/synthesis_run_dialog.fxml"));
 						Parent root = loader.load();
 
 						SynthesisRunBoxController controller = loader.getController();
 						Stage stage = new Stage();
-						
+
 						controller.setSynthesisRun(selectedRun);
 						controller.setStage(stage);
 
@@ -152,7 +151,32 @@ public class PropertiesController {
 				}
 			}
 		});
-		UiUtilities.makeListViewTextSelectable(verifyResults);
+		verificationRunsView.setOnMouseClicked(event -> {
+			if (event.getClickCount() == 2) {
+				VerificationRun selectedRun = verificationRunsView.getSelectionModel().getSelectedItem();
+				if (selectedRun != null) {
+					try {
+						FXMLLoader loader = new FXMLLoader(
+								getClass().getResource("/dialogs/verification_run_dialog.fxml"));
+						Parent root = loader.load();
+
+						VerificationRunBoxController controller = loader.getController();
+						Stage stage = new Stage();
+
+						controller.setVerificationRun(selectedRun);
+						controller.setStage(stage);
+
+						stage.setTitle("Verification Run " + selectedRun.getRunId());
+						stage.initModality(Modality.APPLICATION_MODAL);
+						stage.setScene(new Scene(root));
+						stage.showAndWait();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+		});
+		// UiUtilities.makeListViewTextSelectable(verifyResults);
 		setCells();
 		setListeners();
 	}
@@ -182,7 +206,7 @@ public class PropertiesController {
 			Alerter.showErrorAlert("No Model Selected", "Select a model to which to add a synthesis objective!");
 			return;
 		}
-		SynthesisObjective so = synthesisListView.getSelectionModel().getSelectedItem();
+		SynthesisGoal so = synthesisListView.getSelectionModel().getSelectedItem();
 		project.getTargetModel().removeSynthesisObjective(so);
 	}
 
@@ -207,7 +231,7 @@ public class PropertiesController {
 	@FXML
 	private void exportResults() {
 		String projectDirectory = project.getDirectoryPath();
-		String verificationText = verifyResults.getSelectionModel().getSelectedItem();
+		String verificationText = ""; // verifyResults.getSelectionModel().getSelectedItem();
 		String fileName = "";
 		try {
 			BufferedReader reader = new BufferedReader(new StringReader(verificationText));
@@ -316,22 +340,24 @@ public class PropertiesController {
 
 		CompletableFuture.runAsync(() -> {
 			try {
+				progressIndicatorVerification.setVisible(true);
 				if (project.containsRangedParameters()) {
 					handleRangedVerification(vModel, vProp, modalStage);
-					// System.err.println("Ranged experiments have been temporarily disabled.");
 				} else {
 					handleSimpleVerification(vModel, vProp, modalStage);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				showVerificationError(modalStage);
+			} finally {
+				progressIndicatorVerification.setVisible(false);
 			}
 		});
 	}
 
 	@FXML
 	private void plotResults() {
-		String selectedResult = verifyResults.getSelectionModel().getSelectedItem();
+		String selectedResult = ""; // verifyResults.getSelectionModel().getSelectedItem();
 		if (selectedResult == null || selectedResult.isEmpty())
 			return;
 
@@ -415,39 +441,38 @@ public class PropertiesController {
 		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(currentModelId);
 
-		// System.out.println("experimentPlan: " + experimentPlan);
-		ObservableList<RangedVerificationResults> results = FXCollections.observableArrayList();
+		String runId = UUID.randomUUID().toString();
+		VerificationRun run = new VerificationRun(runId, currentModelId, vProp.getDefinition(),
+				project, false);
 		ultimate.setVerificationProperty(vProp.getDefinition());
-		runVerificationsSequentially2(0, vModel, vProp, experimentPlan, results, executor, modalStage);
+		runSequentialRangedVerifications(0, vModel, vProp, experimentPlan, run, executor, modalStage);
 
 	}
 
-	private void runVerificationsSequentially2(int index, Model vModel, Property vProp,
-			ArrayList<HashMap<String, String>> experimentPlan, ObservableList<RangedVerificationResults> results,
+	private void runSequentialRangedVerifications(int index, Model vModel, Property vProp,
+			ArrayList<HashMap<String, String>> experimentPlan, VerificationRun run,
 			ExecutorService executor, Stage modalStage)
 			throws IOException, Exception {
 
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
-		if (index == experimentPlan.size() - 1) {
+		if (index == experimentPlan.size()) {
 			Platform.runLater(() -> {
-				for (RangedVerificationResults r : results) {
-					addVerificationResult(String.format("Experiment result for model '%s':\n%s", vModel.getModelId(),
-							r.getDisplayString()));
-				}
+				verificationRuns.add(run);
 				modalStage.close();
 			});
 			return;
 		}
 
-		HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
-		for (Model m : project.getModels()) {
-			m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
-		}
-
 		CompletableFuture
 				.supplyAsync(() -> {
+					HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
+					for (Model m : project.getModels()) {
+						m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
+					}
+
 					if (project.getCacheResult(cacheKey) != null) {
+						run.setRetrievedFromCache(true);
 						return project.getCacheResult(cacheKey);
 					} else {
 						try {
@@ -459,30 +484,32 @@ public class PropertiesController {
 						}
 					}
 				}, executor)
-				.thenAccept(ultimateResults -> {
-					Platform.runLater(() -> {
-						modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
-						modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
-						try {
-							if (ultimateResults != null) {
-								project.addCacheResult(cacheKey, ultimateResults);
-								results.add(new RangedVerificationResults(
-										thisIterationExternalParameterValues, ultimateResults));
-							} else {
-								modalStage.close(); // Ensure modal is closed on error
-								Alerter.showErrorAlert("Verification Failed",
-										"There was an error communicating with the verification engine. Please run verification again.");
-							}
-						} catch (Exception e) {
-							e.printStackTrace();
+				.thenAccept(results -> {
+					try {
+						if (results != null) {
+							VerificationResult vr = new VerificationResult(run, results, project);
+							project.addCacheResult(cacheKey, results);
+							run.addResult(vr);
+						} else {
+							throw new Exception("No results from ULTIMATE!");
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						modalStage.close();
+						Platform.runLater(() -> {
 							modalStage.close();
 							Alerter.showErrorAlert("Verification Failed",
 									"There was an error communicating with the verification engine. Please run verification again.");
-						}
+						});
+					}
+
+					Platform.runLater(() -> {
+						modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
+						modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
 					});
 
 					try {
-						runVerificationsSequentially2(index + 1, vModel, vProp, experimentPlan, results, executor,
+						runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor,
 								modalStage);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -508,10 +535,14 @@ public class PropertiesController {
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
 		if (project.getCacheResult(cacheKey) != null) {
-			String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
-					+ vProp.getDefinition()
-					+ "\nResult: " + project.getCacheResult(cacheKey).get(vProp.getDefinition()) + "\n";
-			addVerificationResult(verificationResult);
+
+			String runId = UUID.randomUUID().toString();
+			VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(),
+					project, false);
+			VerificationResult vr = new VerificationResult(run, project.getCacheResult(cacheKey), project);
+			run.addResult(vr);
+			verificationRuns.add(run);
+
 			Platform.runLater(modalStage::close);
 			return;
 		}
@@ -522,11 +553,13 @@ public class PropertiesController {
 		ultimate.setVerificationProperty(vProp);
 		ultimate.executeVerification();
 		HashMap<String, String> result = ultimate.getVerificationResults();
+		String runId = UUID.randomUUID().toString();
+		VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(),
+				project, false);
+		VerificationResult vr = new VerificationResult(run, result, project);
+		run.addResult(vr);
 		project.addCacheResult(cacheKey, result);
-		String verificationResult = "Verification of " + vModel.getModelId() + " with property: "
-				+ vProp.getDefinition()
-				+ "\nResult: " + result.get(vProp.getDefinition()) + "\n";
-		addVerificationResult(verificationResult);
+		verificationRuns.add(run);
 
 		Platform.runLater(() -> {
 			modalStage.close();
@@ -742,7 +775,7 @@ public class PropertiesController {
 			Platform.runLater(() -> {
 				if (newModel != null) {
 					propertyListView.setItems(newModel.getProperties());
-					synthesisListView.setItems(newModel.getSynthesisObjectives());
+					synthesisListView.setItems(newModel.getSynthesisGoals());
 					currentModelId = newModel.getModelId();
 				} else {
 					currentModelId = null;
@@ -867,6 +900,7 @@ public class PropertiesController {
 	public void synthesise() {
 
 		Ultimate ultimate = SharedContext.getUltimateInstance();
+		progressIndicatorSynthesis.setVisible(true);
 
 		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
 			Platform.runLater(() -> {
@@ -889,9 +923,6 @@ public class PropertiesController {
 		modalStage.show();
 		modalProgress.setVisible(true);
 
-		// TODO: communicate that plotting is only possible for 2 or 3 OCs
-		final boolean plotting = plotSynthesisCheckBox.isSelected();
-
 		String runId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss")) + "_"
 				+ project.getProjectName();
 
@@ -911,7 +942,7 @@ public class PropertiesController {
 				updateMessage(message);
 
 				ultimate.executeSynthesis();
-				ultimate.writeSynthesisResultsToFile();
+				ultimate.writeSynthesisResultsToFile("/tmp", true);
 
 				ArrayList<HashMap<String, String>> synthesisFront = ultimate.getSynthesisParetoFront();
 				ArrayList<HashMap<String, String>> synthesisSet = ultimate.getSynthesisParetoSet();
@@ -936,11 +967,11 @@ public class PropertiesController {
 
 				Platform.runLater(() -> {
 					run.addSolutions(runSolutions);
+					run.setParetoFrontFilePath(ultimate.getEvoCheckerInstance().getParetoFrontFileName());
+					run.setParetoSetFilePath(ultimate.getEvoCheckerInstance().getParetoSetFileName());
+					progressIndicatorSynthesis.setVisible(false);
 					synthesisRuns.add(run);
 					modalStage.close();
-					if (plotting) {
-						ultimate.plotParetoFront();
-					}
 				});
 
 				return "Synthesis complete.";
@@ -953,6 +984,7 @@ public class PropertiesController {
 			Throwable e = task.getException();
 			e.printStackTrace();
 			Platform.runLater(() -> {
+				progressIndicatorSynthesis.setVisible(false);
 				appendPopUpContents("An error occurred during synthesis.\n" + e);
 				modalProgress.setVisible(false);
 			});

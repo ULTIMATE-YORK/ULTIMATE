@@ -273,16 +273,17 @@ public class Ultimate {
     // return resultsMatrix;
     // }
 
-    public void writeSynthesisResultsToFile() {
+    public void writeSynthesisResultsToFile(String directory, boolean makeTemporary) {
 
         try {
-            evoChecker.ExportToFile();
+            evoChecker.ExportToFile(directory, makeTemporary);
         } catch (Exception e) {
             System.err.println("Couldn't write the synthesis results to file.");
             e.printStackTrace();
         }
 
     }
+    
 
     public void resetResults() {
         results = new java.util.HashMap<>();
@@ -409,11 +410,6 @@ public class Ultimate {
 
     public Runnable getUpdateProgressCallback() {
         return updateCallback;
-    }
-
-    // TODO: remove this
-    public void setEvoCheckerPlotting(boolean plotting) {
-        evoChecker.setParetoFrontPlottingOn(plotting);
     }
 
     public void plotParetoFront(){

@@ -19,7 +19,7 @@ import parameters.DependencyParameter;
 import parameters.ExternalParameter;
 import parameters.FixedExternalParameter;
 import parameters.RangedExternalParameter;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import parameters.InternalParameter;
 import parameters.UncategorisedParameter;
 import property.Property;
@@ -45,7 +45,7 @@ public class Model {
 	private ObservableList<ExternalParameter> externalParameters; // List of environment parameters
 	private ObservableList<InternalParameter> internalParameters; // List of internal parameters
 	private ObservableList<UncategorisedParameter> uncategorisedParameters; // List of undefined parameters
-	private ObservableList<SynthesisObjective> synthesisObjectives; // List of undefined parameters
+	private ObservableList<SynthesisGoal> synthesisObjectives; // List of undefined parameters
 	private ObservableList<Property> properties;
 	private File verificationFile;
 	private HashMap<String, HashMap<String, Double>> results = new HashMap<String, HashMap<String, Double>>(); // Results
@@ -348,10 +348,10 @@ public class Model {
 		}
 	}
 
-	public void removeSynthesisObjective(SynthesisObjective so) {
-		Iterator<SynthesisObjective> iter = this.synthesisObjectives.iterator();
+	public void removeSynthesisObjective(SynthesisGoal so) {
+		Iterator<SynthesisGoal> iter = this.synthesisObjectives.iterator();
 		while (iter.hasNext()) {
-			SynthesisObjective current = iter.next();
+			SynthesisGoal current = iter.next();
 			if (current.getDefinition().equals(so.getDefinition())) {
 				iter.remove();
 				break;
@@ -476,7 +476,6 @@ public class Model {
 
 		for (InternalParameter ip : internalParameters) {
 			for (String key : hashInternalParameters.keySet()) {
-				// System.out.println(key + " " + hashInternalParameters.get(key));
 				if (ip.getNameInModel().equals(key)) {
 					ip.setValue(hashInternalParameters.get(key));
 					break;
@@ -487,9 +486,6 @@ public class Model {
 	}
 
 	public void setExternalParameterValuesFromMap(HashMap<String, String> hashExternalParameters) {
-
-		System.out.println("hashExternalParameters: " + hashExternalParameters);
-		System.out.println("externalParameters: " + externalParameters);
 
 		for (String key : hashExternalParameters.keySet()) {
 			ExternalParameter ep = externalParameters.stream().filter(p -> p.getNameInModel() == key).findFirst()
@@ -506,21 +502,16 @@ public class Model {
 
 	public void setExternalParametersByUniqueIdMap(HashMap<String, String> hashExternalParameters) {
 
-		// System.out.println("hashExternalParameters: " + hashExternalParameters);
-		// System.out.println("my ep UUIDs: " + externalParameters.stream()
-		// 		.map(ep -> ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()))
-		// 		.collect(Collectors.toList()));
 		for (String key : hashExternalParameters.keySet()) {
 			ExternalParameter ep = externalParameters.stream()
-					.filter(p -> ParameterUtilities.generateUniqueParameterId(this.modelId, p.getNameInModel()).equals(key))
+					.filter(p -> ParameterUtilities.generateUniqueParameterId(this.modelId, p.getNameInModel())
+							.equals(key))
 					.findFirst()
 					.orElse(null);
 			if (ep != null) {
 				try {
+
 					ep.setValue(hashExternalParameters.get(key));
-					// System.out.println(String.format("Model %s: set %s (UUID %s) to %s", modelId, ep.getNameInModel(),
-					// 		ParameterUtilities.generateUniqueParameterId(this.modelId, ep.getNameInModel()),
-					// 		hashExternalParameters.get(key)));
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new RuntimeException(e.getMessage());
@@ -548,15 +539,15 @@ public class Model {
 				"The internal parameter with name '" + name + "' was not found in the model.");
 	}
 
-	public ObservableList<SynthesisObjective> getSynthesisObjectives() {
+	public ObservableList<SynthesisGoal> getSynthesisGoals() {
 		return this.synthesisObjectives;
 	}
 
-	public void setSynthesisObjectives(ObservableList<SynthesisObjective> synthesisObjectives) {
+	public void setSynthesisObjectives(ObservableList<SynthesisGoal> synthesisObjectives) {
 		this.synthesisObjectives = synthesisObjectives;
 	}
 
-	public void addSynthesisObjective(SynthesisObjective synthesisObjective) {
+	public void addSynthesisObjective(SynthesisGoal synthesisObjective) {
 		this.synthesisObjectives.add(synthesisObjective);
 	}
 

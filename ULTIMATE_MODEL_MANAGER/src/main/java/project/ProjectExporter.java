@@ -17,7 +17,7 @@ import parameters.FixedExternalParameter;
 import parameters.InternalParameter;
 import parameters.LearnedExternalParameter;
 import parameters.RangedExternalParameter;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import property.Property;
 import utils.Alerter;
 import utils.FileUtils;
@@ -103,7 +103,7 @@ public class ProjectExporter {
 
             // synthesis objectives
             JSONArray synthesisPropertiesArray = new JSONArray();
-            for (SynthesisObjective s : model.getSynthesisObjectives()) {
+            for (SynthesisGoal s : model.getSynthesisGoals()) {
                 synthesisPropertiesArray.put(s.getDefinition());
             }
             JSONObject synthesisNode = new JSONObject();

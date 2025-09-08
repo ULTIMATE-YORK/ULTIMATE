@@ -25,7 +25,7 @@ import parameters.FixedExternalParameter;
 import parameters.InternalParameter;
 import parameters.LearnedExternalParameter;
 import parameters.RangedExternalParameter;
-import parameters.SynthesisObjective;
+import parameters.SynthesisGoal;
 import utils.Alerter;
 
 public class ProjectImporter {
@@ -265,12 +265,12 @@ public class ProjectImporter {
 		return path.toAbsolutePath().getParent().toString(); // Get directory
 	}
 
-	private ObservableList<SynthesisObjective> importSynthesisObjectives(Model model, JSONObject synthesisObject) {
+	private ObservableList<SynthesisGoal> importSynthesisObjectives(Model model, JSONObject synthesisObject) {
 
-		ObservableList<SynthesisObjective> ocs = FXCollections.observableArrayList();
+		ObservableList<SynthesisGoal> ocs = FXCollections.observableArrayList();
 		JSONArray propertiesArray = synthesisObject.getJSONArray("properties");
 		for (Object prop : propertiesArray) {
-			ocs.add(new SynthesisObjective(prop.toString()));
+			ocs.add(new SynthesisGoal(prop.toString()));
 		}
 		return ocs;
 	}

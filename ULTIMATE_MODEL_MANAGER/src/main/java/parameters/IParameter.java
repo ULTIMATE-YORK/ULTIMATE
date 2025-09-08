@@ -10,5 +10,7 @@ public interface IParameter {
 
     public String getValue() throws IOException;
 
+    public String getConfigCacheString();
+
 
 }

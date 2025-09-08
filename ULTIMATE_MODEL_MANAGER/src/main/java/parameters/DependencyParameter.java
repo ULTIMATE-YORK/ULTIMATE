@@ -79,4 +79,8 @@ public class DependencyParameter implements IParameter {
 
     }
 
+    public String getConfigCacheString() {
+        return String.format("DependencyParameter:%s:%s:%s", getNameInModel(), getSourceModel(), getDefinition());
+    }
+
 }
