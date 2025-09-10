@@ -10,8 +10,6 @@ ULTIMATE_MODEL_MANAGER/evochecker_config.properties
 ULTIMATE_MODEL_MANAGER/prism    
 ULTIMATE_MODEL_MANAGER/prism-games
 ULTIMATE_MODEL_MANAGER/data
-ULTIMATE_MODEL_MANAGER/m2repo/*
-!ULTIMATE_MODEL_MANAGER/m2repo/.gitkeep
 outputs/
 .vscode/
 install_ultimate

@@ -21,8 +21,8 @@
 
   <repositories>
     <repository>
-      <id>ultimate_local_repo</id>
-      <url>file://${basedir}/m2repo</url>
+      <id>UltimateLocalRepository</id>
+      <url>file://${basedir}/libs</url>
     </repository>
   </repositories>
 
