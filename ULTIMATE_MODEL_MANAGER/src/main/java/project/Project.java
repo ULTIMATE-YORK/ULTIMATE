@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import utils.ParameterUtilities;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -280,65 +281,82 @@ public class Project {
 	}
 
 	private void setupConfigs() throws IOException {
-		File configFile = new File(System.getenv("ULTIMATE_DIR") + "/config.json");
-		String content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
-		JSONObject configJSON = new JSONObject(content);
 
-		String stormInstall = configJSON.getString("stormInstall");
-		if (FileUtils.isFile(stormInstall) && !stormInstall.equals("")) {
-			this.stormInstall = stormInstall;
-		} else {
-			if (SharedContext.getMainStage() != null) {
-				Alerter.showWarningAlert("No Storm Installation found!",
-						"Please configure the location of the storm install on your system!");
+		ArrayList<String> errorMessages = new ArrayList<>();
+		File configFile = null;
+		String content = null;
+		JSONObject configJSON = null;
+
+		String ULTIMATE_DIR = System.getenv("ULTIMATE_DIR");
+		if (ULTIMATE_DIR == null || ULTIMATE_DIR.equals("")) {
+			errorMessages.add(String.format("ULTIMATE_DIR environment variable not set. Make sure it points to ultimate/ULTIMATE_MODEL_MANAGER"));
+			configured = false;
+		}
+		try {
+			configFile = new File(System.getenv("ULTIMATE_DIR") + "/config.json");
+			content = new String(Files.readAllBytes(Paths.get(configFile.toURI())));
+			configJSON = new JSONObject(content);
+		} catch (IOException e) {
+			errorMessages.add(String.format(
+					"config.json could not be found. Make sure the ULTIMATE_DIR environment variable points to ultimate/ULTIMATE_MODEL_MANAGER and that the file is present with correct formatting."));
+			configured = false;
+		} catch (JSONException e) {
+
+			errorMessages.add(String.format(
+					"Configuration file was found but could not be parsed. Make sure it is in correct JSON format."));
+			configured = false;
+		}
+
+		if (configFile != null && content != null && configJSON != null) {
+			String stormInstall = configJSON.getString("stormInstall");
+			if (FileUtils.isFile(stormInstall) && !stormInstall.equals("")) {
+				this.stormInstall = stormInstall;
+			} else {
+				errorMessages.add(String.format("Storm installation at '%s' not found ", stormInstall));
+				configured = false;
+
+			}
+
+			String stormParsInstall = configJSON.getString("stormParsInstall");
+			if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
+				this.stormParsInstall = stormParsInstall;
+			} else {
+				errorMessages.add(String.format("Storm-Pars installation at '%s' not found ", stormParsInstall));
+				configured = false;
+
+			}
+
+			String prismInstall = configJSON.getString("prismInstall");
+			if (FileUtils.isFile(prismInstall) && !prismInstall.equals("")) {
+				this.prismInstall = prismInstall;
+			} else {
+				errorMessages.add(String.format("PRISM installation at '%s' not found ", prismInstall));
+				configured = false;
+			}
+
+			String prismGamesInstall = configJSON.getString("prismGamesInstall");
+			if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
+				this.prismGamesInstall = prismGamesInstall;
+			} else {
+				errorMessages.add(String.format("PRISM-games installation at '%s' not found ", prismGamesInstall));
+				configured = false;
+			}
+
+			String pythonInstall = configJSON.getString("pythonInstall");
+			if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
+				this.pythonInstall = pythonInstall;
+			} else {
+				errorMessages.add(String.format("Python installation at '%s' not found ", pythonInstall));
 				configured = false;
 			}
 		}
 
-		String stormParsInstall = configJSON.getString("stormParsInstall");
-		if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
-			this.stormParsInstall = stormParsInstall;
-		} else {
-			if (SharedContext.getMainStage() != null) {
-				Alerter.showWarningAlert("No Storm-Pars Installation found!",
-						"Please configure the location of the storm-pars install on your system!");
-				configured = false;
-			}
+		if (SharedContext.getMainStage() != null && !configured) {
+			Alerter.showWarningAlert("Incorrect Configuration",
+					String.format("The following issues were detected with your configuration:\n\n - %s"
+							+ "\n\nSome functionality may not work correctly. Please correct these issues and restart ULTIMATE.",
+							String.join("\n\n - ", errorMessages)));
 		}
-
-		String prismInstall = configJSON.getString("prismInstall");
-		if (FileUtils.isFile(prismInstall) && !prismInstall.equals("")) {
-			this.prismInstall = prismInstall;
-		} else {
-			if (SharedContext.getMainStage() != null) {
-				Alerter.showWarningAlert("No PRISM Installation found!",
-						"Please configure the location of the PRISM install on your system!");
-				configured = false;
-			}
-		}
-
-		String prismGamesInstall = configJSON.getString("prismGamesInstall");
-		if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
-			this.prismGamesInstall = prismGamesInstall;
-		} else {
-			if (SharedContext.getMainStage() != null) {
-				Alerter.showWarningAlert("No PRISM games Installation found!",
-						"Please configure the location of the PRISM Games install on your system!");
-				configured = false;
-			}
-		}
-
-		String pythonInstall = configJSON.getString("pythonInstall");
-		if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
-			this.pythonInstall = pythonInstall;
-		} else {
-			if (SharedContext.getMainStage() != null) {
-				Alerter.showWarningAlert("No python Installation found!",
-						"Please configure the location of the python install on your system!");
-				configured = false;
-			}
-		}
-
 	}
 
 	// // TODO Generate a temporary directory of evolable model files for evochecker
