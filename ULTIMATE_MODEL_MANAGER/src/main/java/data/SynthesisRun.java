@@ -103,11 +103,6 @@ public class SynthesisRun {
         ObservableList<String> details = FXCollections.observableArrayList();
         details.add(String.format("Run ID: %s", runId));
         details.add(String.format("World model name: %s", worldModelName));
-        // details.add("World model parameters: "
-        // +
-        // (projectConfig.equals(SharedContext.getProject().generateParameterConfigurationKey())
-        // ? "Identical to current configuration"
-        // : "!OLD: parameters differ from present configuration!"));
         details.add(String.format("Timestamp: %s", timestamp));
         details.add(String.format("Synthesis goals (%d): %s", getAllSynthesisGoalDefinitions().size(),
                 getModelSynthesisObjectivesDefinitionsMap().entrySet().stream()
