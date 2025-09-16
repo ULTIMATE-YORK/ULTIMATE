@@ -2,9 +2,12 @@ package sharedContext;
 
 import java.io.IOException;
 
+import org.mariuszgromada.math.mxparser.mXparser;
+
 import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
+import org.mariuszgromada.math.mxparser.License;
 
 public class SharedContext {
 
@@ -15,6 +18,7 @@ public class SharedContext {
 
     private SharedContext() {
         ultimate = new Ultimate();
+        License.iConfirmNonCommercialUse("ULTIMATE");
     }
 
     public static SharedContext getContext() {

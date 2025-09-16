@@ -21,51 +21,73 @@ Through its unique integration of multiple probabilistic and parametric model ch
 
 [PRISM Games model checker](https://www.prismmodelchecker.org/games/download.php)
 
-[python](https://www.python.org/downloads/)
+[Python3](https://www.python.org/downloads/)
 
 [Maven](https://maven.apache.org/download.cgi)
 
-The lastest version of the JavaFX SDK should be downloaded as well as Java 22 or later as the SDK requires this. 
-Download and build storm and prism according to their respective installation guides.
+The installation checklist is:
 
-Firstly, clone the repo in a convenient location. Navigate to the folder 'ULTIMATE_MODEL_MANAGER' within the cloned repo. Here you will find a file called *config.json*.
-This file stores the installation locations of storm and prism. These will need to be set for the tool to access them during verification. The file looks like this:
+- Clone the repo
+- Configure config.json
+- Install the Python requirements
+- Set ULTIMATE_DIR environment variable
+- Set MODEL_CHECKING_ENGINE_LIBS_DIRECTORY within evochecker_config.properties
+- Run or package using Maven
+
+Detailed instructions can be found below.
+
+#### Configuring config.json
+
+The file config.json (in ULTIMATE_MODEL_MANAGER) supplies ULTIMATE with the locations of various executable dependencies. These must be set prior to running ULTIMATE.
+
+Open the file and set the locations for Storm, PRISM, PRISM-Games, and Python3 for your system.
+
+*Important: You must specify the path to the binaries, not to the installation folders.*
+*Tip: It is recommended to use a virtual environment for Python, although this is not required.*
+
+An example of a working config.json is shown below:
 
 ```json
-{"stormInstall":"","stormParsInstall":"","prismInstall":"","prismGamesInstall":"","pythonInstall":""}
+{
+"stormInstall":"/home/YourUsername/storm/build/bin/storm",
+"stormParsInstall":"/home/YourUsername/storm/build/bin/storm-pars",
+"prismInstall":"prism/bin/prism",
+"prismGamesInstall":"prism-games/bin/prism",
+"pythonInstall":"../.venv/bin/python3"
+}
 ```
-The full path to each executable for storm, storm-pars and prism will need to be set or the tool will report and error and close. For example:
+*Tip: Sometimes it may be beneficial to create a symbolic link in ULTIMATE_MODEL_MANAGER to the binaries. Such a link was used for PRISM and PRISM-games in the example above.*
 
-```json
-{"stormInstall":"/Users/user/Desktop/storm","stormParsInstall":"/Users/user/Desktop/storm-pars","prismInstall":"/Users/user/Desktop/prism","prismGamesInstall":"/Users/user/Desktop/prismg","pythonInstall":"/opt/homebrew/bin/python3"}
-```
-Then, add an environment variable to your system called 'ULTIMATE_DIR' which points to the ultimate/ULTIMATE_MODEL_MANAGER directory. For example, Linux users can add the following to their .bashrc:
+#### Install the Python requirements
+
+Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory with:
+
+`pip install -r requirements.txt`
+
+### Set ULTIMATE_DIR environment variable
+
+Add an environment variable to your system called 'ULTIMATE_DIR' which points to the ultimate/ULTIMATE_MODEL_MANAGER directory. For example, Linux users can add the following to their .bashrc:
 
 ```console
 export ULTIMATE_DIR=<path to ultimate/ULTIMATE_MODEL_MANAGER>
 ```
 
-Make sure you have the Python requirements installed. This can be done from the requirements.txt in the main directory. Note that the requirements presently consist only of numpy as scipy, so this is most important if you are using a fresh virtual environment.
+*Important: This variable must point to /ULTIMATE_MODEL_MANAGER (not /ultimate)*
 
-Next, navigate to ULTIMATE_MODEL_MANAGER and run the following to install EvoChecker to ULTIMATE's local maven repo (m2repo/):
+#### Set MODEL_CHECKING_ENGINE_LIBS_DIRECTORY within evochecker_config.properties
 
-```console
-mvn install:install-file \
-  -Dfile=libs/evochecker_for_ultimate.jar \
-  -DgroupId=edu.evochecker_project \
-  -DartifactId=evochecker_for_ultimate \
-  -Dversion=2.0.0 \
-  -Dpackaging=jar \
-  -DlocalRepositoryPath=$PWD/m2repo
-```
+ULTIMATE uses [EvoChecker](https://github.com/gerasimou/EvoChecker/) to perform parameter synthesis. EvoChecker's settings are set by the evochecker_config.properties file (in /ULTIMATE_MODEL_MANAGER). Prior to running ULTIMATE, one must set MODEL_CHECKING_ENGINE_LIBS_DIRECTORY within evochecker_config.properties to point to the correct model checking library in libs. This will be:
 
-Finally, run:
+- `libs/runtime-amd64` if you are using a machine with x86-64 (AMD64) architecture.
+- `libs/runtime` otherwise.
 
-```console
-mvn clean install
-```
+#### Run or Package using Maven
 
-This will generate the ULTIMATE jar files.
+To use ULTIMATE in headless mode, you will need to package the jar by running:
+
+`mvn clean package`
+
+Otherwise, you can start the GUI as described below.
 
 ### Running the GUI:
 
