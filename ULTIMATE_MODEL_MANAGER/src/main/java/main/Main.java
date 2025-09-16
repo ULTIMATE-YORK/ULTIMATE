@@ -11,11 +11,12 @@ import utils.Alerter;
 
 /**
  * Main class for the Ultimate Model Manager JavaFX application.
- * This class sets up and launches the JavaFX application, initializes the main stage,
+ * This class sets up and launches the JavaFX application, initializes the main
+ * stage,
  * and loads the primary FXML view.
  */
 public class Main extends Application {
-	   
+
     /**
      * The entry point for the JavaFX application lifecycle.
      * Initializes the primary stage and sets up the scene.
@@ -25,42 +26,20 @@ public class Main extends Application {
      */
     @Override
     public void start(Stage stage) throws Exception {
-        // Set up the shared context singleton instance for sharing data across the application
-        SharedContext.setMainStage(stage); // Store the primary stage in the shared context
-        
-        Project blankProject = new Project();
-        SharedContext.setProject(blankProject);
-        // SharedContext.getUltimateInstance().setProject(SharedContext.getProject());
-        
-        // Load the FXML file and initialize its associated controller
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
-        
-        // Load the root layout from the FXML file (in this case, a GridPane layout)
-        GridPane root = loader.load(); // The root layout is defined in main_view.fxml
+        // Set up the shared context singleton instance for sharing data across the
+        // application
 
-        // Create a Scene using the root layout and set its dimensions
-        stage.setScene(new Scene(root, 1600, 1000)); 
+        SharedContext.setMainStage(stage);
+        SharedContext.reset(new Project());
 
-        // Set the title of the primary stage (window)
-        //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed
-
-        // Set minimum dimensions for the primary stage
-        stage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width
-        stage.setMinHeight(800); // Ensure the stage cannot be resized smaller than 600px in height
-
-        // Display the stage (window) to the user
-        stage.show(); // Makes the primary stage visible
-        
-        if (!blankProject.isConfigured()) {        	
-            stage.close();
-        }
     }
-	
+
     /**
      * The main method is the starting point of the Java application.
      * It launches the JavaFX application by invoking the `launch` method.
      *
-     * @param args Command-line arguments (if any) passed during application startup.
+     * @param args Command-line arguments (if any) passed during application
+     *             startup.
      */
     public static void main(String[] args) {
         launch(args); // Launch the JavaFX application

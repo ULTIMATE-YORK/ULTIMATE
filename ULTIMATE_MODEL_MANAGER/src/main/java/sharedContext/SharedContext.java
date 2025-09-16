@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import org.mariuszgromada.math.mxparser.mXparser;
 
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.image.Image;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
@@ -45,17 +49,37 @@ public class SharedContext {
         project = _project;
     }
 
-    public static void setUltimate(Ultimate _ultimate){
+    public static void setUltimate(Ultimate _ultimate) {
         ultimate = _ultimate;
     }
 
-    public static void loadProjectFromPath(String projectPath) {
-        try {
-            project = new Project(projectPath);
-            // System.out.
-        } catch (IOException e) {
-            System.err.println("Error: encountered an exception whilst loading the project from " + projectPath);
-            e.printStackTrace();
+    public static void reset(Project newProject) {
+        if (!newProject.isConfigured()) {
+            if (mainStage != null) {
+                mainStage.close();
+            }
+            return;
+        }
+        ultimate = new Ultimate();
+        project = newProject;
+
+        if (mainStage != null) {
+            mainStage.close();
+            mainStage = new Stage();
+
+            FXMLLoader loader = new FXMLLoader(mainStage.getClass().getResource("/view/main_view.fxml"));
+            try {
+                GridPane root = loader.load();
+                mainStage.setScene(new Scene(root, 1600, 1000));
+                mainStage.setMinWidth(1000);
+                mainStage.setMinHeight(800);
+                mainStage.getIcons()
+                        .add(new Image(mainStage.getClass().getResourceAsStream("/images/ultimate_logo_128x128.png")));
+                mainStage.show();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Could not load the GridPane resource at /view/main_view.fxml");
+            }
         }
     }
 

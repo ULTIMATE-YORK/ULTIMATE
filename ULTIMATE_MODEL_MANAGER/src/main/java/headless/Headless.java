@@ -15,6 +15,7 @@ import org.mariuszgromada.math.mxparser.License;
 
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
+import project.Project;
 import sharedContext.SharedContext;
 import synthesis.EvoCheckerUltimateInstance;
 import ultimate.Ultimate;
@@ -97,7 +98,11 @@ public class Headless {
 
 		System.out.println("\n========  ULTIMATE --- Model Ensemble Verification Tool  ========\n\nProject file: "
 				+ Paths.get(projectFilePath).getFileName().toString() + "\n");
-		SharedContext.loadProjectFromPath(projectFilePath);
+		try {
+			SharedContext.setProject(new Project((projectFilePath)));
+		} catch (IOException e) {
+			System.out.println("Could not find a valid project at " + projectFilePath);
+		}
 		Ultimate ultimate = SharedContext.getUltimateInstance();
 		ultimate.loadModelsFromProject();
 

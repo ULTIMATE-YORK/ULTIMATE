@@ -185,7 +185,7 @@ public class SynthesisRun {
     }
 
     public String toString() {
-        return String.format("Synthesis run %s - %d goals, %d solutions", runId,
+        return String.format("%s - %d goals, %d solutions", runId,
                 getAllSynthesisGoalDefinitions().size(),
                 solutions.size());
     }

@@ -9,10 +9,11 @@
   <menus>
     <Menu mnemonicParsing="false" text="File">
       <items>
-        <MenuItem fx:id="loadButton" onAction="#load" mnemonicParsing="false" text="Load" />
+        <MenuItem fx:id="newButton" onAction="#newProject" mnemonicParsing="false" text="New Project" />
+        <MenuItem fx:id="loadButton" onAction="#load" mnemonicParsing="false" text="Load Project" />
         <MenuItem fx:id="saveButton" onAction="#save" mnemonicParsing="false" text="Save" />
         <MenuItem fx:id="saveAsButton" onAction="#saveAs" mnemonicParsing="false" text="Save As" />
-        <MenuItem fx:id="quitButton" onAction="#quit" mnemonicParsing="false" text="Quit" />
+        <MenuItem fx:id="quitButton" onAction="#quitConfirmed" mnemonicParsing="false" text="Quit" />
       </items>
     </Menu>
     

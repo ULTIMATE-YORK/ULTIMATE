@@ -59,41 +59,18 @@ public class MenuBarController {
 	}
 	
 	@FXML
+	private void newProject() {
+		SharedContext.reset(new Project());
+	}
+
+	@FXML
 	private void load() throws IOException {
-		String file = DialogOpener.openUltimateFileDialog(SharedContext.getMainStage());
-		if (file == null) {
+		String filePath = DialogOpener.openUltimateFileDialog(SharedContext.getMainStage());
+		if (filePath == null) {
 			return;
 		}
-		if (quit()) {
-			// TODO: pull this out into method
-			Stage newMainStage = new Stage();
-			SharedContext.setMainStage(newMainStage);
-			Project project = new Project(file);
-			SharedContext.setProject(project);
-			Ultimate ultimate = new Ultimate();
-			SharedContext.setUltimate(ultimate);
-	        // Load the FXML file and initialize its associated controller
-	        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_view.fxml")); // Specifies the FXML path
-	        
-	        // Load the root layout from the FXML file (in this case, a GridPane layout)
-	        GridPane root = loader.load(); // The root layout is defined in main_view.fxml
-
-	        // Create a Scene using the root layout and set its dimensions
-	        newMainStage.setScene(new Scene(root, 1500, 1000)); // Scene dimensions: 1500x1000 pixels
-
-	        // Set the title of the primary stage (window)
-	        //stage.setTitle("Ultimate Stochastic World Model Manager: UNTITLED"); // Customize the window title as needed
-
-	        // Set minimum dimensions for the primary stage
-	        newMainStage.setMinWidth(1000); // Ensure the stage cannot be resized smaller than 800px in width
-	        newMainStage.setMinHeight(800); // Ensure the stage cannot be resized smaller than 600px in height
-
-	        // Display the stage (window) to the user
-	        newMainStage.show(); // Makes the primary stage visible
-	        
-	        if (!project.isConfigured()) {
-	            newMainStage.close();
-	        }
+		if (quitConfirmed()) {
+			SharedContext.reset(new Project(filePath));
 		}
 	}
 	
@@ -117,8 +94,9 @@ public class MenuBarController {
 		project.save(location);
 	}
 	
+	// TODO: fix this
 	@FXML
-	private boolean quit() {
+	private boolean quitConfirmed() {
 		if (!project.isBlank()) {
 			boolean q = Alerter.showConfirmationAlert("Project Not Saved!", "Are you sure you want to quit without saving?");
 			if (q) {

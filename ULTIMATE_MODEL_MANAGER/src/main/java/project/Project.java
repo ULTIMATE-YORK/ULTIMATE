@@ -27,6 +27,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.image.Image;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
@@ -88,7 +89,6 @@ public class Project {
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
 		if (SharedContext.getMainStage() != null) {
 			SharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
-
 		}
 		try {
 			setupConfigs();
@@ -106,11 +106,10 @@ public class Project {
 		this.models = new HashSet<Model>();
 		this.observableModels = FXCollections.observableArrayList();
 		this.targetModel = new SimpleObjectProperty<>(null);
-		this.projectName = "untitled";
+		this.projectName = "Untitled";
 		// SharedContext.setProject(this);
 		if (SharedContext.getMainStage() != null) {
 			SharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
-
 		}
 		try {
 			setupConfigs();
