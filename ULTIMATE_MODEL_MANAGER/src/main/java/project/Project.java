@@ -312,7 +312,7 @@ public class Project {
 			if (FileUtils.isFile(stormInstall) && !stormInstall.equals("")) {
 				this.stormInstall = stormInstall;
 			} else {
-				errorMessages.add(String.format("Storm installation at '%s' not found ", stormInstall));
+				errorMessages.add(String.format("Invalid Storm path in config.json: \"%s\" ", stormInstall));
 				configured = false;
 
 			}
@@ -321,7 +321,7 @@ public class Project {
 			if (FileUtils.isFile(stormParsInstall) && !stormParsInstall.equals("")) {
 				this.stormParsInstall = stormParsInstall;
 			} else {
-				errorMessages.add(String.format("Storm-Pars installation at '%s' not found ", stormParsInstall));
+				errorMessages.add(String.format("Invalid Storm-Pars path in config.json: \"%s\" ", stormParsInstall));
 				configured = false;
 
 			}
@@ -330,7 +330,7 @@ public class Project {
 			if (FileUtils.isFile(prismInstall) && !prismInstall.equals("")) {
 				this.prismInstall = prismInstall;
 			} else {
-				errorMessages.add(String.format("PRISM installation at '%s' not found ", prismInstall));
+				errorMessages.add(String.format("Invalid PRISM path in config.json: \"%s\" ", prismInstall));
 				configured = false;
 			}
 
@@ -338,7 +338,7 @@ public class Project {
 			if (FileUtils.isFile(prismGamesInstall) && !prismGamesInstall.equals("")) {
 				this.prismGamesInstall = prismGamesInstall;
 			} else {
-				errorMessages.add(String.format("PRISM-games installation at '%s' not found ", prismGamesInstall));
+				errorMessages.add(String.format("Invalid PRISM-games path in config.json: \"%s\" ", prismGamesInstall));
 				configured = false;
 			}
 
@@ -346,7 +346,7 @@ public class Project {
 			if (FileUtils.isFile(pythonInstall) && !pythonInstall.equals("")) {
 				this.pythonInstall = pythonInstall;
 			} else {
-				errorMessages.add(String.format("Python installation at '%s' not found ", pythonInstall));
+				errorMessages.add(String.format("Invalid Python path in config.json: \"%s\" ", pythonInstall));
 				configured = false;
 			}
 		}

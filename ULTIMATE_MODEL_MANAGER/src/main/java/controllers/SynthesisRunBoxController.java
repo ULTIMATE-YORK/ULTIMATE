@@ -1,6 +1,13 @@
 package controllers;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.nio.file.Path;
 
 import data.SynthesisRun;
 import data.SynthesisSolution;
@@ -87,7 +94,7 @@ public class SynthesisRunBoxController {
         }
     }
 
-  @FXML
+    @FXML
     public void exportSet() {
 
         String exportPath = DialogOpener.openDataSaveDialog(stage, run.getRunId() + "_set");
@@ -107,6 +114,7 @@ public class SynthesisRunBoxController {
     public void exportFront() {
 
         String exportPath = DialogOpener.openDataSaveDialog(stage, run.getRunId() + "_front");
+
         try {
             SynthesisExport.createPermanentCopy(run.getParetoFrontFilePath(), exportPath);
         } catch (IOException e) {
@@ -117,6 +125,11 @@ public class SynthesisRunBoxController {
             });
         }
 
+    }
+
+    @FXML
+    public void exportCombined() {
+        run.exportSolutions(stage);
     }
 
 }

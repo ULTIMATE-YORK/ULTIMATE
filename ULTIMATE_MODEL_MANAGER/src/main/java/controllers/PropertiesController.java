@@ -441,7 +441,7 @@ public class PropertiesController {
 		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(currentModelId);
 
-		String runId = UUID.randomUUID().toString();
+		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + vModel.getModelId();
 		VerificationRun run = new VerificationRun(runId, currentModelId, vProp.getDefinition(),
 				project, false);
 		ultimate.setVerificationProperty(vProp.getDefinition());
@@ -538,7 +538,7 @@ public class PropertiesController {
 
 			String runId = UUID.randomUUID().toString();
 			VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(),
-					project, false);
+					project, true);
 			VerificationResult vr = new VerificationResult(run, project.getCacheResult(cacheKey), project);
 			run.addResult(vr);
 			verificationRuns.add(run);
@@ -923,8 +923,7 @@ public class PropertiesController {
 		modalStage.show();
 		modalProgress.setVisible(true);
 
-		String runId = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HHmmss")) + "_"
-				+ project.getProjectName();
+		String runId = "Synth_" + UUID.randomUUID().toString() + "_" + project.getProjectName();
 
 		SynthesisRun run = new SynthesisRun(runId, project);
 

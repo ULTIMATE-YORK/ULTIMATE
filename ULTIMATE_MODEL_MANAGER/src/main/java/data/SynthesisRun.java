@@ -1,5 +1,11 @@
 package data;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -8,13 +14,17 @@ import java.util.List;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.stage.Stage;
 import model.Model;
 import parameters.InternalParameter;
 import parameters.SynthesisGoal;
 import project.Project;
 import sharedContext.SharedContext;
+import utils.Alerter;
+import utils.DialogOpener;
 
 public class SynthesisRun {
 
@@ -112,6 +122,66 @@ public class SynthesisRun {
         details.add(String.format("Internal parameters: %s", modelInternalParameterNamesMap.entrySet().stream()
                 .map(e -> e.getKey() + ": " + String.join("\t\n", e.getValue())).collect(Collectors.joining("\n"))));
         return details;
+    }
+
+    public void exportSolutions(Stage stage) {
+
+        String exportPath = DialogOpener.openDataSaveDialog(stage, this.getRunId() + "_results");
+        File exportFile = null;
+        try {
+            exportFile = Files.createFile(Paths.get(exportPath)).toFile();
+        } catch (IOException e) {
+            Platform.runLater(() -> {
+                Alerter.showErrorAlert("Saving Error",
+                        String.format(
+                                "ERROR: Could not create the export file at %s. Do you have permission to save in that location?",
+                                exportPath));
+            });
+            return;
+        }
+
+        List<String> frontFileContents = null;
+        List<String> setFileContents = null;
+
+        try {
+            frontFileContents = Files.readAllLines(Paths.get(this.getParetoFrontFilePath()));
+            setFileContents = Files.readAllLines(Paths.get(this.getParetoSetFilePath()));
+        } catch (IOException e) {
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                Alerter.showErrorAlert("Read File Error",
+                        String.format(
+                                "ERROR: Could not read the temporary front/set contents at %s and %s. These would have been created when the synthesis was first performed. Have they been moved or deleted?",
+                                this.getParetoFrontFilePath(), this.getParetoSetFilePath()));
+            });
+            return;
+        }
+
+        try {
+
+            BufferedWriter br = new BufferedWriter(new FileWriter(exportFile));
+
+            for (int i = 0; i < frontFileContents.size(); i++) {
+                String frontLine = frontFileContents.get(i);
+                String setLine = setFileContents.get(i);
+                String combinedLine = frontLine + "\t" + setLine;
+                br.write(combinedLine);
+                br.newLine();
+            }
+
+            br.close();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Platform.runLater(() -> {
+                Alerter.showErrorAlert("Saving Error",
+                        String.format(
+                                "ERROR: Could not write to the export file at %s. Do you have permission to do so?",
+                                exportPath.toString()));
+            });
+            return;
+        }
+
     }
 
     public String toString() {

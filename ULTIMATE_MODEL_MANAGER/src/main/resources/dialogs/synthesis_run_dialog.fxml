@@ -26,14 +26,19 @@
 					text="Plot Pareto front" />
 			</items>
 		</MenuButton>
-		<MenuButton mnemonicParsing="false" text="Export">
+
+		<Button fx:id="exportCombined" onAction="#exportCombined" text="Export solutions" />
+		<!-- <MenuButton mnemonicParsing="false" text="Export">
 			<items>
+				<MenuItem fx:id="exportCombined" onAction="#exportCombined" mnemonicParsing="false"
+					text="Export solutions" />
+				<SeparatorMenuItem />
 				<MenuItem fx:id="exportSet" onAction="#exportSet" mnemonicParsing="false"
-					text="Export synthesised values" />
+					text="Export only synthesised values" />
 				<MenuItem fx:id="exportFront" onAction="#exportFront" mnemonicParsing="false"
-					text="Export Pareto front" />
+					text="Export only Pareto front" />
 			</items>
-		</MenuButton>
+		</MenuButton> -->
 		<Button fx:id="closeButton" text="Close" onAction="#close" />
 	</HBox>
 
