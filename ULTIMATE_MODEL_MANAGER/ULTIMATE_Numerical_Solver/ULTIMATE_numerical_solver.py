@@ -24,7 +24,6 @@ class ULTIMATE_Solver:
 
         self.evaluated_params = {}
 
-
         for dep in dependencies_list:
             if ultimate_solver_enum is ULTIMATE_Solver_Enum.Numerical:
                 dependency = ULTIMATE_Dependency(dep[0], dep[1], dep[2], dep[3], dep[4], pmc, path)

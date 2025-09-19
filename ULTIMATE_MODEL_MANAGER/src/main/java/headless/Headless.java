@@ -17,12 +17,14 @@ import org.mariuszgromada.math.mxparser.License;
 import data.SynthesisRun;
 import data.VerificationResult;
 import data.VerificationRun;
+import evochecker.exception.EvoCheckerException;
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
 import project.Project;
 import sharedContext.SharedContext;
 import synthesis.EvoCheckerUltimateInstance;
 import ultimate.Ultimate;
+import verification.VerificationException;
 
 public class Headless {
 
@@ -36,27 +38,16 @@ public class Headless {
 	private static void setUpCLI() {
 		Option help = new Option("help", "prints usage help inforamtion");
 
-		Option projectFile = Option.builder("pf")
-				.argName("file")
-				.hasArg()
-				.desc("The file path to the ULTIAMTE project (world model) file")
-				.build();
+		Option projectFile = Option.builder("pf").argName("file").hasArg()
+				.desc("The file path to the ULTIAMTE project (world model) file").build();
 
-		Option modelID = Option.builder("m")
-				.argName("modelID")
-				.hasArg()
-				.desc("The ID of the model as described by the project file")
-				.build();
+		Option modelID = Option.builder("m").argName("modelID").hasArg()
+				.desc("The ID of the model as described by the project file").build();
 
-		Option property = Option.builder("p")
-				.argName("definition or file")
-				.hasArg()
-				.desc("The definition of a property OR a path to a .pctl file")
-				.build();
+		Option property = Option.builder("p").argName("definition or file").hasArg()
+				.desc("The definition of a property OR a path to a .pctl file").build();
 
-		Option outputDir = Option.builder("o")
-				.argName("output directory")
-				.hasArg()
+		Option outputDir = Option.builder("o").argName("output directory").hasArg()
 				.desc("The output directory for the results file. If left unspecified, no file will be created.")
 				.build();
 
@@ -111,10 +102,9 @@ public class Headless {
 		ultimate.loadModelsFromProject();
 
 		if (SharedContext.getProject().containsRangedParameters()) {
-			System.err.println(
-					"Ranged external parameters were found in the project."
-							+ "\nHeadless mode does not yet support experiments (projects with ranged external parameters)."
-							+ "\nPlease use the GUI version of ULTIMATE if you require this functionality.");
+			System.err.println("Ranged external parameters were found in the project."
+					+ "\nHeadless mode does not yet support experiments (projects with ranged external parameters)."
+					+ "\nPlease use the GUI version of ULTIMATE if you require this functionality.");
 			System.exit(1);
 		}
 
@@ -131,9 +121,8 @@ public class Headless {
 	}
 
 	public static void handleSynthesis() {
-		System.out.println(
-				"Internal parameters found in the project file --- beginning a parameter synthesis problem."
-						+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
+		System.out.println("Internal parameters found in the project file --- beginning a parameter synthesis problem."
+				+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
 		try {
 			SharedContext.getUltimateInstance().initialiseSynthesis();
 		} catch (IOException e) {
@@ -143,13 +132,22 @@ public class Headless {
 		}
 		System.out.println("Running EvoChecker to synthesise parameters...");
 		String runId = "Synth_" + UUID.randomUUID().toString() + "_" + SharedContext.getProject().getProjectName();
-		SharedContext.getUltimateInstance().executeSynthesis(runId);
+		try {
+			SharedContext.getUltimateInstance().executeSynthesis(runId);
+		} catch (IOException e) {
+			System.err.println("An IO error occurred during synthesis: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		} catch (EvoCheckerException e) {
+			System.err.println("An exception occurred whilst running EvoChecker: " + e.getMessage());
+			e.printStackTrace();
+			return;
+		}
 		SynthesisRun run = SharedContext.getUltimateInstance().getSynthesisRun();
 
 		if (outputDir == null || outputDir.equals("")) {
-			System.out
-					.println("No output directory provided with -o, setting to current directory: "
-							+ System.getenv("PWD"));
+			System.out.println(
+					"No output directory provided with -o, setting to current directory: " + System.getenv("PWD"));
 			outputDir = System.getenv("PWD");
 		}
 
@@ -158,13 +156,11 @@ public class Headless {
 		System.out.println("Saved solutions to " + exportPath);
 
 		String parameterNames = SharedContext.getProject().getAllInternalParameters().stream()
-				.map((InternalParameter x) -> (x.getNameInModel()))
-				.collect(Collectors.joining("\n\t"));
+				.map((InternalParameter x) -> (x.getNameInModel())).collect(Collectors.joining("\n\t"));
 
-		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
-				+ "\nProblem type: Synthesis"
-				+ "\nModel ID: " + modelId
-				+ "\nInternal Parameters:\n\t" + parameterNames);
+		System.out.println(
+				"\n========  Results  ========\n\nULTIMATE project:" + projectFilePath + "\nProblem type: Synthesis"
+						+ "\nModel ID: " + modelId + "\nInternal Parameters:\n\t" + parameterNames);
 
 	}
 
@@ -180,12 +176,14 @@ public class Headless {
 		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RuntimeException(
-					"IO exception occured during verification. Either the temporary model files could not be created or, if you specified the properties and a file, it could not be read.");
+					"IO exception occurred during verification. Either the temporary model files could not be created or, if you specified the properties and a file, it could not be read.");
+		} catch (VerificationException e) {
+			e.printStackTrace();
+			throw new RuntimeException("An exception occurred in the verification process: " + e.getMessage());
 		}
 
 		if (outputDir == null || outputDir.equals("")) {
-			System.out
-					.println("No output directory provided, setting to current directory: " + System.getenv("PWD"));
+			System.out.println("No output directory provided, setting to current directory: " + System.getenv("PWD"));
 			outputDir = System.getenv("PWD");
 		}
 
@@ -194,15 +192,13 @@ public class Headless {
 			run.exportToFile(exportPath, false);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RuntimeException(
-					"Could not write the verification results to " + exportPath);
+			throw new RuntimeException("Could not write the verification results to " + exportPath);
 		}
 
 		String resultsInfo = SharedContext.getUltimateInstance().getVerificationResultsInfo();
 		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
-					+ "\nProblem type: Verification"
-					+ "\nModel ID: " + modelId
-					+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
-					+ "Property Values:\n" + resultsInfo);
+				+ "\nProblem type: Verification" + "\nModel ID: " + modelId + "\nProperties: "
+				+ (property == null ? "(none specified - checked all)" : property) + "\n\n" + "Property Values:\n"
+				+ resultsInfo);
 	}
 }

@@ -10,6 +10,7 @@ import org.mariuszgromada.math.mxparser.Expression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.application.Platform;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
@@ -81,6 +82,7 @@ public class NPMCVerification {
 	private boolean usePythonSolver = false;
 	private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
 
+	
 	public NPMCVerification(ArrayList<Model> models) {
 		this.originalModels = models;
 		this.modelMap = new HashMap<>();
@@ -122,12 +124,13 @@ public class NPMCVerification {
 		logger.info("Found SCCs: " + sccs);
 	}
 
-	public String verify(String startModelId, String property) {
+	public String verify(String startModelId, String property) throws VerificationException, IOException {
 		Model startModel = modelMap.get(startModelId);
 		return verifyModel(startModel, property);
 	}
 
-	private String verifyModel(Model verificationModel, String property) {
+	private String verifyModel(Model verificationModel, String property) throws VerificationException, IOException{
+		
 		logger.info(
 				"\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
 
@@ -195,7 +198,7 @@ public class NPMCVerification {
 		return result;
 	}
 
-	private void resolveSCCWithPythonSolver(List<Model> sccModels) {
+	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException{
 		logger.info("Starting SCC resolution using Python solver for models: " + sccModels);
 
 		try {
@@ -294,16 +297,6 @@ public class NPMCVerification {
 			long startTime = System.currentTimeMillis();
 			Process process = processBuilder.start();
 			long endTime = System.currentTimeMillis();
-			int exitCode = process.exitValue();
-
-//            BufferedReader stdOut = new BufferedReader(new InputStreamReader(process.getInputStream()));
-//            BufferedReader stdErr = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-
-			if (exitCode != 0) {
-				Alerter.showErrorAlert("Numerical Solver Error",
-						"An error occured whilst running the Python-based numerical solver:\n"
-								+ new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8));
-			}
 
 			// Read output
 			BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
@@ -335,8 +328,13 @@ public class NPMCVerification {
 			logger.info("Python solver exited with code: " + exitCode + " Time elapsed: " + (endTime - startTime));
 
 			if (exitCode != 0) {
-				logger.error("Python solver failed with exit code " + exitCode);
-				throw new RuntimeException("Python solver failed with exit code " + exitCode);
+				String error = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
+				Platform.runLater(()->{
+				Alerter.showErrorAlert("Numerical Solver Error",
+						"An error occurred whilst running the Python-based numerical solver:\n"
+								+ error);
+				});
+				throw new VerificationException(error);
 			}
 
 			// Set calculated parameters to models
@@ -357,20 +355,13 @@ public class NPMCVerification {
 				}
 			} else {
 				logger.error("Failed to get results from Python solver");
-				throw new RuntimeException("Failed to get results from Python solver");
+				throw new VerificationException("Failed to get results from Python solver");
 			}
 
-		} catch (IOException e) {
-			logger.error("IOException when executing Python solver: " + e.getMessage());
-			throw new RuntimeException("Failed to execute Python solver: " + e.getMessage(), e);
 		} catch (InterruptedException e) {
 			logger.error("Process interrupted: " + e.getMessage());
 			Thread.currentThread().interrupt(); // Restore interrupted state
 			throw new RuntimeException("Python solver process interrupted: " + e.getMessage(), e);
-		} catch (Exception e) {
-			logger.error("Unexpected error during Python solver execution: " + e.getMessage());
-			// e.printStackTrace();
-			throw new RuntimeException("Python solver failed: " + e.getMessage(), e);
 		}
 	}
 

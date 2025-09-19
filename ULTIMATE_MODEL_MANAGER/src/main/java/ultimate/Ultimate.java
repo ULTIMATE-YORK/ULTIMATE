@@ -29,6 +29,7 @@ import sharedContext.SharedContext;
 import synthesis.EvoCheckerUltimateInstance;
 import utils.FileUtils;
 import verification.NPMCVerification;
+import verification.VerificationException;
 
 public class Ultimate {
 
@@ -161,7 +162,7 @@ public class Ultimate {
 
     }
 
-    public VerificationResult executeVerification() throws IOException {
+    public VerificationResult executeVerification() throws IOException, VerificationException {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();

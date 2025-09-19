@@ -57,6 +57,7 @@ import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
 import utils.Font;
+import verification.VerificationException;
 
 public class PropertiesController {
 
@@ -112,12 +113,14 @@ public class PropertiesController {
 
 	@FXML
 	private void initialize() {
-		
+
 		addPropertyButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
 		addSynthesisObjectiveButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
 
-		removePropertyButton.disableProperty().bind(Bindings.isNull(propertyListView.getSelectionModel().selectedItemProperty()));
-		removeSynthesisObjectiveButton.disableProperty().bind(Bindings.isNull(synthesisListView.getSelectionModel().selectedItemProperty()));
+		removePropertyButton.disableProperty()
+				.bind(Bindings.isNull(propertyListView.getSelectionModel().selectedItemProperty()));
+		removeSynthesisObjectiveButton.disableProperty()
+				.bind(Bindings.isNull(synthesisListView.getSelectionModel().selectedItemProperty()));
 
 		if (project.getTargetModel() != null) {
 
@@ -126,9 +129,8 @@ public class PropertiesController {
 //			synthesisListView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 		}
 
-
-		
 		// verifyResults.setItems(filteredVerificationResults);
+		currentModelId = project.getModelIDs() != null && project.getModelIDs().size() > 0 ? project.getModelIDs().get(0) : null;
 		synthesisRunsView.setItems(synthesisRuns);
 		verificationRunsView.setItems(verificationRuns);
 		synthesisRunsView.setOnMouseClicked(event -> {
@@ -200,7 +202,7 @@ public class PropertiesController {
 		Property p = propertyListView.getSelectionModel().getSelectedItem();
 		project.getTargetModel().removeProperty(p);
 	}
-	
+
 	@FXML
 	private void addSynthesisObjective() throws IOException {
 		if (project.getTargetModel() == null) {
@@ -345,7 +347,7 @@ public class PropertiesController {
 		}
 
 		Stage modalStage = createPopUpStage("Verification in Progress",
-				"Verifying property " + vProp.getDefinition() + " of model " + vModel.getModelId());
+				"Verifying property:\nModel: " + vModel.getModelId() + "\nDefinition: " + vProp.getDefinition());
 		modalStage.show();
 		modalProgress.setVisible(true);
 
@@ -410,7 +412,7 @@ public class PropertiesController {
 
 	private boolean validateSelection(Model vModel, Property vProp) {
 		if (vModel == null || vProp == null) {
-			Alerter.showErrorAlert("CANNOT VERIFY", "Please select a model and a property to run verification on");
+			Alerter.showErrorAlert("Please Select a Model and Property", "Please select a model and a property on which to run verification.");
 			return false;
 		}
 		return true;
@@ -460,9 +462,8 @@ public class PropertiesController {
 	}
 
 	private void runSequentialRangedVerifications(int index, Model vModel, Property vProp,
-			ArrayList<HashMap<String, String>> experimentPlan, VerificationRun run,
-			ExecutorService executor, Stage modalStage)
-			throws IOException, Exception {
+			ArrayList<HashMap<String, String>> experimentPlan, VerificationRun run, ExecutorService executor,
+			Stage modalStage) throws IOException, Exception {
 
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
@@ -474,71 +475,70 @@ public class PropertiesController {
 			return;
 		}
 
-		CompletableFuture
-				.supplyAsync(() -> {
-					HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
-					for (Model m : project.getModels()) {
-						m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
-					}
+		CompletableFuture.supplyAsync(() -> {
+			HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
+			for (Model m : project.getModels()) {
+				m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
+			}
 
-					if (project.getCacheResult(cacheKey) != null) {
-						run.setRetrievedFromCache(true);
-						VerificationResult result = new VerificationResult(currentModelId, vProp.getDefinition(),
-								project.getCacheResult(cacheKey));
-						return result;
-					} else {
-						try {
-							VerificationResult result = ultimate.executeVerification();
-							return result;
-						} catch (IOException e) {
-							e.printStackTrace();
-							return null;
-						}
-					}
-				}, executor)
-				.thenAccept(result -> {
-					try {
-						if (result != null) {
-							project.addCacheResult(cacheKey,
-									((VerificationResult) result).getVerifiedPropertyValueMap());
-							run.addResult((VerificationResult) result);
-						} else {
-							throw new Exception("No results from ULTIMATE!");
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-						modalStage.close();
-						Platform.runLater(() -> {
-							modalStage.close();
-							Alerter.showErrorAlert("Verification Failed",
-									"There was an error communicating with the verification engine. Please run verification again.");
-						});
-					}
-
-					Platform.runLater(() -> {
-						modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
-						modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
-					});
-
-					try {
-						runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor,
-								modalStage);
-					} catch (Exception e) {
-						e.printStackTrace();
-						modalStage.close();
-						Alerter.showErrorAlert("Verification Failed",
-								"There was an error communicating with the verification engine. Please run verification again.");
-					}
-				})
-				.exceptionally(ex -> {
-					ex.printStackTrace();
-					Platform.runLater(() -> {
-						modalStage.close(); // Ensure modal is closed on error
-						Alerter.showErrorAlert("Verification Failed",
-								"There was an error communicating with the verification engine. Please run verification again");
-					});
+			if (project.getCacheResult(cacheKey) != null) {
+				run.setRetrievedFromCache(true);
+				VerificationResult result = new VerificationResult(currentModelId, vProp.getDefinition(),
+						project.getCacheResult(cacheKey));
+				return result;
+			} else {
+				try {
+					VerificationResult result = ultimate.executeVerification();
+					return result;
+				} catch (IOException e) {
+					e.printStackTrace();
 					return null;
+				}
+				catch (VerificationException e) {
+					e.printStackTrace();
+					return null;
+				}
+			}
+		}, executor).thenAccept(result -> {
+			try {
+				if (result != null) {
+					project.addCacheResult(cacheKey, ((VerificationResult) result).getVerifiedPropertyValueMap());
+					run.addResult((VerificationResult) result);
+				} else {
+					throw new Exception("No results from ULTIMATE!");
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				modalStage.close();
+				Platform.runLater(() -> {
+					modalStage.close();
+					Alerter.showErrorAlert("Verification Failed",
+							"There was an error communicating with the verification engine. Please run verification again.");
 				});
+			}
+
+			Platform.runLater(() -> {
+				modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
+				modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
+			});
+
+			try {
+				runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor, modalStage);
+			} catch (Exception e) {
+				e.printStackTrace();
+				modalStage.close();
+				Alerter.showErrorAlert("Verification Failed",
+						"There was an error communicating with the verification engine. Please run verification again.");
+			}
+		}).exceptionally(ex -> {
+			ex.printStackTrace();
+			Platform.runLater(() -> {
+				modalStage.close(); // Ensure modal is closed on error
+				Alerter.showErrorAlert("Verification Failed",
+						"There was an error communicating with the verification engine. Please run verification again");
+			});
+			return null;
+		});
 
 	}
 
@@ -562,7 +562,12 @@ public class PropertiesController {
 		ultimate.loadModelsFromProject();
 		ultimate.setTargetModelById(vModel.getModelId());
 		ultimate.setVerificationProperty(vProp);
-		ultimate.executeVerification();
+		try {
+			ultimate.executeVerification();
+		} catch (VerificationException e) {
+			Alerter.showErrorAlert("Verification Error",
+					"An error occurred in the verification process:\n\n" + e.getMessage());
+		}
 		HashMap<String, String> result = ultimate.getVerificationResultsMap();
 		String runId = UUID.randomUUID().toString();
 		VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), false);
@@ -783,7 +788,6 @@ public class PropertiesController {
 		// Model change listener
 		project.currentModelProperty().addListener((obs, oldModel, newModel) -> {
 			Platform.runLater(() -> {
-				Alerter.showInfoAlert("Old/New model", oldModel.getModelId() + "/" + newModel.getModelId());	
 				if (newModel != null) {
 					propertyListView.setItems(newModel.getProperties());
 					synthesisListView.setItems(newModel.getSynthesisGoals());
@@ -943,7 +947,7 @@ public class PropertiesController {
 				ultimate.loadModelsFromProject();
 				ultimate.initialiseSynthesis();
 				SynthesisRun run = ultimate.executeSynthesis(runId);
-					
+
 				Platform.runLater(() -> {
 					modalStage.close();
 					progressIndicatorSynthesis.setVisible(false);
@@ -960,7 +964,7 @@ public class PropertiesController {
 			e.printStackTrace();
 			modalStage.close();
 			Platform.runLater(() -> {
-				Alerter.showErrorAlert("Synthesis Error", "An exception occured during synthesis:\n" + e.getMessage());
+				Alerter.showErrorAlert("Synthesis Error", "An exception occurred during synthesis:\n" + e.getMessage());
 				progressIndicatorSynthesis.setVisible(false);
 				appendPopUpContents("An error occurred during synthesis.\n" + e);
 				modalProgress.setVisible(false);

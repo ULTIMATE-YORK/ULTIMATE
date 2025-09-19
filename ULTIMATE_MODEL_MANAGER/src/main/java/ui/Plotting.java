@@ -18,7 +18,7 @@ public class Plotting {
 	private static final String synthesisScriptFile = "/scripts/plotSynthesis.py";
 	private static final String rangedVerificationScriptFile = "/scripts/plotRangedVerification.py";
 
-	private static void runPlotterScript(String scriptRelativePath, String[] arguments) {
+	private static void runPlottingScript(String scriptRelativePath, String[] arguments) {
 		
 		Task<Void> task = new Task<Void>() {
 
@@ -52,7 +52,7 @@ public class Plotting {
 		task.setOnFailed(event-> {
 			Throwable e = task.getException();
 			Alerter.showErrorAlert("Numerical Solver Error",
-					"An error occured whilst running the Python-based numerical solver:\n\n"
+					"An error occurred whilst running the Python-based numerical solver:\n\n"
 							+ e.getMessage());
 		});
 
@@ -65,7 +65,7 @@ public class Plotting {
 	public static void plotParetoFront(SynthesisRun run) throws IOException {
 		
 		System.out.println("Plotting Pareto front from " + run.getParetoSetFilePath());
-		runPlotterScript(synthesisScriptFile, new String[]{run.getParetoFrontFilePath()});
+		runPlottingScript(synthesisScriptFile, new String[]{run.getParetoFrontFilePath()});
 		
 	}
 
@@ -73,7 +73,7 @@ public class Plotting {
 	public static void plotParetoSet(SynthesisRun run) throws IOException {
 
 		System.out.println("Plotting Pareto set from " + run.getParetoSetFilePath());
-		runPlotterScript(synthesisScriptFile, new String[] {run.getParetoSetFilePath()});
+		runPlottingScript(synthesisScriptFile, new String[] {run.getParetoSetFilePath()});
 
 	}
 
@@ -82,7 +82,7 @@ public class Plotting {
 			throws IOException {
 
 		System.out.println("Plotting ranged verification results from " + run.getDataFile());
-		runPlotterScript(rangedVerificationScriptFile, new String[] {run.getDataFile(), xVariable, yVariable, zVariable != null ? zVariable : ""});
+		runPlottingScript(rangedVerificationScriptFile, new String[] {run.getDataFile(), xVariable, yVariable, zVariable != null ? zVariable : ""});
 		String python3Dir = SharedContext.getProject().getPythonInstall();
 		
 	}
