@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import project.Project;
+import sharedContext.SharedContext;
 
 public class VerificationResult {
 
@@ -15,18 +16,25 @@ public class VerificationResult {
     private final String cacheKey;
     private final String modelId;
     private final String propertyDefinition;
-    private final VerificationRun parentRun;
+
+    public VerificationResult(String modelId, String propertyDefinition, 
+            HashMap<String, String> verifiedPropertyValueMap) {
+        this.verifiedPropertyValues = verifiedPropertyValueMap;
+        this.propertyDefinition = propertyDefinition;
+        this.modelId = modelId;
+        this.projectConfigKey = SharedContext.getProject().generateParameterConfigurationKey();
+        this.rangedParameterValues = SharedContext.getProject().getRangedParameterValuesPerModel();
+        this.cacheKey = SharedContext.getProject().generateVerificationCacheKey(modelId, propertyDefinition);
+    }
 
     public VerificationResult(VerificationRun run,
-            HashMap<String, String> verifiedPropertyValueMap, Project project) {
-
-        this.parentRun = run;
+            HashMap<String, String> verifiedPropertyValueMap) {
         this.verifiedPropertyValues = verifiedPropertyValueMap;
         this.propertyDefinition = run.getPropertyDefinition();
         this.modelId = run.getModelId();
-        this.projectConfigKey = run.getProjectConfig();
-        this.rangedParameterValues = project.getRangedParameterValuesPerModel();
-        this.cacheKey = project.generateVerificationCacheKey(modelId, propertyDefinition);
+        this.projectConfigKey = SharedContext.getProject().generateParameterConfigurationKey();
+        this.rangedParameterValues = SharedContext.getProject().getRangedParameterValuesPerModel();
+        this.cacheKey = SharedContext.getProject().generateVerificationCacheKey(modelId, propertyDefinition);
     }
 
     public HashMap<String, String> getVerifiedPropertyValueMap() {
@@ -45,16 +53,8 @@ public class VerificationResult {
         return modelId;
     }
 
-    public String getCacheKey() {
-        return cacheKey;
-    }
-
     public String propertyDefinition() {
         return propertyDefinition;
-    }
-
-    public VerificationRun getParentRun() {
-        return parentRun;
     }
 
     public HashMap<String, HashMap<String, String>> getRangedParameterValues() {

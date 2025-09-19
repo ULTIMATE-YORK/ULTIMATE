@@ -39,15 +39,15 @@ public class SynthesisRun {
 
     private ObservableList<SynthesisSolution> solutions = FXCollections.observableArrayList();
 
-    public SynthesisRun(String runId, Project project) {
+    public SynthesisRun(String runId) {
         this.runId = runId;
-        this.worldModelName = project.getProjectName();
-        this.projectConfig = project.generateParameterConfigurationKey();
+        this.worldModelName = SharedContext.getProject().getProjectName();
+        this.projectConfig = SharedContext.getProject().generateParameterConfigurationKey();
         this.modelInternalParameterNamesMap = new HashMap<>();
         this.modelSynthesisObjectivesDefinitionsMap = new HashMap<>();
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd_HH:mm:ss"));
 
-        for (Model m : project.getModels()) {
+        for (Model m : SharedContext.getProject().getModels()) {
             List<String> goalDefinitions = new ArrayList<>();
             List<String> internalParameterNames = new ArrayList<>();
             for (SynthesisGoal g : m.getSynthesisGoals()) {
@@ -124,9 +124,9 @@ public class SynthesisRun {
         return details;
     }
 
-    public void exportSolutions(Stage stage) {
+    public void exportSolutions(String exportPath) {
 
-        String exportPath = DialogOpener.openDataSaveDialog(stage, this.getRunId() + "_results");
+        // String exportPath = DialogOpener.openDataSaveDialog(stage, this.getRunId() + "_results");
         File exportFile = null;
         try {
             exportFile = Files.createFile(Paths.get(exportPath)).toFile();

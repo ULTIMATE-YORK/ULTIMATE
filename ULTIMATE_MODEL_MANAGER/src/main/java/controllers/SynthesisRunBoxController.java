@@ -129,7 +129,8 @@ public class SynthesisRunBoxController {
 
     @FXML
     public void exportCombined() {
-        run.exportSolutions(stage);
+        String exportPath = DialogOpener.openDataSaveDialog(stage, run.getRunId() + "_results");
+        run.exportSolutions(exportPath);
     }
 
 }

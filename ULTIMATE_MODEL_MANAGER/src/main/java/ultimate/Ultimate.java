@@ -1,7 +1,6 @@
 package ultimate;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,28 +8,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
+import data.SynthesisRun;
+import data.SynthesisSolution;
+import data.VerificationResult;
 import evochecker.EvoChecker;
-import evochecker.genetic.genes.AbstractGene;
-import evochecker.genetic.jmetal.encoding.ArrayInt;
-import evochecker.genetic.jmetal.encoding.ArrayReal;
+import evochecker.exception.EvoCheckerException;
 import evochecker.lifecycle.IUltimate;
-// import evochecker.properties.Property;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import jmetal.core.Solution;
 import jmetal.core.SolutionSet;
-import jmetal.core.Variable;
-import jmetal.util.JMException;
 import model.Model;
 import parameters.IStaticParameter;
-import parameters.InternalParameter;
 import project.Project;
 import project.ProjectExporter;
 import property.Property;
@@ -53,8 +44,6 @@ public class Ultimate {
     private String objectivesConstraints;
 
     private HashMap<String, String> internalParameterValuesHashMap = new HashMap<>();
-    // private HashMap<String, String> externalParameterValuesHashMap = new
-    // HashMap<>();
 
     private EvoChecker evoChecker;
     private Path evolvableProjectFilePath;
@@ -66,7 +55,9 @@ public class Ultimate {
     private boolean modelParametersWritten;
     private Runnable updateCallback;
 
-    java.util.HashMap<String, String> results = new java.util.HashMap<>();
+    private SynthesisRun synthesisRun;
+
+    java.util.HashMap<String, String> verificationResultsMap = new java.util.HashMap<>();
 
     public Ultimate() {
     }
@@ -147,7 +138,7 @@ public class Ultimate {
         }
 
         Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
-        Path sourceProjectPath = Paths.get(project.getPath());
+        Path sourceProjectPath = Paths.get(project.getProjectFilePath());
         Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
         evolvableProjectFilePath = targetProjectPath;
         Files.copy(sourceProjectPath, targetProjectPath, StandardCopyOption.REPLACE_EXISTING);
@@ -170,19 +161,20 @@ public class Ultimate {
 
     }
 
-    public void executeVerification() throws NumberFormatException, IOException {
+    public VerificationResult executeVerification() throws IOException {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
         if (!modelParametersWritten) {
             writeParametersToModelFiles();
         }
+        verificationResultsMap = new HashMap<>();
         if (property == null) {
             for (Property p : targetModel.getProperties()) {
                 if (verbose)
                     System.out.println("Verifying property: " + p.getDefinition());
                 String result_value = verifier.verify(targetModel.getModelId(), p.getDefinition());
-                results.put(p.toString(), result_value);
+                verificationResultsMap.put(p.toString(), result_value);
             }
         } else {
             // this checks if the property provided is a file or a property entered as a
@@ -193,16 +185,20 @@ public class Ultimate {
                         System.out.println("Verifying property: " + line.trim());
                     if (!line.trim().isEmpty()) {
                         String result_value = verifier.verify(targetModel.getModelId(), line.trim());
-                        results.put(line.trim(), result_value);
+                        verificationResultsMap.put(line.trim(), result_value);
                     }
                 }
             } else { // string -> verify single property
                 String result_value = verifier.verify(targetModel.getModelId(), property);
                 if (verbose)
                     System.out.println(property + ": " + result_value);
-                results.put(property, result_value);
+                verificationResultsMap.put(property, result_value);
             }
         }
+
+        VerificationResult vr = new VerificationResult(targetModel.getModelId(), property, verificationResultsMap);
+        return vr;
+
     }
 
     // public void synthesiseInternalParameters() {
@@ -234,19 +230,35 @@ public class Ultimate {
                 null);
     }
 
-    public void executeSynthesis() {
+    public SynthesisRun executeSynthesis(String runId) throws EvoCheckerException, IOException {
         if (evoChecker == null) {
             throw new RuntimeException(
                     "Attempted to run synthesis, but EvoChecker has not yet been instantiated. Call 'createEvoCheckerInstance' first");
         }
         try {
-            evoChecker.start();
-            evoChecker.printStatistics();
-        } catch (Exception e) {
-            throw new RuntimeException(
-                    "Error running EvoChecker. Was it properly initialised with initialiseEvoCheckerInstance?\n"
-                            + e.getMessage());
+        	evoChecker.start();
+	        evoChecker.printStatistics();
+	        System.out.println("Finished EvoChecker synthesis");
+	        writeSynthesisResultsToFile("/tmp", true);
+	        synthesisRun = createSynthesisRun(runId);
+        } catch (EvoCheckerException e) {
+        	terminateEvoChecker();
+        	throw new EvoCheckerException(e.getMessage());
         }
+        terminateEvoChecker();
+        
+        System.out.println("\nSynthesis complete.");
+        
+        return synthesisRun;        
+    }
+
+    public void terminateEvoChecker() {
+    	evoChecker=null;
+        System.out.println("\n========  Terminating EvoChecker...  ========\n");
+    }
+    
+    public SynthesisRun getSynthesisRun() {
+        return synthesisRun;
     }
 
     public void setObjectivesConstraints(String propertyFileOrString) {
@@ -261,18 +273,11 @@ public class Ultimate {
         this.property = property.toString();
     }
 
-    // TODO: safely rename to getVerificationResults
-    public java.util.HashMap<String, String> getVerificationResults() {
-        return results;
+    public java.util.HashMap<String, String> getVerificationResultsMap() {
+        return verificationResultsMap;
     }
 
-    // public double[][] getSynthesisResults() {
-    // SolutionSet results = evoChecker.getSolutions();
-    // double[][] resultsMatrix = results.writeObjectivesToMatrix();
-
-    // return resultsMatrix;
-    // }
-
+    //TODO: 'directory' is not used if makeTemporary is true. Find a better solution  
     public void writeSynthesisResultsToFile(String directory, boolean makeTemporary) {
 
         try {
@@ -283,10 +288,9 @@ public class Ultimate {
         }
 
     }
-    
 
     public void resetResults() {
-        results = new java.util.HashMap<>();
+        verificationResultsMap = new java.util.HashMap<>();
     }
 
     public String generateModelConfigurationIdentifier() throws IOException {
@@ -320,8 +324,8 @@ public class Ultimate {
     public String getVerificationResultsInfo() {
 
         StringBuilder resultsInfo = new StringBuilder();
-        for (String key : results.keySet()) {
-            resultsInfo.append("Property: " + key + "\nResult: " + results.get(key) + "\n\n");
+        for (String key : verificationResultsMap.keySet()) {
+            resultsInfo.append("Property: " + key + "\nResult: " + verificationResultsMap.get(key) + "\n\n");
         }
         return resultsInfo.toString();
 
@@ -340,6 +344,7 @@ public class Ultimate {
     }
 
     public ArrayList<HashMap<String, String>> getSynthesisParetoFront() {
+
 
         ArrayList<HashMap<String, String>> results = new ArrayList<>();
         SolutionSet evoSolutions = evoChecker.getSolutions();
@@ -412,7 +417,7 @@ public class Ultimate {
         return updateCallback;
     }
 
-    public void plotParetoFront(){
+    public void plotParetoFront() {
         evoChecker.plotParetoFront();
 
     }
@@ -423,6 +428,33 @@ public class Ultimate {
         EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(this);
         createEvoCheckerInstance(ultimateInstance);
         initialiseEvoCheckerInstance(evolvableProjectFileDir);
+    }
+
+    private SynthesisRun createSynthesisRun(String runId) {
+        SynthesisRun run = new SynthesisRun(runId);
+
+        ArrayList<HashMap<String, String>> synthesisFront = getSynthesisParetoFront();
+        ArrayList<HashMap<String, String>> synthesisSet = getSynthesisParetoSet();
+
+        List<SynthesisSolution> runSolutions = new ArrayList<>();
+        for (int i = 0; i < synthesisFront.size(); i++) {
+
+            HashMap<String, String> internalParameterValues = synthesisSet.get(i);
+            HashMap<String, String> objectiveValues = synthesisFront.get(i);
+
+            SynthesisSolution solution = new SynthesisSolution(
+                    Integer.toString(i),
+                    internalParameterValues,
+                    objectiveValues);
+
+            runSolutions.add(solution);
+        }
+
+        run.addSolutions(runSolutions);
+        run.setParetoFrontFilePath(getEvoCheckerInstance().getParetoFrontFileName());
+        run.setParetoSetFilePath(getEvoCheckerInstance().getParetoSetFileName());
+
+        return run;
     }
 
 }

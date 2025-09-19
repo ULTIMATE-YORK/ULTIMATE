@@ -1,4 +1,4 @@
-mdp
+pomdp
 
 //
 // Model of robot dressing workflow
@@ -17,7 +17,7 @@ const double pDressNotOkSlow;
 const double pDressNotOkFast;
 const double pRetryAllowed;
 
-// observables s, predOk endobservables
+observables s, predOk endobservables
 
 module Workflow
   s : [1..6] init 1;             // the steps of the workflow

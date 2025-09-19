@@ -53,7 +53,7 @@ public class VerificationRunBoxController {
 
         String exportPath = DialogOpener.openDataSaveDialog(stage, run.getModelId() + "_ranged_verification_result");
         try {
-            run.ExportToFile(exportPath, false);
+            run.exportToFile(exportPath, false);
         } catch (IOException e) {
             e.printStackTrace();
             Platform.runLater(() -> {
@@ -81,7 +81,7 @@ public class VerificationRunBoxController {
         }
 
         try {
-            run.ExportToFile(run.getRunId() + "_tempfile", true);
+            run.exportToFile(run.getRunId() + "_tempfile", true);
             Plotting.plotRangedVerification(run, plotX, plotY, plotZ);
 
         } catch (IOException e) {

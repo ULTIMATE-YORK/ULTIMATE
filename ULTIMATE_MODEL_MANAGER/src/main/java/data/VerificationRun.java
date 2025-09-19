@@ -43,20 +43,19 @@ public class VerificationRun {
     // but not by the GUI. For now this datatype is mostly redundant, but should be
     // useful for extension.
 
-    public VerificationRun(String runId, String modelId, String propertyDefinition,
-            Project project, boolean retrievedFromCache) {
+    public VerificationRun(String runId, String modelId, String propertyDefinition, boolean retrievedFromCache) {
         this.runId = runId;
         this.modelId = modelId;
         this.propertyDefinition = propertyDefinition;
-        this.worldModelName = project.getProjectName();
-        this.projectConfig = project.generateParameterConfigurationKey();
+        this.worldModelName = SharedContext.getProject().getProjectName();
+        this.projectConfig = SharedContext.getProject().generateParameterConfigurationKey();
         this.timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MMdd_HH:mm:ss"));
         this.retrievedFromCache = retrievedFromCache;
         this.results = new ArrayList<>();
         this.modelRangedExternalParameterNamesMap = new HashMap<>();
-        this.rangedExternalParameterValuesPerModel = new HashMap<>(project.getRangedParameterValuesPerModel());
+        this.rangedExternalParameterValuesPerModel = new HashMap<>(SharedContext.getProject().getRangedParameterValuesPerModel());
 
-        for (Model m : project.getModels()) {
+        for (Model m : SharedContext.getProject().getModels()) {
             List<String> externalParameterNames = new ArrayList<>();
 
             for (ExternalParameter ep : m.getExternalParameters()) {
@@ -187,7 +186,7 @@ public class VerificationRun {
         this.retrievedFromCache = retrievedFromCache;
     }
 
-    public void ExportToFile(String filePath, boolean makeTemporary) throws IOException {
+    public void exportToFile(String filePath, boolean makeTemporary) throws IOException {
 
         File f = null;
         if (makeTemporary) {

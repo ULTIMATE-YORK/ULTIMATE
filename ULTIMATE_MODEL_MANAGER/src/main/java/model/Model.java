@@ -90,12 +90,12 @@ public class Model {
 	}
 
 	public void removeProperty(Property remove) {
-		boolean removed = properties.remove(remove);
-		if (removed) {
-			Alerter.showInfoAlert("SUCCESS", "The property was removed");
-		} else {
-			Alerter.showWarningAlert("FAILED", "The property could not be removed!");
-		}
+		properties.remove(remove);
+//		if (removed) {
+//			Alerter.showInfoAlert("SUCCESS", "The property was removed");
+//		} else {
+//			Alerter.showWarningAlert("FAILED", "The property could not be removed!");
+//		}
 	}
 
 	public ObservableList<Property> getProperties() {

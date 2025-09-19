@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="362.93347mm"
+   height="70.087677mm"
+   viewBox="0 0 362.93347 70.087678"
+   version="1.1"
+   id="svg1"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <g
+     id="layer1"
+     transform="translate(-52.478692,-323.39361)">
+    <rect
+       style="fill:#808080;fill-rule:evenodd;stroke:none;stroke-width:2;stroke-linecap:square"
+       id="rect1"
+       width="362.93347"
+       height="40.519276"
+       x="52.478691"
+       y="-378.69705"
+       transform="scale(1,-1)" />
+    <g
+       id="g1"
+       transform="translate(-171.92874,-75.299313)">
+      <path
+         style="fill:#0a1e0b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+         d="m 520.27456,415.49566 h 39.27937"
+         id="path4-1-3" />
+      <path
+         id="rect12-1-2-54-0-0-5"
+         style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-dasharray:none"
+         d="m 514.26357,416.25622 24.3216,34.06977 -4.19802,1.08738 -24.3216,-34.06977 z" />
+      <path
+         style="fill:#0a1e0b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+         d="m 540.17152,451.24805 19.1899,-35.02261"
+         id="path3-8-6" />
+      <path
+         style="fill:#329338;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         d="m 559.55393,432.93652 19.15243,-28.8987 h -38.30488 z"
+         id="path15-2-5-2" />
+      <rect
+         style="fill:#4141ff;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none"
+         id="rect4-2-9-91"
+         width="30.578674"
+         height="30.530407"
+         x="503.51672"
+         y="399.6929"
+         rx="0"
+         ry="0" />
+      <ellipse
+         style="fill:#e03b3b;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+         id="path13-7-5-9"
+         cx="539.44061"
+         cy="451.97781"
+         rx="15.624147"
+         ry="15.802768" />
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-size:50.8px;line-height:1;font-family:FreeSerif;-inkscape-font-specification:'FreeSerif, Normal';text-align:center;text-decoration-color:#000000;text-anchor:middle;fill:#ffffff;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.450001;stroke-linecap:square;stroke-dasharray:none;stroke-opacity:1"
+       x="189.16287"
+       y="375.20142"
+       id="text5-9-3-27"><tspan
+         id="tspan5-1-7-0"
+         style="font-size:50.8px;fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.45;stroke-dasharray:none;stroke-opacity:1"
+         x="189.16287"
+         y="375.20142">ULTIMATE</tspan></text>
+  </g>
+</svg>

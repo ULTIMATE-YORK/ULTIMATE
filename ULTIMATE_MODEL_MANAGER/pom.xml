@@ -140,7 +140,7 @@
     <dependency>
       <groupId>edu.evochecker_project</groupId>
       <artifactId>evochecker_for_ultimate</artifactId>
-      <version>2.0.0</version>
+      <version>3.2.0</version>
     </dependency>
 
 

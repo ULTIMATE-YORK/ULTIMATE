@@ -75,7 +75,7 @@ public class Project {
 																												// models
 
 	public Project(String projectPath) throws IOException {
-		this.directory = getDirectory(projectPath);
+		this.directory = Paths.get(projectPath).toAbsolutePath().getParent().toString();
 		this.projectPath = projectPath;
 		// SharedContext.setUltimateProject(this);
 		FileUtils.isUltimateFile(projectPath); // throws IOE if file is not an ultimate project file
@@ -543,16 +543,12 @@ public class Project {
 	/*
 	 * Gets the directory of the project
 	 */
-	private String getDirectory(String projectPath) {
-		Path path = Paths.get(projectPath);
-		return path.toAbsolutePath().getParent().toString(); // Get directory
-	}
 
 	public String getDirectoryPath() {
 		return this.directory;
 	}
 
-	public String getPath() {
+	public String getProjectFilePath() {
 		return this.projectPath;
 	}
 

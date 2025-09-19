@@ -29,9 +29,8 @@
 
 			<HBox alignment="CENTER" spacing="10.0">
 				<Label text="Properties of Selected Model" />
-				<Button fx:id="addProperty" onAction="#addProperty" mnemonicParsing="false" text="+" />
-				<Button fx:id="scrollUp" onAction="#scrollUp" mnemonicParsing="false" text="↑" />
-				<Button fx:id="scrollDown" onAction="#scrollDown" mnemonicParsing="false" text="↓" />
+				<Button fx:id="addPropertyButton" onAction="#addProperty" mnemonicParsing="false" text="+" />
+				<Button fx:id="removePropertyButton" onAction="#removeProperty" mnemonicParsing="false" text="×" />
 			</HBox>
 
 			<VBox VBox.vgrow="ALWAYS" spacing="10.0">
@@ -40,8 +39,8 @@
 
 			<HBox alignment="CENTER" spacing="10.0">
 				<Label text="Synthesis Objectives of Selected Model" />
-				<Button fx:id="addSynthesisObjective" onAction="#addSynthesisObjective" mnemonicParsing="false" text="+" />
-				<Button fx:id="removeSynthesisObjective" onAction="#removeSynthesisObjective" mnemonicParsing="false" text="X" />
+				<Button fx:id="addSynthesisObjectiveButton" onAction="#addSynthesisObjective" mnemonicParsing="false" text="+" />
+				<Button fx:id="removeSynthesisObjectiveButton" onAction="#removeSynthesisObjective" mnemonicParsing="false" text="×" />
 				<!-- <Button fx:id="scrollUp" onAction="#scrollUp" mnemonicParsing="false" text="↑" />
 				<Button fx:id="scrollDown" onAction="#scrollDown" mnemonicParsing="false" text="↓" /> -->
 			</HBox>

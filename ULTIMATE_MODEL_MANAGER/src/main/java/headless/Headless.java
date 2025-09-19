@@ -2,6 +2,7 @@ package headless;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
@@ -13,6 +14,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.mariuszgromada.math.mxparser.License;
 
+import data.SynthesisRun;
+import data.VerificationResult;
+import data.VerificationRun;
 import javafx.collections.ObservableList;
 import parameters.InternalParameter;
 import project.Project;
@@ -25,7 +29,7 @@ public class Headless {
 	private static Options options = new Options();
 	private static String projectFilePath = null;
 	private static String outputDir = null;
-	private static String modelID = null;
+	private static String modelId = null;
 	private static String property = null;
 	private static boolean help = false;
 
@@ -68,7 +72,7 @@ public class Headless {
 		try {
 			CommandLine line = parser.parse(options, args);
 			projectFilePath = line.getOptionValue("pf");
-			modelID = line.getOptionValue("m");
+			modelId = line.getOptionValue("m");
 			property = line.getOptionValue("p");
 			outputDir = line.getOptionValue("o");
 
@@ -116,70 +120,89 @@ public class Headless {
 
 		ObservableList<InternalParameter> internalParameters = SharedContext.getProject().getAllInternalParameters();
 		if (internalParameters.size() > 0) {
-			System.out.println(
-					"Internal parameters found in the project file --- beginning a parameter synthesis problem."
-							+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
-			if (outputDir == null) {
-				System.out
-						.println("No output directory provided, setting to current directory: " + System.getenv("PWD"));
-				outputDir = System.getenv("PWD");
-			}
-			ultimate.initialiseSynthesis();
-			System.out.println("Running EvoChecker to synthesise parameters...");
-			ultimate.executeSynthesis();
-			ultimate.writeSynthesisResultsToFile(outputDir, false);
+			handleSynthesis();
 		} else {
-			System.out.println("Beginning a verification problem.");
-			ultimate.setTargetModelById(modelID);
-			ultimate.setVerificationProperty(property);
-			ultimate.executeVerification();
+			handleVerification();
 		}
 
-		String resultsInfo = ultimate.getVerificationResultsInfo();
 		// TODO: systemise the output by creating something like a OutputGenerator class
 		// TODO: maybe also write some utility to stylise the output, e.g.
 		// OutputUtility.printHeader()
-		if (internalParameters.size() > 0) {
-			String parameterNames = internalParameters.stream()
-					.map((InternalParameter x) -> (x.getNameInModel()))
-					.collect(Collectors.joining("\n\t"));
+	}
 
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
-					+ "\nProblem type: Synthesis"
-					+ "\nModel ID: " + modelID
-					+ "\nInternal Parameters:\n\t" + parameterNames + "\n"
-					+ "Results were saved to /data/ULTIMATE");
-		} else {
-			System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
+	public static void handleSynthesis() {
+		System.out.println(
+				"Internal parameters found in the project file --- beginning a parameter synthesis problem."
+						+ "\nULTIMATE uses EvoChecker for synthesis. If you would like to adjust the parameters of EvoChecker, please edit evochecker_config.properties.\n");
+		try {
+			SharedContext.getUltimateInstance().initialiseSynthesis();
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(
+					"Could not initialise the synthesis problem. Do you have permission to write to the default temporary file directory?");
+		}
+		System.out.println("Running EvoChecker to synthesise parameters...");
+		String runId = "Synth_" + UUID.randomUUID().toString() + "_" + SharedContext.getProject().getProjectName();
+		SharedContext.getUltimateInstance().executeSynthesis(runId);
+		SynthesisRun run = SharedContext.getUltimateInstance().getSynthesisRun();
+
+		if (outputDir == null || outputDir.equals("")) {
+			System.out
+					.println("No output directory provided with -o, setting to current directory: "
+							+ System.getenv("PWD"));
+			outputDir = System.getenv("PWD");
+		}
+
+		String exportPath = outputDir + "/" + runId + "_solutions";
+		run.exportSolutions(outputDir + "/" + runId + "_solutions");
+		System.out.println("Saved solutions to " + exportPath);
+
+		String parameterNames = SharedContext.getProject().getAllInternalParameters().stream()
+				.map((InternalParameter x) -> (x.getNameInModel()))
+				.collect(Collectors.joining("\n\t"));
+
+		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
+				+ "\nProblem type: Synthesis"
+				+ "\nModel ID: " + modelId
+				+ "\nInternal Parameters:\n\t" + parameterNames);
+
+	}
+
+	public static void handleVerification() {
+		System.out.println("Beginning a verification problem.");
+		SharedContext.getUltimateInstance().setTargetModelById(modelId);
+		SharedContext.getUltimateInstance().setVerificationProperty(property);
+		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + SharedContext.getProject().getProjectName();
+		VerificationRun run = new VerificationRun(runId, modelId, property, false);
+		try {
+			VerificationResult result = SharedContext.getUltimateInstance().executeVerification();
+			run.addResult(result);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(
+					"IO exception occured during verification. Either the temporary model files could not be created or, if you specified the properties and a file, it could not be read.");
+		}
+
+		if (outputDir == null || outputDir.equals("")) {
+			System.out
+					.println("No output directory provided, setting to current directory: " + System.getenv("PWD"));
+			outputDir = System.getenv("PWD");
+		}
+
+		String exportPath = outputDir + "/" + runId + "_results";
+		try {
+			run.exportToFile(exportPath, false);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw new RuntimeException(
+					"Could not write the verification results to " + exportPath);
+		}
+
+		String resultsInfo = SharedContext.getUltimateInstance().getVerificationResultsInfo();
+		System.out.println("\n========  Results  ========\n\nULTIMATE project:" + projectFilePath
 					+ "\nProblem type: Verification"
-					+ "\nModel ID: " + modelID
+					+ "\nModel ID: " + modelId
 					+ "\nProperties: " + (property == null ? "(none specified - checked all)" : property) + "\n\n"
 					+ "Property Values:\n" + resultsInfo);
-		}
-		// Write the results HashMap to a file
-		if (outputDir != null) {
-			java.util.HashMap<String, String> results = ultimate.getVerificationResults();
-			String fileName = outputDir + "/ultimate_results_" +
-					(projectFilePath != null ? new java.io.File(projectFilePath).getName().replaceAll("\\W+", "_")
-							: "unknown")
-					+
-					"_" +
-					(modelID != null ? modelID.replaceAll("\\W+", "_") : "unknown") +
-					"_" +
-					java.time.LocalDateTime.now().toString().replaceAll("[:.]", "-") +
-					".ultimate_output";
-
-			System.out.println("Writing results to " + fileName);
-
-			try (java.io.BufferedWriter writer = java.nio.file.Files.newBufferedWriter(
-					java.nio.file.Paths.get(fileName),
-					java.nio.charset.StandardCharsets.UTF_8)) {
-				for (java.util.Map.Entry<String, String> entry : results.entrySet()) {
-					writer.write(entry.getKey() + ": " + entry.getValue());
-					writer.newLine();
-				}
-			}
-		}
-
 	}
 }

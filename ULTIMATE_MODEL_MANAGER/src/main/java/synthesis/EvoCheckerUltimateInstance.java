@@ -8,7 +8,6 @@ import ultimate.Ultimate;
 public class EvoCheckerUltimateInstance implements IUltimate {
 
     private Ultimate ultimate;
-    private Runnable updateCallback;
 
     public EvoCheckerUltimateInstance(Ultimate ultimate) {
         this.ultimate = ultimate;
@@ -22,17 +21,11 @@ public class EvoCheckerUltimateInstance implements IUltimate {
         ultimate.setInternalParameterValuesMap(internalParameterValuesHashMap);
     }
 
-    // TODO: remove this in IUltimate
-    public void generateModelInstances() {
-        // ultimate.writeParametersToModelFiles();
-    }
-
     public void resetResults() {
         ultimate.resetResults();
     }
 
-    // TODO: in EvoChecker - throw an exception 
-    public void execute(){
+    public void execute() {
         try {
             ultimate.executeVerification();
         } catch (Exception e) {
@@ -47,14 +40,11 @@ public class EvoCheckerUltimateInstance implements IUltimate {
     }
 
     public HashMap<String, String> getResults() {
-        return ultimate.getVerificationResults();
+        return ultimate.getVerificationResultsMap();
     }
 
     public void updateSynthesisProgress(int evaluations) {
-        ultimate.setSynthesisProgress(evaluations);
-        if (ultimate.getUpdateProgressCallback() != null) {
-            ultimate.getUpdateProgressCallback().run();
-        }
+        
     }
 
 }
