@@ -166,6 +166,10 @@ public class Headless {
 
 	public static void handleVerification() {
 		System.out.println("Beginning a verification problem.");
+		if (!SharedContext.getProject().getModelIDs().contains(modelId)) {
+			System.err.println(String.format("Model ID %s not found in the project. Available model IDs:\n%s\n", modelId,
+					String.join("\n\t", SharedContext.getProject().getModelIDs())));
+		}
 		SharedContext.getUltimateInstance().setTargetModelById(modelId);
 		SharedContext.getUltimateInstance().setVerificationProperty(property);
 		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + SharedContext.getProject().getProjectName();
