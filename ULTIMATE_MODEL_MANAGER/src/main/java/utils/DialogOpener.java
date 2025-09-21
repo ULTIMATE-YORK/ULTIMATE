@@ -42,7 +42,7 @@ public class DialogOpener {
 
 	public static String openPrismFileDialog(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Choose a Prism Model File");
+		fileChooser.setTitle("Choose a Stochastic Model");
 		fileChooser.getExtensionFilters()
 				.add(new FileChooser.ExtensionFilter("PRISM file extensions", FileUtils.VALID_PRISM_FILE_EXTENSIONS));
 		fileChooser.setInitialDirectory(getInitialDir());
@@ -53,7 +53,7 @@ public class DialogOpener {
 
 	public static String openUltimateFileDialog(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Choose an ULTIMATE File");
+		fileChooser.setTitle("Choose an ULTIMATE Project");
 		fileChooser.getExtensionFilters()
 				.add(new FileChooser.ExtensionFilter("ULTIMATE file extensions", FileUtils.VALID_ULT_FILE_EXTENSIONS));
 		fileChooser.setInitialDirectory(getInitialDir());
