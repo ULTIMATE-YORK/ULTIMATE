@@ -1,5 +1,6 @@
 {"models": {
     "SmartLighting": {
+        "synthesis": {"properties": []},
         "fileName": "SmartLighting.prism",
         "id": "SmartLighting",
         "parameters": {
@@ -11,15 +12,16 @@
                 "property": "P=?[F (step=2 & detected)]"
             }}
         },
-        "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
+        "properties": ["R{\"power\"}=? [C<=10000]"]
     },
     "MotionSensor": {
+        "synthesis": {"properties": []},
         "fileName": "MotionSensor.prism",
         "id": "MotionSensor",
         "parameters": {
             "environment": {"pLargeObject": {
                 "name": "pLargeObject",
-                "type": "Fixed",
+                "type": "fixed",
                 "value": "0.4"
             }},
             "internal": {},
@@ -27,12 +29,12 @@
                 "pLow": {
                     "modelId": "SmartLighting",
                     "name": "pLow",
-                    "property": "R{\\\"low\\\"}=? [C<=10000]"
+                    "property": "R{\"low\"}=? [C<=10000]"
                 },
                 "pMed": {
                     "modelId": "SmartLighting",
                     "name": "pMed",
-                    "property": "R{\\\"medium\\\"}=? [C<=10000]"
+                    "property": "R{\"medium\"}=? [C<=10000]"
                 }
             }
         },

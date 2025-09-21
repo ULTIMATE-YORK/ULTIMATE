@@ -71,7 +71,6 @@ public class Model {
 		this.internalParameters = FXCollections.observableArrayList();
 		this.uncategorisedParameters = FXCollections.observableArrayList();
 		this.synthesisObjectives = FXCollections.observableArrayList();
-		// addUncategorisedParametersFromFile();
 
 		this.properties = FXCollections.observableArrayList();
 		this.verificationFile = tempModelFile();

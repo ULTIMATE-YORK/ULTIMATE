@@ -18,7 +18,7 @@ public class StormAPI {
 	public double run(Model model, String propFile) throws IOException {
     	project = SharedContext.getProject();
 	    String si = project.getStormInstall();
-		String command = String.format(si + " --prism \"%s\" --prop \"%s\" -pc", model.getVerificationFilePath(), propFile);
+		String command = String.format(si + " --prism \"%s\" --prop \"%s\" -pc", model.getVerificationFilePath(), propFile.replace("\"", "\\\""));
 		String output = OSCommandExecutor.executeCommand(command);
 		logger.info(output);
 		Double result = StormOutputParser.getDResult(output);
@@ -28,7 +28,7 @@ public class StormAPI {
 	public String runPars(Model model, String propFile) throws IOException {
     	project = SharedContext.getProject();
 	    String spi = project.getStormParsInstall();
-		String command = String.format(spi + " --mode solutionfunction --prism \"%s\" --prop \"%s\"", model.getVerificationFilePath(), propFile);
+		String command = String.format(spi + " --mode solutionfunction --prism \"%s\" --prop \"%s\"", model.getVerificationFilePath(), propFile.replace("\"", "\\\""));
 		String output = OSCommandExecutor.executeCommand(command);
 		logger.info(output);
 		String result = StormOutputParser.getSResult(output);

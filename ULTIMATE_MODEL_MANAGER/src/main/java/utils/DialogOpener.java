@@ -26,9 +26,9 @@ public class DialogOpener {
 		if (lastDir != null) {
 			file = lastDir;
 		} else {
-			File userDir = new File(System.getProperty("user.dir"));
-			if (userDir.exists()) {
-				file = userDir;
+			File ultDir = new File(System.getenv("ULTIMATE_DIR"));
+			if (ultDir.exists()) {
+				file = ultDir;
 			}
 		}
 		return file;
@@ -71,8 +71,13 @@ public class DialogOpener {
 		fileChooser.setInitialDirectory(getInitialDir());
 		File selectedFile = fileChooser.showSaveDialog(stage);
 		updateInitialDir(selectedFile);
-		return (selectedFile != null) ? selectedFile.getAbsolutePath() : null;
-
+		if (selectedFile == null) {
+			return null;
+		} else if (!selectedFile.getAbsolutePath().toLowerCase().endsWith(".ultimate")) {
+			return selectedFile.getAbsolutePath() + ".ultimate";
+		} else {
+			return selectedFile.getAbsolutePath();
+		}
 	}
 
 	public static String openDataSaveDialog(Stage stage, String defaultFileName) {

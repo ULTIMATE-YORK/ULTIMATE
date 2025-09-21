@@ -130,7 +130,9 @@ public class PropertiesController {
 		}
 
 		// verifyResults.setItems(filteredVerificationResults);
-		currentModelId = project.getModelIDs() != null && project.getModelIDs().size() > 0 ? project.getModelIDs().get(0) : null;
+		currentModelId = project.getModelIDs() != null && project.getModelIDs().size() > 0
+				? project.getModelIDs().get(0)
+				: null;
 		synthesisRunsView.setItems(synthesisRuns);
 		verificationRunsView.setItems(verificationRuns);
 		synthesisRunsView.setOnMouseClicked(event -> {
@@ -412,7 +414,8 @@ public class PropertiesController {
 
 	private boolean validateSelection(Model vModel, Property vProp) {
 		if (vModel == null || vProp == null) {
-			Alerter.showErrorAlert("Please Select a Model and Property", "Please select a model and a property on which to run verification.");
+			Alerter.showErrorAlert("Please Select a Model and Property",
+					"Please select a model and a property on which to run verification.");
 			return false;
 		}
 		return true;
@@ -493,8 +496,7 @@ public class PropertiesController {
 				} catch (IOException e) {
 					e.printStackTrace();
 					return null;
-				}
-				catch (VerificationException e) {
+				} catch (VerificationException e) {
 					e.printStackTrace();
 					return null;
 				}
@@ -552,9 +554,11 @@ public class PropertiesController {
 			VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), true);
 			VerificationResult vr = new VerificationResult(run, project.getCacheResult(cacheKey));
 			run.addResult(vr);
-			verificationRuns.add(run);
-
-			Platform.runLater(modalStage::close);
+			
+			Platform.runLater(()->{
+				verificationRuns.add(run);
+				modalStage.close();
+			});
 			return;
 		}
 
@@ -568,13 +572,19 @@ public class PropertiesController {
 			Alerter.showErrorAlert("Verification Error",
 					"An error occurred in the verification process:\n\n" + e.getMessage());
 		}
+		ultimate.cleanUp();
+		String cacheKey2 = project.generateVerificationCacheKey(vModel, vProp);
+		System.out.println(cacheKey2);
+		System.out.println("\n\n");
 		HashMap<String, String> result = ultimate.getVerificationResultsMap();
 		String runId = UUID.randomUUID().toString();
 		VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), false);
 		VerificationResult vr = new VerificationResult(run, result);
 		run.addResult(vr);
 		project.addCacheResult(cacheKey, result);
-		verificationRuns.add(run);
+		Platform.runLater(() -> {
+			verificationRuns.add(run);
+		});
 
 		Platform.runLater(() -> {
 			modalStage.close();

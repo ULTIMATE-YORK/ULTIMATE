@@ -25,10 +25,10 @@
             "dependency": {"disk_ops": {
                 "modelId": "FX",
                 "name": "disk_ops",
-                "property": "R{\\\"queue_size\\\"}=? [S]"
+                "property": "R{\"queue_size\"}=? [S]"
             }}
         },
-        "properties": ["R{\\\"power\\\"}=? [C<=10000]"]
+        "properties": ["R{\"power\"}=? [C<=10000]"]
     },
     "FX": {
         "synthesis": {"properties": []},
@@ -186,9 +186,9 @@
             "dependency": {"avr_num_disk_ops_remain_in_queue": {
                 "modelId": "DPM",
                 "name": "avr_num_disk_ops_remain_in_queue",
-                "property": "R{\\\"disk_operations\\\"}=?[F \\\"done\\\"]"
+                "property": "R{\"disk_operations\"}=?[F \"done\"]"
             }}
         },
-        "properties": ["R{\\\"time\\\"}=?[F \\\"done\\\"]"]
+        "properties": ["R{\"time\"}=?[F \"done\"]"]
     }
 }}

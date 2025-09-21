@@ -1,12 +1,16 @@
 package controllers;
 
+import java.awt.Desktop;
+import java.io.File;
 import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -18,6 +22,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
+import model.Model;
 import project.Project;
 import sharedContext.SharedContext;
 import ultimate.Ultimate;
@@ -62,13 +67,11 @@ public class MenuBarController {
 
 		// Dynamically add/remove tick based on the property
 		choosePrism.graphicProperty().bind(Bindings.when(project.chosenPMCProperty().isEqualTo("PRISM"))
-				.then(prismtickIcon)
-				.otherwise((ImageView) null));
+				.then(prismtickIcon).otherwise((ImageView) null));
 
 		// Dynamically add/remove tick based on the property
 		chooseStorm.graphicProperty().bind(Bindings.when(project.chosenPMCProperty().isEqualTo("STORM"))
-				.then(stormtickIcon)
-				.otherwise((ImageView) null));
+				.then(stormtickIcon).otherwise((ImageView) null));
 
 		// disable/enable MenuItems
 		SimpleBooleanProperty reloadDisabledProperty = new SimpleBooleanProperty(
@@ -173,6 +176,33 @@ public class MenuBarController {
 		if (confirmQuit()) {
 			SharedContext.reset(new Project(filePath));
 		}
+	}
+
+	@FXML
+	private void openEvoCheckerConfig() {
+//		System.out.println(String.format("%s %s %s", selectedModel.getModelId(), selectedModel.getFilePath(), Desktop.isDesktopSupported()));
+		if (Desktop.isDesktopSupported()) {
+			Task<Void> task = new Task<>() {
+				@Override
+				public Void call() throws IOException {
+					Desktop.getDesktop()
+							.open(new File(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties"));
+					return null;
+				};
+			};
+			task.setOnFailed(event -> {
+				Throwable e = task.getException();
+				e.printStackTrace();
+				Platform.runLater(() -> {
+					Alerter.showErrorAlert("Could Not Open File", "Could not open the config file at "
+							+ System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties");
+				});
+			});
+
+			new Thread(task).start();
+
+		}
+		;
 	}
 
 }

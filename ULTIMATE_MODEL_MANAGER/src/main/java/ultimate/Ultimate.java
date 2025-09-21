@@ -163,6 +163,7 @@ public class Ultimate {
     }
 
     public VerificationResult executeVerification() throws IOException, VerificationException {
+    	cleanUp();
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
@@ -421,6 +422,31 @@ public class Ultimate {
     public void plotParetoFront() {
         evoChecker.plotParetoFront();
 
+    }
+    
+    public void cleanUp() {
+    
+    	/* 
+    	 * This is a bit of a hack. I noticed that whilst running verifications sequentially,
+    	 * the result would change. This seemed to be because the dependency parameters were set
+    	 * for the models during the first verification, and this somehow influenced the initial state of
+    	 * the solver. Subsequent verifications appeared to have greater loss values.
+    	 * 
+    	 * This shouldn't really be the case, since the numerical solver probably shouldn't
+    	 * be so sensitive to initial conditions. However, I don't have the time or
+    	 * knowledge to fix it, so instead this function serves as a way to reset the dependency
+    	 * parameters, such that the results should at least be consistent.
+    	 * 
+    	 * Associated git issue at []
+    	 * 
+    	 * - BDH
+    	
+    	*/
+    	
+		for (Model m : SharedContext.getProject().getModels()) {
+			m.resetDependencyParameters();
+		}
+    	
     }
 
     public void initialiseSynthesis() throws IOException {

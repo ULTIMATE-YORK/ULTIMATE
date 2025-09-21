@@ -28,6 +28,7 @@
       <!-- Options menu -->
       <Menu mnemonicParsing="false" text="Options" >
        <items>
+       <MenuItem fx:id ="openEvoCheckerConfig" onAction="#openEvoCheckerConfig" mnemonicParsing="false" text="Open synthesis configuration file" />
          <Menu mnemonicParsing="false" text="Choose PMC Engine" >
           	<MenuItem fx:id ="choosePrism" onAction="#setPrismPMC" mnemonicParsing="false" text="PRISM" />
             <MenuItem fx:id="chooseStorm" onAction="#setStormPMC" mnemonicParsing="false" text="STORM" />  

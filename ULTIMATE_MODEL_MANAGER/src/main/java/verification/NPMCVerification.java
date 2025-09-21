@@ -82,7 +82,6 @@ public class NPMCVerification {
 	private boolean usePythonSolver = false;
 	private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
 
-	
 	public NPMCVerification(ArrayList<Model> models) {
 		this.originalModels = models;
 		this.modelMap = new HashMap<>();
@@ -126,11 +125,14 @@ public class NPMCVerification {
 
 	public String verify(String startModelId, String property) throws VerificationException, IOException {
 		Model startModel = modelMap.get(startModelId);
+		for (Model m : SharedContext.getProject().getModels()) {
+			m.resetDependencyParameters();
+		}
 		return verifyModel(startModel, property);
 	}
 
-	private String verifyModel(Model verificationModel, String property) throws VerificationException, IOException{
-		
+	private String verifyModel(Model verificationModel, String property) throws VerificationException, IOException {
+
 		logger.info(
 				"\n=== Starting verification for model " + verificationModel + " with property " + property + " ===");
 
@@ -153,6 +155,8 @@ public class NPMCVerification {
 						logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
 						String result = verifyModel(targetModel, dep.getDefinition());
 						if (dep.sanityCheck(result)) {
+//							System.out.println(
+//									String.format("Sanity check: setting %s to %s", dep.getNameInModel(), result));
 							model.setDependencyParameter(dep.getNameInModel(), result);
 						} else {
 							throw new RuntimeException(String.format(
@@ -176,10 +180,7 @@ public class NPMCVerification {
 					logger.error("Failed to resolve SCC using parametric model checking: " + e.getMessage());
 					logger.info("Switching to Python numerical solver...");
 					usePythonSolver = true;
-					// Reset any partial parameter values that might have been calculated
-					for (Model model : currentSCC) {
-						model.resetDependencyParameters();
-					}
+
 					// Call Python solver
 					resolveSCCWithPythonSolver(currentSCC);
 				}
@@ -198,8 +199,13 @@ public class NPMCVerification {
 		return result;
 	}
 
-	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException{
+	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException {
 		logger.info("Starting SCC resolution using Python solver for models: " + sccModels);
+
+////		 Reset any partial parameter values that might have been calculated
+//		for (Model model : sccModels) {
+//			model.resetDependencyParameters();
+//		}
 
 		try {
 			// Prepare input for Python solver
@@ -293,7 +299,6 @@ public class NPMCVerification {
 
 			// Execute Python solver
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
-//            processBuilder.redirectErrorStream(true);
 			long startTime = System.currentTimeMillis();
 			Process process = processBuilder.start();
 			long endTime = System.currentTimeMillis();
@@ -329,10 +334,9 @@ public class NPMCVerification {
 
 			if (exitCode != 0) {
 				String error = new String(process.getErrorStream().readAllBytes(), StandardCharsets.UTF_8);
-				Platform.runLater(()->{
-				Alerter.showErrorAlert("Numerical Solver Error",
-						"An error occurred whilst running the Python-based numerical solver:\n"
-								+ error);
+				Platform.runLater(() -> {
+					Alerter.showErrorAlert("Numerical Solver Error",
+							"An error occurred whilst running the Python-based numerical solver:\n" + error);
 				});
 				throw new VerificationException(error);
 			}
@@ -347,6 +351,8 @@ public class NPMCVerification {
 					for (Model model : sccModels) {
 						for (DependencyParameter dep : getDependencyParams(model.getModelId())) {
 							if (dep.getNameInModel().equals(paramName)) {
+//								System.out.println(String.format("resolveSCCWithPythonSolver: setting %s to %s",
+//										dep.getNameInModel(), paramValue));
 								model.setDependencyParameter(dep.getNameInModel(), paramValue);
 								break;
 							}
@@ -462,6 +468,8 @@ public class NPMCVerification {
 		for (Map.Entry<String, String> solution : solutions.entrySet()) {
 			logger.info(solution.getKey() + " = " + solution.getValue());
 			for (Model model : sccModels) {
+//				System.out
+//						.println(String.format("resolveSCC: setting %s to %s", solution.getKey(), solution.getValue()));
 				model.setDependencyParameter(solution.getKey(), solution.getValue());
 			}
 		}
@@ -607,7 +615,7 @@ public class NPMCVerification {
 		}
 
 		// Try with Prism as fallback
-		logger.info("Trying  fallback with PRISM...");
+		logger.info("Trying fallback with PRISM...");
 		try {
 			Project project = SharedContext.getProject();
 			String prismPath = project.getPrismInstall();

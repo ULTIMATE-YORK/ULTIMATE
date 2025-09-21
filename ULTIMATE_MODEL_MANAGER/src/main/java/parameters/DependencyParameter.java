@@ -3,84 +3,86 @@ package parameters;
 import model.Model;
 
 public class DependencyParameter implements IParameter {
-    private String name;
-    private Model sourceModel;
-    private String definition; // definition of the property to be verified on model
-    private String uniqueIdentifier;
-    private String result;
+	private String name;
+	private Model sourceModel;
+	private String definition; // definition of the property to be verified on model
+	private String uniqueIdentifier;
+	private String result;
 
-    public DependencyParameter(String name, Model model, String definition, String uniqueIdentifier) {
-        this.name = name;
-        this.sourceModel = model;
-        this.definition = definition;
-        this.uniqueIdentifier = uniqueIdentifier;
-    }
+	public DependencyParameter(String name, Model model, String definition, String uniqueIdentifier) {
+		this.name = name;
+		this.sourceModel = model;
+		this.definition = definition;
+		this.uniqueIdentifier = uniqueIdentifier;
+	}
 
-    // GETTER METHODS
+	// GETTER METHODS
 
-    // public String getNameInModel() {
-    // return uniqueIdentifier;
-    // }
+	// public String getNameInModel() {
+	// return uniqueIdentifier;
+	// }
 
-    public String getNameInModel() {
-        return this.name;
-    }
+	public String getNameInModel() {
+		return this.name;
+	}
 
-    public Model getSourceModel() {
-        return this.sourceModel;
-    }
+	public Model getSourceModel() {
+		return this.sourceModel;
+	}
 
-    public String getDefinition() {
-        return this.definition;
-    }
+	public String getDefinition() {
+		return this.definition;
+	}
 
-    public String getValue() {
-        return this.result;
-    }
+	public String getValue() {
+		return this.result;
+	}
 
-    // SETTER METHODS
+	// SETTER METHODS
 
-    public void setName(String newName) {
-        this.name = newName;
-    }
+	public void setName(String newName) {
+		this.name = newName;
+	}
 
-    public void setSourceModel(Model newModel) {
-        this.sourceModel = newModel;
-    }
+	public void setSourceModel(Model newModel) {
+		this.sourceModel = newModel;
+	}
 
-    public void setDefinition(String newDefinition) {
-        this.definition = newDefinition;
-    }
+	public void setDefinition(String newDefinition) {
+		this.definition = newDefinition;
+	}
 
-    public void setValue(String newResult) {
-        this.result = newResult;
-    }
+	public void setValue(String newResult) {
+		this.result = newResult;
+	}
 
-    public String getType() {
-        return "dependency";
-    }
+	public String getType() {
+		return "dependency";
+	}
 
-    public String toString() {
-        return "Dependency Parameter: " + name + "\nModel ID: " + sourceModel.getModelId() + "\nProperty Definition: "
-                + definition.replace("\\", "") + "\n";
-    }
+	public String toString() {
+		return "Dependency Parameter: " + name + "\nModel ID: " + sourceModel.getModelId() + "\nProperty Definition: "
+				+ definition.replace("\\", "") + "\n";
+	}
 
-    public boolean sanityCheck(String value) {
+	// TODO: call this in more positions where it may be relevant. one usage atm
+	public boolean sanityCheck(String value) {
 
-        Double parsedValue = Double.valueOf(value);
+		Double parsedValue = Double.valueOf(value);
 
-        if (definition.startsWith("P=?") || definition.startsWith("Pmin=?") || definition.startsWith("Pmax=?")) {
-            if (parsedValue < 0 || parsedValue > 1) {
-                return false;
-            }
-        }
+		if (definition.startsWith("P=?") || definition.startsWith("Pmin=?") || definition.startsWith("Pmax=?")) {
+			if (parsedValue < 0 || parsedValue > 1) {
+				return false;
+			}
+		}
 
-        return true;
+		return true;
 
-    }
+	}
 
-    public String getConfigCacheString() {
-        return String.format("DependencyParameter:%s:%s:%s", getNameInModel(), getSourceModel(), getDefinition());
-    }
+	public String getConfigCacheString() {
+		return String.format("DependencyParameter:%s:%s:%s", getNameInModel(), getSourceModel().getModelId(),
+				getDefinition());
+	}
 
 }

@@ -26,7 +26,7 @@
             "dependency": {"q": {
                 "modelId": "objectDetection",
                 "name": "q",
-                "property": "P=?[F \\\"obstacleAhead\\\"]"
+                "property": "P=?[F \"obstacleAhead\"]"
             }}
         },
         "properties": [

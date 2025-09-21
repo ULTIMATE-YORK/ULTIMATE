@@ -618,7 +618,7 @@ public class Project {
 				} catch (IOException e) {
 					value = "VALUE_NOT_SET_CORRECTLY";
 				}
-				sb.append(sp.getConfigCacheString() + ":" + value != null ? value : "VALUE_NOT_SET" + "::");
+				sb.append(sp.getConfigCacheString() + ":" + (value != null ? value : "VALUE_NOT_SET") + "::");
 			}
 		}
 
@@ -627,15 +627,14 @@ public class Project {
 
 	public String generateVerificationCacheKey(Model vModel, Property vProp) {
 
-		String projectConfigKey = generateParameterValuesKey();
-		return projectConfigKey + "+" + vModel.getModelId() + "+" + vProp.getDefinition();
+		return generateVerificationCacheKey(vModel.getModelId(), vProp.getDefinition());
 
 	}
 
 	public String generateVerificationCacheKey(String modelId, String propertyDefinition) {
 
 		String projectConfigKey = generateParameterValuesKey();
-		return projectConfigKey + "+" + modelId + "+" + propertyDefinition;
+		return projectConfigKey + "+V:" + modelId + "+" + propertyDefinition;
 
 	}
 

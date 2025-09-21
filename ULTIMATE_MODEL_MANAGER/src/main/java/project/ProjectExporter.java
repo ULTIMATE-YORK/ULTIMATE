@@ -57,7 +57,7 @@ public class ProjectExporter {
                 JSONObject depObj = new JSONObject();
                 depObj.put("name", dep.getNameInModel());
                 depObj.put("modelId", dep.getSourceModel().getModelId());
-                depObj.put("property", formatDefinition(dep.getDefinition()));
+                depObj.put("property", dep.getDefinition());
                 dependencyObject.put(dep.getNameInModel(), depObj);
             }
             parametersObject.put("dependency", dependencyObject);
@@ -98,7 +98,8 @@ public class ProjectExporter {
             // the properties
             JSONArray propertiesArray = new JSONArray();
             for (Property p : model.getProperties()) {
-                propertiesArray.put(formatDefinition(p.getDefinition()));
+            	System.out.println(p.getDefinition());
+                propertiesArray.put(p.getDefinition());
             }
 
             // synthesis objectives
@@ -137,19 +138,9 @@ public class ProjectExporter {
     /*
      * This method will extract labels in definitions and escape them correctly
      */
-    private String formatDefinition(String definition) {
-        String formattedDef = "";
-        for (int i = 0; i < definition.length(); i++) {
-            if (definition.charAt(i) == '\\') {
-                ;
-            } else if (definition.charAt(i) == '"') {
-                formattedDef += '\\';
-                formattedDef += definition.charAt(i);
-            } else {
-                formattedDef += definition.charAt(i);
-            }
-        }
-        return formattedDef;
-    }
+//    private String formatDefinition(String definition) {
+//    	// replaces " with \"    	
+//        return definition.replaceAll("\"", "\\\\\"");
+//    }
 
 }
