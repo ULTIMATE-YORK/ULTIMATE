@@ -2,7 +2,7 @@
 <img width="616" height="119" alt="ultimate_logo_large" src="https://github.com/user-attachments/assets/8b28dcda-29b9-4ee0-95fc-df28893e8dfc" />
 
 
-# ULTIMATE Multi-model Stochastic System Modelling, Verification and Synthesis Framework
+# ULTIMATE: A Multi-model Stochastic System Modelling, Verification and Synthesis Framework
 
 ULTIMATE supports the formal representation, verification and synthesis of multi-model stochastic systems. These are combinations of heterogenous, interdependent stochastic models (discrete and continuous-time Markov chains, Markov decision processes, partially observable Markov decision processes, stochastic games, etc.) required to verify the dependability and performance of modern software-intensive systems.
 
