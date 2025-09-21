@@ -353,7 +353,7 @@ public class Project {
 		if (SharedContext.getMainStage() != null && !configured) {
 			Alerter.showWarningAlert("Incorrect Configuration",
 					String.format("The following issues were detected with your configuration:\n\n - %s"
-							+ "\n\nSome functionality may not work correctly. Please correct these issues and restart ULTIMATE.",
+							+ "\n\nPlease correct these issues and relaunch ULTIMATE.",
 							String.join("\n\n - ", errorMessages)));
 		}
 	}
