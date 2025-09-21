@@ -51,8 +51,8 @@ public class Plotting {
 		
 		task.setOnFailed(event-> {
 			Throwable e = task.getException();
-			Alerter.showErrorAlert("Numerical Solver Error",
-					"An error occurred whilst running the Python-based numerical solver:\n\n"
+			Alerter.showErrorAlert("Plotting Error",
+					"An error occurred whilst running the Python-based plotting script:\n\n"
 							+ e.getMessage());
 		});
 
