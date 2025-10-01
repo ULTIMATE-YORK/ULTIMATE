@@ -23,7 +23,7 @@ The smart farming system involves two mobile robots and a human supervisor opera
 The smart farming system is modelled using the following interdependent stochastic models:
 
 
-1. **Collision detection models (DTMC)**: These models provide detection probabilities used by the robots.
+1. **Collision detection models (DTMC)**: These models provide collison detection probabilities used by the robots to assess which path to take in order to reach a location.
    - Low-Risk Sensor: Models the probability of detecting collisions with medium accuracy and fast response.
    - High-Risk Sensor: Models collision detection with high accuracy but higher computational cost.
 2. **Robot models (MDP)**: The robots' operate in a grid world environment that contains an obstacle at a given location. Each movement (up, down, left, right) succeeds with a location-dependent probability.
