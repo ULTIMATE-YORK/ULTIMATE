@@ -85,6 +85,11 @@ ULTIMATE uses [EvoChecker](https://github.com/gerasimou/EvoChecker/) to perform 
 - `libs/runtime-amd64` if you are using a machine with x86-64 (AMD64) architecture.
 - `libs/runtime` otherwise.
 
+*Note: To avoid Java errors, run from terminal or add to .bashrc in Linux:*
+*for NIX/AMD64 systems*```export LD_LIBRARY_PATH="/<path to ultimate>/ULTIMATE_MODEL_MANAGER/libs/runtime"```; 
+*for macOS/ARM: ```export DYLD_LIBRARY_PATH="/<path to ultimate>/ULTIMATE_MODEL_MANAGER/libs/runtime```*.
+
+
 #### Run or Package using Maven
 
 To use ULTIMATE in headless mode, you will need to package the jar by running:
