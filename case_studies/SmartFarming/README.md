@@ -10,11 +10,13 @@ The system coordinates task execution such as vine monitoring while ensuring saf
 
 The smart farming system involves two mobile robots and a human supervisor operating in a vineyard environment.
 
-1. **Collision detection system (high-risk)**: High accuracy, computationally expensive.
-2. **Collision detection system (low-risk)**: Medium accuracy, fast processing.
-3. **Robot1**: A mobile robot working in a vineyard. The robot must plan a trip to the next task (taking images of the vines at an specific location) by maximising the probability of reaching such location without collision. The robot uses either a high- or low-risk collision detection system depending on how close it is to known static obstacles.
-5. **Robot2**: A mobile robot working in a vineyard. Similar to robot1, this second robot must complete its next task without the lowest probability of collision, leveraging the two collision detection systems.
-7. **Multi-robot multi-human planning problem**: The smart farming problem consists of coordinating both robots and a human supervisor while performing their tasks in the vineyard setup. As robots and humans might fail their tasks, there is a possibility of retry each task a certain number of times. Adding retries increases the probability of eventually completing a task, but it incurs in a cost as it requires extra energy to eventually complete all mission tasks. The problem consists of probability of mission success and the expected cost of the mission.
+1. **Collision detection system (high-risk)**: High accuracy, computationally expensive obstacle collision detection system.
+2. **Collision detection system (low-risk)**: Medium accuracy, fast processing  obstacle collision detection system.
+3. **Robot1**: A mobile robot working in a vineyard (taking images of the vines at an specific location). The robot uses either a high- or low-risk collision detection system depending on how close it is to known static obstacles. The robot must select a path to reach the location of the next task.
+5. **Robot2**: Similar to robot1, this second robot must collect vine images on different sections of the vineyard.
+7. **Multi-robot multi-human (MR-MH) planning problem**: The smart farming problem involves coordinating two robots and a human supervisor in performing vineyard tasks, while managing task retries to balance mission success with operational costs.
+
+**Problem:** Since both robots and the human worker may fail their assigned tasks, each task can be retried a limited number of times. Retries increase the likelihood of eventual task completion, but also incur additional energy costs. The challenge is to determine the trade-off between maximising the probability of mission success and minimising the expected overall mission cost.
 
 ## Probabilistic Modelling
 
