@@ -20,7 +20,7 @@
             "dependency": {"pWin": {
                 "modelId": "cheater",
                 "name": "pWin",
-                "property": "S=?[cheating=1]"
+                "property": "S=?[diceRoll=6]"
             }}
         },
         "properties": ["P=?[F<10 noticed=1]"]
