@@ -1,30 +1,30 @@
 dtmc
 
-const double pWin; // probability of the cheater winning
-const int blackjack; // 0 if poker, 1 if blackjack
+const double pSix; // probability of the cheater rolling 6
+const int game; // G1 or G2
 
 const double perceptiveness; // chance casino notices if he wins whilst cheating
-const double pNoticed = pWin * perceptiveness;
+const double pNoticed = pSix * perceptiveness;
 
 module casino
 
     win : [0..1] init 0;
     noticed : [0..1] init 0;
         
-    [playBlackjack]  blackjack=1 & win=0 & noticed=0 -> 1-pWin : (win'=0) + pWin : (win'=1); // cheater plays
-    [playPoker]  blackjack=0 & win=0 & noticed=0 -> 1-(pWin*0.8) : (win'=0) + pWin*0.8 : (win'=1); // cheater plays
+    [playgame]  game=2 & win=0 & noticed=0 -> 1-pSix : (win'=0) + pSix : (win'=1); // cheater plays
+    [playPoker]  game=1 & win=0 & noticed=0 -> 1-(pSix*0.8) : (win'=0) + pSix*0.8 : (win'=1); // cheater plays
 
     [reset] win=1 -> 1-pNoticed: (noticed'=0) & (win'=0) + pNoticed:(noticed'=1) & (win'=0); // casino checks cheating
 
 endmodule
 
 
-rewards "wins"
-    [reset] win=1 & blackjack=1 : 1;
-    [reset] win=1 & blackjack=0: 1.3;
+rewards "winnings"
+    [reset] win=1 & game=2 : 1;
+    [reset] win=1 & game=1: 1.3;
 endrewards
 
 rewards "plays"
-    [playBlackjack] true: 1;
+    [playgame] true: 1;
     [playPoker] true: 1;
 endrewards
