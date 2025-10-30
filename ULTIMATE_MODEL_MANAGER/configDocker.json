@@ -1,0 +1,7 @@
+{
+"stormInstall":"/opt/storm/build/bin/storm",
+"stormParsInstall":"/opt/storm/build/bin/storm-pars",
+"prismInstall":"/opt/prism/bin/prism",
+"prismGamesInstall":"/opt/prism-games/bin/prism",
+"pythonInstall":"/usr/bin/python3"
+}
