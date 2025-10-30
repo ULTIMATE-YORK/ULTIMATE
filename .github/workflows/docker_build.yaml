@@ -26,6 +26,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Log in to GitHub Container Registry (Personal)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: gerasimou
+          password: ${{ secrets.MY_PAT }}
       
       - name: Check if Dockerfile exists
         run: |
@@ -35,10 +42,20 @@ jobs:
           fi
       
       - name: Docker metadata
-        id: meta
+        id: meta-repo
         uses: docker/metadata-action@v5
         with:
           images: ghcr.io/${{ github.repository }}/ultimate_model_manager
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha
+
+      - name: Docker metadata for personal package
+        id: meta-personal
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/gerasimou/ultimate_model_manager
           tags: |
             type=raw,value=latest
             type=ref,event=branch
@@ -52,11 +69,19 @@ jobs:
       - name: Copy case studies directory to build context
         run: cp -r case_studies ULTIMATE_MODEL_MANAGER/case_studies
       
-      - name: Build Docker Image
+      - name: Build Docker Image on ULTIMATE
         run: |
           docker buildx build --platform linux/amd64 \
             --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:latest \
             --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:${{ github.sha }} \
+            --push \
+            -f ULTIMATE_MODEL_MANAGER/Dockerfile ./ULTIMATE_MODEL_MANAGER
+
+      - name: Build Docker Image on Gerasimou
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --tag ghcr.io/gerasimou/ultimate_model_manager:latest \
+            --tag ghcr.io/gerasimou/ultimate_model_manager:${{ github.sha }} \
             --push \
             -f ULTIMATE_MODEL_MANAGER/Dockerfile ./ULTIMATE_MODEL_MANAGER
       
