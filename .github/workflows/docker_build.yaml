@@ -48,7 +48,7 @@ jobs:
         run: echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
         env:
           REPO: '${{ github.repository }}'
-
+      
       - name: Copy case studies directory to build context
         run: cp -r case_studies ULTIMATE_MODEL_MANAGER/case_studies
       
@@ -59,6 +59,6 @@ jobs:
             --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:${{ github.sha }} \
             --push \
             -f ULTIMATE_MODEL_MANAGER/Dockerfile ./ULTIMATE_MODEL_MANAGER
-
-	  - name: Clean up case_studies directory from build context	
-	    run: rm -rf ULTIMATE_MODEL_MANAGER/case_studies
+      
+      - name: Clean up case_studies directory from build context
+        run: rm -rf ULTIMATE_MODEL_MANAGER/case_studies
