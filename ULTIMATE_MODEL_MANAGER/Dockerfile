@@ -62,14 +62,14 @@ RUN apt-get update && apt-get install -y  \
     automake build-essential cmake git libboost-dev libginac-dev  \ 
     libglpk-dev libgmp-dev libhwloc-dev libeigen3-dev libxerces-c-dev libz3-dev
 
-RUN git clone -b stable https://github.com/moves-rwth/storm.git  && \
-    mv storm /opt/storm && \
-    cd /opt/storm && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j4 && \
-    make install
+# RUN git clone -b stable https://github.com/moves-rwth/storm.git  && \
+#     mv storm /opt/storm && \
+#     cd /opt/storm && \
+#     mkdir build && \
+#     cd build && \
+#     cmake .. && \
+#     make -j4 && \
+#     make install
 
 
 # wget https://github.com/moves-rwth/storm/releases/download/v$STORM_VERSION/storm-$STORM_VERSION-linux-amd64.tar.gz -O /tmp/storm.tar.gz && \
