@@ -49,8 +49,8 @@ jobs:
         env:
           REPO: '${{ github.repository }}'
 
-	  - name: Copy case_studies directory to build context
-	    run: cp -r case_studies ULTIMATE_MODEL_MANAGER/case_studies
+      - name: Copy case studies directory to build context
+        run: cp -r case_studies ULTIMATE_MODEL_MANAGER/case_studies
       
       - name: Build Docker Image
         run: |
