@@ -1,50 +1,53 @@
 name: Build and Push Docker Image
 
 on:
-    push:
-        branches:
-            - dockerFeature  # Occurs on pushes to the dockerFeature branch
+  push:
+    branches:
+      - dockerFeature
 
 jobs:
-    build-and-push:
-        runs-on: ubuntu-latest
-
-    # Give permissions for the GITHUB_TOKEN to write to packages
+  build-and-push:
+    runs-on: ubuntu-latest
+    
     permissions:
-        contents: read
-        packages: write
-
+      contents: read
+      packages: write
+    
     steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
-
-        - name: Log in to GitHub Container Registry
-          uses: docker/login-action@v3
-          with:
-              registry: ghcr.io
-              username: ${{ github.actor }}
-              password: ${{ secrets.GITHUB_TOKEN }}
-
-        - name: Check if Dockerfile exists
-          run: |
-            if [ ! -f ULTIMATE_MODEL_MANAGER/Dockerfile ]; then
-                echo "Dockerfile not found!"
-                exit 1
-            fi
-
-        - name: Docker metadata
-          id: meta
-          uses: docker/metadata-action@v5
-          with:
-              images: ghcr.io/${{ github.repository }}/ultimate_model_manager
-              tags: |
-                type=raw,value=latest
-                type=ref,event=branch
-                type=sha
-
-
-        - name: Build Docker Image
-            run: docker build -t ghcr.io/${{ github.repository }}/ultimate_model_manager:latest -f ULTIMATE_MODEL_MANAGER/Dockerfile .
-
-		- name: Push Docker Image to GitHub Container Registry
-		  run: docker push ghcr.io/${{ github.repository }}/ultimate_model_manager:latest
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Check if Dockerfile exists
+        run: |
+          if [ ! -f ULTIMATE_MODEL_MANAGER/Dockerfile ]; then
+            echo "Dockerfile not found!"
+            exit 1
+          fi
+      
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/ultimate_model_manager
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha
+      
+      - name: Build Docker Image
+        run: |
+          docker buildx build --platform linux/amd64 \
+            --tag ghcr.io/${{ github.repository }}/ultimate_model_manager:latest \
+            --tag ghcr.io/${{ github.repository }}/ultimate_model_manager:${{ github.sha }} \
+            --push \
+            -f ULTIMATE_MODEL_MANAGER/Dockerfile .
