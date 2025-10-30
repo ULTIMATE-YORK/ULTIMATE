@@ -47,11 +47,12 @@ const double disk_ops;
 //<---------- From FX model, props: R{"disk_operations"}=?[F "done"]
 const int FX_execution_per_time_unit = 2; // num. of FX total executions per time unit
 const double nRequests = disk_ops * FX_execution_per_time_unit; // avr. number of disk op. requests per time unit
-const double request=1/nRequests; //rate of requests (time units per operation)
+formula request = nRequests=0 ? 1/0.001 : 1/nRequests; //rate of requests (time units per operation)
+
 const int QMAX=20; // size of queue
 module SRQ
 	q : [0..QMAX];
-	[request] true -> request : (q'=min(q+1,QMAX)); // request arrives
+	[request] request!=0 -> request : (q'=min(q+1,QMAX)); // request arrives
 	[serve]  q>0 -> (q'=q-1); // request served
 endmodule
 
