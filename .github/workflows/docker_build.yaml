@@ -8,7 +8,7 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    
     permissions:
       contents: read
       packages: write
@@ -34,25 +34,25 @@ jobs:
             exit 1
           fi
       
-    #   - name: Docker metadata
-    #     id: meta
-    #     uses: docker/metadata-action@v5
-    #     with:
-    #       images: ghcr.io/${{ github.repository }}/ultimate_model_manager
-    #       tags: |
-    #         type=raw,value=latest
-    #         type=ref,event=branch
-    #         type=sha
-
-		- name: set lower case repo name
-  		  run: echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
-		  env:
-    		REPO: '${{ github.repository }}'
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/ultimate_model_manager
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha
+      
+      - name: Set lower case repo name
+        run: echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
+        env:
+          REPO: '${{ github.repository }}'
       
       - name: Build Docker Image
         run: |
           docker buildx build --platform linux/amd64 \
-            --tag ghcr.io/${{ REPO_LC }}/ultimate_model_manager:latest \
-            --tag ghcr.io/${{ REPO_LC }}/ultimate_model_manager:${{ github.sha }} \
+            --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:latest \
+            --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:${{ github.sha }} \
             --push \
             -f ULTIMATE_MODEL_MANAGER/Dockerfile .
