@@ -34,15 +34,15 @@ jobs:
             exit 1
           fi
       
-      - name: Docker metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}/ultimate_model_manager
-          tags: |
-            type=raw,value=latest
-            type=ref,event=branch
-            type=sha
+    #   - name: Docker metadata
+    #     id: meta
+    #     uses: docker/metadata-action@v5
+    #     with:
+    #       images: ghcr.io/${{ github.repository }}/ultimate_model_manager
+    #       tags: |
+    #         type=raw,value=latest
+    #         type=ref,event=branch
+    #         type=sha
 
 		- name: set lower case repo name
   		  run: echo "REPO_LC=${REPO,,}" >>${GITHUB_ENV}
