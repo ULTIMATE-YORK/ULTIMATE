@@ -1,29 +1,29 @@
-#Generate a Docker image for Ultimate Model Manager
-#Usage: ./buildDockerImage.sh <tag_name>
-#Example: ./buildDockerImage.sh ultimate_model_manager:latest
-#!/bin/bash
-
 name: Build and Push Docker Image
 
 on:
-  push:
-    branches:
-      - dockerFeature  # Occurs on pushes to the dockerFeature branch
+	push:
+		branches:
+			- dockerFeature  # Occurs on pushes to the dockerFeature branch
 
 jobs:
-	  build-and-push:
-			runs-on: ubuntu-latest
+	build-and-push:
+		runs-on: ubuntu-latest
+
+	# Give permissions for the GITHUB_TOKEN to write to packages
+    permissions:
+		contents: read
+		packages: write
 
 	steps:
 		- name: Checkout repository
 		  uses: actions/checkout@v4
 
 		- name: Log in to GitHub Container Registry
-		  uses: docker/login-action@v2
+		  uses: docker/login-action@v3
 		  with:
 			registry: ghcr.io
 			username: ${{ github.actor }}
-			password: ${{ secrets.GITHUB_TOKEN }} --password-stdin
+			password: ${{ secrets.GITHUB_TOKEN }}
 		
 		- name: Check if Dockerfile exists
 		  run: |
@@ -32,6 +32,17 @@ jobs:
 			  exit 1
 			fi
 		
+      - name: Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/ultimate_model_manager
+          tags: |
+            type=raw,value=latest
+            type=ref,event=branch
+            type=sha
+    
+
 		- name: Build Docker Image
 		  run: |
 			docker build -t ghcr.io/${{ github.repository }}/ultimate_model_manager:latest -f ULTIMATE_MODEL_MANAGER/Dockerfile .
