@@ -55,4 +55,4 @@ jobs:
             --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:latest \
             --tag ghcr.io/${{ env.REPO_LC }}/ultimate_model_manager:${{ github.sha }} \
             --push \
-            -f ULTIMATE_MODEL_MANAGER/Dockerfile .
+            -f ULTIMATE_MODEL_MANAGER/Dockerfile ./ULTIMATE_MODEL_MANAGER
