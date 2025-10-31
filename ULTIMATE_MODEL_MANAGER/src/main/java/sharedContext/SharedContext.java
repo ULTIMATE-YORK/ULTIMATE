@@ -73,6 +73,7 @@ public class SharedContext {
                 mainStage.setScene(new Scene(root, 1600, 1000));
                 mainStage.setMinWidth(1000);
                 mainStage.setMinHeight(800);
+                mainStage.setTitle("ULTIMATE");
                 mainStage.getIcons()
                         .add(new Image(mainStage.getClass().getResourceAsStream("/images/ultimate_logo_256x256.png")));
                 mainStage.show();
