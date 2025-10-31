@@ -7,8 +7,11 @@ const double precision =
 const double recall = 2*pNotOkCorrect;
 const double F1 = 2*precision*recall/(precision+recall);
 
+const double pM1 = 0.5;
+const double pM2 = 0.35;
+
 module ModelSelector
   s : [0..3] init 0;
-  [] s=0 -> 0.47*F1:(s'=1)+(1-0.82*F1):(s'=2)+0.35*F1:(s'=3);
-  [] s>0 -> 1:(s'=s);
+  // [] s=0 -> 0.47*F1:(s'=1)+(1-0.82*F1):(s'=2)+0.35*F1:(s'=3);
+  [] s=0 -> pM1:(s'=1)+pM2:(s'=2)+(1-pM1-pM2):(s'=3);  [] s>0 -> 1:(s'=s);
 endmodule
