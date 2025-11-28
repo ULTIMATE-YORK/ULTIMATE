@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
 import org.mariuszgromada.math.mxparser.License;
+import utils.Alerter;
 
 public class SharedContext {
 
@@ -73,10 +74,20 @@ public class SharedContext {
                 mainStage.setScene(new Scene(root, 1600, 1000));
                 mainStage.setMinWidth(1000);
                 mainStage.setMinHeight(800);
-                mainStage.setTitle("ULTIMATE");
                 mainStage.getIcons()
                         .add(new Image(mainStage.getClass().getResourceAsStream("/images/ultimate_logo_256x256.png")));
                 mainStage.show();
+                String title = "Ultimate Multi-Model Verifier: " + newProject.getProjectName();
+                mainStage.setTitle(newProject.isModified() ? title + " *" : title);
+                mainStage.setOnCloseRequest(event -> {
+					if (newProject.isModified()){
+						boolean userConfirms = utils.Alerter.showConfirmationAlert("Unsaved Changes!",
+						"You have unsaved changes. Do you want to close without saving?");
+						if (!userConfirms){
+							event.consume();
+						}
+					}
+				});
             } catch (IOException e) {
                 e.printStackTrace();
                 throw new RuntimeException("Could not load the GridPane resource at /view/main_view.fxml");
