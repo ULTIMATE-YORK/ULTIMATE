@@ -31,7 +31,7 @@ This setup yields a **single dependency level** where the top-level `crowds` mod
 - **Total verification time:** **324 seconds**
 - **Time spent in PRISM invocations:** **319 seconds (98.4%)** (model building and verification subtasks).
 
-Experiments were run on a **MacBook Pro with M1 Pro chip and 32 GB RAM**.
+Experiments were executed on a **Ubuntu 25.04 virtual machine** with 2 vCPUS and 8GB RAM, running within Oracle VM VirtualBox 7.1.12 deployed on a MacBook Pro with 2GHz Quad-Core i5 and 32GB RAM.
 
 
 These results demonstrate that the ULTIMATE tool scales to tens of millions of states across multiple interacting models. Nearly all computation time is spent in the back-end model checker (PRISM in our implementation).
