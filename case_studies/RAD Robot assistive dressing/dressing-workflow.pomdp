@@ -40,3 +40,5 @@ module Workflow
   [succ] step=5 -> true;
   [fail] step=6 -> true;      
 endmodule
+
+label "fail" = step=6;
