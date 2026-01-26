@@ -1,0 +1,46 @@
+{"models": {
+    "cluster": {
+        "synthesis": {"properties": []},
+        "fileName": "cluster.ctmc",
+        "id": "cluster",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": ["P=? [ F<=10 !\"minimum\" ]"]
+    },
+    "wlan6": {
+        "synthesis": {"properties": []},
+        "fileName": "wlan6.mdp",
+        "id": "wlan6",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "crowds": {
+        "synthesis": {"properties": []},
+        "fileName": "crowds.dtmc",
+        "id": "crowds",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "x": {
+                    "modelId": "wlan6",
+                    "name": "x",
+                    "property": "Pmax=?[F col=COL]"
+                },
+                "y": {
+                    "modelId": "cluster",
+                    "name": "y",
+                    "property": "P=? [ F<=10 !\"minimum\" ]"
+                }
+            }
+        },
+        "properties": ["P=? [ F observe0>1 ]"]
+    }
+}}
