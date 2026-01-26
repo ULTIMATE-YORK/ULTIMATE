@@ -45,6 +45,7 @@ import utils.FileUtils;
 public class Project {
 
 	private static final Logger logger = LoggerFactory.getLogger(Project.class);
+	private boolean isModified = false; // Track if project has unsaved changes
 
 	private Set<Model> models; // set of models in the project
 	private String projectPath;
@@ -82,6 +83,9 @@ public class Project {
 		importer = new ProjectImporter(projectPath);
 		saveLocation = projectPath;
 		models = importer.importProjectModels();
+		for (Model model : models){
+			model.setParentProject(this);
+		}
 		// Initialise currentModel property (first model in the set or null)
 		targetModel = new SimpleObjectProperty<>(models.isEmpty() ? null : models.iterator().next());
 		// Initialise the observable list with the contents of the set
@@ -151,6 +155,8 @@ public class Project {
 		if (this.isBlank) {
 			this.isBlank = false;
 		}
+		addModel.setParentProject(this);
+		markAsModified();
 	}
 
 	public void removeModel(Model removeModel) {
@@ -158,6 +164,7 @@ public class Project {
 		models.removeIf(model -> model.getModelId().equals(removeModel.getModelId()));
 		// Remove from the observable list
 		observableModels.removeIf(model -> model.getModelId().equals(removeModel.getModelId()));
+		markAsModified();
 	}
 
 	public String getProjectName() {
@@ -195,10 +202,19 @@ public class Project {
 
 	public void save(String saveLocation) {
 		exporter.saveExport(saveLocation);
+		// Update project name when saving to a new location
+		try{
+			this.projectName = FileUtils.removeUltimateFileExtension(saveLocation);
+		}catch (IOException e){
+			// If filename parsing fails, use the full path
+			this.projectName = new File(saveLocation).getName();
+		}
+		markAsClean(); 
 	}
 
 	public void save() {
 		exporter.saveExport(saveLocation);
+		markAsClean(); 
 	}
 
 	public void setSaveLocation(String location) {
@@ -712,5 +728,31 @@ public class Project {
 		}
 		return dpValues;
 	}
+	
+	public void markAsModified(){
+		if (!isModified){
+			isModified = true;
+			updateWindowTitle();
+		}
+	}
+	
+	public void markAsClean(){
+		isModified = false;
+		updateWindowTitle();
+	}
+	
+	private void updateWindowTitle(){
+		if (SharedContext.getMainStage() != null){
+			String title = "Ultimate Multi-Model Verifier: " + projectName;
+			if (isModified){
+				title = "Ultimate Multi-Model Verifier: " + projectName + " *";
+			}
+			SharedContext.getMainStage().setTitle(title);
+		}
+	}
+	
+	public boolean isModified(){
+		return isModified;
+	}	
 
 }

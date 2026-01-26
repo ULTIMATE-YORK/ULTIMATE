@@ -53,7 +53,7 @@ public class DialogOpener {
 
 	public static String openUltimateFileDialog(Stage stage) {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.setTitle("Choose an ULTIMATE Project");
+		fileChooser.setTitle("Choose an ULTIMATE project");
 		fileChooser.getExtensionFilters()
 				.add(new FileChooser.ExtensionFilter("ULTIMATE file extensions", FileUtils.VALID_ULT_FILE_EXTENSIONS));
 		fileChooser.setInitialDirectory(getInitialDir());

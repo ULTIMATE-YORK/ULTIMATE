@@ -603,29 +603,119 @@ public class NPMCVerification {
 			}
 		}
 
-		// First try with Storm
-		try {
-			StormAPI sAPI = new StormAPI();
-			double stormResult = sAPI.run(originalModel, property);
-			return String.valueOf(stormResult);
-		} catch (Exception stormException) {
-			// Extract just the error message without stack trace
-			logger.error("Error running Storm: " + stormException.getMessage());
-			// throw new Exception();
+		// Respect user's chosen PMC engine
+		Project project = SharedContext.getProject();
+		String chosenPMC = project.getChosenPMC();
+		String prismPath = project.getPrismInstall();
+		String stormPath = project.getStormInstall();
+		
+		boolean prismAvailable = (prismPath != null && !prismPath.isEmpty());
+		boolean stormAvailable = (stormPath != null && !stormPath.isEmpty());
+		
+		// Check if user chose PRISM
+		if ("PRISM".equals(chosenPMC)) {
+			if (prismAvailable) {
+				logger.info("Using PRISM (user's chosen PMC engine)");
+				try {
+					double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
+					return String.valueOf(prismResult);
+				} catch (IOException prismException) {
+					logger.warn("PRISM verification failed: " + prismException.getMessage());
+					// Try Storm as fallback
+					if (stormAvailable) {
+						logger.info("Falling back to Storm due to PRISM error");
+						try {
+							StormAPI sAPI = new StormAPI();
+							double stormResult = sAPI.run(originalModel, property);
+							return String.valueOf(stormResult);
+						} catch (Exception stormException) {
+							logger.error("Storm fallback also failed: " + stormException.getMessage());
+							throw new RuntimeException("Both PRISM and Storm failed for model " + model.getModelId());
+						}
+					} else {
+						logger.error("Storm not available for fallback");
+						throw new RuntimeException("PRISM failed and Storm not available for model " + model.getModelId());
+					}
+				}
+			} else {
+				logger.warn("User's chosen PMC engine (PRISM) is not installed. Using Storm instead.");
+				if (stormAvailable) {
+					try {
+						StormAPI sAPI = new StormAPI();
+						double stormResult = sAPI.run(originalModel, property);
+						return String.valueOf(stormResult);
+					} catch (Exception stormException) {
+						logger.error("Error running Storm: " + stormException.getMessage());
+						throw new RuntimeException("Storm failed and PRISM not available for model " + model.getModelId());
+					}
+				} else {
+					logger.error("Neither PRISM nor Storm are installed");
+					throw new RuntimeException("No PMC engines available for model " + model.getModelId());
+				}
+			}
 		}
+		// Check if user chose Storm
+		else if ("STORM".equals(chosenPMC)) {
+			if (stormAvailable) {
+				logger.info("Using Storm (user's chosen PMC engine)");
+				try {
+					StormAPI sAPI = new StormAPI();
+					double stormResult = sAPI.run(originalModel, property);
+					return String.valueOf(stormResult);
+				} catch (Exception stormException) {
+					logger.warn("Storm verification failed: " + stormException.getMessage());
+					// Try PRISM as fallback
+					if (prismAvailable) {
+						logger.info("Falling back to PRISM due to Storm error");
+						try {
+							double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
+							return String.valueOf(prismResult);
+						} catch (IOException prismException) {
+							logger.error("PRISM fallback also failed: " + prismException.getMessage());
+							throw new RuntimeException("Both Storm and PRISM failed for model " + model.getModelId());
+						}
+					} else {
+						logger.error("PRISM not available for fallback");
+						throw new RuntimeException("Storm failed and PRISM not available for model " + model.getModelId());
+					}
+				}
+			} else {
+				logger.warn("User's chosen PMC engine (Storm) is not installed. Using PRISM instead.");
+				if (prismAvailable) {
+					try {
+						double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
+						return String.valueOf(prismResult);
+					} catch (IOException prismException) {
+						logger.error("Error running PRISM: " + prismException.getMessage());
+						throw new RuntimeException("PRISM failed and Storm not available for model " + model.getModelId());
+					}
+				} else {
+					logger.error("Neither Storm nor PRISM are installed");
+					throw new RuntimeException("No PMC engines available for model " + model.getModelId());
+				}
+			}
+		}
+		// No preference set - use default behavior (try Storm first, then PRISM)
+		else {
+			logger.info("No PMC engine preference set. Using default behavior (Storm first, then PRISM)");
+			try {
+				StormAPI sAPI = new StormAPI();
+				double stormResult = sAPI.run(originalModel, property);
+				return String.valueOf(stormResult);
+			} catch (Exception stormException) {
+				logger.error("Error running Storm: " + stormException.getMessage());
+			}
 
-		// Try with Prism as fallback
-		logger.info("Trying fallback with PRISM...");
-		try {
-			Project project = SharedContext.getProject();
-			String prismPath = project.getPrismInstall();
-			double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
-			return String.valueOf(prismResult);
-		} catch (IOException prismProcessException) {
-			logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
-			// Only throw if all attempts fail
-			throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + ": "
-					+ prismProcessException.getMessage());
+			// Try with PRISM as fallback
+			logger.info("Trying fallback with PRISM...");
+			try {
+				double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
+				return String.valueOf(prismResult);
+			} catch (IOException prismProcessException) {
+				logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
+				throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + ": "
+						+ prismProcessException.getMessage());
+			}
 		}
 	}
 

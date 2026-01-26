@@ -52,4 +52,28 @@ public class Alerter {
 			System.out.println("Warning Alert: " + title + ": " + message);
 		}
 	}
+	
+	public static String showSaveBeforeActionAlert(String title, String message){
+		Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+		alert.setTitle(title);
+		alert.setHeaderText(null);
+		alert.setContentText(message);
+		
+		ButtonType saveButton = new ButtonType("Save");
+		ButtonType dontSaveButton = new ButtonType("Don't Save");
+		ButtonType cancelButton = new ButtonType("Cancel");
+		
+		alert.getButtonTypes().setAll(saveButton, dontSaveButton, cancelButton);
+		
+		Optional<ButtonType> result = alert.showAndWait();
+		
+		if (result.isPresent()){
+			if (result.get() == saveButton){
+				return "SAVE";
+			}else if (result.get() == dontSaveButton){
+				return "DONT_SAVE";
+			}
+		}
+		return "CANCEL";
+	}
 }

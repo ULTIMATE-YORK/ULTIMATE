@@ -97,11 +97,12 @@ public class MenuBarController {
 
 	@FXML
 	private void newProject() {
-		if (confirmQuit()) {
+		if (handleUnsavedChanges()) {
 			SharedContext.reset(new Project());
 		}
 	}
 
+/*
 	@FXML
 	private void load() throws IOException {
 		String filePath = DialogOpener.openUltimateFileDialog(SharedContext.getMainStage());
@@ -110,6 +111,18 @@ public class MenuBarController {
 		}
 		if (confirmQuit()) {
 			SharedContext.reset(new Project(filePath));
+		}
+	}
+*/
+
+	@FXML
+	private void load() throws IOException {
+		if (handleUnsavedChanges()) {
+			String filePath = DialogOpener.openUltimateFileDialog(SharedContext.getMainStage());
+			if (filePath == null){
+				return; // User cancelled file dialog
+			}
+			SharedContext.reset(new Project(filePath));	
 		}
 	}
 
@@ -136,7 +149,7 @@ public class MenuBarController {
 	// TODO: fix this
 	@FXML
 	private boolean confirmQuit() {
-		if (!project.isBlank()) {
+		if (project.isModified()) { // CHANGED FROM isBlank() TO isModified()
 			boolean userConfirmsQuit = Alerter.showConfirmationAlert("Project Not Saved!",
 					"Are you sure you want to quit without saving?");
 			if (userConfirmsQuit) {
@@ -146,6 +159,23 @@ public class MenuBarController {
 			}
 		}
 		return true;
+	}
+	
+	private boolean handleUnsavedChanges(){
+		if (project.isModified()){
+			String result = Alerter.showSaveBeforeActionAlert("Unsaved Changes",
+                "Do you want to save changes to the current project?");
+                
+            if (result.equals("SAVE")){
+				save();
+				return true; // Proceed with New/Load
+			}else if (result.equals("DONT_SAVE")){
+				return true; // Proceed without saving
+			}else { // CANCEL
+				return false; // Don't proceed
+			}
+		}
+		return true; // No unsaved changes, proceed
 	}
 
 	@FXML

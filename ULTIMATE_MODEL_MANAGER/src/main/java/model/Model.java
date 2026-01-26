@@ -29,6 +29,7 @@ import utils.ParameterUtilities;
 import utils.PrismFileParser;
 import parameters.IParameter;
 import parameters.IStaticParameter;
+import project.Project;
 
 /**
  * Represents a model in the system.
@@ -38,6 +39,7 @@ import parameters.IStaticParameter;
  * parameters, environment parameters).
  */
 public class Model {
+	private Project parentProject;
 	private String modelId; // Unique identifier for the model
 	private String filePath; // Path to the model's file
 	// private String propertiesFile; // file of properties list
@@ -86,10 +88,12 @@ public class Model {
 		}
 		// Alerter.showInfoAlert("SUCCESS", "The property was added");
 		properties.add(new Property(newProp));
+		notifyModification();
 	}
 
 	public void removeProperty(Property remove) {
 		properties.remove(remove);
+		notifyModification();
 //		if (removed) {
 //			Alerter.showInfoAlert("SUCCESS", "The property was removed");
 //		} else {
@@ -108,6 +112,7 @@ public class Model {
 	 */
 	public void addDependencyParameter(DependencyParameter parameter) {
 		dependencyParameters.add(parameter);
+		notifyModification();
 	}
 
 	/*
@@ -126,6 +131,7 @@ public class Model {
 	 */
 	public void addExternalParameter(ExternalParameter parameter) {
 		externalParameters.add(parameter);
+		notifyModification();
 	}
 
 	/*
@@ -153,6 +159,7 @@ public class Model {
 	 */
 	public void addInternalParameter(InternalParameter parameter) {
 		internalParameters.add(parameter);
+		notifyModification();
 	}
 
 	/*
@@ -309,6 +316,7 @@ public class Model {
 				break; // Assuming names are unique, break out of the loop.
 			}
 		}
+		notifyModification();
 	}
 
 	public void removeExternalParameter(ExternalParameter ep) {
@@ -320,6 +328,7 @@ public class Model {
 				break; // Assuming names are unique, break out of the loop.
 			}
 		}
+		notifyModification();
 	}
 
 	/*
@@ -345,6 +354,7 @@ public class Model {
 				break; // Assuming names are unique, break out of the loop.
 			}
 		}
+		notifyModification();
 	}
 
 	public void removeSynthesisObjective(SynthesisGoal so) {
@@ -356,6 +366,7 @@ public class Model {
 				break;
 			}
 		}
+		notifyModification();
 	}
 
 	public ArrayList<HashMap<String, String>> getCartesianExternal() {
@@ -548,6 +559,7 @@ public class Model {
 
 	public void addSynthesisObjective(SynthesisGoal synthesisObjective) {
 		this.synthesisObjectives.add(synthesisObjective);
+		notifyModification();
 	}
 
 	public ObservableList<IStaticParameter> getStaticParameters() {
@@ -585,6 +597,16 @@ public class Model {
 	public void resetDependencyParameters() {
 		for (DependencyParameter dp : dependencyParameters) {
 			dp.setValue(null);
+		}
+	}
+	
+	public void setParentProject(Project project){
+		this.parentProject = project;
+	}
+	
+	private void notifyModification(){
+		if (parentProject != null){
+			parentProject.markAsModified();
 		}
 	}
 }
