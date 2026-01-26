@@ -535,7 +535,10 @@ public class Model {
 		// TODO: I could do some simple caching
 		// would set a cache key before setting this, then next time I come to set dps
 		// i would check the new key against the old and skip if they're the same
-		this.getHashDependencyParameters().get(name).setValue(value);
+		DependencyParameter parameter = this.getHashDependencyParameters().get(name);
+		if (parameter != null) {
+		 	parameter.setValue(value);
+		}
 	}
 
 	public void setInternalParameterValue(String name, String value) {
