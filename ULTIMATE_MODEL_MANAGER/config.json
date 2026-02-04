@@ -1,6 +1,6 @@
 {
-    "stormInstall": "/home/brendana/ultimate/ULTIMATE/ULTIMATE_MODEL_MANAGER/libs/storm/storm", 
-    "stormParsInstall": "/home/brendana/ultimate/ULTIMATE/ULTIMATE_MODEL_MANAGER/libs/storm/storm-pars",
+    "stormInstall": "/home/brendana/storm/build/bin/storm", 
+    "stormParsInstall":  "/home/brendana/storm/build/bin/storm-pars",
     "prismInstall": "/home/brendana/ultimate/prism-4.8.1-linux64-x86/bin/prism",
     "prismGamesInstall": "/home/brendana/ultimate/prism-games-3.2.1-linux64-x86/bin/prism",
     "pythonInstall": "/home/brendana/ultimate/ULTIMATE/.venv/bin/python3"

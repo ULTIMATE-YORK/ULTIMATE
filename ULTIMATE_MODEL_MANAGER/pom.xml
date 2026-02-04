@@ -213,7 +213,7 @@
         </configuration>
       </plugin>
       
-      <!-- Copy Resources (Libraries and Runtime Files)
+      <!-- Copy Resources (Libraries and Runtime Files)-->
       <plugin>
         <artifactId>maven-resources-plugin</artifactId>
         <version>3.2.0</version>
@@ -237,7 +237,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>-->
+      </plugin>
 
       <!-- Maven Exec Plugin to Run the Application -->
       <plugin>
