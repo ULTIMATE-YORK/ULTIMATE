@@ -190,7 +190,7 @@ public class Ultimate {
         }
 
         VerificationResult vr = new VerificationResult(targetModel.getModelId(), property, verificationResultsMap);
-        // cleanUp();
+        cleanUp();
         return vr;
 
     }

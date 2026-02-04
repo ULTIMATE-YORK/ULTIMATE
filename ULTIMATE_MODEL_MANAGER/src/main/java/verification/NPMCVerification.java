@@ -201,7 +201,7 @@ public class NPMCVerification {
 	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException {
 		logger.info("Starting SCC resolution using Python solver for models: " + sccModels);
 
-		// SharedContext.getUltimateInstance().cleanUp();
+		SharedContext.getUltimateInstance().cleanUp();
 
 		try {
 			// Prepare input for Python solver
