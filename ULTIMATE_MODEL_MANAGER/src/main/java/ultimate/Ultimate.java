@@ -102,14 +102,6 @@ public class Ultimate {
         this.internalParameterValuesHashMap = internalParameterValuesHashMap;
     }
 
-    // public void setExternalParameterValuesMap(HashMap<String, ?> params) {
-    // modelParametersWritten = false;
-    // HashMap<String, String> hm = new HashMap<>();
-    // for (Map.Entry<String, ?> e : params.entrySet()) {
-    // hm.put(e.getKey(), e.getValue().toString());
-    // }
-    // this.externalParameterValuesHashMap = hm;
-    // }
 
     public void setTargetModelById(String modelID) {
 
@@ -162,8 +154,7 @@ public class Ultimate {
 
     }
 
-    public VerificationResult executeVerification() throws IOException, VerificationException {
-    	cleanUp();
+    public VerificationResult executeVerificationPipeline() throws IOException, VerificationException {
         if (verbose)
             System.out.print("Executing ULTIMATE for property " + property);
         resetResults();
@@ -199,20 +190,10 @@ public class Ultimate {
         }
 
         VerificationResult vr = new VerificationResult(targetModel.getModelId(), property, verificationResultsMap);
+        // cleanUp();
         return vr;
 
     }
-
-    // public void synthesiseInternalParameters() {
-    // /*
-    // * - Instantiate EC
-    // * - Initialise EC
-    // * - Write evolvable world model (EWM) files
-    // * - Give EC the OCs, the EWMs, and the ULTIMATE instance itself
-    // * - Set results
-    // */
-
-    // }
 
     public EvoChecker getEvoCheckerInstance() {
         return evoChecker;
@@ -427,24 +408,16 @@ public class Ultimate {
     public void cleanUp() {
     
     	/* 
-    	 * This is a bit of a hack. I noticed that whilst running verifications sequentially,
-    	 * the result would change. This seemed to be because the dependency parameters were set
-    	 * for the models during the first verification, and this somehow influenced the initial state of
-    	 * the solver. Subsequent verifications appeared to have greater loss values.
-    	 * 
-    	 * This shouldn't really be the case, since the numerical solver probably shouldn't
-    	 * be so sensitive to initial conditions. However, I don't have the time or
-    	 * knowledge to fix it, so instead this function serves as a way to reset the dependency
-    	 * parameters, such that the results should at least be consistent.
-    	 * 
-    	 * Associated git issue at []
-    	 * 
-    	 * - BDH
-    	
+         * This method should be used to clean up the world model components after running verification, which
+         * should fix some reproducability bugs. Prior to 04/02/2026, this only reset dependency parameter
+         * values (i.e. set them back to null), but it now does the same for internal parameters.
+         * 
+         * 
+         * 
     	*/
     	
 		for (Model m : SharedContext.getProject().getModels()) {
-			m.resetDependencyParameters();
+			m.resetParameterValues();
 		}
     	
     }

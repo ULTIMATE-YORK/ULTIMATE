@@ -597,9 +597,12 @@ public class Model {
 
 	}
 
-	public void resetDependencyParameters() {
+	public void resetParameterValues() {
 		for (DependencyParameter dp : dependencyParameters) {
 			dp.setValue(null);
+		}
+		for (InternalParameter ip : internalParameters) {
+			ip.setValue(null);
 		}
 	}
 	

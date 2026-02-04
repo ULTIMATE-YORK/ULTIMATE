@@ -124,11 +124,10 @@ public class NPMCVerification {
 	}
 
 	public String verify(String startModelId, String property) throws VerificationException, IOException {
+
 		Model startModel = modelMap.get(startModelId);
-		for (Model m : SharedContext.getProject().getModels()) {
-			m.resetDependencyParameters();
-		}
 		return verifyModel(startModel, property);
+
 	}
 
 	private String verifyModel(Model verificationModel, String property) throws VerificationException, IOException {
@@ -202,10 +201,7 @@ public class NPMCVerification {
 	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException {
 		logger.info("Starting SCC resolution using Python solver for models: " + sccModels);
 
-////		 Reset any partial parameter values that might have been calculated
-//		for (Model model : sccModels) {
-//			model.resetDependencyParameters();
-//		}
+		// SharedContext.getUltimateInstance().cleanUp();
 
 		try {
 			// Prepare input for Python solver
@@ -216,6 +212,8 @@ public class NPMCVerification {
 			String pmcPath = project.getStormInstall(); // Update as needed
 
 			// Get the file path of the start model
+			// it might be that this is not getting the original model but that with
+			// the parameters already set within it
 			Model originalStartModel = getOriginalModel(startModelId);
 			if (originalStartModel == null) {
 				logger.error("Could not find original model for ID: " + startModelId);

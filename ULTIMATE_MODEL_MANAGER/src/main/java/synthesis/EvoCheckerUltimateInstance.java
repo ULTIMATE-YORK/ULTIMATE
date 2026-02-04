@@ -27,7 +27,7 @@ public class EvoCheckerUltimateInstance implements IUltimate {
 
     public void execute() {
         try {
-            ultimate.executeVerification();
+            ultimate.executeVerificationPipeline();
         } catch (Exception e) {
             System.err.println("Error executing ULTIMATE.");
             e.printStackTrace();

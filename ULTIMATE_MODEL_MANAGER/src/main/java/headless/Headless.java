@@ -175,7 +175,7 @@ public class Headless {
 		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + SharedContext.getProject().getProjectName();
 		VerificationRun run = new VerificationRun(runId, modelId, property, false);
 		try {
-			VerificationResult result = SharedContext.getUltimateInstance().executeVerification();
+			VerificationResult result = SharedContext.getUltimateInstance().executeVerificationPipeline();
 			run.addResult(result);
 		} catch (IOException e) {
 			e.printStackTrace();

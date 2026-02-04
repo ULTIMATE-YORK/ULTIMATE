@@ -491,7 +491,7 @@ public class PropertiesController {
 				return result;
 			} else {
 				try {
-					VerificationResult result = ultimate.executeVerification();
+					VerificationResult result = ultimate.executeVerificationPipeline();
 					return result;
 				} catch (IOException e) {
 					e.printStackTrace();
@@ -567,12 +567,12 @@ public class PropertiesController {
 		ultimate.setTargetModelById(vModel.getModelId());
 		ultimate.setVerificationProperty(vProp);
 		try {
-			ultimate.executeVerification();
+			ultimate.executeVerificationPipeline();
 		} catch (VerificationException e) {
 			Alerter.showErrorAlert("Verification Error",
 					"An error occurred in the verification process:\n\n" + e.getMessage());
 		}
-		ultimate.cleanUp();
+		// ultimate.cleanUp();
 		String cacheKey2 = project.generateVerificationCacheKey(vModel, vProp);
 		System.out.println(cacheKey2);
 		System.out.println("\n\n");
