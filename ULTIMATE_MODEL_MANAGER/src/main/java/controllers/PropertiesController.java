@@ -114,8 +114,8 @@ public class PropertiesController {
 	@FXML
 	private void initialize() {
 
-		addPropertyButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
-		addSynthesisObjectiveButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
+		addPropertyButton.disableProperty().bind(Bindings.isNull(project.currentModelProperty()));
+		addSynthesisObjectiveButton.disableProperty().bind(Bindings.isNull(project.currentModelProperty()));
 
 		removePropertyButton.disableProperty()
 				.bind(Bindings.isNull(propertyListView.getSelectionModel().selectedItemProperty()));
