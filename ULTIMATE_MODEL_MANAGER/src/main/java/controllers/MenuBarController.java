@@ -215,8 +215,20 @@ public class MenuBarController {
 			Task<Void> task = new Task<>() {
 				@Override
 				public Void call() throws IOException {
-					Desktop.getDesktop()
-							.open(new File(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties"));
+					File configFile = new File(System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties");
+					try {
+						Desktop.getDesktop().edit(configFile);
+					} catch (Exception e) {
+						// Fallback: use OS-specific command to open in a text editor
+						String os = System.getProperty("os.name").toLowerCase();
+						if (os.contains("mac")) {
+							new ProcessBuilder("open", "-t", configFile.getAbsolutePath()).start();
+						} else if (os.contains("win")) {
+							new ProcessBuilder("notepad", configFile.getAbsolutePath()).start();
+						} else {
+							new ProcessBuilder("xdg-open", configFile.getAbsolutePath()).start();
+						}
+					}
 					return null;
 				};
 			};
