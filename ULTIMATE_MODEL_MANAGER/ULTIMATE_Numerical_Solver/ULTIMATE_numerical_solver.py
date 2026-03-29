@@ -7,22 +7,27 @@ import re
 from enum import Enum
 
 
+class _EarlyStop(Exception):
+    pass
+
+
 class ULTIMATE_Solver:
     def __init__(self, dependencies_list, pmc, path, ultimate_solver_enum):
 
         #dictionary to keep the dependency params
         #e.g., {'x': ULTIMATE_Dependency(x)}
         self.dependencies = defaultdict(list)
-        
+
         #dictionary to keep the dependency parameters per model
         #e.g., {'m1': [ULTIMATE_Dependency(x), ULTIMATE_Dependency(y)]}
         self.model_dependencies = defaultdict(list)
-        
+
         #dictionary to keep the dependent ULTIMATE_Dependency instances per param
         #e.g., {'x': ULTIMATE_Dependency('y')}
         self.param_dependencies = defaultdict(list)
 
         self.evaluated_params = {}
+        self._prev_solution = {}
 
         for dep in dependencies_list:
             if ultimate_solver_enum is ULTIMATE_Solver_Enum.Numerical:
@@ -48,22 +53,38 @@ class ULTIMATE_Solver:
         optimisation_parameters = []
         for dep in self.dependencies[init_model]:
             optimisation_parameters.append(dep.getVariableName())
-        
+
         #get unique
         optimisation_parameters = list(set(optimisation_parameters))
-        # print(optimisation_parameters)
-        
+
         # Set the initial guess for the parameters
         x0 = np.array([0.1] * len(optimisation_parameters))
 
-        # Define the bounds for the parameters (optional)
-        bounds = [(0.00001, 1) for i in range(len(optimisation_parameters))]
+        # Define the bounds for the parameters (lower bound avoids division-by-zero in models; no upper bound)
+        bounds = [(0.00001, None) for i in range(len(optimisation_parameters))]
 
-        # Use the different algorithms to minimise the objective function and log the progress
-        result = minimize(self.objective_Eval, x0, args=(optimisation_parameters, init_model, self.param_dependencies), method='Powell', bounds=bounds, tol=1e-3) #callback=callback_pModel)
-        # 'L-BFGS-B'
-        # return results and minimum loss
-        return self.evaluated_params, result.fun
+        # Reset solution tracking
+        self._prev_solution = {}
+
+        # Stop early when the solution changes very little between iterations
+        def check_convergence(x):
+            if self._prev_solution and self.evaluated_params:
+                max_change = max(
+                    abs(self.evaluated_params.get(k, 0) - self._prev_solution.get(k, 0))
+                    for k in self.evaluated_params
+                )
+                if max_change < 1e-3:
+                    raise _EarlyStop()
+            self._prev_solution = dict(self.evaluated_params)
+
+        loss = float('inf')
+        try:
+            result = minimize(self.objective_Eval, x0, args=(optimisation_parameters, init_model, self.param_dependencies), method='Powell', bounds=bounds, tol=1e-2, callback=check_convergence)
+            loss = result.fun
+        except _EarlyStop:
+            loss = 0.0
+
+        return self.evaluated_params, loss
 
 
 
@@ -76,7 +97,11 @@ class ULTIMATE_Solver:
 
         for m in self.model_dependencies[init_model]:
             if m.getVariableName() not in self.evaluated_params.keys():
-                evaluated_param_value = m.eval(values, param_dependencies)
+                try:
+                    evaluated_param_value = m.eval(values, param_dependencies)
+                except RuntimeError as e:
+                    print(f"WARNING: {e}")
+                    return float('inf')
             if isinstance(evaluated_param_value, np.float64):
                 self.evaluated_params[m.getVariableName()] = evaluated_param_value.item()
             else:
@@ -86,7 +111,11 @@ class ULTIMATE_Solver:
         loss = 0
         for i in range(len(self.dependencies[init_model])):
             m = self.dependencies[init_model][i]
-            evaluated_optimisation_parameter_value = m.eval(self.evaluated_params, param_dependencies)
+            try:
+                evaluated_optimisation_parameter_value = m.eval(self.evaluated_params, param_dependencies)
+            except RuntimeError as e:
+                print(f"WARNING: {e}")
+                return float('inf')
             self.evaluated_params[m.getVariableName()] = evaluated_optimisation_parameter_value
             
             #calculate loss for param
@@ -208,9 +237,8 @@ class ULTIMATE_Dependency:
             match = re.search(r"Result \(for initial states\): ([+-]?\d*[\.\d+]*)", output)
         if match:
             res = float(match.group(1))
-        else:#if there is an issue with the verification - give back a very wrong/bad value
-            res = 0
-            #print(output)#sys.float_info.max
+        else:
+            raise RuntimeError(f"Model checker returned no parseable result. stdout:\n{output}")
         
         # return
         return res
