@@ -573,9 +573,6 @@ public class PropertiesController {
 					"An error occurred in the verification process:\n\n" + e.getMessage());
 		}
 		ultimate.cleanUp();
-		String cacheKey2 = project.generateVerificationCacheKey(vModel, vProp);
-		System.out.println(cacheKey2);
-		System.out.println("\n\n");
 		HashMap<String, String> result = ultimate.getVerificationResultsMap();
 		String runId = UUID.randomUUID().toString();
 		VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), false);

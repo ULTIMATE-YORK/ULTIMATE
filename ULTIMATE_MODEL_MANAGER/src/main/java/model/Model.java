@@ -448,8 +448,7 @@ public class Model {
 	}
 
 	public String toString() {
-		return this.modelId + internalParameters.toString() + externalParameters.toString()
-				+ dependencyParameters.toString() + uncategorisedParameters.toString();
+		return this.modelId;
 	}
 
 	// TODO: IMPORTANT: fix these variables. What is results used for? Try to delete
