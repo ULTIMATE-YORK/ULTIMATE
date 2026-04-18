@@ -20,6 +20,7 @@ import parameters.RangedExternalParameter;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
@@ -37,6 +38,10 @@ public class NPMCVerification {
 	// Cache entries for ranged parameters are naturally invalidated because the
 	// ranged parameter's current value is part of the key.
 	private static final Map<String, Map<String, String>> sccResolutionCache = new HashMap<>();
+
+	public static void clearCache() {
+		sccResolutionCache.clear();
+	}
 
 	// static class Model {
 	// // wrapper around the model
@@ -153,14 +158,34 @@ public class NPMCVerification {
 			for (Model model : currentSCC) {
 				logger.info("\nProcessing model: " + model);
 				List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
-				logger.info("Dependencies found: " + dependencies);
+				if (dependencies.isEmpty()) {
+					logger.info("Dependencies found: none");
+				} else {
+					StringBuilder depLog = new StringBuilder("Dependencies found:");
+					for (DependencyParameter dep : dependencies) {
+						for (String line : dep.toString().split("\n")) {
+							line = line.trim();
+							if (!line.isEmpty()) {
+								depLog.append("\n       - ").append(line);
+							}
+						}
+					}
+					logger.info(depLog.toString());
+				}
 
 				for (DependencyParameter dep : dependencies) {
 					Model targetModel = modelMap.get(dep.getSourceModel().getModelId());
 					List<Model> targetSCC = sccMap.get(targetModel);
 
 					if (!targetSCC.equals(currentSCC)) {
-						logger.info("  Processing dependency: " + dep);
+						StringBuilder depLog = new StringBuilder("Processing dependency:");
+					for (String line : dep.toString().split("\n")) {
+						line = line.trim();
+						if (!line.isEmpty()) {
+							depLog.append("\n       - ").append(line);
+						}
+					}
+					logger.info(depLog.toString());
 						logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
 						String result = verifyModel(targetModel, dep.getDefinition());
 						if (dep.sanityCheck(result)) {
@@ -176,7 +201,9 @@ public class NPMCVerification {
 									dep.getSourceModel().getModelId()));
 						}
 					} else {
-						logger.info("  Skipping dependency: " + dep + " (same SCC)");
+						logger.info("Skipping dependency: " + dep.getNameInModel()
+							+ " (Model ID: " + dep.getSourceModel().getModelId()
+							+ ", Property: " + dep.getDefinition().replace("\\", "") + ") (same SCC)");
 					}
 				}
 			}
@@ -586,6 +613,7 @@ public class NPMCVerification {
 		}
 
 		try {
+			logger.info("Storm engine used for parametric model checking over PRISM for efficiency");
 			StormAPI sAPI = new StormAPI();
 			String equationStr = sAPI.runPars(originalModel, property);
 			logger.info("Received equation: " + equationStr);
@@ -595,6 +623,20 @@ public class NPMCVerification {
 			logger.info("Will try Python numerical solver instead");
 			return null;
 		}
+	}
+
+	private boolean isPomdpModel(String filePath) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty() || line.startsWith("//")) {
+					continue;
+				}
+				return line.equalsIgnoreCase("pomdp");
+			}
+		}
+		return false;
 	}
 
 	private String performPMC(Model model, String property) {
@@ -683,9 +725,21 @@ public class NPMCVerification {
 			}
 		}
 
+		// Detect POMDP models: Storm does not support them, so force PRISM
+		boolean isPomdp = false;
+		try {
+			isPomdp = isPomdpModel(originalModel.getVerificationFilePath());
+		} catch (IOException e) {
+			logger.warn("Could not determine model type from file: " + e.getMessage());
+		}
+
 		// Respect user's chosen PMC engine
 		Project project = SharedContext.getProject();
 		String chosenPMC = project.getChosenPMC();
+		if (isPomdp && "STORM".equals(chosenPMC)) {
+			logger.info("POMDP model detected; overriding engine selection to use PRISM (Storm does not support POMDPs)");
+			chosenPMC = "PRISM";
+		}
 		String prismPath = project.getPrismInstall();
 		String stormPath = project.getStormInstall();
 		

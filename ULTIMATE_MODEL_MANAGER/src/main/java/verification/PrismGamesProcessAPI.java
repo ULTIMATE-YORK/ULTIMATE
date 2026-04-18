@@ -38,7 +38,7 @@ public class PrismGamesProcessAPI {
         logger.info("Executing PRISM-games command: " + command);
         
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("PRISM-games output:\n" + output);
+        logger.info("PRISM-games output:\n   " + output.trim().replace("\n", "\n   "));
         
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
@@ -99,7 +99,7 @@ public class PrismGamesProcessAPI {
         logger.info("Executing PRISM-games command with strategy export: " + command);
         
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("PRISM-games output:\n" + output);
+        logger.info("PRISM-games output:\n   " + output.trim().replace("\n", "\n   "));
         
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
@@ -150,7 +150,7 @@ public class PrismGamesProcessAPI {
         logger.info("Executing PRISM-games command: " + command);
         
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("PRISM-games output:\n" + output);
+        logger.info("PRISM-games output:\n   " + output.trim().replace("\n", "\n   "));
         
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);

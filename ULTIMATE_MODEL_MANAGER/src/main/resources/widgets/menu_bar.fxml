@@ -28,11 +28,11 @@
       <!-- Options menu -->
       <Menu mnemonicParsing="false" text="Options" >
        <items>
-       <MenuItem fx:id ="openEvoCheckerConfig" onAction="#openEvoCheckerConfig" mnemonicParsing="false" text="Open synthesis configuration file" />
-         <Menu mnemonicParsing="false" text="Choose PMC Engine" >
+         <Menu mnemonicParsing="false" text="Select default model checking engine" >
           	<MenuItem fx:id ="choosePrism" onAction="#setPrismPMC" mnemonicParsing="false" text="PRISM" />
-            <MenuItem fx:id="chooseStorm" onAction="#setStormPMC" mnemonicParsing="false" text="STORM" />  
+            <MenuItem fx:id="chooseStorm" onAction="#setStormPMC" mnemonicParsing="false" text="STORM" />
          </Menu>
+         <MenuItem fx:id ="openEvoCheckerConfig" onAction="#openEvoCheckerConfig" mnemonicParsing="false" text="Edit synthesis hyperparameters" />
        </items>
       </Menu>
   </menus>

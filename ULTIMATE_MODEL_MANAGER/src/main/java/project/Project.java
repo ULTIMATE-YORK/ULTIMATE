@@ -101,7 +101,7 @@ public class Project {
 			e.printStackTrace();
 		}
 		chosenPMC = new SimpleObjectProperty<>(
-				prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
+				stormInstall != null ? "STORM" : (prismInstall != null ? "PRISM" : null));
 		exporter = new ProjectExporter(this);
 		this.isBlank = false;
 	}
@@ -122,7 +122,7 @@ public class Project {
 			e.printStackTrace();
 		}
 		chosenPMC = new SimpleObjectProperty<>(
-				prismInstall != null ? "PRISM" : (stormInstall != null ? "STORM" : null));
+				stormInstall != null ? "STORM" : (prismInstall != null ? "PRISM" : null));
 		exporter = new ProjectExporter(this);
 		this.isBlank = true;
 	}

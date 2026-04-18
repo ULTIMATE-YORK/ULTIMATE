@@ -11,6 +11,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
+import verification.NPMCVerification;
 import org.mariuszgromada.math.mxparser.License;
 import utils.Alerter;
 
@@ -61,8 +62,13 @@ public class SharedContext {
             }
             return;
         }
+        NPMCVerification.clearCache();
         ultimate = new Ultimate();
+        String previousChosenPMC = project != null ? project.getChosenPMC() : null;
         project = newProject;
+        if (previousChosenPMC != null) {
+            newProject.setChosenPMC(previousChosenPMC);
+        }
 
         if (mainStage != null) {
             mainStage.close();
