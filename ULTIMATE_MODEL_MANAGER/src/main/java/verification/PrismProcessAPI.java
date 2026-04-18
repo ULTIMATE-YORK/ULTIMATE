@@ -44,7 +44,7 @@ public class PrismProcessAPI {
         logger.info("Executing PRISM command: " + command);
 
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("PRISM output:\n" + output);
+        logger.info("PRISM output:\n   " + output.trim().replace("\n", "\n   "));
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
@@ -98,7 +98,7 @@ public class PrismProcessAPI {
         logger.info("Executing PRISM command: " + command);
 
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("PRISM output:\n" + output);
+        logger.info("PRISM output:\n   " + output.trim().replace("\n", "\n   "));
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
@@ -200,7 +200,7 @@ public class PrismProcessAPI {
         logger.info("Executing parametric PRISM command: " + command);
 
         String output = OSCommandExecutor.executeCommand(command);
-        logger.info("Parametric PRISM output:\n" + output);
+        logger.info("Parametric PRISM output:\n   " + output.trim().replace("\n", "\n   "));
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);

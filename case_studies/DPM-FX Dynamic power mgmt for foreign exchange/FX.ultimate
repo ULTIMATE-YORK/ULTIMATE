@@ -25,7 +25,7 @@
             "dependency": {"disk_ops": {
                 "modelId": "FX",
                 "name": "disk_ops",
-                "property": "R{\"queue_size\"}=? [S]"
+                "property": "R{\"disk_operations\"}=?[F \"done\"]"
             }}
         },
         "properties": ["R{\"power\"}=? [C<=10000]"]
@@ -186,7 +186,7 @@
             "dependency": {"avr_num_disk_ops_remain_in_queue": {
                 "modelId": "DPM",
                 "name": "avr_num_disk_ops_remain_in_queue",
-                "property": "R{\"disk_operations\"}=?[F \"done\"]"
+                "property": "R{\"queue_size\"}=? [S]"
             }}
         },
         "properties": ["R{\"time\"}=?[F \"done\"]"]

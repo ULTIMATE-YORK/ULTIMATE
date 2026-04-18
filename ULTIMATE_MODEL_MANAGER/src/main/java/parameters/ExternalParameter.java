@@ -17,6 +17,10 @@ public abstract class ExternalParameter implements IStaticParameter {
 		return this.name;
 	}
 
+	public String getUniqueIdentifier() {
+		return this.uniqueIdentifier;
+	}
+
 	// public String getNameInModel(){
 	// 	return uniqueIdentifier;
 	// }

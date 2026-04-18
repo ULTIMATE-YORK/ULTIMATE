@@ -22,16 +22,21 @@ public class DialogOpener {
 	private static File lastDir;
 
 	private static File getInitialDir() {
-		File file = null;
 		if (lastDir != null) {
-			file = lastDir;
-		} else {
-			File ultDir = new File(System.getenv("ULTIMATE_DIR"));
+			return lastDir;
+		}
+		String ultimateDir = System.getenv("ULTIMATE_DIR");
+		if (ultimateDir != null) {
+			File caseStudies = new File(ultimateDir, "../case_studies").getAbsoluteFile();
+			if (caseStudies.exists()) {
+				return caseStudies;
+			}
+			File ultDir = new File(ultimateDir);
 			if (ultDir.exists()) {
-				file = ultDir;
+				return ultDir;
 			}
 		}
-		return file;
+		return null;
 	}
 
 	private static void updateInitialDir(File selectedDir) {

@@ -114,8 +114,8 @@ public class PropertiesController {
 	@FXML
 	private void initialize() {
 
-		addPropertyButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
-		addSynthesisObjectiveButton.disableProperty().bind(new SimpleBooleanProperty(project.getTargetModel() == null));
+		addPropertyButton.disableProperty().bind(Bindings.isNull(project.currentModelProperty()));
+		addSynthesisObjectiveButton.disableProperty().bind(Bindings.isNull(project.currentModelProperty()));
 
 		removePropertyButton.disableProperty()
 				.bind(Bindings.isNull(propertyListView.getSelectionModel().selectedItemProperty()));
@@ -573,9 +573,6 @@ public class PropertiesController {
 					"An error occurred in the verification process:\n\n" + e.getMessage());
 		}
 		ultimate.cleanUp();
-		String cacheKey2 = project.generateVerificationCacheKey(vModel, vProp);
-		System.out.println(cacheKey2);
-		System.out.println("\n\n");
 		HashMap<String, String> result = ultimate.getVerificationResultsMap();
 		String runId = UUID.randomUUID().toString();
 		VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), false);

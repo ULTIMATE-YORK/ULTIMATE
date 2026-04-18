@@ -14,10 +14,13 @@ import javafx.application.Platform;
 import model.Model;
 import parameters.DependencyParameter;
 import parameters.ExternalParameter;
+import parameters.FixedExternalParameter;
+import parameters.RangedExternalParameter;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.io.IOException;
@@ -28,6 +31,17 @@ import java.util.stream.Collectors;
 public class NPMCVerification {
 
 	private static final Logger logger = LoggerFactory.getLogger(NPMCVerification.class);
+
+	// Cache for SCC resolution results, keyed by SCC model IDs + current external
+	// parameter values. Static so it persists across NPMCVerification instances
+	// (i.e. across separate verification tasks in the same session).
+	// Cache entries for ranged parameters are naturally invalidated because the
+	// ranged parameter's current value is part of the key.
+	private static final Map<String, Map<String, String>> sccResolutionCache = new HashMap<>();
+
+	public static void clearCache() {
+		sccResolutionCache.clear();
+	}
 
 	// static class Model {
 	// // wrapper around the model
@@ -144,14 +158,34 @@ public class NPMCVerification {
 			for (Model model : currentSCC) {
 				logger.info("\nProcessing model: " + model);
 				List<DependencyParameter> dependencies = getDependencyParams(model.getModelId());
-				logger.info("Dependencies found: " + dependencies);
+				if (dependencies.isEmpty()) {
+					logger.info("Dependencies found: none");
+				} else {
+					StringBuilder depLog = new StringBuilder("Dependencies found:");
+					for (DependencyParameter dep : dependencies) {
+						for (String line : dep.toString().split("\n")) {
+							line = line.trim();
+							if (!line.isEmpty()) {
+								depLog.append("\n       - ").append(line);
+							}
+						}
+					}
+					logger.info(depLog.toString());
+				}
 
 				for (DependencyParameter dep : dependencies) {
 					Model targetModel = modelMap.get(dep.getSourceModel().getModelId());
 					List<Model> targetSCC = sccMap.get(targetModel);
 
 					if (!targetSCC.equals(currentSCC)) {
-						logger.info("  Processing dependency: " + dep);
+						StringBuilder depLog = new StringBuilder("Processing dependency:");
+					for (String line : dep.toString().split("\n")) {
+						line = line.trim();
+						if (!line.isEmpty()) {
+							depLog.append("\n       - ").append(line);
+						}
+					}
+					logger.info(depLog.toString());
 						logger.info("  Target model " + targetModel + " is in different SCC: " + targetSCC);
 						String result = verifyModel(targetModel, dep.getDefinition());
 						if (dep.sanityCheck(result)) {
@@ -167,29 +201,19 @@ public class NPMCVerification {
 									dep.getSourceModel().getModelId()));
 						}
 					} else {
-						logger.info("  Skipping dependency: " + dep + " (same SCC)");
+						logger.info("Skipping dependency: " + dep.getNameInModel()
+							+ " (Model ID: " + dep.getSourceModel().getModelId()
+							+ ", Property: " + dep.getDefinition().replace("\\", "") + ") (same SCC)");
 					}
 				}
 			}
 
 			if (currentSCC.size() > 1) {
-				logger.info("\nResolving SCC for models: " + currentSCC);
-				try {
-					resolveSCC(currentSCC);
-				} catch (Exception e) {
-					logger.error("Failed to resolve SCC using parametric model checking: " + e.getMessage());
-					logger.info("Switching to Python numerical solver...");
-					usePythonSolver = true;
-
-					// Call Python solver
-					resolveSCCWithPythonSolver(currentSCC);
-				}
+				resolveSCCWithCache(currentSCC);
 			}
 		} else {
-			// If we've already switched to Python solver, use it directly for this SCC
 			if (currentSCC.size() > 1) {
-				logger.info("\nResolving SCC using Python solver for models: " + currentSCC);
-				resolveSCCWithPythonSolver(currentSCC);
+				resolveSCCWithCache(currentSCC);
 			}
 		}
 
@@ -197,6 +221,89 @@ public class NPMCVerification {
 		logger.info("Final PMC result for " + verificationModel + ": " + result);
 		// TODO : export model files with parameters set
 		return result;
+	}
+
+	private void resolveSCCWithCache(List<Model> currentSCC) throws VerificationException, IOException {
+		String cacheKey = buildSCCCacheKey(currentSCC);
+		Map<String, String> cached = sccResolutionCache.get(cacheKey);
+		if (cached != null) {
+			logger.info("SCC resolution cache hit for: {} — reusing previously computed dependency parameter values.", currentSCC);
+			applyCachedDependencyValues(currentSCC, cached);
+			return;
+		}
+		if (!usePythonSolver) {
+			logger.info("\nResolving SCC for models: " + currentSCC);
+			try {
+				resolveSCC(currentSCC);
+			} catch (Exception e) {
+				logger.warn("Failed to resolve SCC using parametric model checking (switching to numerical solver): " + e.getMessage());
+				usePythonSolver = true;
+				resolveSCCWithPythonSolver(currentSCC);
+			}
+		} else {
+			logger.info("\nResolving SCC using Python numerical solver for models: " + currentSCC);
+			resolveSCCWithPythonSolver(currentSCC);
+		}
+		sccResolutionCache.put(cacheKey, captureDependencyValues(currentSCC));
+	}
+
+	private String buildSCCCacheKey(List<Model> sccModels) {
+		List<Model> sorted = new ArrayList<>(sccModels);
+		sorted.sort(Comparator.comparing(Model::getModelId));
+		StringBuilder key = new StringBuilder("SCC:");
+		for (Model m : sorted) {
+			key.append(m.getModelId()).append(":[ext:");
+			List<ExternalParameter> eps = new ArrayList<>(m.getExternalParameters());
+			eps.sort(Comparator.comparing(ExternalParameter::getNameInModel));
+			for (ExternalParameter ep : eps) {
+				if (ep instanceof RangedExternalParameter) {
+					key.append(ep.getNameInModel()).append("=").append(((RangedExternalParameter) ep).getValue()).append(";");
+				} else if (ep instanceof FixedExternalParameter) {
+					key.append(ep.getNameInModel()).append("=").append(((FixedExternalParameter) ep).getValue()).append(";");
+				} else {
+					key.append(ep.getConfigCacheString()).append(";");
+				}
+			}
+			// Include non-null dependency parameter values. At the point this method is
+			// called, only cross-SCC dependency parameters have been resolved and set (the
+			// intra-SCC ones are still null from the preceding resetDependencyParameters).
+			// This means cross-SCC ranged influences are captured automatically.
+			key.append("|dep:");
+			List<DependencyParameter> deps = new ArrayList<>(m.getDependencyParameters());
+			deps.sort(Comparator.comparing(DependencyParameter::getNameInModel));
+			for (DependencyParameter dep : deps) {
+				String val = dep.getValue();
+				if (val != null) {
+					key.append(dep.getNameInModel()).append("=").append(val).append(";");
+				}
+			}
+			key.append("]|");
+		}
+		return key.toString();
+	}
+
+	private Map<String, String> captureDependencyValues(List<Model> sccModels) {
+		Map<String, String> values = new HashMap<>();
+		for (Model m : sccModels) {
+			for (DependencyParameter dep : m.getDependencyParameters()) {
+				String val = dep.getValue();
+				if (val != null) {
+					values.put(m.getModelId() + ":" + dep.getNameInModel(), val);
+				}
+			}
+		}
+		return values;
+	}
+
+	private void applyCachedDependencyValues(List<Model> sccModels, Map<String, String> cachedValues) {
+		for (Model m : sccModels) {
+			for (DependencyParameter dep : m.getDependencyParameters()) {
+				String val = cachedValues.get(m.getModelId() + ":" + dep.getNameInModel());
+				if (val != null) {
+					m.setDependencyParameter(dep.getNameInModel(), val);
+				}
+			}
+		}
 	}
 
 	private void resolveSCCWithPythonSolver(List<Model> sccModels) throws VerificationException, IOException {
@@ -506,6 +613,7 @@ public class NPMCVerification {
 		}
 
 		try {
+			logger.info("Storm engine used for parametric model checking over PRISM for efficiency");
 			StormAPI sAPI = new StormAPI();
 			String equationStr = sAPI.runPars(originalModel, property);
 			logger.info("Received equation: " + equationStr);
@@ -515,6 +623,20 @@ public class NPMCVerification {
 			logger.info("Will try Python numerical solver instead");
 			return null;
 		}
+	}
+
+	private boolean isPomdpModel(String filePath) throws IOException {
+		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty() || line.startsWith("//")) {
+					continue;
+				}
+				return line.equalsIgnoreCase("pomdp");
+			}
+		}
+		return false;
 	}
 
 	private String performPMC(Model model, String property) {
@@ -603,9 +725,21 @@ public class NPMCVerification {
 			}
 		}
 
+		// Detect POMDP models: Storm does not support them, so force PRISM
+		boolean isPomdp = false;
+		try {
+			isPomdp = isPomdpModel(originalModel.getVerificationFilePath());
+		} catch (IOException e) {
+			logger.warn("Could not determine model type from file: " + e.getMessage());
+		}
+
 		// Respect user's chosen PMC engine
 		Project project = SharedContext.getProject();
 		String chosenPMC = project.getChosenPMC();
+		if (isPomdp && "STORM".equals(chosenPMC)) {
+			logger.info("POMDP model detected; overriding engine selection to use PRISM (Storm does not support POMDPs)");
+			chosenPMC = "PRISM";
+		}
 		String prismPath = project.getPrismInstall();
 		String stormPath = project.getStormInstall();
 		

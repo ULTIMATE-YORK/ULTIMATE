@@ -41,7 +41,7 @@ public class StormAPI {
 		
 		logger.info("Executing Storm command: " + command);
 		String output = OSCommandExecutor.executeCommand(command);
-		logger.info(output);
+		logger.info("Storm output:\n   " + output.trim().replace("\n", "\n   "));
 		Double result = StormOutputParser.getDResult(output);
 		return result;
 	}
@@ -67,7 +67,7 @@ public class StormAPI {
 		
 		logger.info("Executing Storm-pars command: " + command);
 		String output = OSCommandExecutor.executeCommand(command);
-		logger.info(output);
+		logger.info("Storm output:\n   " + output.trim().replace("\n", "\n   "));
 		String result = StormOutputParser.getSResult(output);
 		return result;
 	}

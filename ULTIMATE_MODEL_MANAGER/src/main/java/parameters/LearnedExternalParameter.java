@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import learning.BayesianAverageCalculator;
 import learning.MeanCalculator;
 import sharedContext.SharedContext;
 
 public class LearnedExternalParameter extends ExternalParameter {
+	private static final Logger logger = LoggerFactory.getLogger(LearnedExternalParameter.class);
 	private String type;
 	private String valueSource;
 	private String value;
@@ -55,28 +59,35 @@ public class LearnedExternalParameter extends ExternalParameter {
 
 	// FIXME : os-dependent paths
 	public String evaluateParameterValue() throws NumberFormatException, IOException {
+		String result;
 		switch (type) {
 			case "mean":
 				// FIXME : os-dependant paths
-				return MeanCalculator
+				result = MeanCalculator
 						.computeMean(SharedContext.getProject().getDirectoryPath() + "/data/" + valueSource, ",")
 						.toString();
+				break;
 			case "mean-rate":
 				// FIXME : os-dependant paths
-				return MeanCalculator.computeMeanRate(
+				result = MeanCalculator.computeMeanRate(
 						SharedContext.getProject().getDirectoryPath() + "/data/" + valueSource, ",").toString();
+				break;
 			case "bayes":
-				return BayesianAverageCalculator.computeBayesianAverage(
+				result = BayesianAverageCalculator.computeBayesianAverage(
 						SharedContext.getProject().getDirectoryPath() + "/data/" + valueSource).toString();
+				break;
 			case "bayes-rate":
-				return BayesianAverageCalculator.computeBayesianAverageRate(
+				result = BayesianAverageCalculator.computeBayesianAverageRate(
 						SharedContext.getProject().getDirectoryPath() + "/data/" + valueSource).toString();
+				break;
 			// case "Ranged":
 			// return rangedValue;
+			default:
+				throw new IOException("Could not evaluate the value of LearnedExternalParameter '" + super.getNameInModel()
+						+ "'' with unknown type '" + type + "'");
 		}
-
-		throw new IOException("Could not evaluate the value of LearnedExternalParameter '" + super.getNameInModel()
-				+ "'' with unknown type '" + type + "'");
+		logger.info("Computed external parameter '{}' in model '{}' (type: {}, source: {}) = {}", super.getNameInModel(), super.getUniqueIdentifier(), type, valueSource, result);
+		return result;
 	}
 
 	public String toString() {
