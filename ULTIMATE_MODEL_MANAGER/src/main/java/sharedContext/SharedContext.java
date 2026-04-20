@@ -5,9 +5,11 @@ import java.io.IOException;
 import org.mariuszgromada.math.mxparser.mXparser;
 
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import project.Project;
 import ultimate.Ultimate;
@@ -70,34 +72,41 @@ public class SharedContext {
             newProject.setChosenPMC(previousChosenPMC);
         }
 
-        if (mainStage != null) {
-            mainStage.close();
-            mainStage = new Stage();
-
-            FXMLLoader loader = new FXMLLoader(mainStage.getClass().getResource("/view/main_view.fxml"));
-            try {
-                GridPane root = loader.load();
-                mainStage.setScene(new Scene(root, 1600, 1000));
-                mainStage.setMinWidth(1000);
-                mainStage.setMinHeight(800);
+        FXMLLoader loader = new FXMLLoader(SharedContext.class.getResource("/view/main_view.fxml"));
+        try {
+            GridPane root = loader.load();
+            if (mainStage != null && mainStage.getScene() == null) {
+                // First launch: size to 80% of screen and centre
+                Rectangle2D screen = Screen.getPrimary().getVisualBounds();
+                double w = screen.getWidth() * 0.8;
+                double h = screen.getHeight() * 0.8;
+                mainStage.setScene(new Scene(root, w, h));
+                mainStage.setMinWidth(800);
+                mainStage.setMinHeight(600);
+                mainStage.setX(screen.getMinX() + (screen.getWidth() - w) / 2);
+                mainStage.setY(screen.getMinY() + (screen.getHeight() - h) / 2);
                 mainStage.getIcons()
-                        .add(new Image(mainStage.getClass().getResourceAsStream("/images/ultimate_logo_256x256.png")));
+                        .add(new Image(SharedContext.class.getResourceAsStream("/images/ultimate_logo_256x256.png")));
                 mainStage.show();
-                String title = "Ultimate Multi-Model Verifier: " + newProject.getProjectName();
-                mainStage.setTitle(newProject.isModified() ? title + " *" : title);
-                mainStage.setOnCloseRequest(event -> {
-					if (newProject.isModified()){
-						boolean userConfirms = utils.Alerter.showConfirmationAlert("Unsaved Changes!",
-						"You have unsaved changes. Do you want to close without saving?");
-						if (!userConfirms){
-							event.consume();
-						}
-					}
-				});
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Could not load the GridPane resource at /view/main_view.fxml");
+            } else if (mainStage != null) {
+                // Subsequent load: keep stage size/position, just swap scene root
+                mainStage.getScene().setRoot(root);
             }
+            String title = "ULTIMATE - Stochastic World Model Verification & Synthesis: "
+                    + newProject.getProjectName();
+            mainStage.setTitle(newProject.isModified() ? title + " *" : title);
+            mainStage.setOnCloseRequest(event -> {
+                if (newProject.isModified()) {
+                    boolean userConfirms = utils.Alerter.showConfirmationAlert("Unsaved Changes!",
+                            "You have unsaved changes. Do you want to close without saving?");
+                    if (!userConfirms) {
+                        event.consume();
+                    }
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Could not load the GridPane resource at /view/main_view.fxml");
         }
     }
 

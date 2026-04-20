@@ -474,6 +474,8 @@ public class PropertiesController {
 			Platform.runLater(() -> {
 				verificationRuns.add(run);
 				modalStage.close();
+				Alerter.showInfoAlert("Verification Complete",
+						"Double-click on the new entry in the 'Verification Results' list to examine, plot and/or save the results.");
 			});
 			return;
 		}
@@ -959,6 +961,8 @@ public class PropertiesController {
 					modalStage.close();
 					progressIndicatorSynthesis.setVisible(false);
 					synthesisRuns.add(run);
+					Alerter.showInfoAlert("Synthesis Complete",
+							"Double-click on the new entry in the 'Synthesis Results' list to examine and/or save the results.");
 				});
 
 				return null;

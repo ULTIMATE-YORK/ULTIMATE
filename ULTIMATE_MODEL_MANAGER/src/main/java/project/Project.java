@@ -92,7 +92,7 @@ public class Project {
 		observableModels = FXCollections.observableArrayList(models);
 		this.projectName = FileUtils.removeUltimateFileExtension(projectPath);
 		if (SharedContext.getMainStage() != null) {
-			SharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
+			SharedContext.getMainStage().setTitle("ULTIMATE - Stochastic World Model Verification & Synthesis: " + projectName);
 		}
 		try {
 			setupConfigs();
@@ -113,7 +113,7 @@ public class Project {
 		this.projectName = "Untitled";
 		// SharedContext.setProject(this);
 		if (SharedContext.getMainStage() != null) {
-			SharedContext.getMainStage().setTitle("Ultimate Multi-Model Verifier: " + projectName);
+			SharedContext.getMainStage().setTitle("ULTIMATE - Stochastic World Model Verification & Synthesis: " + projectName);
 		}
 		try {
 			setupConfigs();
@@ -743,9 +743,9 @@ public class Project {
 	
 	private void updateWindowTitle(){
 		if (SharedContext.getMainStage() != null){
-			String title = "Ultimate Multi-Model Verifier: " + projectName;
+			String title = "ULTIMATE - Stochastic World Model Verification & Synthesis: " + projectName;
 			if (isModified){
-				title = "Ultimate Multi-Model Verifier: " + projectName + " *";
+				title = "ULTIMATE - Stochastic World Model Verification & Synthesis: " + projectName + " *";
 			}
 			SharedContext.getMainStage().setTitle(title);
 		}
