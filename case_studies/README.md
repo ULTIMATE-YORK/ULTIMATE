@@ -2,6 +2,10 @@
 
 We used the **ULTIMATE** framework and tool in four case studies covering software-intensive systems from a broad range of application domains. Further details and supporting material (models, verified properties, external parameter datasets, descriptions) are provided in each case study subfolder.
 
+The case studies are organised into two subfolders:
+- `verification/` — case studies for compositional verification (DPM-FX, RAD, RangedVerificationExample, RoCo, RoboFleet, SMD, Scalability, Scalability2)
+- `synthesis/` — case studies for synthesis (Casino, RAD_Synthesis, SmartFarming)
+
 
 ## Case Studies Overview
 

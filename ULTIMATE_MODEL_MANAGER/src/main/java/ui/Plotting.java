@@ -18,8 +18,17 @@ public class Plotting {
 	private static final String synthesisScriptFile = "/scripts/plotSynthesis.py";
 	private static final String rangedVerificationScriptFile = "/scripts/plotRangedVerification.py";
 
+	private static final List<Process> activePlotProcesses = new ArrayList<>();
+
+	public static void killAllPlotProcesses() {
+		synchronized (activePlotProcesses) {
+			activePlotProcesses.forEach(Process::destroyForcibly);
+			activePlotProcesses.clear();
+		}
+	}
+
 	private static void runPlottingScript(String scriptRelativePath, String[] arguments) {
-		
+
 		Task<Void> task = new Task<Void>() {
 
 			@Override
@@ -29,16 +38,23 @@ public class Plotting {
 				command.add(SharedContext.getProject().getPythonInstall());
 				command.add(System.getenv("ULTIMATE_DIR")+scriptRelativePath);
 				command.addAll(Arrays.asList(arguments));
-				
+
 				ProcessBuilder processBuilder = new ProcessBuilder(command);
 
 				Process process = processBuilder.start();
+				synchronized (activePlotProcesses) {
+					activePlotProcesses.add(process);
+				}
 
 				int exitCode = 0;
 				try {
 					exitCode = process.waitFor();
 				} catch (InterruptedException e) {
 					System.out.println("Plotting interrupted by user.");
+				} finally {
+					synchronized (activePlotProcesses) {
+						activePlotProcesses.remove(process);
+					}
 				}
 
 				if (exitCode != 0) {

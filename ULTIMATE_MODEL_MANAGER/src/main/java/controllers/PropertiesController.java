@@ -146,14 +146,16 @@ public class PropertiesController {
 
 						SynthesisRunBoxController controller = loader.getController();
 						Stage stage = new Stage();
+						stage.initOwner(SharedContext.getMainStage());
+						stage.initModality(Modality.WINDOW_MODAL);
 
 						controller.setSynthesisRun(selectedRun);
 						controller.setStage(stage);
 
 						stage.setTitle("Synthesis Run " + selectedRun.getRunId());
-						stage.initModality(Modality.APPLICATION_MODAL);
 						stage.setScene(new Scene(root));
-						stage.showAndWait();
+						SharedContext.registerSecondaryStage(stage);
+						stage.show();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -171,14 +173,16 @@ public class PropertiesController {
 
 						VerificationRunBoxController controller = loader.getController();
 						Stage stage = new Stage();
+						stage.initOwner(SharedContext.getMainStage());
+						stage.initModality(Modality.WINDOW_MODAL);
 
 						controller.setVerificationRun(selectedRun);
 						controller.setStage(stage);
 
 						stage.setTitle("Verification Run " + selectedRun.getRunId());
-						stage.initModality(Modality.APPLICATION_MODAL);
 						stage.setScene(new Scene(root));
-						stage.showAndWait();
+						SharedContext.registerSecondaryStage(stage);
+						stage.show();
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -471,9 +475,12 @@ public class PropertiesController {
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
 		if (index == experimentPlan.size()) {
+			executor.shutdown();
 			Platform.runLater(() -> {
 				verificationRuns.add(run);
 				modalStage.close();
+				Alerter.showInfoAlert("Verification Complete",
+						"Double-click on the new entry in the 'Verification Results' list to examine, plot and/or export the results.");
 			});
 			return;
 		}
@@ -959,6 +966,8 @@ public class PropertiesController {
 					modalStage.close();
 					progressIndicatorSynthesis.setVisible(false);
 					synthesisRuns.add(run);
+					Alerter.showInfoAlert("Synthesis Complete",
+							"Double-click on the new entry in the 'Synthesis Results' list to examine and/or export the results.");
 				});
 
 				return null;

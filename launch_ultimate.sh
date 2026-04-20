@@ -1,7 +1,7 @@
 #!/bin/bash
 # ULTIMATE Launcher
 
-echo "Starting ULTIMATE Multi-Model Verifier..."
+echo "Starting ULTIMATE - Stochastic World Model Verification & Synthesis..."
 
 # Resolve the directory containing this script
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
