@@ -1,9 +1,12 @@
 package sharedContext;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.mariuszgromada.math.mxparser.mXparser;
 
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
@@ -23,6 +26,7 @@ public class SharedContext {
     private static Ultimate ultimate;
     private static Project project;
     private static Stage mainStage;
+    private static final List<Stage> openSecondaryStages = new ArrayList<>();
 
     private SharedContext() {
         ultimate = new Ultimate();
@@ -57,7 +61,19 @@ public class SharedContext {
         ultimate = _ultimate;
     }
 
+    public static void registerSecondaryStage(Stage stage) {
+        openSecondaryStages.add(stage);
+        stage.setOnHidden(e -> openSecondaryStages.remove(stage));
+    }
+
+    public static void closeAllSecondaryStages() {
+        new ArrayList<>(openSecondaryStages).forEach(Stage::close);
+        openSecondaryStages.clear();
+        ui.Plotting.killAllPlotProcesses();
+    }
+
     public static void reset(Project newProject) {
+        closeAllSecondaryStages();
         if (!newProject.isConfigured()) {
             if (mainStage != null) {
                 mainStage.close();
@@ -101,8 +117,11 @@ public class SharedContext {
                             "You have unsaved changes. Do you want to close without saving?");
                     if (!userConfirms) {
                         event.consume();
+                        return;
                     }
                 }
+                closeAllSecondaryStages();
+                Platform.exit();
             });
         } catch (IOException e) {
             e.printStackTrace();

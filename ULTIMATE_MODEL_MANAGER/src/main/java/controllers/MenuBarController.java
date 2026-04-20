@@ -181,7 +181,9 @@ public class MenuBarController {
 	@FXML
 	private void quit() {
 		if (confirmQuit()) {
+			SharedContext.closeAllSecondaryStages();
 			SharedContext.getMainStage().close();
+			Platform.exit();
 		}
 	}
 
