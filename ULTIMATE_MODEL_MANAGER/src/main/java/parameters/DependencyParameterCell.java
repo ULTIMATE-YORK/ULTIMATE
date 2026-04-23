@@ -14,17 +14,6 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
 
     private DependencyUnitListener dependencyUnitListener;
 
-    public DependencyParameterCell() {
-        // Re-evaluate cell height whenever the cell's actual width is known/changes.
-        // On Linux/GTK, computePrefHeight is first called with width=-1 before the
-        // cell has been sized, so we request a layout pass once the real width arrives.
-        widthProperty().addListener((obs, oldW, newW) -> {
-            if (newW.doubleValue() > 0 && getGraphic() != null) {
-                requestLayout();
-            }
-        });
-    }
-
     public void setDependencyUnitListener(DependencyUnitListener listener) {
         this.dependencyUnitListener = listener;
     }
@@ -39,16 +28,26 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
         } else {
             setPadding(Insets.EMPTY);
 
-            Label details = new Label(dp.toString());
-            details.setWrapText(true);
-            details.setMaxWidth(Double.MAX_VALUE);
-
-            VBox leftColumn = new VBox(details);
+            // One Label per logical line. Binding prefWidth to the ListView's width
+            // (always non-zero once the window is shown) ensures Label.prefHeight(-1)
+            // uses the correct wrapping width on all platforms, including Linux/GTK.
+            VBox leftColumn = new VBox(2);
+            leftColumn.setPadding(new Insets(3, 0, 3, 3));
+            for (String line : dp.toString().split("\n")) {
+                if (!line.trim().isEmpty()) {
+                    Label lbl = new Label(line);
+                    lbl.setWrapText(true);
+                    lbl.setMaxWidth(Double.MAX_VALUE);
+                    if (getListView() != null) {
+                        lbl.prefWidthProperty().bind(getListView().widthProperty().subtract(120));
+                    }
+                    leftColumn.getChildren().add(lbl);
+                }
+            }
             leftColumn.setMaxWidth(Double.MAX_VALUE);
 
             Button editButton = new Button("Edit");
             Button removeButton = new Button("Remove");
-
             editButton.setOnAction(e -> {
                 if (dependencyUnitListener != null) dependencyUnitListener.onEdit(dp);
             });
@@ -62,7 +61,6 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
             rightColumn.setPadding(new Insets(5));
             rightColumn.setMinWidth(Region.USE_PREF_SIZE);
             rightColumn.setMaxWidth(Region.USE_PREF_SIZE);
-
             editButton.setMaxWidth(Double.MAX_VALUE);
             removeButton.setMaxWidth(Double.MAX_VALUE);
             editButton.setMinHeight(25);
@@ -70,10 +68,6 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
 
             HBox cellBox = new HBox(leftColumn, rightColumn);
             cellBox.setPadding(new Insets(5));
-
-            // Let the layout engine size columns rather than binding to widthProperty(),
-            // which may be 0 on first render on Linux and causes text truncation instead
-            // of wrapping.
             HBox.setHgrow(leftColumn, Priority.ALWAYS);
 
             setGraphic(cellBox);
@@ -84,7 +78,6 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
     protected double computePrefHeight(double width) {
         if (getGraphic() != null) {
             Insets ins = getPadding();
-            // width is -1 when the ListView hasn't sized us yet; fall back to actual width
             double w = width > 0 ? width : getWidth();
             if (w > 0) {
                 return getGraphic().prefHeight(w - ins.getLeft() - ins.getRight()) + ins.getTop() + ins.getBottom();

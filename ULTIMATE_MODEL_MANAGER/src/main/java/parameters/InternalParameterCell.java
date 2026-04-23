@@ -14,14 +14,6 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
 
     private InternalUnitListener internalUnitListener;
 
-    public InternalParameterCell() {
-        widthProperty().addListener((obs, oldW, newW) -> {
-            if (newW.doubleValue() > 0 && getGraphic() != null) {
-                requestLayout();
-            }
-        });
-    }
-
     public void setInternalUnitListener(InternalUnitListener listener) {
         this.internalUnitListener = listener;
     }
@@ -36,16 +28,23 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
         } else {
             setPadding(Insets.EMPTY);
 
-            Label details = new Label(ip.toString());
-            details.setWrapText(true);
-            details.setMaxWidth(Double.MAX_VALUE);
-
-            VBox leftColumn = new VBox(details);
+            VBox leftColumn = new VBox(2);
+            leftColumn.setPadding(new Insets(3, 0, 3, 3));
+            for (String line : ip.toString().split("\n")) {
+                if (!line.trim().isEmpty()) {
+                    Label lbl = new Label(line);
+                    lbl.setWrapText(true);
+                    lbl.setMaxWidth(Double.MAX_VALUE);
+                    if (getListView() != null) {
+                        lbl.prefWidthProperty().bind(getListView().widthProperty().subtract(120));
+                    }
+                    leftColumn.getChildren().add(lbl);
+                }
+            }
             leftColumn.setMaxWidth(Double.MAX_VALUE);
 
             Button editButton = new Button("Edit");
             Button removeButton = new Button("Remove");
-
             editButton.setOnAction(e -> {
                 if (internalUnitListener != null) internalUnitListener.onEdit(ip);
             });
@@ -59,7 +58,6 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
             rightColumn.setPadding(new Insets(5));
             rightColumn.setMinWidth(Region.USE_PREF_SIZE);
             rightColumn.setMaxWidth(Region.USE_PREF_SIZE);
-
             editButton.setMaxWidth(Double.MAX_VALUE);
             removeButton.setMaxWidth(Double.MAX_VALUE);
             editButton.setMinHeight(25);
@@ -67,7 +65,6 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
 
             HBox cellBox = new HBox(leftColumn, rightColumn);
             cellBox.setPadding(new Insets(5));
-
             HBox.setHgrow(leftColumn, Priority.ALWAYS);
 
             setGraphic(cellBox);
