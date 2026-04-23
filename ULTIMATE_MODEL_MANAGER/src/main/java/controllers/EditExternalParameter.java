@@ -73,6 +73,7 @@ public class EditExternalParameter {
 		chooseType.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
 			if (newVal.equals("Fixed")) {
 				// show text area and hide button
+				chooseText.setEditable(true);
 				chooseText.setVisible(true);
 				chooseText.setManaged(true);
 				chooseButton.setVisible(false);
@@ -106,9 +107,11 @@ public class EditExternalParameter {
 				chooseText.setVisible(false);
 				chooseText.setManaged(false);
 			} else {
-				// show button
-				chooseText.setVisible(false);
-				chooseText.setManaged(false);
+				// show read-only file name field and picker button
+				chooseText.setEditable(false);
+				chooseText.setVisible(true);
+				chooseText.setManaged(true);
+				chooseText.setText("");
 				chooseButton.setVisible(true);
 				chooseButton.setManaged(true);
 				valueLabel.setManaged(true);
@@ -130,6 +133,9 @@ public class EditExternalParameter {
 	@FXML
 	private void chooseDataFile() {
 		dataFile = openDataFileDialog(SharedContext.getMainStage());
+		if (dataFile != null) {
+			chooseText.setText(dataFile);
+		}
 	}
 
 	@FXML
@@ -215,6 +221,32 @@ public class EditExternalParameter {
 
 	public void setEP(ExternalParameter ep) {
 		this.ep = ep;
+		if (ep instanceof FixedExternalParameter) {
+			chooseType.setValue("Fixed");
+			chooseText.setText(((FixedExternalParameter) ep).getValue());
+		} else if (ep instanceof RangedExternalParameter) {
+			chooseType.setValue("Ranged");
+			java.util.ArrayList<String> options = ((RangedExternalParameter) ep).getValueOptions();
+			if (!options.isEmpty()) {
+				rangeMin.setText(options.get(0));
+				rangeMax.setText(options.get(options.size() - 1));
+				if (options.size() > 1) {
+					java.math.BigDecimal step = new java.math.BigDecimal(options.get(1))
+							.subtract(new java.math.BigDecimal(options.get(0)));
+					rangeStep.setText(step.toPlainString());
+				}
+			}
+		} else if (ep instanceof LearnedExternalParameter) {
+			LearnedExternalParameter lep = (LearnedExternalParameter) ep;
+			for (String item : chooseType.getItems()) {
+				if (item.equalsIgnoreCase(lep.getType())) {
+					chooseType.setValue(item);
+					break;
+				}
+			}
+			dataFile = lep.getValueSource();
+			chooseText.setText(dataFile != null ? dataFile : "");
+		}
 	}
 
 	private String openDataFileDialog(Stage stage) {

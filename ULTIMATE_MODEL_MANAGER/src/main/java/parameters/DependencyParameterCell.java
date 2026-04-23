@@ -7,6 +7,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 /**
@@ -91,6 +92,15 @@ public class DependencyParameterCell extends ListCell<DependencyParameter> {
                 setGraphic(cellBox);
             });
         }
+    }
+
+    @Override
+    protected double computePrefHeight(double width) {
+        if (getGraphic() != null) {
+            Insets ins = getPadding();
+            return getGraphic().prefHeight(width - ins.getLeft() - ins.getRight()) + ins.getTop() + ins.getBottom();
+        }
+        return super.computePrefHeight(width);
     }
 
     /**
