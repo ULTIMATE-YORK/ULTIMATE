@@ -16,6 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import data.SynthesisRun;
 import data.VerificationResult;
 import data.VerificationRun;
@@ -60,6 +63,8 @@ import utils.Font;
 import verification.VerificationException;
 
 public class PropertiesController {
+
+	private static final Logger logger = LoggerFactory.getLogger(PropertiesController.class);
 
 	@FXML
 	private Button addPropertyButton;
@@ -352,6 +357,8 @@ public class PropertiesController {
 			return;
 		}
 
+		long startTime = System.currentTimeMillis();
+
 		Stage modalStage = createPopUpStage("Verification in Progress",
 				"Verifying property:\nModel: " + vModel.getModelId() + "\nDefinition: " + vProp.getDefinition());
 		modalStage.show();
@@ -361,9 +368,9 @@ public class PropertiesController {
 			try {
 				progressIndicatorVerification.setVisible(true);
 				if (project.containsRangedParameters()) {
-					handleRangedVerification(vModel, vProp, modalStage);
+					handleRangedVerification(vModel, vProp, modalStage, startTime);
 				} else {
-					handleSimpleVerification(vModel, vProp, modalStage);
+					handleSimpleVerification(vModel, vProp, modalStage, startTime);
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -452,7 +459,7 @@ public class PropertiesController {
 		});
 	}
 
-	private void handleRangedVerification(Model vModel, Property vProp, Stage modalStage) throws Exception {
+	private void handleRangedVerification(Model vModel, Property vProp, Stage modalStage, long startTime) throws Exception {
 
 		ArrayList<HashMap<String, String>> experimentPlan = project.generateExperimentPlan();
 		ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -464,18 +471,20 @@ public class PropertiesController {
 		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + vModel.getModelId();
 		VerificationRun run = new VerificationRun(runId, currentModelId, vProp.getDefinition(), false);
 		ultimate.setVerificationProperty(vProp.getDefinition());
-		runSequentialRangedVerifications(0, vModel, vProp, experimentPlan, run, executor, modalStage);
+		runSequentialRangedVerifications(0, vModel, vProp, experimentPlan, run, executor, modalStage, startTime);
 
 	}
 
 	private void runSequentialRangedVerifications(int index, Model vModel, Property vProp,
 			ArrayList<HashMap<String, String>> experimentPlan, VerificationRun run, ExecutorService executor,
-			Stage modalStage) throws IOException, Exception {
+			Stage modalStage, long startTime) throws IOException, Exception {
 
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
 		if (index == experimentPlan.size()) {
 			executor.shutdown();
+			long elapsed = System.currentTimeMillis() - startTime;
+			logger.info("Verification of model '{}' with property '{}' completed in {} ({} configurations)", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed), experimentPlan.size());
 			Platform.runLater(() -> {
 				verificationRuns.add(run);
 				modalStage.close();
@@ -532,7 +541,7 @@ public class PropertiesController {
 			});
 
 			try {
-				runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor, modalStage);
+				runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor, modalStage, startTime);
 			} catch (Exception e) {
 				e.printStackTrace();
 				modalStage.close();
@@ -551,7 +560,7 @@ public class PropertiesController {
 
 	}
 
-	private void handleSimpleVerification(Model vModel, Property vProp, Stage modalStage) throws IOException {
+	private void handleSimpleVerification(Model vModel, Property vProp, Stage modalStage, long startTime) throws IOException {
 
 		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
 
@@ -561,7 +570,10 @@ public class PropertiesController {
 			VerificationRun run = new VerificationRun(runId, vModel.getModelId(), vProp.getDefinition(), true);
 			VerificationResult vr = new VerificationResult(run, project.getCacheResult(cacheKey));
 			run.addResult(vr);
-			
+
+			long elapsed = System.currentTimeMillis() - startTime;
+			logger.info("Verification of model '{}' with property '{}' completed in {}", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed));
+
 			Platform.runLater(()->{
 				verificationRuns.add(run);
 				modalStage.close();
@@ -586,6 +598,10 @@ public class PropertiesController {
 		VerificationResult vr = new VerificationResult(run, result);
 		run.addResult(vr);
 		project.addCacheResult(cacheKey, result);
+
+		long elapsed = System.currentTimeMillis() - startTime;
+		logger.info("Verification of model '{}' with property '{}' completed in {}", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed));
+
 		Platform.runLater(() -> {
 			verificationRuns.add(run);
 		});
@@ -951,6 +967,7 @@ public class PropertiesController {
 				"Running synthesis for " + project.getProjectName());
 
 		String runId = "Synth_" + UUID.randomUUID().toString() + "_" + project.getProjectName();
+		long startTime = System.currentTimeMillis();
 
 		Task<Void> task = new Task<>() {
 
@@ -961,6 +978,9 @@ public class PropertiesController {
 				ultimate.loadModelsFromProject();
 				ultimate.initialiseSynthesis();
 				SynthesisRun run = ultimate.executeSynthesis(runId);
+
+				long elapsed = System.currentTimeMillis() - startTime;
+				logger.info("Synthesis for project '{}' completed in {}", project.getProjectName(), formatElapsed(elapsed));
 
 				Platform.runLater(() -> {
 					modalStage.close();
@@ -994,6 +1014,15 @@ public class PropertiesController {
 		modalProgress.setVisible(true);
 		modalStage.show();
 
+	}
+
+	private static String formatElapsed(long millis) {
+		if (millis < 60_000) {
+			return String.format("%.3f s", millis / 1000.0);
+		}
+		long minutes = millis / 60_000;
+		double seconds = (millis % 60_000) / 1000.0;
+		return String.format("%d min %.3f s", minutes, seconds);
 	}
 
 }

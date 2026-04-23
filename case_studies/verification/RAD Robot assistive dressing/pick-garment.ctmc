@@ -13,11 +13,9 @@ const double psucc;
 const double pRetry;
 
 module pickGarment
- s : [0..2] init 0;              // 0 - initial, 1 - success, 2 - fail
+ s : [0..2] init 0; // 0 - initial, 1 - success, 2 - fail
  
- [try]  s=0 -> psucc*rPick:(s'=1) + (1-psucc)*rPick*pRetry:(s'=0) + (1-psucc)*rPick*(1-pRetry):(s'=2);
- [succ] s=1 -> 1:(s'=1);
- [fail] s=2 -> 1:(s'=2);
+ []  s=0 -> psucc*rPick:(s'=1) + (1-psucc)*rPick*pRetry:(s'=0) + (1-psucc)*rPick*(1-pRetry):(s'=2);
 endmodule
 
 label "succ" = s=1;

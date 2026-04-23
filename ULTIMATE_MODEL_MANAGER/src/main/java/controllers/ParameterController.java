@@ -124,7 +124,7 @@ public class ParameterController {
 				public void onEdit(DependencyParameter dp) {
 					try {
 						DialogOpener.openDialogWindow(SharedContext.getMainStage(),
-								"/dialogs/edit_Dependency_param.fxml", "Edit Dependency Parameter", dp);
+								"/dialogs/edit_Dependency_param.fxml", "Edit dependency parameter " + dp.getNameInModel(), dp);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -149,7 +149,7 @@ public class ParameterController {
 				public void onEdit(ExternalParameter ep) {
 					try {
 						DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/edit_external_param.fxml",
-								"Edit External Parameter", ep);
+								"Edit external parameter " + ep.getNameInModel(), ep);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
@@ -173,7 +173,7 @@ public class ParameterController {
 				public void onEdit(InternalParameter ip) {
 					try {
 						DialogOpener.openDialogWindow(SharedContext.getMainStage(), "/dialogs/edit_internal_param.fxml",
-								"Edit Internal Parameter", ip);
+								"Edit internal parameter " + ip.getNameInModel(), ip);
 					} catch (IOException e) {
 						e.printStackTrace();
 					}

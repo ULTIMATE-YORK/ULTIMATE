@@ -54,5 +54,7 @@ public class EditInternalParameter {
 
 	public void setIP(InternalParameter ip) {
 		this.ip = ip;
+		min.setText(ip.getMin());
+		max.setText(ip.getMax());
 	}
 }

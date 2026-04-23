@@ -250,6 +250,7 @@ public class NPMCVerification {
 	private String buildSCCCacheKey(List<Model> sccModels) {
 		List<Model> sorted = new ArrayList<>(sccModels);
 		sorted.sort(Comparator.comparing(Model::getModelId));
+		Set<String> sccModelIds = sorted.stream().map(Model::getModelId).collect(Collectors.toSet());
 		StringBuilder key = new StringBuilder("SCC:");
 		for (Model m : sorted) {
 			key.append(m.getModelId()).append(":[ext:");
@@ -264,17 +265,21 @@ public class NPMCVerification {
 					key.append(ep.getConfigCacheString()).append(";");
 				}
 			}
-			// Include non-null dependency parameter values. At the point this method is
-			// called, only cross-SCC dependency parameters have been resolved and set (the
-			// intra-SCC ones are still null from the preceding resetDependencyParameters).
-			// This means cross-SCC ranged influences are captured automatically.
+			// Only include cross-SCC dependency parameter values. Intra-SCC values are
+			// null on the first call (reset before verification) but set on subsequent
+			// calls (from the first resolution), which would produce a different key for
+			// the same SCC and defeat the cache. Cross-SCC values are stable across calls
+			// and must still be included so that ranged upstream parameters correctly
+			// invalidate the cache.
 			key.append("|dep:");
 			List<DependencyParameter> deps = new ArrayList<>(m.getDependencyParameters());
 			deps.sort(Comparator.comparing(DependencyParameter::getNameInModel));
 			for (DependencyParameter dep : deps) {
-				String val = dep.getValue();
-				if (val != null) {
-					key.append(dep.getNameInModel()).append("=").append(val).append(";");
+				if (!sccModelIds.contains(dep.getSourceModel().getModelId())) {
+					String val = dep.getValue();
+					if (val != null) {
+						key.append(dep.getNameInModel()).append("=").append(val).append(";");
+					}
 				}
 			}
 			key.append("]|");

@@ -53,5 +53,7 @@ public class EditDependencyParameter {
 	
 	public void setDP(DependencyParameter dp) {
 		this.dp = dp;
+		chooseModel.setValue(dp.getSourceModel());
+		definition.setText(dp.getDefinition());
 	}
 }
