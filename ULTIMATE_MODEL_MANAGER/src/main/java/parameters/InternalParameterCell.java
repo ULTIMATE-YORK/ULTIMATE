@@ -6,17 +6,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 public class InternalParameterCell extends ListCell<InternalParameter> {
-	
-	 // Listener to notify when buttons are pressed.
+
     private InternalUnitListener internalUnitListener;
 
-    /**
-     * Set the listener that will handle edit/remove events.
-     */
     public void setInternalUnitListener(InternalUnitListener listener) {
         this.internalUnitListener = listener;
     }
@@ -30,54 +27,45 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
             setGraphic(null);
         } else {
             setPadding(Insets.EMPTY);
-            // Build the left column: A Label showing the dependency details.
-            Label details = new Label(ip.toString());
-            details.setWrapText(true);
 
-            // Wrap the details in a VBox (so we can later bind its width)
-            VBox leftColumn = new VBox(details);
+            VBox leftColumn = new VBox(2);
+            leftColumn.setPadding(new Insets(3, 0, 3, 3));
+            for (String line : ip.toString().split("\n")) {
+                if (!line.trim().isEmpty()) {
+                    Label lbl = new Label(line);
+                    lbl.setWrapText(true);
+                    lbl.setMaxWidth(Double.MAX_VALUE);
+                    if (getListView() != null) {
+                        lbl.prefWidthProperty().bind(getListView().widthProperty().subtract(120));
+                    }
+                    leftColumn.getChildren().add(lbl);
+                }
+            }
+            leftColumn.setMaxWidth(Double.MAX_VALUE);
 
-            // Build the right column: A VBox with two buttons.
             Button editButton = new Button("Edit");
             Button removeButton = new Button("Remove");
-
-            // Set button event handlers to call the listener, if set.
             editButton.setOnAction(e -> {
-                if (internalUnitListener != null) {
-                    internalUnitListener.onEdit(ip);
-                }
+                if (internalUnitListener != null) internalUnitListener.onEdit(ip);
             });
             removeButton.setOnAction(e -> {
-                if (internalUnitListener != null) {
-                    internalUnitListener.onRemove(ip);
-                }
+                if (internalUnitListener != null) internalUnitListener.onRemove(ip);
             });
 
-            // Create the right column VBox and configure it.
             VBox rightColumn = new VBox(editButton, removeButton);
             rightColumn.setSpacing(5);
             rightColumn.setAlignment(Pos.CENTER);
             rightColumn.setPadding(new Insets(5));
-
-            // Create the overall HBox to contain both columns.
-            HBox cellBox = new HBox(leftColumn, rightColumn);
-            cellBox.setPadding(new Insets(5));
-
-            // Bind the HBox width to the cell's width.
-            cellBox.prefWidthProperty().bind(widthProperty());
-            cellBox.maxWidthProperty().bind(widthProperty());
-
-            // Bind left and right columns to proportions of the cell's width.
-            leftColumn.prefWidthProperty().bind(widthProperty().multiply(0.80));
-            rightColumn.prefWidthProperty().bind(widthProperty().multiply(0.20));
-
-            // Ensure the buttons expand to fill the right column.
-            editButton.prefWidthProperty().bind(rightColumn.widthProperty());
-            removeButton.prefWidthProperty().bind(rightColumn.widthProperty());
+            rightColumn.setMinWidth(Region.USE_PREF_SIZE);
+            rightColumn.setMaxWidth(Region.USE_PREF_SIZE);
             editButton.setMaxWidth(Double.MAX_VALUE);
             removeButton.setMaxWidth(Double.MAX_VALUE);
-            editButton.setMinHeight(25);    // adjust as needed
-            removeButton.setMinHeight(25);  // adjust as needed
+            editButton.setMinHeight(25);
+            removeButton.setMinHeight(25);
+
+            HBox cellBox = new HBox(leftColumn, rightColumn);
+            cellBox.setPadding(new Insets(5));
+            HBox.setHgrow(leftColumn, Priority.ALWAYS);
 
             setGraphic(cellBox);
         }
@@ -87,15 +75,14 @@ public class InternalParameterCell extends ListCell<InternalParameter> {
     protected double computePrefHeight(double width) {
         if (getGraphic() != null) {
             Insets ins = getPadding();
-            return getGraphic().prefHeight(width - ins.getLeft() - ins.getRight()) + ins.getTop() + ins.getBottom();
+            double w = width > 0 ? width : getWidth();
+            if (w > 0) {
+                return getGraphic().prefHeight(w - ins.getLeft() - ins.getRight()) + ins.getTop() + ins.getBottom();
+            }
         }
         return super.computePrefHeight(width);
     }
 
-    /**
-     * A listener interface for internal parameter actions.
-     * Implement this in your controller to receive button events.
-     */
     public interface InternalUnitListener {
         void onEdit(InternalParameter ip);
         void onRemove(InternalParameter ip);
