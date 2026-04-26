@@ -167,8 +167,10 @@ To adjust the behaviour of EvoChecker, one may modify evochecker_config.properti
 
 ### Video Guide
 
-<video src="https://github.com/ULTIMATE-YORK/ULTIMATE/releases/download/video-assets/ULTIMATE-demo-video.mp4" controls title="ULTIMATE demo"></video>
+https://github.com/user-attachments/assets/af1a456b-28ed-4900-a423-a59d90d47a45
 
 ### Publications
 
-Calinescu, Radu, et al. "Verification and External Parameter Inference for Stochastic World Models." [arXiv preprint arXiv:2503.16034 (2025)](https://doi.org/10.48550/arXiv.2503.16034)
+Radu Calinescu, Simos Gerasimou, Sinem Getir Yaman, Gricel Vazquez, Micah Bassett. [Verification of Multi-Model Stochastic Systems.](https://conf.researchr.org/details/icse-2026/icse-2026-research-track/211/Verification-of-Multi-Model-Stochastic-Systems) 48th IEEE/ACM International Conference on Software Engineering (ICSE), 2026.
+
+Radu Calinescu, Micah Bassett, Brendan Devlin-Hill, Simos Gerasimou, Sinem Getir Yaman, Kavan Fatehi, Gricel Vázquez. A Tool for the Verification and Synthesis of Stochastic World Models. 38th International Conference on Computer Aided Verification (CAV), 2026. To appear.
