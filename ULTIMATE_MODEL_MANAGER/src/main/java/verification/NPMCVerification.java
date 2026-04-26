@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 public class NPMCVerification {
 
@@ -95,6 +96,11 @@ public class NPMCVerification {
 	private ArrayList<Model> originalModels;
 	private boolean usePythonSolver = false;
 	private String pythonSolverPath = "ULTIMATE_Numerical_Solver/ULTIMATE_numerical_solver.py";
+	private final Map<String, long[]> modelStats = new HashMap<>();
+
+	public Map<String, long[]> getModelStats() {
+		return Collections.unmodifiableMap(modelStats);
+	}
 
 	public NPMCVerification(ArrayList<Model> models) {
 		this.originalModels = models;
@@ -138,6 +144,7 @@ public class NPMCVerification {
 	}
 
 	public String verify(String startModelId, String property) throws VerificationException, IOException {
+		modelStats.clear();
 		Model startModel = modelMap.get(startModelId);
 		for (Model m : SharedContext.getProject().getModels()) {
 			m.resetDependencyParameters();
@@ -621,6 +628,7 @@ public class NPMCVerification {
 			logger.info("Storm engine used for parametric model checking over PRISM for efficiency");
 			StormAPI sAPI = new StormAPI();
 			String equationStr = sAPI.runPars(originalModel, property);
+			modelStats.put(originalModel.getModelId(), new long[]{sAPI.getLastStates(), sAPI.getLastTransitions()});
 			logger.info("Received equation: " + equationStr);
 			return equationStr;
 		} catch (Exception e) {
@@ -642,6 +650,11 @@ public class NPMCVerification {
 			}
 		}
 		return false;
+	}
+
+	private String pmcResult(Model model, double value, long states, long transitions) {
+		modelStats.put(model.getModelId(), new long[]{states, transitions});
+		return String.valueOf(value);
 	}
 
 	private String performPMC(Model model, String property) {
@@ -723,7 +736,7 @@ public class NPMCVerification {
 				int propertyIndex = getPropertyIndex(property);
 
 				double prismResult = PrismGamesProcessAPI.run(originalModel, property, prismGamesPath);
-				return String.valueOf(prismResult);
+				return pmcResult(originalModel, prismResult, PrismGamesProcessAPI.getLastStates(), PrismGamesProcessAPI.getLastTransitions());
 			} catch (IOException prismGamesException) {
 				logger.error("Error running PrismGamesProcessAPI: " + prismGamesException.getMessage());
 				// Fall back to other methods if PrismGames fails
@@ -757,7 +770,7 @@ public class NPMCVerification {
 				logger.info("Using PRISM (user's chosen PMC engine)");
 				try {
 					double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
-					return String.valueOf(prismResult);
+					return pmcResult(originalModel, prismResult, PrismProcessAPI.getLastStates(), PrismProcessAPI.getLastTransitions());
 				} catch (IOException prismException) {
 					logger.warn("PRISM verification failed: " + prismException.getMessage());
 					// Try Storm as fallback
@@ -766,7 +779,7 @@ public class NPMCVerification {
 						try {
 							StormAPI sAPI = new StormAPI();
 							double stormResult = sAPI.run(originalModel, property);
-							return String.valueOf(stormResult);
+							return pmcResult(originalModel, stormResult, sAPI.getLastStates(), sAPI.getLastTransitions());
 						} catch (Exception stormException) {
 							logger.error("Storm fallback also failed: " + stormException.getMessage());
 							throw new RuntimeException("Both PRISM and Storm failed for model " + model.getModelId());
@@ -782,7 +795,7 @@ public class NPMCVerification {
 					try {
 						StormAPI sAPI = new StormAPI();
 						double stormResult = sAPI.run(originalModel, property);
-						return String.valueOf(stormResult);
+						return pmcResult(originalModel, stormResult, sAPI.getLastStates(), sAPI.getLastTransitions());
 					} catch (Exception stormException) {
 						logger.error("Error running Storm: " + stormException.getMessage());
 						throw new RuntimeException("Storm failed and PRISM not available for model " + model.getModelId());
@@ -800,7 +813,7 @@ public class NPMCVerification {
 				try {
 					StormAPI sAPI = new StormAPI();
 					double stormResult = sAPI.run(originalModel, property);
-					return String.valueOf(stormResult);
+					return pmcResult(originalModel, stormResult, sAPI.getLastStates(), sAPI.getLastTransitions());
 				} catch (Exception stormException) {
 					logger.warn("Storm verification failed: " + stormException.getMessage());
 					// Try PRISM as fallback
@@ -808,7 +821,7 @@ public class NPMCVerification {
 						logger.info("Falling back to PRISM due to Storm error");
 						try {
 							double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
-							return String.valueOf(prismResult);
+							return pmcResult(originalModel, prismResult, PrismProcessAPI.getLastStates(), PrismProcessAPI.getLastTransitions());
 						} catch (IOException prismException) {
 							logger.error("PRISM fallback also failed: " + prismException.getMessage());
 							throw new RuntimeException("Both Storm and PRISM failed for model " + model.getModelId());
@@ -823,7 +836,7 @@ public class NPMCVerification {
 				if (prismAvailable) {
 					try {
 						double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
-						return String.valueOf(prismResult);
+						return pmcResult(originalModel, prismResult, PrismProcessAPI.getLastStates(), PrismProcessAPI.getLastTransitions());
 					} catch (IOException prismException) {
 						logger.error("Error running PRISM: " + prismException.getMessage());
 						throw new RuntimeException("PRISM failed and Storm not available for model " + model.getModelId());
@@ -840,7 +853,7 @@ public class NPMCVerification {
 			try {
 				StormAPI sAPI = new StormAPI();
 				double stormResult = sAPI.run(originalModel, property);
-				return String.valueOf(stormResult);
+				return pmcResult(originalModel, stormResult, sAPI.getLastStates(), sAPI.getLastTransitions());
 			} catch (Exception stormException) {
 				logger.error("Error running Storm: " + stormException.getMessage());
 			}
@@ -849,7 +862,7 @@ public class NPMCVerification {
 			logger.info("Trying fallback with PRISM...");
 			try {
 				double prismResult = PrismProcessAPI.run(originalModel, property, prismPath);
-				return String.valueOf(prismResult);
+				return pmcResult(originalModel, prismResult, PrismProcessAPI.getLastStates(), PrismProcessAPI.getLastTransitions());
 			} catch (IOException prismProcessException) {
 				logger.error("Error running PRISM Process API: " + prismProcessException.getMessage());
 				throw new RuntimeException("All model checking methods failed for model " + model.getModelId() + ": "

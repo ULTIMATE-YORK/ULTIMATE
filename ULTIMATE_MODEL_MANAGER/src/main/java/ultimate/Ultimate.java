@@ -395,6 +395,10 @@ public class Ultimate {
 
     }
 
+    public java.util.Map<String, long[]> getModelStats() {
+        return verifier != null ? verifier.getModelStats() : java.util.Collections.emptyMap();
+    }
+
     public Model getTargetModel() {
         return targetModel;
     }

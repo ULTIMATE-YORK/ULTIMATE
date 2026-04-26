@@ -9,10 +9,16 @@ import project.Project;
 import sharedContext.SharedContext;
 
 public class StormAPI {
-	
+
     Project project;
-    
+
 	private static final Logger logger = LoggerFactory.getLogger(StormAPI.class);
+
+	private long lastStates = -1;
+	private long lastTransitions = -1;
+
+	public long getLastStates() { return lastStates; }
+	public long getLastTransitions() { return lastTransitions; }
 	
 	/**
 	 * Run Storm model checker with proper handling for labels and named reward structures.
@@ -42,6 +48,8 @@ public class StormAPI {
 		logger.info("Executing Storm command: " + command);
 		String output = OSCommandExecutor.executeCommand(command);
 		logger.info("Storm output:\n   " + output.trim().replace("\n", "\n   "));
+		lastStates = StormOutputParser.getStates(output);
+		lastTransitions = StormOutputParser.getTransitions(output);
 		Double result = StormOutputParser.getDResult(output);
 		return result;
 	}
@@ -68,6 +76,8 @@ public class StormAPI {
 		logger.info("Executing Storm-pars command: " + command);
 		String output = OSCommandExecutor.executeCommand(command);
 		logger.info("Storm output:\n   " + output.trim().replace("\n", "\n   "));
+		lastStates = StormOutputParser.getStates(output);
+		lastTransitions = StormOutputParser.getTransitions(output);
 		String result = StormOutputParser.getSResult(output);
 		return result;
 	}

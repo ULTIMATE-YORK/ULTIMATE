@@ -34,11 +34,24 @@ public class StormOutputParser {
         for (String line : lines) {
             if (line.contains("Result (initial states):")) {
                 // Extract and return the substring after the colon, trimmed of whitespace
-                return line.substring(line.indexOf("Result (initial states):") 
+                return line.substring(line.indexOf("Result (initial states):")
                         + "Result (initial states):".length()).trim();
             }
         }
         // Return null if the result line wasn't found
         return null;
+	}
+
+	// Works for both Storm ("States: \t4") and PRISM ("States:      27 (1 initial)")
+	public static long getStates(String output) {
+		if (output == null) return -1;
+		java.util.regex.Matcher m = java.util.regex.Pattern.compile("States:\\s+(\\d+)").matcher(output);
+		return m.find() ? Long.parseLong(m.group(1)) : -1;
+	}
+
+	public static long getTransitions(String output) {
+		if (output == null) return -1;
+		java.util.regex.Matcher m = java.util.regex.Pattern.compile("Transitions:\\s+(\\d+)").matcher(output);
+		return m.find() ? Long.parseLong(m.group(1)) : -1;
 	}
 }

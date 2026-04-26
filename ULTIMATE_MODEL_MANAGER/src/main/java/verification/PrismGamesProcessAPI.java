@@ -17,8 +17,14 @@ import utils.PrismOutputParser;
  * API to invoke PRISM-games as an external process
  */
 public class PrismGamesProcessAPI {
-	
+
     private static final Logger logger = LoggerFactory.getLogger(PrismGamesProcessAPI.class);
+
+    private static long lastStates = -1;
+    private static long lastTransitions = -1;
+
+    public static long getLastStates() { return lastStates; }
+    public static long getLastTransitions() { return lastTransitions; }
     
     /**
      * Run PRISM-games as an external process to verify a game model
@@ -36,26 +42,28 @@ public class PrismGamesProcessAPI {
         // Run PRISM-games with property file
         String command = prismGamesInstallLocation + " \"" + model.getVerificationFilePath() + "\"" + " " + propFilePath;
         logger.info("Executing PRISM-games command: " + command);
-        
+
         String output = OSCommandExecutor.executeCommand(command);
         logger.info("PRISM-games output:\n   " + output.trim().replace("\n", "\n   "));
-        
+        lastStates = StormOutputParser.getStates(output);
+        lastTransitions = StormOutputParser.getTransitions(output);
+
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);
             logger.error("PRISM-games execution failed: " + errorMessage);
             throw new RuntimeException("PRISM-games execution failed: " + errorMessage);
         }
-        
+
         Double result = PrismOutputParser.getResult(output);
-        
+
         if (result == null) {
             logger.error("Failed to parse PRISM-games result from output");
             throw new RuntimeException("Failed to parse PRISM-games result from output");
         }
-        
+
         // Clean up the temporary property file
         cleanupTemporaryFile(propFilePath);
-        
+
         return result;
     }
     
