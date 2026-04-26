@@ -454,11 +454,34 @@ public class Ultimate {
     }
 
     public void initialiseSynthesis() throws IOException {
+        ensureNativeLibraryPath();
         generateEvolvableModelFiles();
         String evolvableProjectFileDir = getEvolvableProjectFilePath().toString();
         EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(this);
         createEvoCheckerInstance(ultimateInstance);
         initialiseEvoCheckerInstance(evolvableProjectFileDir);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void ensureNativeLibraryPath() {
+        String os = System.getProperty("os.name", "").toLowerCase();
+        String varName = os.contains("mac") ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
+        if (System.getenv(varName) != null) return;
+        // macOS Sequoia strips DYLD_* from hardened JVM processes at exec time even when
+        // the JDK has allow-dyld-environment-variables. ULTIMATE_DIR is a plain env var
+        // that is not stripped, so we derive the runtime libs path from it.
+        String ultimateDir = System.getenv("ULTIMATE_DIR");
+        if (ultimateDir == null) return;
+        String runtimeLibsPath = ultimateDir + "/libs/runtime";
+        try {
+            java.util.Map<String, String> env = System.getenv();
+            java.lang.reflect.Field f = env.getClass().getDeclaredField("m");
+            f.setAccessible(true);  // requires --add-opens java.base/java.util=ALL-UNNAMED
+            java.util.Map<String, String> mutableEnv = (java.util.Map<String, String>) f.get(env);
+            mutableEnv.put(varName, runtimeLibsPath);
+        } catch (Exception e) {
+            System.err.println("Warning: could not inject " + varName + ": " + e.getMessage());
+        }
     }
 
     private SynthesisRun createSynthesisRun(String runId) {

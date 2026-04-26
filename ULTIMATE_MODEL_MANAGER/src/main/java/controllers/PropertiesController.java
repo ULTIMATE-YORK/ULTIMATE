@@ -1021,37 +1021,41 @@ public class PropertiesController {
 	}
 
 	private void logTaskStats(Map<String, long[]> modelStats) {
-		if (modelStats == null || modelStats.isEmpty()) return;
+		try {
+			if (modelStats == null || modelStats.isEmpty()) return;
 
-		Map<String, List<String>> typeToIds = new LinkedHashMap<>();
-		for (String modelId : modelStats.keySet()) {
-			Model m = project.getModels().stream()
-				.filter(x -> x.getModelId().equals(modelId)).findFirst().orElse(null);
-			String type = (m != null) ? m.getModelType() : "?";
-			typeToIds.computeIfAbsent(type, t -> new ArrayList<>()).add(modelId);
-		}
-		StringBuilder typeStr = new StringBuilder();
-		for (Map.Entry<String, List<String>> e : typeToIds.entrySet()) {
-			if (typeStr.length() > 0) typeStr.append(", ");
-			List<String> ids = e.getValue();
-			typeStr.append(e.getKey());
-			if (ids.size() > 1) typeStr.append("x").append(ids.size());
-			typeStr.append(" (").append(String.join(", ", ids)).append(")");
-		}
-		logger.info("       - Models: {}", typeStr);
+			Map<String, List<String>> typeToIds = new LinkedHashMap<>();
+			for (String modelId : modelStats.keySet()) {
+				Model m = project.getModels().stream()
+					.filter(x -> x.getModelId().equals(modelId)).findFirst().orElse(null);
+				String type = (m != null) ? m.getModelType() : "?";
+				typeToIds.computeIfAbsent(type, t -> new ArrayList<>()).add(modelId);
+			}
+			StringBuilder typeStr = new StringBuilder();
+			for (Map.Entry<String, List<String>> e : typeToIds.entrySet()) {
+				if (typeStr.length() > 0) typeStr.append(", ");
+				List<String> ids = e.getValue();
+				typeStr.append(e.getKey());
+				if (ids.size() > 1) typeStr.append("x").append(ids.size());
+				typeStr.append(" (").append(String.join(", ", ids)).append(")");
+			}
+			logger.info("       - Models: {}", typeStr);
 
-		long totalStates = 0, totalTransitions = 0;
-		for (long[] stats : modelStats.values()) {
-			if (stats[0] >= 0) totalStates += stats[0];
-			if (stats[1] >= 0) totalTransitions += stats[1];
-		}
-		logger.info("       - Total states: {}, Total transitions: {}", totalStates, totalTransitions);
+			long totalStates = 0, totalTransitions = 0;
+			for (long[] stats : modelStats.values()) {
+				if (stats[0] >= 0) totalStates += stats[0];
+				if (stats[1] >= 0) totalTransitions += stats[1];
+			}
+			logger.info("       - Total states: {}, Total transitions: {}", totalStates, totalTransitions);
 
-		int depCount = project.getModels().stream()
-			.filter(m -> modelStats.containsKey(m.getModelId()))
-			.mapToInt(m -> m.getDependencyParameters().size())
-			.sum();
-		logger.info("       - Dependencies: {}", depCount);
+			int depCount = project.getModels().stream()
+				.filter(m -> modelStats.containsKey(m.getModelId()))
+				.mapToInt(m -> m.getDependencyParameters().size())
+				.sum();
+			logger.info("       - Dependencies: {}", depCount);
+		} catch (Exception e) {
+			logger.warn("Could not log task statistics: {}", e.getMessage());
+		}
 	}
 
 	private static String formatElapsed(long millis) {
