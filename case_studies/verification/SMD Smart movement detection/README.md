@@ -30,7 +30,7 @@ Each component is modeled as a **Discrete-Time Markov Chain (DTMC)**:
 - **m_ms** for the motion sensor.
 - **m_sl** for the smart lighting.
 
-These models are combined in the **ULTIMATE multi-model stochastic system**.
+These models are combined in the **ULTIMATE stochastic world model**.
 
 ## Objectives and Results
 
