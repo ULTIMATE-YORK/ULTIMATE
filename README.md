@@ -9,6 +9,10 @@ ULTIMATE supports the formal representation, verification and synthesis of stoch
 Through its unique integration of multiple probabilistic and parametric model checking paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context. 
 
 
+## Licence
+
+ULTIMATE is released under the [GNU General Public Licence v3.0 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
+
 ## Installation
 
 ### Prerequisites
