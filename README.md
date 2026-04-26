@@ -167,7 +167,7 @@ To adjust the behaviour of EvoChecker, one may modify evochecker_config.properti
 
 ### Video Guide
 
-https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
+[▶ Watch the ULTIMATE demo](docs/ULTIMATE-demo-video.mp4)
 
 ### Publications
 
