@@ -342,8 +342,14 @@ public class FileUtils {
 							// If type is "int", cast the value to int before inserting it.
 							// TODO: clean this up
 							if ("int".equals(modelConstantDataType)) {
+								int intValue;
+								try {
+									intValue = Integer.parseInt(value);
+								} catch (NumberFormatException nfe) {
+									intValue = (int) Double.parseDouble(value);
+								}
 								updatedLine = "const " + modelConstantDataType + " " + key + " = "
-										+ (Integer.parseInt(value)) + ";";
+										+ intValue + ";";
 							} else {
 								updatedLine = "const " + modelConstantDataType + " " + key + " = " + value + ";";
 							}

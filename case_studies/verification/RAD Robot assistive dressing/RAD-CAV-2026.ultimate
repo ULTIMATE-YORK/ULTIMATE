@@ -1,0 +1,188 @@
+{"models": {
+    "perceive-user": {
+        "synthesis": {"properties": []},
+        "fileName": "perceive-user.dtmc",
+        "id": "perceive-user",
+        "parameters": {
+            "environment": {
+                "p2_ok_correct": {
+                    "name": "p2_ok_correct",
+                    "type": "mean",
+                    "value": "p2_ok_correct.dat"
+                },
+                "p1_notok_verified": {
+                    "name": "p1_notok_verified",
+                    "type": "mean",
+                    "value": "p1_notok_verified.dat"
+                },
+                "p2_notok_correct": {
+                    "name": "p2_notok_correct",
+                    "type": "mean",
+                    "value": "p2_notok_correct.dat"
+                },
+                "p1_ok_verified": {
+                    "name": "p1_ok_verified",
+                    "type": "mean",
+                    "value": "p1_ok_verified.dat"
+                },
+                "p1_notok_false_correct": {
+                    "name": "p1_notok_false_correct",
+                    "type": "mean",
+                    "value": "p1_notok_false_correct.dat"
+                },
+                "p1_ok_correct": {
+                    "name": "p1_ok_correct",
+                    "type": "mean",
+                    "value": "p1_ok_correct.dat"
+                },
+                "p1_ok_false_correct": {
+                    "name": "p1_ok_false_correct",
+                    "type": "mean",
+                    "value": "p1_ok_false_correct.dat"
+                },
+                "p1_ok_true_correct": {
+                    "name": "p1_ok_true_correct",
+                    "type": "mean",
+                    "value": "p1_ok_true_correct.dat"
+                },
+                "p1_notok_true_correct": {
+                    "name": "p1_notok_true_correct",
+                    "type": "mean",
+                    "value": "p1_ok_notok_true_correct.dat"
+                },
+                "p1_notok_correct": {
+                    "name": "p1_notok_correct",
+                    "type": "mean",
+                    "value": "p1_notok_correct.dat"
+                }
+            },
+            "internal": {},
+            "dependency": {
+                "pModel1": {
+                    "modelId": "user-monitor-controller",
+                    "name": "pModel1",
+                    "property": "P=? [F s=1]"
+                },
+                "pModel2": {
+                    "modelId": "user-monitor-controller",
+                    "name": "pModel2",
+                    "property": "P=? [F s=2]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "pick-garment": {
+        "synthesis": {"properties": []},
+        "fileName": "pick-garment.ctmc",
+        "id": "pick-garment",
+        "parameters": {
+            "environment": {
+                "psucc": {
+                    "name": "psucc",
+                    "type": "mean",
+                    "value": "pSucc.dat"
+                },
+                "pRetry": {
+                    "rangedValues": [
+                        "0.000",
+                        "0.200",
+                        "0.400",
+                        "0.600",
+                        "0.800"
+                    ],
+                    "name": "pRetry",
+                    "type": "ranged"
+                },
+                "rPick": {
+                    "name": "rPick",
+                    "type": "mean-rate",
+                    "value": "rPick.dat"
+                }
+            },
+            "internal": {},
+            "dependency": {}
+        },
+        "properties": []
+    },
+    "user-monitor-controller": {
+        "synthesis": {"properties": []},
+        "fileName": "user-monitor-controller.dtmc",
+        "id": "user-monitor-controller",
+        "parameters": {
+            "environment": {},
+            "internal": {},
+            "dependency": {
+                "pOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pOkCorrect",
+                    "property": "P=? [F (\"done\" & (userOk & userPredictedOk))]"
+                },
+                "pNotOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pNotOkCorrect",
+                    "property": "P=? [F (\"done\" & (!(userOk) & !(userPredictedOk)))]"
+                }
+            }
+        },
+        "properties": []
+    },
+    "dressing-workflow": {
+        "synthesis": {"properties": []},
+        "fileName": "dressing-workflow.pomdp",
+        "id": "dressing-workflow",
+        "parameters": {
+            "environment": {
+                "pDressNotOkFast": {
+                    "name": "pDressNotOkFast",
+                    "type": "bayes",
+                    "value": "pDressNotOkFast_Bayes.dat"
+                },
+                "pDressNotOkSlow": {
+                    "name": "pDressNotOkSlow",
+                    "type": "bayes",
+                    "value": "pDressNotOkSlow_Bayes.dat"
+                },
+                "pPermissionToRetryGranted": {
+                    "name": "pPermissionToRetryGranted",
+                    "type": "bayes",
+                    "value": "pPermissionToRetryGranted_Bayes.dat"
+                },
+                "pDressOkFast": {
+                    "name": "pDressOkFast",
+                    "type": "bayes",
+                    "value": "pDressOkFast_Bayes.dat"
+                },
+                "pOk": {
+                    "name": "pOk",
+                    "type": "fixed",
+                    "value": "0.6"
+                },
+                "pDressOkSlow": {
+                    "name": "pDressOkSlow",
+                    "type": "bayes",
+                    "value": "pDressOkSlow_Bayes.dat"
+                }
+            },
+            "internal": {},
+            "dependency": {
+                "pOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pOkCorrect",
+                    "property": "P=?[F \"done\" & userOk & userPredictedOk]"
+                },
+                "pPickGarnment": {
+                    "modelId": "pick-garment",
+                    "name": "pPickGarnment",
+                    "property": "P=? [F [0,90]  \"succ\"]"
+                },
+                "pNotOkCorrect": {
+                    "modelId": "perceive-user",
+                    "name": "pNotOkCorrect",
+                    "property": "P=?[F \"done\" & !userOk & !userPredictedOk]"
+                }
+            }
+        },
+        "properties": ["Pmin=?[F \"fail\"]"]
+    }
+}}

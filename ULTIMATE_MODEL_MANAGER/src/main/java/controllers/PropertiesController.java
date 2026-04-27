@@ -465,7 +465,6 @@ public class PropertiesController {
 	private void handleRangedVerification(Model vModel, Property vProp, Stage modalStage, long startTime) throws Exception {
 
 		ArrayList<HashMap<String, String>> experimentPlan = project.generateExperimentPlan();
-		ExecutorService executor = Executors.newSingleThreadExecutor();
 
 		ultimate = SharedContext.getUltimateInstance();
 		ultimate.loadModelsFromProject();
@@ -474,92 +473,47 @@ public class PropertiesController {
 		String runId = "Ver_" + UUID.randomUUID().toString() + "_" + vModel.getModelId();
 		VerificationRun run = new VerificationRun(runId, currentModelId, vProp.getDefinition(), false);
 		ultimate.setVerificationProperty(vProp.getDefinition());
-		runSequentialRangedVerifications(0, vModel, vProp, experimentPlan, run, executor, modalStage, startTime);
 
-	}
-
-	private void runSequentialRangedVerifications(int index, Model vModel, Property vProp,
-			ArrayList<HashMap<String, String>> experimentPlan, VerificationRun run, ExecutorService executor,
-			Stage modalStage, long startTime) throws IOException, Exception {
-
-		String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
-
-		if (index == experimentPlan.size()) {
-			executor.shutdown();
-			long elapsed = System.currentTimeMillis() - startTime;
-			logger.info("Verification of model '{}' with property '{}' completed in {} ({} configurations)", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed), experimentPlan.size());
-			logTaskStats(ultimate.getModelStats());
-			Platform.runLater(() -> {
-				verificationRuns.add(run);
-				modalStage.close();
-				Alerter.showInfoAlert("Verification Complete",
-						"Double-click on the new entry in the 'Verification Results' list to examine, plot and/or export the results.");
-			});
-			return;
-		}
-
-		CompletableFuture.supplyAsync(() -> {
-			HashMap<String, String> thisIterationExternalParameterValues = experimentPlan.get(index);
+		for (int index = 0; index < experimentPlan.size(); index++) {
 			for (Model m : project.getModels()) {
-				m.setExternalParametersByUniqueIdMap(thisIterationExternalParameterValues);
+				m.setExternalParametersByUniqueIdMap(experimentPlan.get(index));
 			}
 
+			String cacheKey = project.generateVerificationCacheKey(vModel, vProp);
+
+			VerificationResult result;
 			if (project.getCacheResult(cacheKey) != null) {
 				run.setRetrievedFromCache(true);
-				VerificationResult result = new VerificationResult(currentModelId, vProp.getDefinition(),
+				result = new VerificationResult(currentModelId, vProp.getDefinition(),
 						project.getCacheResult(cacheKey));
-				return result;
 			} else {
-				try {
-					VerificationResult result = ultimate.executeVerification();
-					return result;
-				} catch (IOException e) {
-					e.printStackTrace();
-					return null;
-				} catch (VerificationException e) {
-					e.printStackTrace();
-					return null;
-				}
-			}
-		}, executor).thenAccept(result -> {
-			try {
-				if (result != null) {
-					project.addCacheResult(cacheKey, ((VerificationResult) result).getVerifiedPropertyValueMap());
-					run.addResult((VerificationResult) result);
-				} else {
-					throw new Exception("No results from ULTIMATE!");
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				modalStage.close();
-				Platform.runLater(() -> {
-					modalStage.close();
-					Alerter.showErrorAlert("Verification Failed",
-							"There was an error communicating with the verification engine. Please run verification again.");
-				});
+				result = ultimate.executeVerification();
 			}
 
-			Platform.runLater(() -> {
-				modalProgress.setProgress((((double) index) + 1) / ((double) experimentPlan.size()));
-				modalLabel.setText(String.format("%d/%d complete...", index + 1, experimentPlan.size()));
-			});
-
-			try {
-				runSequentialRangedVerifications(index + 1, vModel, vProp, experimentPlan, run, executor, modalStage, startTime);
-			} catch (Exception e) {
-				e.printStackTrace();
-				modalStage.close();
-				Alerter.showErrorAlert("Verification Failed",
-						"There was an error communicating with the verification engine. Please run verification again.");
+			if (result == null) {
+				throw new Exception("No results from ULTIMATE!");
 			}
-		}).exceptionally(ex -> {
-			ex.printStackTrace();
+
+			project.addCacheResult(cacheKey, result.getVerifiedPropertyValueMap());
+			run.addResult(result);
+
+			final int i = index;
 			Platform.runLater(() -> {
-				modalStage.close(); // Ensure modal is closed on error
-				Alerter.showErrorAlert("Verification Failed",
-						"There was an error communicating with the verification engine. Please run verification again");
+				modalProgress.setProgress((double) (i + 1) / experimentPlan.size());
+				modalLabel.setText(String.format("%d/%d complete...", i + 1, experimentPlan.size()));
 			});
-			return null;
+		}
+
+		long elapsed = System.currentTimeMillis() - startTime;
+		logger.info("Verification of model '{}' with property '{}' completed in {} ({} configurations)",
+				vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed), experimentPlan.size());
+		logTaskStats(ultimate.getModelStats());
+
+		Platform.runLater(() -> {
+			verificationRuns.add(run);
+			modalStage.close();
+			Alerter.showInfoAlert("Verification Complete",
+					"Double-click on the new entry in the 'Verification Results' list to examine, plot and/or export the results.");
 		});
 
 	}
@@ -953,6 +907,7 @@ public class PropertiesController {
 		progressIndicatorSynthesis.setVisible(true);
 
 		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
+			progressIndicatorSynthesis.setVisible(false);
 			Platform.runLater(() -> {
 				Alerter.showInfoAlert("Cannot Run Synthesis",
 						"Cannot run synthesis for this world model as there are no internal parameters in the constituent models. Please add some and try again.");
@@ -961,6 +916,7 @@ public class PropertiesController {
 		}
 
 		if (SharedContext.getProject().getAllSynthesisObjectives().size() == 0) {
+			progressIndicatorSynthesis.setVisible(false);
 			Platform.runLater(() -> {
 				Alerter.showInfoAlert("Cannot Run Synthesis",
 						"Cannot run synthesis for this world model as there are no synthesis objectives in the constituent models. Please add some and try again.");

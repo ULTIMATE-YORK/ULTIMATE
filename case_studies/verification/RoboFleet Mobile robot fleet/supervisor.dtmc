@@ -53,8 +53,8 @@ endmodule
 
 
 rewards "cost"
- [intervene] true : 5;
- [hardReset] true : 30;
+ [intervene] true : 7;
+ [hardReset] true : 105;
 endrewards
 
 rewards "failures"
