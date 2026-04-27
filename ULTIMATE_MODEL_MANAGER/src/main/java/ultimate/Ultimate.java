@@ -466,21 +466,40 @@ public class Ultimate {
     private void ensureNativeLibraryPath() {
         String os = System.getProperty("os.name", "").toLowerCase();
         String varName = os.contains("mac") ? "DYLD_LIBRARY_PATH" : "LD_LIBRARY_PATH";
-        if (System.getenv(varName) != null) return;
-        // macOS Sequoia strips DYLD_* from hardened JVM processes at exec time even when
-        // the JDK has allow-dyld-environment-variables. ULTIMATE_DIR is a plain env var
-        // that is not stripped, so we derive the runtime libs path from it.
         String ultimateDir = System.getenv("ULTIMATE_DIR");
         if (ultimateDir == null) return;
-        String runtimeLibsPath = ultimateDir + "/libs/runtime";
+        // libs/runtime-amd64 holds the ARM64 macOS dylibs (despite the name);
+        // libs/runtime holds the x86_64 macOS dylibs and Linux .so files.
+        String arch = System.getProperty("os.arch", "");
+        boolean isArm = arch.equals("aarch64") || arch.startsWith("arm");
+        String libsDir = (os.contains("mac") && isArm) ? "libs/runtime-amd64" : "libs/runtime";
+        String runtimeLibsPath = ultimateDir + "/" + libsDir;
+
+        boolean dyldNeeded = System.getenv(varName) == null;
+        // On macOS, Sequoia strips DYLD_* from every new process at exec time, so the
+        // subprocess JVM spawned by EvoChecker also loses DYLD_LIBRARY_PATH and its
+        // java.library.path won't include libs/runtime.  JAVA_TOOL_OPTIONS is a plain
+        // env var that survives exec and is prepended to every JVM's command line,
+        // so we use it to set java.library.path explicitly for the subprocess.
+        boolean jtoNeeded = os.contains("mac") && System.getenv("JAVA_TOOL_OPTIONS") == null;
+        if (!dyldNeeded && !jtoNeeded) return;
+
         try {
             java.util.Map<String, String> env = System.getenv();
             java.lang.reflect.Field f = env.getClass().getDeclaredField("m");
             f.setAccessible(true);  // requires --add-opens java.base/java.util=ALL-UNNAMED
             java.util.Map<String, String> mutableEnv = (java.util.Map<String, String>) f.get(env);
-            mutableEnv.put(varName, runtimeLibsPath);
+            if (dyldNeeded) {
+                mutableEnv.put(varName, runtimeLibsPath);
+            }
+            if (jtoNeeded) {
+                String existingLibPath = System.getProperty("java.library.path", "");
+                String libPath = existingLibPath.isEmpty() ? runtimeLibsPath
+                        : runtimeLibsPath + ":" + existingLibPath;
+                mutableEnv.put("JAVA_TOOL_OPTIONS", "-Djava.library.path=" + libPath);
+            }
         } catch (Exception e) {
-            System.err.println("Warning: could not inject " + varName + ": " + e.getMessage());
+            System.err.println("Warning: could not inject native library paths: " + e.getMessage());
         }
     }
 

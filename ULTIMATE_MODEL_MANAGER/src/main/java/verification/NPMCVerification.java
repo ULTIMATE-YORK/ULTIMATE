@@ -146,7 +146,6 @@ public class NPMCVerification {
 	}
 
 	public String verify(String startModelId, String property) throws VerificationException, IOException {
-		modelStats.clear();
 		Model startModel = modelMap.get(startModelId);
 		for (Model m : SharedContext.getProject().getModels()) {
 			m.resetDependencyParameters();
