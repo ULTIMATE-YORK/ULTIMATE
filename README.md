@@ -2,12 +2,16 @@
 <img width="616" height="119" alt="ultimate_logo_large" src="https://github.com/user-attachments/assets/8b28dcda-29b9-4ee0-95fc-df28893e8dfc" />
 
 
-# ULTIMATE: A Multi-Model Stochastic System Modelling, Verification and Synthesis Framework
+# ULTIMATE: A Stochastic World Model Verification and Synthesis Framework
 
-ULTIMATE supports the formal representation, verification and synthesis of multi-model stochastic systems. These are combinations of heterogenous, interdependent stochastic models (discrete and continuous-time Markov chains, Markov decision processes, partially observable Markov decision processes, stochastic games, etc.) required to verify the dependability and performance of modern software-intensive systems.
+ULTIMATE supports the formal representation, verification and synthesis of stochastic world models. These are combinations of heterogenous, interdependent stochastic models (discrete and continuous-time Markov chains, Markov decision processes, partially observable Markov decision processes, stochastic games, etc.) required to verify the dependability and performance of modern software-intensive systems.
 
 Through its unique integration of multiple probabilistic and parametric model checking paradigms, and underpinned by a novel verification method for handling model interdependencies, ULTIMATE unifies the modelling of probabilistic and nondeterministic uncertainty, discrete and continuous time, partial observability, and the use of both Bayesian and frequentist inference to exploit domain knowledge and data about the modelled system and its context. 
 
+
+## Licence
+
+ULTIMATE is released under the [GNU General Public Licence v3.0 (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ## Installation
 
@@ -151,7 +155,7 @@ You will need a valid .ultimate file to use headless mode. This is best obtained
 
 ULTIMATE can be used to optimise the free parameters of world models. This is accomplished via integration with [EvoChecker](https://github.com/gerasimou/EvoChecker/). Given a world model with free ('internal') parameters and a set of objectives and constraints, ULTIMATE uses EvoChecker to evolve the population of internal parameter configurations and thus generate a Pareto set of parameter values which optimise for the objectives whilst respecting the constraints.
 
-Synthesis presently only works in headless mode. To use it, simply run the headless version as described above on a .ultimate model which contains internal parameters. ULTIMATE will detect this as a synthesis problem, and run invoke EvoChecker. Do not provide a property file or definition; all properties, objectives, and constraints are defined within the .ultimate file. Synthesis may take some time, as ULTIMATE will invoke EvoChecker, which performs evolution and invokes ULTIMATE once per genetic individual in order to find the associated values of the objectives and constraints.
+To run synthesis in headless mode, simply run the headless version as described above on a .ultimate model which contains internal parameters. ULTIMATE will detect this as a synthesis problem and invoke EvoChecker. Do not provide a property file or definition; all properties, objectives, and constraints are defined within the .ultimate file. Synthesis may take some time, as ULTIMATE will invoke EvoChecker, which performs evolution and invokes ULTIMATE once per genetic individual in order to find the associated values of the objectives and constraints. For synthesis in the GUI, see the [video guide](#video-guide) below.
 
 To adjust the behaviour of EvoChecker, one may modify evochecker_config.properties. Important settings include:
 
@@ -167,8 +171,10 @@ To adjust the behaviour of EvoChecker, one may modify evochecker_config.properti
 
 ### Video Guide
 
-https://github.com/user-attachments/assets/b4111cc0-abfb-4eb9-ac54-3f9ddd7df000
+https://github.com/user-attachments/assets/af1a456b-28ed-4900-a423-a59d90d47a45
 
 ### Publications
 
-Calinescu, Radu, et al. "Verification and External Parameter Inference for Stochastic World Models." [arXiv preprint arXiv:2503.16034 (2025)](https://doi.org/10.48550/arXiv.2503.16034)
+Radu Calinescu, Simos Gerasimou, Sinem Getir Yaman, Gricel Vazquez, Micah Bassett. [Verification of Multi-Model Stochastic Systems.](https://conf.researchr.org/details/icse-2026/icse-2026-research-track/211/Verification-of-Multi-Model-Stochastic-Systems) 48th IEEE/ACM International Conference on Software Engineering (ICSE), 2026.
+
+Radu Calinescu, Micah Bassett, Brendan Devlin-Hill, Simos Gerasimou, Sinem Getir Yaman, Kavan Fatehi, Gricel Vázquez. A Tool for the Verification and Synthesis of Stochastic World Models. 38th International Conference on Computer Aided Verification (CAV), 2026. To appear.

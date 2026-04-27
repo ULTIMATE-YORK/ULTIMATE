@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import model.Model;
 import utils.FileUtils;
 import utils.PrismOutputParser;
+import verification.StormOutputParser;
 import parameters.ExternalParameter;
 import parameters.InternalParameter;
 
@@ -25,6 +26,12 @@ import parameters.InternalParameter;
 public class PrismProcessAPI {
 
     private static final Logger logger = LoggerFactory.getLogger(PrismProcessAPI.class);
+
+    private static long lastStates = -1;
+    private static long lastTransitions = -1;
+
+    public static long getLastStates() { return lastStates; }
+    public static long getLastTransitions() { return lastTransitions; }
 
     /**
      * Run PRISM as an external process to verify a model
@@ -45,6 +52,8 @@ public class PrismProcessAPI {
 
         String output = OSCommandExecutor.executeCommand(command);
         logger.info("PRISM output:\n   " + output.trim().replace("\n", "\n   "));
+        lastStates = StormOutputParser.getStates(output);
+        lastTransitions = StormOutputParser.getTransitions(output);
 
         if (PrismOutputParser.hasError(output)) {
             String errorMessage = PrismOutputParser.getErrorMessage(output);

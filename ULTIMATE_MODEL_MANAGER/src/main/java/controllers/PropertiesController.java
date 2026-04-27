@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -438,7 +439,9 @@ public class PropertiesController {
 		modalStage.setTitle(title);
 
 		modalProgress = new ProgressIndicator();
-		modalProgress.setPrefSize(400, 400);
+		modalProgress.setPrefSize(64, 64);
+		modalProgress.setMinSize(64, 64);
+		modalProgress.setMaxSize(64, 64);
 
 		modalLabel = new Label(labelContents);
 
@@ -485,6 +488,7 @@ public class PropertiesController {
 			executor.shutdown();
 			long elapsed = System.currentTimeMillis() - startTime;
 			logger.info("Verification of model '{}' with property '{}' completed in {} ({} configurations)", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed), experimentPlan.size());
+			logTaskStats(ultimate.getModelStats());
 			Platform.runLater(() -> {
 				verificationRuns.add(run);
 				modalStage.close();
@@ -601,6 +605,7 @@ public class PropertiesController {
 
 		long elapsed = System.currentTimeMillis() - startTime;
 		logger.info("Verification of model '{}' with property '{}' completed in {}", vModel.getModelId(), vProp.getDefinition(), formatElapsed(elapsed));
+		logTaskStats(ultimate.getModelStats());
 
 		Platform.runLater(() -> {
 			verificationRuns.add(run);
@@ -981,6 +986,7 @@ public class PropertiesController {
 
 				long elapsed = System.currentTimeMillis() - startTime;
 				logger.info("Synthesis for project '{}' completed in {}", project.getProjectName(), formatElapsed(elapsed));
+				logTaskStats(ultimate.getModelStats(), true);
 
 				Platform.runLater(() -> {
 					modalStage.close();
@@ -1014,6 +1020,55 @@ public class PropertiesController {
 		modalProgress.setVisible(true);
 		modalStage.show();
 
+	}
+
+	private void logTaskStats(Map<String, long[]> modelStats) {
+		logTaskStats(modelStats, false);
+	}
+
+	private void logTaskStats(Map<String, long[]> modelStats, boolean useAllProjectModels) {
+		try {
+			List<Model> sourceModels = new ArrayList<>();
+			if (useAllProjectModels) {
+				sourceModels.addAll(project.getModels());
+			} else {
+				if (modelStats == null || modelStats.isEmpty()) return;
+				for (Model m : project.getModels()) {
+					if (modelStats.containsKey(m.getModelId())) sourceModels.add(m);
+				}
+			}
+			if (sourceModels.isEmpty()) return;
+
+			Map<String, List<String>> typeToIds = new LinkedHashMap<>();
+			for (Model m : sourceModels) {
+				typeToIds.computeIfAbsent(m.getModelType(), t -> new ArrayList<>()).add(m.getModelId());
+			}
+			StringBuilder typeStr = new StringBuilder();
+			for (Map.Entry<String, List<String>> e : typeToIds.entrySet()) {
+				if (typeStr.length() > 0) typeStr.append(", ");
+				List<String> ids = e.getValue();
+				typeStr.append(e.getKey());
+				if (ids.size() > 1) typeStr.append("x").append(ids.size());
+				typeStr.append(" (").append(String.join(", ", ids)).append(")");
+			}
+			logger.info("       - Models: {}", typeStr);
+
+			long totalStates = 0, totalTransitions = 0;
+			if (modelStats != null) {
+				for (long[] stats : modelStats.values()) {
+					if (stats[0] >= 0) totalStates += stats[0];
+					if (stats[1] >= 0) totalTransitions += stats[1];
+				}
+			}
+			logger.info("       - Total states: {}, Total transitions: {}", totalStates, totalTransitions);
+
+			int depCount = sourceModels.stream()
+				.mapToInt(m -> m.getDependencyParameters().size())
+				.sum();
+			logger.info("       - Dependencies: {}", depCount);
+		} catch (Exception e) {
+			logger.warn("Could not log task statistics: {}", e.getMessage());
+		}
 	}
 
 	private static String formatElapsed(long millis) {

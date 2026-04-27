@@ -1,6 +1,8 @@
 package model;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
@@ -445,6 +447,25 @@ public class Model {
 	public String getVerificationFilePath() throws IOException {
 		// verificationFile = tempModelFile();
 		return verificationFile.getAbsolutePath();
+	}
+
+	public String getModelType() {
+		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				line = line.trim();
+				if (line.isEmpty() || line.startsWith("//")) continue;
+				switch (line.toLowerCase()) {
+					case "dtmc": return "DTMC";
+					case "ctmc": return "CTMC";
+					case "mdp":  return "MDP";
+					case "pomdp": return "POMDP";
+					case "smg": case "csg": case "tsg": case "tptg": return "SG";
+					default: return line.toUpperCase();
+				}
+			}
+		} catch (IOException e) { /* ignore */ }
+		return "?";
 	}
 
 	public String toString() {
