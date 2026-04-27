@@ -986,7 +986,7 @@ public class PropertiesController {
 
 				long elapsed = System.currentTimeMillis() - startTime;
 				logger.info("Synthesis for project '{}' completed in {}", project.getProjectName(), formatElapsed(elapsed));
-				logTaskStats(ultimate.getModelStats());
+				logTaskStats(ultimate.getModelStats(), true);
 
 				Platform.runLater(() -> {
 					modalStage.close();
@@ -1023,15 +1023,25 @@ public class PropertiesController {
 	}
 
 	private void logTaskStats(Map<String, long[]> modelStats) {
+		logTaskStats(modelStats, false);
+	}
+
+	private void logTaskStats(Map<String, long[]> modelStats, boolean useAllProjectModels) {
 		try {
-			if (modelStats == null || modelStats.isEmpty()) return;
+			List<Model> sourceModels = new ArrayList<>();
+			if (useAllProjectModels) {
+				sourceModels.addAll(project.getModels());
+			} else {
+				if (modelStats == null || modelStats.isEmpty()) return;
+				for (Model m : project.getModels()) {
+					if (modelStats.containsKey(m.getModelId())) sourceModels.add(m);
+				}
+			}
+			if (sourceModels.isEmpty()) return;
 
 			Map<String, List<String>> typeToIds = new LinkedHashMap<>();
-			for (String modelId : modelStats.keySet()) {
-				Model m = project.getModels().stream()
-					.filter(x -> x.getModelId().equals(modelId)).findFirst().orElse(null);
-				String type = (m != null) ? m.getModelType() : "?";
-				typeToIds.computeIfAbsent(type, t -> new ArrayList<>()).add(modelId);
+			for (Model m : sourceModels) {
+				typeToIds.computeIfAbsent(m.getModelType(), t -> new ArrayList<>()).add(m.getModelId());
 			}
 			StringBuilder typeStr = new StringBuilder();
 			for (Map.Entry<String, List<String>> e : typeToIds.entrySet()) {
@@ -1044,14 +1054,15 @@ public class PropertiesController {
 			logger.info("       - Models: {}", typeStr);
 
 			long totalStates = 0, totalTransitions = 0;
-			for (long[] stats : modelStats.values()) {
-				if (stats[0] >= 0) totalStates += stats[0];
-				if (stats[1] >= 0) totalTransitions += stats[1];
+			if (modelStats != null) {
+				for (long[] stats : modelStats.values()) {
+					if (stats[0] >= 0) totalStates += stats[0];
+					if (stats[1] >= 0) totalTransitions += stats[1];
+				}
 			}
 			logger.info("       - Total states: {}, Total transitions: {}", totalStates, totalTransitions);
 
-			int depCount = project.getModels().stream()
-				.filter(m -> modelStats.containsKey(m.getModelId()))
+			int depCount = sourceModels.stream()
 				.mapToInt(m -> m.getDependencyParameters().size())
 				.sum();
 			logger.info("       - Dependencies: {}", depCount);
