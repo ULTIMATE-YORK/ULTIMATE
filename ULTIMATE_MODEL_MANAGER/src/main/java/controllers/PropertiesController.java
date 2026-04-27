@@ -439,7 +439,9 @@ public class PropertiesController {
 		modalStage.setTitle(title);
 
 		modalProgress = new ProgressIndicator();
-		modalProgress.setPrefSize(400, 400);
+		modalProgress.setPrefSize(64, 64);
+		modalProgress.setMinSize(64, 64);
+		modalProgress.setMaxSize(64, 64);
 
 		modalLabel = new Label(labelContents);
 

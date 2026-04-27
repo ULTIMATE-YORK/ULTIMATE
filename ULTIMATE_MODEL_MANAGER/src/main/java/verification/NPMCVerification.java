@@ -39,9 +39,11 @@ public class NPMCVerification {
 	// Cache entries for ranged parameters are naturally invalidated because the
 	// ranged parameter's current value is part of the key.
 	private static final Map<String, Map<String, String>> sccResolutionCache = new HashMap<>();
+	private static final Map<String, Map<String, long[]>> sccStatsCache = new HashMap<>();
 
 	public static void clearCache() {
 		sccResolutionCache.clear();
+		sccStatsCache.clear();
 	}
 
 	// static class Model {
@@ -236,6 +238,12 @@ public class NPMCVerification {
 		if (cached != null) {
 			logger.info("SCC resolution cache hit for: {} — reusing previously computed dependency parameter values.", currentSCC);
 			applyCachedDependencyValues(currentSCC, cached);
+			Map<String, long[]> cachedStats = sccStatsCache.get(cacheKey);
+			if (cachedStats != null) {
+				for (Map.Entry<String, long[]> e : cachedStats.entrySet()) {
+					modelStats.putIfAbsent(e.getKey(), e.getValue());
+				}
+			}
 			return;
 		}
 		if (!usePythonSolver) {
@@ -252,6 +260,12 @@ public class NPMCVerification {
 			resolveSCCWithPythonSolver(currentSCC);
 		}
 		sccResolutionCache.put(cacheKey, captureDependencyValues(currentSCC));
+		Map<String, long[]> statsSnapshot = new HashMap<>();
+		for (Model m : currentSCC) {
+			long[] s = modelStats.get(m.getModelId());
+			if (s != null) statsSnapshot.put(m.getModelId(), s);
+		}
+		sccStatsCache.put(cacheKey, statsSnapshot);
 	}
 
 	private String buildSCCCacheKey(List<Model> sccModels) {
