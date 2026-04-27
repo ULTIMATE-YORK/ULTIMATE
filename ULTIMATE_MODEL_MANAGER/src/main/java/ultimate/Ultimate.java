@@ -243,10 +243,19 @@ public class Ultimate {
         }
         ch.qos.logback.classic.Logger rootLogger =
                 (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-        ch.qos.logback.classic.Level savedLevel = rootLogger.getEffectiveLevel();
+        List<ch.qos.logback.core.Appender<ch.qos.logback.classic.spi.ILoggingEvent>> detached = new ArrayList<>();
         PrintStream savedOut = System.out;
         if (!verboseConsoleOutput) {
-            rootLogger.setLevel(ch.qos.logback.classic.Level.WARN);
+            // Detach only console appenders so file appenders continue logging
+            java.util.Iterator<ch.qos.logback.core.Appender<ch.qos.logback.classic.spi.ILoggingEvent>> it =
+                    rootLogger.iteratorForAppenders();
+            while (it.hasNext()) {
+                ch.qos.logback.core.Appender<ch.qos.logback.classic.spi.ILoggingEvent> appender = it.next();
+                if (appender instanceof ch.qos.logback.core.ConsoleAppender) {
+                    detached.add(appender);
+                }
+            }
+            detached.forEach(rootLogger::detachAppender);
             System.setOut(new PrintStream(new OutputStream() { public void write(int b) {} }));
         }
         try {
@@ -259,7 +268,7 @@ public class Ultimate {
             throw new EvoCheckerException(e.getMessage());
         } finally {
             System.setOut(savedOut);
-            rootLogger.setLevel(savedLevel);
+            detached.forEach(rootLogger::addAppender);
         }
         terminateEvoChecker();
         return synthesisRun;
