@@ -3,6 +3,8 @@ package ultimate;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -10,6 +12,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import data.SynthesisRun;
@@ -53,6 +56,7 @@ public class Ultimate {
     private int synthesisProgress;
 
     private boolean verbose;
+    private boolean verboseConsoleOutput = true;
     private boolean modelParametersWritten;
     private Runnable updateCallback;
 
@@ -237,26 +241,32 @@ public class Ultimate {
             throw new RuntimeException(
                     "Attempted to run synthesis, but EvoChecker has not yet been instantiated. Call 'createEvoCheckerInstance' first");
         }
+        ch.qos.logback.classic.Logger rootLogger =
+                (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Level savedLevel = rootLogger.getEffectiveLevel();
+        PrintStream savedOut = System.out;
+        if (!verboseConsoleOutput) {
+            rootLogger.setLevel(ch.qos.logback.classic.Level.WARN);
+            System.setOut(new PrintStream(new OutputStream() { public void write(int b) {} }));
+        }
         try {
-        	evoChecker.start();
-	        evoChecker.printStatistics();
-	        System.out.println("Finished EvoChecker synthesis");
-	        writeSynthesisResultsToFile("/tmp", true);
-	        synthesisRun = createSynthesisRun(runId);
+            evoChecker.start();
+            evoChecker.printStatistics();
+            writeSynthesisResultsToFile("/tmp", true);
+            synthesisRun = createSynthesisRun(runId);
         } catch (EvoCheckerException e) {
-        	terminateEvoChecker();
-        	throw new EvoCheckerException(e.getMessage());
+            terminateEvoChecker();
+            throw new EvoCheckerException(e.getMessage());
+        } finally {
+            System.setOut(savedOut);
+            rootLogger.setLevel(savedLevel);
         }
         terminateEvoChecker();
-        
-        System.out.println("\nSynthesis complete.");
-        
-        return synthesisRun;        
+        return synthesisRun;
     }
 
     public void terminateEvoChecker() {
-    	evoChecker=null;
-        System.out.println("\n========  Terminating EvoChecker...  ========\n");
+        evoChecker = null;
     }
     
     public SynthesisRun getSynthesisRun() {
@@ -453,8 +463,33 @@ public class Ultimate {
     	
     }
 
+    private String readConfigProperty(String key, String defaultValue) {
+        try {
+            String configPath = System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties";
+            Properties props = new Properties();
+            props.load(new FileReader(configPath));
+            return props.getProperty(key, defaultValue).trim();
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    public int getMaxEvaluations() {
+        try {
+            return Integer.parseInt(readConfigProperty("MAX_EVALUATIONS", "50"));
+        } catch (NumberFormatException e) {
+            return 50;
+        }
+    }
+
+    public boolean isVerboseConsoleOutput() {
+        return verboseConsoleOutput;
+    }
+
     public void initialiseSynthesis() throws IOException {
         ensureNativeLibraryPath();
+        verboseConsoleOutput = "TRUE".equalsIgnoreCase(readConfigProperty("VERBOSE_CONSOLE_OUTPUT", "FALSE"));
+        synthesisProgress = 0;
         generateEvolvableModelFiles();
         String evolvableProjectFileDir = getEvolvableProjectFilePath().toString();
         EvoCheckerUltimateInstance ultimateInstance = new EvoCheckerUltimateInstance(this);

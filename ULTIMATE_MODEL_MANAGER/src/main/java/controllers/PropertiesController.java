@@ -974,14 +974,22 @@ public class PropertiesController {
 		String runId = "Synth_" + UUID.randomUUID().toString() + "_" + project.getProjectName();
 		long startTime = System.currentTimeMillis();
 
+		int maxEval = ultimate.getMaxEvaluations();
+
 		Task<Void> task = new Task<>() {
 
 			@Override
 			protected Void call() throws Exception {
 
-				String message = "Initialising...";
 				ultimate.loadModelsFromProject();
 				ultimate.initialiseSynthesis();
+				ultimate.setSynthesisUpdateCallback(() -> {
+					int done = ultimate.getSynthesisProgress();
+					Platform.runLater(() -> {
+						modalProgress.setProgress((double) done / maxEval);
+						modalLabel.setText(done + "/" + maxEval + " synthesis iterations complete");
+					});
+				});
 				SynthesisRun run = ultimate.executeSynthesis(runId);
 
 				long elapsed = System.currentTimeMillis() - startTime;
@@ -1015,8 +1023,7 @@ public class PropertiesController {
 
 		new Thread(task).start();
 
-		modalLabel.textProperty()
-				.set("Running synthesis. This may take some time.\nCheck the console window to see progress.");
+		modalLabel.textProperty().set("0/" + maxEval + " synthesis iterations complete");
 		modalProgress.setVisible(true);
 		modalStage.show();
 
