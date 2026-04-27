@@ -469,7 +469,8 @@ public class Ultimate {
 		for (Model m : SharedContext.getProject().getModels()) {
 			m.resetDependencyParameters();
 		}
-    	
+		modelParametersWritten = false;
+
     }
 
     private String readConfigProperty(String key, String defaultValue) {

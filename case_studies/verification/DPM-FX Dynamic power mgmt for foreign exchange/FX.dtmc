@@ -139,15 +139,15 @@ endrewards
 
 
 // ----- Reward for time -----------
-const double c = 1; //<---- time units per disk operation
+const double c = 0.132; //<---- time units per disk operation
 
 const double SvcTime = c * avr_num_disk_ops_remain_in_queue;
-const double time1 = 10;
+const double time1 = 3;
 const double time2 = SvcTime;
-const double time3 = 10;
+const double time3 = 2;
 const double time4 = SvcTime;
-const double time5 = 10;
-const double time6 = 10;
+const double time5 = 3.5;
+const double time6 = 1.2;
 rewards "time"
      state=OP1 : time1;
      state=OP2 : time2 *num_disk_operations_Technical_analysis; //technical analysis

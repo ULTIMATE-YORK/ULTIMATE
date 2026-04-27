@@ -20,9 +20,15 @@
         "id": "MotionSensor",
         "parameters": {
             "environment": {"pLargeObject": {
+                "rangedValues": [
+                    "0.020",
+                    "0.040",
+                    "0.060",
+                    "0.080",
+                    "0.100"
+                ],
                 "name": "pLargeObject",
-                "type": "fixed",
-                "value": "0.04"
+                "type": "ranged"
             }},
             "internal": {},
             "dependency": {
