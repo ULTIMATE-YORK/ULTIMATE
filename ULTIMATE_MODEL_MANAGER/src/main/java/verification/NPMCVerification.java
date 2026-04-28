@@ -350,6 +350,8 @@ public class NPMCVerification {
 		try {
 			// Prepare input for Python solver
 			List<String> inputData = new ArrayList<>();
+			// Maps each SCC model ID to a property to use for post-solver stats collection
+			Map<String, String> sccStatsPropertyMap = new HashMap<>();
 			Model startVerificationModel = sccModels.get(0);
 			String startModelId = startVerificationModel.getModelId();
 			Project project = SharedContext.getProject();
@@ -402,6 +404,8 @@ public class NPMCVerification {
 						String inputLine = currentModelFilePath + ", " + targetModelFilePath + ", "
 								+ dep.getDefinition() + ", " + dep.getNameInModel();
 						inputData.add(inputLine);
+						// Record a property to use for stats collection on the source model
+						sccStatsPropertyMap.putIfAbsent(targetModel.getModelId(), dep.getDefinition());
 					}
 				}
 			}
@@ -503,6 +507,29 @@ public class NPMCVerification {
 			} else {
 				logger.error("Failed to get results from Python solver");
 				throw new VerificationException("Failed to get results from Python solver");
+			}
+
+			// Collect states/transitions for SCC models not yet captured in modelStats
+			for (Model sccModel : sccModels) {
+				Model originalSCCModel = getOriginalModel(sccModel.getModelId());
+				if (originalSCCModel == null || modelStats.containsKey(originalSCCModel.getModelId())) continue;
+				String statsProperty = sccStatsPropertyMap.get(originalSCCModel.getModelId());
+				if (statsProperty != null) {
+					try {
+						logger.info("Collecting model statistics for " + originalSCCModel.getModelId());
+						FileUtils.writeParametersToFile(originalSCCModel.getVerificationFilePath(),
+								originalSCCModel.getHashParameters());
+						StormAPI sAPI = new StormAPI();
+						sAPI.run(originalSCCModel, statsProperty);
+						modelStats.put(originalSCCModel.getModelId(),
+								new long[]{sAPI.getLastStates(), sAPI.getLastTransitions()});
+					} catch (Exception e) {
+						logger.warn("Could not collect model stats for {}: {}", originalSCCModel.getModelId(), e.getMessage());
+						modelStats.putIfAbsent(originalSCCModel.getModelId(), new long[]{-1, -1});
+					}
+				} else {
+					modelStats.putIfAbsent(originalSCCModel.getModelId(), new long[]{-1, -1});
+				}
 			}
 
 		} catch (InterruptedException e) {
