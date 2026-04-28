@@ -151,8 +151,9 @@ public class Headless {
 			outputDir = System.getenv("PWD");
 		}
 
+		new java.io.File(outputDir).mkdirs();
 		String exportPath = outputDir + "/" + runId + "_solutions";
-		run.exportSolutions(outputDir + "/" + runId + "_solutions");
+		run.exportSolutions(exportPath);
 		System.out.println("Saved solutions to " + exportPath);
 
 		String parameterNames = SharedContext.getProject().getAllInternalParameters().stream()

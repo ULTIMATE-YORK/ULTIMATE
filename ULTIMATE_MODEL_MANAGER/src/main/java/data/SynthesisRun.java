@@ -131,12 +131,9 @@ public class SynthesisRun {
         try {
             exportFile = Files.createFile(Paths.get(exportPath)).toFile();
         } catch (IOException e) {
-            Platform.runLater(() -> {
-                Alerter.showErrorAlert("Saving Error",
-                        String.format(
-                                "ERROR: Could not create the export file at %s. Do you have permission to save in that location?",
-                                exportPath));
-            });
+            alertOrPrint("Saving Error",
+                    String.format("ERROR: Could not create the export file at %s. Do you have permission to save in that location?",
+                            exportPath));
             return;
         }
 
@@ -148,12 +145,9 @@ public class SynthesisRun {
             setFileContents = Files.readAllLines(Paths.get(this.getParetoSetFilePath()));
         } catch (IOException e) {
             e.printStackTrace();
-            Platform.runLater(() -> {
-                Alerter.showErrorAlert("Read File Error",
-                        String.format(
-                                "ERROR: Could not read the temporary front/set contents at %s and %s. These would have been created when the synthesis was first performed. Have they been moved or deleted?",
-                                this.getParetoFrontFilePath(), this.getParetoSetFilePath()));
-            });
+            alertOrPrint("Read File Error",
+                    String.format("ERROR: Could not read the temporary front/set contents at %s and %s. These would have been created when the synthesis was first performed. Have they been moved or deleted?",
+                            this.getParetoFrontFilePath(), this.getParetoSetFilePath()));
             return;
         }
 
@@ -173,15 +167,20 @@ public class SynthesisRun {
 
         } catch (IOException e) {
             e.printStackTrace();
-            Platform.runLater(() -> {
-                Alerter.showErrorAlert("Saving Error",
-                        String.format(
-                                "ERROR: Could not write to the export file at %s. Do you have permission to do so?",
-                                exportPath.toString()));
-            });
+            alertOrPrint("Saving Error",
+                    String.format("ERROR: Could not write to the export file at %s. Do you have permission to do so?",
+                            exportPath));
             return;
         }
 
+    }
+
+    private static void alertOrPrint(String title, String message) {
+        try {
+            Platform.runLater(() -> Alerter.showErrorAlert(title, message));
+        } catch (IllegalStateException e) {
+            System.err.println(title + ": " + message);
+        }
     }
 
     public String toString() {
