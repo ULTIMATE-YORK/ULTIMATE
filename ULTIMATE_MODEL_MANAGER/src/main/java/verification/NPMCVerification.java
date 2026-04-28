@@ -149,6 +149,14 @@ public class NPMCVerification {
 		Model startModel = modelMap.get(startModelId);
 		for (Model m : SharedContext.getProject().getModels()) {
 			m.resetDependencyParameters();
+			if (m.getUncategorisedParameters() != null && !m.getUncategorisedParameters().isEmpty()) {
+				String names = m.getUncategorisedParameters().stream()
+						.map(p -> p.getName())
+						.collect(Collectors.joining(", "));
+				throw new VerificationException("Model " + m.getModelId()
+						+ " has uncategorised parameter(s): " + names
+						+ ". Please add them as external, internal, or dependency parameters before running verification.");
+			}
 		}
 		return verifyModel(startModel, property);
 	}
