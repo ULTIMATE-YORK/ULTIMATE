@@ -546,8 +546,8 @@ public class PropertiesController {
 		try {
 			ultimate.executeVerification();
 		} catch (VerificationException e) {
-			Alerter.showErrorAlert("Verification Error",
-					"An error occurred in the verification process:\n\n" + e.getMessage());
+			Platform.runLater(() -> Alerter.showErrorAlert("Verification Error",
+					"An error occurred in the verification process:\n\n" + e.getMessage()));
 		}
 		ultimate.cleanUp();
 		HashMap<String, String> result = ultimate.getVerificationResultsMap();
