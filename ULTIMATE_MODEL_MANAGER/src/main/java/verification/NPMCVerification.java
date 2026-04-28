@@ -431,6 +431,7 @@ public class NPMCVerification {
 
 			// Execute Python solver
 			ProcessBuilder processBuilder = new ProcessBuilder(command);
+			processBuilder.redirectErrorStream(true); // merge stderr into stdout to prevent pipe deadlock
 			long startTime = System.currentTimeMillis();
 			Process process = processBuilder.start();
 			long endTime = System.currentTimeMillis();
