@@ -468,6 +468,11 @@ public class Ultimate {
     	
 		for (Model m : SharedContext.getProject().getModels()) {
 			m.resetDependencyParameters();
+			try {
+				m.resetVerificationFile();
+			} catch (IOException e) {
+				// Non-fatal: next writeParametersToFile will overwrite the stale value
+			}
 		}
 		modelParametersWritten = false;
 

@@ -637,6 +637,12 @@ public class NPMCVerification {
 			throw new IllegalArgumentException("Model not found: " + model.getModelId());
 		}
 
+		String modelType = originalModel.getModelType();
+		if ("CTMC".equalsIgnoreCase(modelType)) {
+			throw new RuntimeException("Model " + model.getModelId()
+					+ " is a CTMC — parametric model checking not supported; switching to numerical solver");
+		}
+
 		try {
 			logger.info("Storm engine used for parametric model checking over PRISM for efficiency");
 			StormAPI sAPI = new StormAPI();

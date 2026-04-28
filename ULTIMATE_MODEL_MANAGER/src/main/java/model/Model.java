@@ -449,6 +449,10 @@ public class Model {
 		return verificationFile.getAbsolutePath();
 	}
 
+	public void resetVerificationFile() throws IOException {
+		this.verificationFile = tempModelFile();
+	}
+
 	public String getModelType() {
 		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
 			String line;

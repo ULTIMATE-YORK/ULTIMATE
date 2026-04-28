@@ -69,8 +69,8 @@ public class StormAPI {
 	    // Use single quotes for the property to avoid shell escaping issues
 	    String escapedProp = propFile.replace("'", "'\\''");
 	    
-		String command = String.format(spi + " --mode solutionfunction --prism \"%s\" --prop '%s'", 
-		    model.getVerificationFilePath(), 
+		String command = String.format(spi + " --mode solutionfunction --prism \"%s\" --prop '%s'",
+		    model.getVerificationFilePath(),
 		    escapedProp);
 		
 		logger.info("Executing Storm-pars command: " + command);
