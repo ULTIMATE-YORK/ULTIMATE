@@ -7,11 +7,9 @@
             "environment": {"pObstacle": {
                 "rangedValues": [
                     "0.050",
-                    "0.060",
-                    "0.070",
-                    "0.080",
-                    "0.090",
-                    "0.100"
+                    "0.100",
+                    "0.150",
+                    "0.200"
                 ],
                 "name": "pObstacle",
                 "type": "ranged"
@@ -21,21 +19,28 @@
         },
         "properties": []
     },
-    "robot_coordination2": {
+    "robot_coordination2_with_moves": {
         "synthesis": {"properties": []},
-        "fileName": "robot_coordination2.prism",
-        "id": "robot_coordination2",
+        "fileName": "robot_coordination2_with_moves.prism",
+        "id": "robot_coordination2_with_moves",
         "parameters": {
-            "environment": {"k": {
-                "rangedValues": [
-                    "7.000",
-                    "8.000",
-                    "9.000",
-                    "10.000"
-                ],
-                "name": "k",
-                "type": "ranged"
-            }},
+            "environment": {
+                "nMoves": {
+                    "rangedValues": [
+                        "7.000",
+                        "8.000",
+                        "9.000",
+                        "10.000"
+                    ],
+                    "name": "nMoves",
+                    "type": "ranged"
+                },
+                "k": {
+                    "name": "k",
+                    "type": "fixed",
+                    "value": "8"
+                }
+            },
             "internal": {},
             "dependency": {"q": {
                 "modelId": "objectDetection",
@@ -43,6 +48,6 @@
                 "property": "P=?[F \"obstacleAhead\"]"
             }}
         },
-        "properties": [" <<robot1:robot2>>max=? (P[ !\"crash\" U<=10 \"goal1\"] + P[ !\"crash\" U<=10\"goal2\"])"]
+        "properties": ["<<robot1:robot2>>max=? (P[ !\"crash\" U<=nMoves \"goal1\"] + P[ !\"crash\" U<=nMoves \"goal2\"])"]
     }
 }}

@@ -497,6 +497,14 @@ public class Ultimate {
         }
     }
 
+    public int getPopulationSize() {
+        try {
+            return Integer.parseInt(readConfigProperty("POPULATION_SIZE", "10"));
+        } catch (NumberFormatException e) {
+            return 10;
+        }
+    }
+
     public boolean isVerboseConsoleOutput() {
         return verboseConsoleOutput;
     }

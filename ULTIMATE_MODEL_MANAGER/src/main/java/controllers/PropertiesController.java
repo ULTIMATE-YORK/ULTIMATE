@@ -343,6 +343,12 @@ public class PropertiesController {
 	@FXML
 	private void verify() throws IOException {
 
+		if (project == null) {
+			Alerter.showWarningAlert("No Project Loaded",
+					"No project is currently loaded. Please create or open a project first.");
+			return;
+		}
+
 		Model vModel = project.getTargetModel();
 		Property vProp = propertyListView.getSelectionModel().getSelectedItem();
 
@@ -350,11 +356,10 @@ public class PropertiesController {
 			return;
 
 		if (project.containsInternalParameters()) {
-			Platform.runLater(() -> {
-				Alerter.showInfoAlert("Cannot Verify",
-						"Cannot verify this property because the model contains internal parameters."
-								+ "Please modify these to be external or dependency parameters and try again.");
-			});
+			Alerter.showWarningAlert("Cannot Verify",
+					"This project contains internal (synthesis) parameters, which are unknowns to be "
+							+ "optimised during synthesis. Verification is not supported while internal "
+							+ "parameters are present. Please remove them or run synthesis instead.");
 			return;
 		}
 
@@ -906,21 +911,34 @@ public class PropertiesController {
 		Ultimate ultimate = SharedContext.getUltimateInstance();
 		progressIndicatorSynthesis.setVisible(true);
 
-		if (SharedContext.getProject().getAllInternalParameters().size() == 0) {
+		Project currentProject = SharedContext.getProject();
+		if (currentProject == null) {
 			progressIndicatorSynthesis.setVisible(false);
-			Platform.runLater(() -> {
-				Alerter.showInfoAlert("Cannot Run Synthesis",
-						"Cannot run synthesis for this world model as there are no internal parameters in the constituent models. Please add some and try again.");
-			});
+			Alerter.showWarningAlert("No Project Loaded",
+					"No project is currently loaded. Please create or open a project first.");
 			return;
 		}
 
-		if (SharedContext.getProject().getAllSynthesisObjectives().size() == 0) {
+		if (currentProject.getModels().isEmpty()) {
 			progressIndicatorSynthesis.setVisible(false);
-			Platform.runLater(() -> {
-				Alerter.showInfoAlert("Cannot Run Synthesis",
-						"Cannot run synthesis for this world model as there are no synthesis objectives in the constituent models. Please add some and try again.");
-			});
+			Alerter.showWarningAlert("Cannot Run Synthesis",
+					"This project has no models. Please add at least one model and try again.");
+			return;
+		}
+
+		if (currentProject.getAllInternalParameters().size() == 0) {
+			progressIndicatorSynthesis.setVisible(false);
+			Alerter.showWarningAlert("Cannot Run Synthesis",
+					"This project has no internal parameters to optimise. "
+							+ "Please add internal parameters to at least one model and try again.");
+			return;
+		}
+
+		if (currentProject.getAllSynthesisObjectives().size() == 0) {
+			progressIndicatorSynthesis.setVisible(false);
+			Alerter.showWarningAlert("Cannot Run Synthesis",
+					"This project has no synthesis optimisation objectives. "
+							+ "Please add at least one synthesis objective and try again.");
 			return;
 		}
 

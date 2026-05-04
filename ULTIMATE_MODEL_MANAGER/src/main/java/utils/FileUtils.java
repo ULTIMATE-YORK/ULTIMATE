@@ -204,6 +204,7 @@ public class FileUtils {
 			Pattern pattern = Pattern.compile(regex);
 			Matcher matcher = pattern.matcher(line);
 			if (matcher.find()) {
+				if (ip.getValue() == null) break;
 				String valueType = matcher.group(1);
 				updatedLine = "const " + valueType + " " + ip.getNameInModel() + " = " + (valueType.equals("int")
 						? Integer.parseInt(ip.getValue())
