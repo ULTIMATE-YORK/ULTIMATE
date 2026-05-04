@@ -61,6 +61,7 @@ import ultimate.Ultimate;
 import utils.Alerter;
 import utils.DialogOpener;
 import utils.Font;
+import verification.NPMCVerification;
 import verification.VerificationException;
 
 public class PropertiesController {
@@ -955,6 +956,7 @@ public class PropertiesController {
 			@Override
 			protected Void call() throws Exception {
 
+				NPMCVerification.clearCache();
 				ultimate.loadModelsFromProject();
 				ultimate.initialiseSynthesis();
 				ultimate.setSynthesisUpdateCallback(() -> {

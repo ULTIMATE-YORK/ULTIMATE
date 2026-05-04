@@ -51,6 +51,7 @@ public class Ultimate {
 
     private EvoChecker evoChecker;
     private Path evolvableProjectFilePath;
+    private Path evoTempDir;
 
     private String mode;
     private int synthesisProgress;
@@ -142,7 +143,8 @@ public class Ultimate {
             throw new RuntimeException("'Models' was null. Did you call .loadModelFromProject?");
         }
 
-        Path tempDir = Files.createTempDirectory("ultimate_evoproject_");
+        evoTempDir = Files.createTempDirectory("ultimate_evoproject_");
+        Path tempDir = evoTempDir;
         Path sourceProjectPath = Paths.get(project.getProjectFilePath());
         Path targetProjectPath = tempDir.resolve(sourceProjectPath.getFileName());
         evolvableProjectFilePath = targetProjectPath;
@@ -276,6 +278,21 @@ public class Ultimate {
 
     public void terminateEvoChecker() {
         evoChecker = null;
+        if (evoTempDir != null) {
+            try {
+                deleteDirectoryRecursively(evoTempDir);
+            } catch (IOException e) {
+                // non-fatal; temp dir will be cleaned by OS eventually
+            }
+            evoTempDir = null;
+        }
+    }
+
+    private static void deleteDirectoryRecursively(Path dir) throws IOException {
+        try (java.util.stream.Stream<Path> stream = Files.walk(dir)) {
+            stream.sorted(java.util.Comparator.reverseOrder())
+                  .forEach(p -> { try { Files.delete(p); } catch (IOException ignore) {} });
+        }
     }
     
     public SynthesisRun getSynthesisRun() {
@@ -482,7 +499,9 @@ public class Ultimate {
         try {
             String configPath = System.getenv("ULTIMATE_DIR") + "/evochecker_config.properties";
             Properties props = new Properties();
-            props.load(new FileReader(configPath));
+            try (FileReader reader = new FileReader(configPath)) {
+                props.load(reader);
+            }
             return props.getProperty(key, defaultValue).trim();
         } catch (Exception e) {
             return defaultValue;

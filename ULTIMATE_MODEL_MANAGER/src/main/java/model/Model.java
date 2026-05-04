@@ -439,7 +439,7 @@ public class Model {
 		FileUtils.writeParametersToFile(tempFile.getAbsolutePath(), getExternalParameters(),
 				getInternalParameters());
 		// Ensure that the temporary file is deleted when the JVM exits.
-		// tempFile.deleteOnExit();
+		tempFile.deleteOnExit();
 
 		return tempFile;
 	}
@@ -450,6 +450,9 @@ public class Model {
 	}
 
 	public void resetVerificationFile() throws IOException {
+		if (verificationFile != null && verificationFile.exists()) {
+			verificationFile.delete();
+		}
 		this.verificationFile = tempModelFile();
 	}
 
