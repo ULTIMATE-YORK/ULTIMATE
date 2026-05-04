@@ -67,6 +67,11 @@ public class Headless {
 			property = line.getOptionValue("p");
 			outputDir = line.getOptionValue("o");
 
+			// Also accept project file as a bare positional argument (first non-option arg).
+			if (projectFilePath == null && !line.getArgList().isEmpty()) {
+				projectFilePath = line.getArgList().get(0);
+			}
+
 			if (line.hasOption("help")) {
 				help = true;
 			}

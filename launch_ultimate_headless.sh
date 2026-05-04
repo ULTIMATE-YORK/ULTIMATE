@@ -2,7 +2,8 @@
 # ULTIMATE Headless Launcher
 #
 # Usage (from the repo root):
-#   ./launch_ultimate_headless.sh -pf <project.ultimate> [-o <output_dir>]
+#   ./launch_ultimate_headless.sh <project.ultimate> [-o <output_dir>]
+#   ./launch_ultimate_headless.sh -pf <project.ultimate> [-m <modelID>] [-p <property>] [-o <output_dir>]
 #
 # All arguments are forwarded to ultimate-headless.jar unchanged.
 
